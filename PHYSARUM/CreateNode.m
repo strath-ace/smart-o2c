@@ -10,7 +10,6 @@ function [Nodes] = CreateNode(Nodes)
 % CREATED BY:
 %   Aram Vroom - 2016
 
-
 %Find the current size of the matrix
 currentsize = size(Nodes.links);
 
