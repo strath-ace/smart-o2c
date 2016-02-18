@@ -33,7 +33,4 @@ for i = 1:length(fields);
     %additional row and column
     Nodes.(fields{i}) = newmatrix;
 end
-
-    %Clear the memory
-    clear newmatrix currentsize newsize fields
  
