@@ -1,14 +1,14 @@
 function [Nodes] = CreateNode(Nodes)
 %This function adds a node to the existing graph
 %   
-% INPUTS:
-%   Nodes: Structure that contains the currently existing nodes
+% Inputs:
+% * Nodes: Structure that contains the currently existing nodes
 %
 % OUTPUTS: 
-%   Nodes: Previous Nodes structure but with additional node
+% * Nodes: Previous Nodes structure but with additional node
 %
-% CREATED BY:
-%   Aram Vroom - 2016
+% Author: Aram Vroom - 2016
+% Email:  aram.vroom@strath.ac.uk
 
 %Find the current size of the matrix
 currentsize = size(Nodes.links);
