@@ -1,4 +1,4 @@
-function [ output_args ] = PhysarumSolver()
+function [ ] = PhysarumSolver()
 % This is the main file of the physarum solver. 
 % It contains the logic for the algorithm and the solver parameters.
 %
