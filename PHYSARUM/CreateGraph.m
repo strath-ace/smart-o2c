@@ -18,7 +18,7 @@ Nodes = struct('identifier',        [],... % Identifier of each node
                'pressure_gradient', [],... % The pressure gradient over each connection
                'lengths',           [],... % The length of each connection
                'fluxes',            [],... % Matrix containing each connection's flux
-               'probabilities',    [] ... % Matrix containing the probability for each connection
+               'probabilities',     [] ... % Matrix containing the probability for each connection
                ); 
  end
 

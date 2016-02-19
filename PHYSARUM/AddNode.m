@@ -1,5 +1,5 @@
-function [Nodes] = CreateNode(Nodes)
-%This function adds a node to the existing graph
+function [Nodes] = AddNode(Nodes)
+% This function adds a node to the existing graph
 %   
 % Inputs:
 % * Nodes: Structure that contains the currently existing nodes
