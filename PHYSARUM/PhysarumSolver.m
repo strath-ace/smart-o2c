@@ -20,7 +20,9 @@ Inputs = struct(...
 'GrowthFactor',                 0,  ... %Growth factor 'GF'
 'NumberOfAgents',               0,  ... %Number of virtual agents 'N_agents'
 'RamificationProbability',      0,  ... %Probability of ramification 'p_ram'
-'RamificationWeight',           0   ... %Weight on ramification 'lambda'
+'RamificationWeight',           0,  ... %Weight on ramification 'lambda'
+'MaximumRadius',                0,  ... %Maximum radius of the veins
+'MinimumRadius',                0   ... %Minimum radius of the veins
 );
 
 

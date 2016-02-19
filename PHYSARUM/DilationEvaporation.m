@@ -9,20 +9,24 @@ function [Nodes] = DilationEvaporation(Nodes,Inputs,WalkedPaths)
 %                 with a 1 for each path walked 
 %
 % Outputs: 
-% * Nodes 
+% * Nodes       : Nodes structure where the radii have been updated with
+%                 the dilation and evaporation
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
 %Calculate L_tot
-L_tot = sum(sum(WalkedPaths.*Nodes.lenths));
+L_tot = sum(sum(WalkedPaths.*Nodes.lengths));
 
 %Update radii with dilation
-Nodes.radius = Nodes.radius + Inputs.LinearDilationCoefficient.*Nodes.radius/L_tot;
+Nodes.radius = Nodes.radius + Inputs.LinearDilationCoefficient.*WalkedPaths.*Nodes.radius/L_tot;
 
 %Update radii with evaporation
 Nodes.radius = Nodes.radius - Inputs.EvaporationCoefficient.*WalkedPaths.*Nodes.radius;
 
+%Prevent radii from becoming too large (exploding) or small (closing)
+Nodes.radius(Nodes.radius > Inputs.MaximumRadius) = Inputs.MaximumRadius;
+Nodes.radius(Nodes.radius < Inputs.MinimumRadius) = Inputs.MinimumRadius;
 
 end
 
