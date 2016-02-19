@@ -1,5 +1,5 @@
 function [Nodes] = CreateGraph()
-% This function creates the structure describing the graph
+% This function creates the structure describing the graph.
 %
 % Inputs:
 % * none
@@ -18,7 +18,7 @@ Nodes = struct('identifier',        [],... % Identifier of each node
                'pressure_gradient', [],... % The pressure gradient over each connection
                'lengths',           [],... % The length of each connection
                'fluxes',            [],... % Matrix containing each connection's flux
-               'probabilitiess',    [] ... % Matrix containing the probability for each connection
+               'probabilities',    [] ... % Matrix containing the probability for each connection
                ); 
  end
 
