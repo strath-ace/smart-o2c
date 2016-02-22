@@ -30,5 +30,3 @@ Nodes.pressure_gradient{addrow,1} = ones(1,numberoflinks);
 Nodes.lengths{addrow,1}           = ones(1,numberoflinks);
 Nodes.fluxes{addrow,1}            = zeros(1,numberoflinks);
 Nodes.probabilities{addrow,1}     = ones(1,numberoflinks);
-
- 
