@@ -13,7 +13,7 @@ function [Nodes] = CreateGraph()
 %Create the Nodes structure
 Nodes = struct('identifier',        [],... % Identifier of each node
                'parent',            [],... % Matrix containing each node's parent
-               'links',             [],... % Matrix that holds the nodes' connections to each other
+               'children',          [],... % Matrix that holds the nodes' connections to each other
                'radius',            [],... % The radius of each connection
                'pressure_gradient', [],... % The pressure gradient over each connection
                'lengths',           [],... % The length of each connection
