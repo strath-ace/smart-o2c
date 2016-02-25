@@ -19,7 +19,7 @@ Nodes = struct('Root',struct(                ...
                      'fluxes',            [],... % Matrix containing each connection's flux
                      'probabilities',     [] ... % Matrix containing the probability for each connection
                      ),                      ...
-                'ListNodes',[]);
+               'ListNodes',[]);
            
 end
 
