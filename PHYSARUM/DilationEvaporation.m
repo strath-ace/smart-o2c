@@ -15,7 +15,7 @@ function [Nodes] = DilationEvaporation(Nodes,Inputs,WalkedPaths)
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%Calculate L_tot
+%Calculate L_tot (the cost)
 L_tot = sum(sum(WalkedPaths.*Nodes.lengths));
 
 %Update radii with dilation
