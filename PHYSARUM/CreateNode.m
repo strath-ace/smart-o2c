@@ -11,6 +11,7 @@ function [newNode] = CreateNode(node_ID,parent)
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
+%Create structure of the new node
 newNode = struct(node_ID, struct(                        ...
                      'parent',            parent,...
                      'children',          [],... % Matrix that holds the nodes' connections to each other
@@ -20,6 +21,6 @@ newNode = struct(node_ID, struct(                        ...
                      'fluxes',            [],... % Matrix containing each connection's flux
                      'probabilities',     [] ... % Matrix containing the probability for each connection
                      ));
-
+                 
 end
 

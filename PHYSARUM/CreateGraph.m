@@ -20,7 +20,6 @@ Nodes = struct('Root',struct(                ...
                      'probabilities',     [] ... % Matrix containing the probability for each connection
                      ),                      ...
                 'ListNodes',[]);
-
            
 end
 
