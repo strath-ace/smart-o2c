@@ -11,15 +11,26 @@ function [Nodes] = CreateGraph()
 % Email:  aram.vroom@strath.ac.uk
 
 %Create the Nodes structure
-Nodes = struct('Root',struct(                ...
+Nodes = struct('Root',struct(                    ...
+                     'node_ID',           'Root',...
                      'children',          [],... % Matrix that holds the nodes' connections to each other
                      'radius',            [],... % The radius of each connection
                      'pressure_gradient', [],... % The pressure gradient over each connection
                      'lengths',           [],... % The length of each connection
                      'fluxes',            [],... % Matrix containing each connection's flux
-                     'probabilities',     [] ... % Matrix containing the probability for each connection
-                     ),                      ...
-               'ListNodes',[]);
+                     'probabilities',     [],... % Matrix containing the probability for each connection
+                     'characteristics',   [] ... %Characteristics that describe this node (such as orbital elements & ToF .)
+                 ),                      ...
+               'ListNodes',struct('Root',struct(                    ...
+                     'node_ID',           'Root',...
+                     'children',          [],... % Matrix that holds the nodes' connections to each other
+                     'radius',            [],... % The radius of each connection
+                     'pressure_gradient', [],... % The pressure gradient over each connection
+                     'lengths',           [],... % The length of each connection
+                     'fluxes',            [],... % Matrix containing each connection's flux
+                     'probabilities',     [],... % Matrix containing the probability for each connection
+                     'characteristics',   [] ... %Characteristics that describe this node (such as orbital elements & ToF .)
+                 )));
            
 end
 
