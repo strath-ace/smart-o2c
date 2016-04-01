@@ -1,4 +1,4 @@
-function [Nodes,Cost] = CostFunction(Nodes,fromNode,toNode)
+function [Cost] = CostFunction(fromNode,toNode)
 % This function calculates the cost of a certain connection.
 % It can be altered such that it is applicable to the problem at hand.
 %
@@ -26,20 +26,20 @@ function [Nodes,Cost] = CostFunction(Nodes,fromNode,toNode)
     
 %Calculate cost to change orbital elements with orbit characterstics such
 %as ToF set. Currently simple formula to test functionality.
-Cost = (Nodes.ListNodes.(toNode).characteristics(1)-Nodes.ListNodes.(fromNode).characteristics(1))^2;
+Cost = (toNode.characteristics(1)-fromNode.characteristics(1))^2;
 
 %Add cost to respective structure in the Nodes.ListNodes structure if link
 %was already made
 
-%Check if link exists
-if ~isempty(strcmp(Nodes.ListNodes.(toNode).node_ID,Nodes.ListNodes.(fromNode).children))
-    
-    %Find the index of the node to be connected to in the children list of
-    %the node from which the connection originates
-    i = strmatch(Nodes.ListNodes.(toNode).node_ID,Nodes.ListNodes.(fromNode).children);
-    
-    %Set the cost of that link
-    Nodes.ListNodes.(fromNode).lengths{i} = Cost;
-
-end
+% %Check if link exists
+% if ~isempty(strcmp(NodesList.(toNode).node_ID,NodesList.(fromNode).children))
+%     
+%     %Find the index of the node to be connected to in the children list of
+%     %the node from which the connection originates
+%     i = strmatch(NodesList.(toNode).node_ID,NodesList.(fromNode).children);
+%     
+%     %Set the cost of that link
+%     NodesList.(fromNode).lengths{i} = Cost;
+% 
+% end
 
