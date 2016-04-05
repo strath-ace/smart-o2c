@@ -24,6 +24,7 @@ if ~isempty(parent)
         %Add the node to the children list of the parent node in the
         %ListNodes structure within the Nodes structure
         Nodes.ListNodes.(parent).children = [Nodes.ListNodes.(parent).children node_ID];
+        
 end
     
 

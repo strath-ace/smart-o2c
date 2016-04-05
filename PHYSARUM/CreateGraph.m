@@ -34,13 +34,10 @@ Nodes = struct('Root',struct(                    ...
                      'lengths',           [],... % The length of each connection
                      'fluxes',            [],... % Matrix containing each connection's flux
                      'probabilities',     [],... % Matrix containing the probability for each connection
-                     'characteristics',   [],... % Characteristics that describe this node (such as orbital elements & ToF .)
+                     'characteristics',   [Inputs.RootChar],... % Characteristics that describe this node (such as orbital elements & ToF .)
                      'previousdecisions', [],... % List of the previous decisions made
                      'possibledecisions', {Inputs.PossibleDecisions}, ... % Targets that can still be visisted by the node
                      'VisitsLeft',        {Inputs.MaxVisits} ... % Vector containing the number of times each target cna still be visisted
                  )));
            
 end
-
-
- 
