@@ -30,7 +30,7 @@ Inputs = struct('LowThrust',                          1,  ... %Set to 1 for low-
                 'LinearDilationCoefficient',          20,  ... %Linear dilation coefficient 'm'
                 'EvaporationCoefficient',             0,  ... %Evaporation coefficient 'rho'
                 'GrowthFactor',                       0,  ... %Growth factor 'GF'
-                'NumberOfAgents',                     20,  ... %Number of virtual agents 'N_agents'
+                'NumberOfAgents',                     4,  ... %Number of virtual agents 'N_agents'
                 'RamificationProbability',            0.1, ... %Probability of ramification 'p_ram'
                 'RamificationWeight',                 1,  ... %Weight on ramification 'lambda'
                 'MaximumRadius',                      50,  ... %Maximum radius of the veins
