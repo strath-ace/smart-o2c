@@ -31,10 +31,10 @@ decisionindex = decisionindex(1);
 maxconsecutive = Inputs.MaxConsecutiveRes(decisionindex);
 
 %Copy the number of visits left of the parent
-visitsleft = Nodes.ListNodes.(parent).VisitsLeft;
+visitsleft = Nodes.(parent).VisitsLeft;
 
 %Find the number of times a target can still be visited
-visitsleft(decisionindex) = Nodes.ListNodes.(parent).VisitsLeft(decisionindex)-1;
+visitsleft(decisionindex) = Nodes.(parent).VisitsLeft(decisionindex)-1;
 
 %Retrieve all the possible decisions
 alldecisions = Inputs.PossibleDecisions;

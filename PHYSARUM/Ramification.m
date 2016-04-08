@@ -1,4 +1,4 @@
-function [Nodes,Agents] = Ramification(Inputs,Nodes,Agents,agent)
+function [Nodes,Agents,agentdeathflag] = Ramification(Inputs,Nodes,Agents,agent)
 % This function handles the ramification to new nodes. It does so by
 % generating a preset number of random nodes and making a probabilistic
 % selection based on the cost function.
@@ -12,11 +12,19 @@ function [Nodes,Agents] = Ramification(Inputs,Nodes,Agents,agent)
 % Outputs: 
 % * Nodes       : Nodes structure where the radii have been updated with
 %                 the dilation and evaporation
+% * Agents      : The updated structure containing the agents
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-if isempty(Nodes.ListNodes.(char((Agents.(agent).currentNode))).possibledecisions)
+%If there are no possible decisions, exit function
+
+%For easy of reason, save the agent's current node in a variable
+currentNode = char(Agents.(agent).currentNode);
+agentdeathflag = 0;
+
+if isempty(Nodes.(currentNode).possibledecisions)   
+    agentdeathflag = 1;
     return
 end
 
@@ -29,17 +37,19 @@ temp = regexp(possnodes, '_', 'split');
 [temp]=cat(1,temp{:});
 
 %Next, retrieve the decisions possible in this node
-possdecisions = Nodes.ListNodes.(char((Agents.(agent).currentNode))).possibledecisions;
+possdecisions = Nodes.(currentNode).possibledecisions;
 
 %Remove all the nodes that do not have as decision one of possible decisions
 %in this node
 possnodes(ismember(temp(:,1),possdecisions)==0) = [];
 
 %Retrieve list of currently existing nodes
-existingnodes = fields(Nodes.ListNodes);
+existingnodes = fields(Nodes);
 
-%Initialize empty structures to save the generated nodes in
-generatednodes = struct([]);
+%Initialize structures to save the generated nodes in. The generatednodes
+%structure has a temporary field to circumvent issues with adding fields to
+%empty structures
+generatednodes = struct('temp',0);
 nameslist = [];
 costvec = [];
 
@@ -49,8 +59,11 @@ warning('off','MATLAB:catenate:DimensionMismatch');
 %Start loop to generate the desired number of nodes
 while (length(fields(generatednodes)) < Inputs.RamificationAmount)
     
-    %If no more decisions are possible, exit while loop
+    %If no more decisions are possible, exit while loop and set
+    %agentdeathflag to 1
     if isempty(possnodes)
+        disp(strcat(agent,' died'))
+        agentdeathflag = 1;
         break
     end
        
@@ -69,12 +82,11 @@ while (length(fields(generatednodes)) < Inputs.RamificationAmount)
         explosiondecision = char(temp(1)); randchar = str2num(char(temp(2)));
         
         %Generate the new node & save its cost in a vector
-        [newNode] = CreateNode(Inputs,Nodes,explosiondecision,randchar,char(Agents.(agent).currentNode));
-        costvec = [costvec CostFunction(Nodes.ListNodes.(char(Agents.(agent).currentNode)),newNode.(char(newnode_ID)))];
+        [newNode] = CreateNode(Inputs,Nodes,explosiondecision,randchar,currentNode);
+        costvec = [costvec CostFunction(Nodes.(currentNode),newNode)];
         
-        %Add generated node to the structure created earlier
-        tmp = [fieldnames(generatednodes), struct2cell(generatednodes); fieldnames(newNode), struct2cell(newNode)].';
-        generatednodes = struct(tmp{:});
+        %Add generated node to the structure created earlier.
+        generatednodes.(newNode.node_ID) = newNode;
         
         %Add generated node name & cost to matrices for ease of access
         nameslist = [nameslist {newnode_ID}];
@@ -86,6 +98,9 @@ while (length(fields(generatednodes)) < Inputs.RamificationAmount)
     end
 end
 
+%Remove temporary field within the generatednodes stucture
+generatednodes = rmfield(generatednodes,'temp');
+
 %If no nodes are found, exit the function
 if isempty(costvec)
     return
@@ -93,23 +108,20 @@ end
 
 %Use node name & cost matrices to make a probabilistic choice based on the
 %cost. The lower the cost, the higher the chance of the node being selected
-problist = 1./costvec;
+problist = 1./(costvec.^Inputs.RamificationWeight);
 problist = problist./sum(problist);
 
 chosenindex = find(rand<cumsum(problist),1,'first');
-chosennode = nameslist(chosenindex);
+chosennode = char(nameslist(chosenindex));
 
 %Add chosen node to the Nodes structure
-chosennodestruct = struct(char(chosennode),struct(generatednodes.(char(chosennode))));
-Nodes = AddNode(Nodes,chosennodestruct);
-
-
-%Add the cost to the parent node
-Nodes.ListNodes.(char(Agents.(agent).currentNode)).lengths = [Nodes.ListNodes.(char(Agents.(agent).currentNode)).lengths costvec(chosenindex)];
+chosennodestruct = generatednodes.(chosennode);
+Nodes = AddNode(Inputs,Nodes,chosennodestruct,costvec(chosenindex));
 
 %Move agent to the new node
-Agents.(agent).previousNodes = [Agents.(agent).previousNodes Agents.(agent).currentNode];
+Agents.(agent).previousNodes = [Agents.(agent).previousNodes {currentNode}];
 Agents.(agent).currentNode = chosennode;
+Agents.(agent).previouscosts = [Agents.(agent).previouscosts costvec(chosenindex)];
 
 
 end

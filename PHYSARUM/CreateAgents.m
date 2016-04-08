@@ -17,21 +17,19 @@ Agents = struct();
 
 %Loop over the number of agents to be created
 for i = 1:NumberOfAgents
-    
+
     %Find the field name of the specific agent in the Agents structure
-    strcurrid = ['agent',num2str(i)];
-    
+    agentid = ['agent',num2str(i)];
+
     %Create the structure for each agent
-    AgentStruct = struct(strcurrid, struct(               ...
-                                      'previousNodes',[], ...
-                                      'previouscosts',[], ...
-                                      'currentNode',  ['Root'],  ...
-                                      'currentconnections',[]...
-                                      ));
-    
-    %Add the structure for this agent underneath the structures for the
-    %previously generated agents
-    tmp = [fieldnames(Agents), struct2cell(Agents); fieldnames(AgentStruct), struct2cell(AgentStruct)].';
-    Agents = struct(tmp{:});
+    AgentStruct = struct('previousNodes',           [], ...
+                         'previouscosts',           [], ...
+                         'currentNode',       ['Root'], ...
+                         'currentconnections',      []  ...
+                        );
+
+    %Add agent's structure to the Agents main structure                              
+    Agents.(agentid) = AgentStruct;                            
+
 end
 

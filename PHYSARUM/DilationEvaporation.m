@@ -1,32 +1,54 @@
-function [Nodes] = DilationEvaporation(Nodes,Inputs,WalkedPaths)
-% This function updates the radius of links walked by the agents with the
-% dilation and evaporation mechanics.
+function [Nodes] = DilationEvaporation(Inputs, Nodes, Agents, agent)
+%This function handles the dilation and evaporation of the paths taken by
+%an agent
 %
 % Inputs:
-% * Nodes       : Structure containing the graph
 % * Inputs      : Structure containing the PhysarumSolver inputs
-% * WalkedPaths : The paths walked by the agent (matrix of the same size as the Nodes.links matrix,
-%                 with a 1 for each path walked 
-%
-% Outputs: 
-% * Nodes       : Nodes structure where the radii have been updated with
-%                 the dilation and evaporation
+% * Nodes       : Structure containing the graph
+% * Agents      : Structure containing the Agents & their characteristics
+% * agent       : Cell with the current agents' name
+% 
+% Outputs:
+% * Nodes       : Structure containing the graph
+% * Agents      : The agents with their new positions
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%Calculate L_tot (the cost)
-L_tot = sum(sum(WalkedPaths.*Nodes.lengths));
+%Convert the agent input into a character array
+agent = char(agent);
 
-%Update radii with dilation
-Nodes.radius = Nodes.radius + Inputs.LinearDilationCoefficient.*WalkedPaths.*Nodes.radius/L_tot;
+%List all the nodes the agent has visisted
+visistednodes = [Agents.(agent).previousNodes {Agents.(agent).currentNode}];
 
-%Update radii with evaporation
-Nodes.radius = Nodes.radius - Inputs.EvaporationCoefficient.*WalkedPaths.*Nodes.radius;
+%Calculate the total cost of the path taken by the agent
+totalcost = sum(Agents.(agent).previouscosts);
 
-%Prevent radii from becoming too large (exploding) or small (closing)
-Nodes.radius(Nodes.radius > Inputs.MaximumRadius) = Inputs.MaximumRadius;
-Nodes.radius(Nodes.radius < Inputs.MinimumRadius) = Inputs.MinimumRadius;
+%Loop over each of the nodes visisted
+for i = 1:length(visistednodes)
+    
+    %For ease of reading, define the node currently being evaluated & its parent
+    %as a separate variable
+    evaluatednode = char(visistednodes(i));
+    parent = Nodes.(evaluatednode).parent;
+    
+    %Check if the node has a parent
+    if ~isempty(parent)
+        
+        %Find the node's index in the children list of the parent
+        indexofnode = strcmp(Nodes.(parent).children,evaluatednode);
+        
+        %Dilate the respective link in the parent's node structure
+        Nodes.(parent).radius = Nodes.(parent).radius + Inputs.LinearDilationCoefficient*indexofnode.*Nodes.(parent).radius/totalcost;
+        
+        %Simulate evaporation in this link
+        Nodes.(parent).radius = Nodes.(parent).radius - Inputs.EvaporationCoefficient*indexofnode.*Nodes.(parent).radius;
+
+        %Check if the link's radius is not too large or small. Correct if
+        %so
+        Nodes.(parent).radius(Nodes.(parent).radius > Inputs.MaximumRadius) = Inputs.MaximumRadius;
+        Nodes.(parent).radius(Nodes.(parent).radius < Inputs.MinimumRadius) = Inputs.MinimumRadius;
+    end
 
 end
 
