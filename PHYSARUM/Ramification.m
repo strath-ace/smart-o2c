@@ -1,16 +1,16 @@
-function [Nodes,Agents,agentdeathflag] = Ramification(Inputs,Nodes,Agents,agent)
+function [ListNodes, Agents, agentdeathflag] = Ramification(Inputs, ListNodes, Agents, agent)
 % This function handles the ramification to new nodes. It does so by
 % generating a preset number of random nodes and making a probabilistic
 % selection based on the cost function.
 %
 % Inputs:
-% * Nodes       : Structure containing the graph
+% * ListNodes       : Structure containing the graph
 % * Inputs      : Structure containing the PhysarumSolver inputs
 % * Agents      : The structure containing the agents
 % * agent       : A string containing the name of the current agent
 %
 % Outputs: 
-% * Nodes       : Nodes structure where the radii have been updated with
+% * ListNodes       : ListNodes structure where the radii have been updated with
 %                 the dilation and evaporation
 % * Agents      : The updated structure containing the agents
 %
@@ -23,7 +23,7 @@ function [Nodes,Agents,agentdeathflag] = Ramification(Inputs,Nodes,Agents,agent)
 currentNode = char(Agents.(agent).currentNode);
 agentdeathflag = 0;
 
-if isempty(Nodes.(currentNode).possibledecisions)   
+if isempty(ListNodes.(currentNode).possibledecisions)   
     agentdeathflag = 1;
     return
 end
@@ -32,19 +32,19 @@ end
 
 %To do so, get first all the possible nodes that can be made over the
 %entire graph. Split these nodes into their target & characteristic
-possnodes = Inputs.PossibleNodes;
+possnodes = Inputs.PossibleListNodes;
 temp = regexp(possnodes, '_', 'split');
-[temp]=cat(1,temp{:});
+[temp]=cat(1, temp{:});
 
 %Next, retrieve the decisions possible in this node
-possdecisions = Nodes.(currentNode).possibledecisions;
+possdecisions = ListNodes.(currentNode).possibledecisions;
 
 %Remove all the nodes that do not have as decision one of possible decisions
 %in this node
-possnodes(ismember(temp(:,1),possdecisions)==0) = [];
+possnodes(ismember(temp(:,1), possdecisions)==0) = [];
 
 %Retrieve list of currently existing nodes
-existingnodes = fields(Nodes);
+existingnodes = fields(ListNodes);
 
 %Initialize structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
@@ -75,15 +75,16 @@ while (length(fields(generatednodes)) < Inputs.RamificationAmount)
     possnodes(strmatch(newnode_ID,possnodes)) = [];
 
     %Confirm that node doesn't already exist
-    if (isempty(strmatch(newnode_ID,existingnodes,'exact')) && isempty(strmatch(newnode_ID,fields(generatednodes),'exact')))
+    if (isempty(strmatch(newnode_ID, existingnodes, 'exact')) && ...
+            isempty(strmatch(newnode_ID, fields(generatednodes), 'exact')))
         
         %Split the newnode_ID into the chosen target & characteristic
-        temp = strsplit(newnode_ID,'_');
+        temp = strsplit(newnode_ID, '_');
         explosiondecision = char(temp(1)); randchar = str2num(char(temp(2)));
         
         %Generate the new node & save its cost in a vector
-        [newNode] = CreateNode(Inputs,Nodes,explosiondecision,randchar,currentNode);
-        costvec = [costvec CostFunction(Nodes.(currentNode),newNode)];
+        [newNode] = CreateNode(Inputs, ListNodes, explosiondecision, randchar, currentNode);
+        costvec = [costvec CostFunction(ListNodes.(currentNode), newNode)];
         
         %Add generated node to the structure created earlier.
         generatednodes.(newNode.node_ID) = newNode;
@@ -99,7 +100,7 @@ while (length(fields(generatednodes)) < Inputs.RamificationAmount)
 end
 
 %Remove temporary field within the generatednodes stucture
-generatednodes = rmfield(generatednodes,'temp');
+generatednodes = rmfield(generatednodes, 'temp');
 
 %If no nodes are found, exit the function
 if isempty(costvec)
@@ -111,15 +112,15 @@ end
 problist = 1./(costvec.^Inputs.RamificationWeight);
 problist = problist./sum(problist);
 
-chosenindex = find(rand<cumsum(problist),1,'first');
+chosenindex = find(rand<cumsum(problist), 1, 'first');
 chosennode = char(nameslist(chosenindex));
 
-%Add chosen node to the Nodes structure
+%Add chosen node to the ListNodes structure
 chosennodestruct = generatednodes.(chosennode);
-Nodes = AddNode(Inputs,Nodes,chosennodestruct,costvec(chosenindex));
+ListNodes = AddNode(Inputs, ListNodes, chosennodestruct, costvec(chosenindex));
 
 %Move agent to the new node
-Agents.(agent).previousNodes = [Agents.(agent).previousNodes {currentNode}];
+Agents.(agent).previousListNodes = [Agents.(agent).previousListNodes {currentNode}];
 Agents.(agent).currentNode = chosennode;
 Agents.(agent).previouscosts = [Agents.(agent).previouscosts costvec(chosenindex)];
 

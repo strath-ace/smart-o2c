@@ -1,17 +1,17 @@
-function [Nodes] = CreateGraph(Inputs)
+function [ListNodes] = CreateListNodes(Inputs)
 % This function creates the structure describing the graph.
 %
 % Inputs:
 % * Inputs : Structure containing the PhysarumSolver inputs
 %
 % Outputs: 
-% * Nodes  : Empty structure that will contain the Graph's information
+% * ListNodes  : Empty structure that will contain the Graph's information
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%Create the Nodes structure
-Nodes = struct(struct('Root',   ...
+%Create the ListNodes structure
+ListNodes = struct(struct('Root',   ...
                          struct(...
                          'node_ID',           'Root',...
                          'parent',            [],... % The parent of the node

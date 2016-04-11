@@ -1,8 +1,8 @@
-function [restartflag] = restartcheck(Nodes,currentnode)
+function [restartflag] = restartcheck(ListNodes,currentnode)
 % This function handles the restarting of the Physarum algorithm
 %
 % Inputs:
-% * Nodes       : Structure containing the graph
+% * ListNodes       : Structure containing the graph
 % * currentnode : The current node the agent is at
 %
 % Outputs: 
@@ -16,7 +16,7 @@ function [restartflag] = restartcheck(Nodes,currentnode)
 restartflag = 0;
 
 %Check if no more decisions are available
-if isempty(Nodes.(char(currentnode)).possibledecisions)
+if isempty(ListNodes.(char(currentnode)).possibledecisions)
     
     %Set the restart flag to 1
     restartflag = 1;

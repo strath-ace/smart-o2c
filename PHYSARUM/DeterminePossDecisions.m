@@ -1,9 +1,9 @@
-function [possibledecisions,visitsleft] = DeterminePossDecisions(Inputs,Nodes,parent,previousdecisions,decisionname)
+function [possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNodes,parent,previousdecisions,decisionname)
 %This function creates the structure for a new node.
 %
 % Inputs:
 % * Inputs         : Structure containing the PhysarumSolver inputs
-% * Nodes          : Structure that contains the Graph's information
+% * ListNodes          : Structure that contains the Graph's information
 % * parent         : a string containing the node_ID of the parent node
 % * previousdecisions : a list of the previous decisions made
 % * decisionname   : string with the chosen target
@@ -31,10 +31,10 @@ decisionindex = decisionindex(1);
 maxconsecutive = Inputs.MaxConsecutiveRes(decisionindex);
 
 %Copy the number of visits left of the parent
-visitsleft = Nodes.(parent).VisitsLeft;
+visitsleft = ListNodes.(parent).VisitsLeft;
 
 %Find the number of times a target can still be visited
-visitsleft(decisionindex) = Nodes.(parent).VisitsLeft(decisionindex)-1;
+visitsleft(decisionindex) = ListNodes.(parent).VisitsLeft(decisionindex)-1;
 
 %Retrieve all the possible decisions
 alldecisions = Inputs.PossibleDecisions;
@@ -47,14 +47,14 @@ possibledecisions(visitsleft == 0) = [];
 
 %Check whether resonance orbit is allowed by first generating the string that
 %should be checked for in the previous decisions
-checkforcontargets=repmat(decisionname,1,maxconsecutive+1);
+checkforcontargets = repmat(decisionname,1,maxconsecutive+1);
 
 %See if max. resonant orbit has been performed as last trajectory so far 
 resperformed = max(strfind(previousdecisions,checkforcontargets))==(length(previousdecisions)-length(checkforcontargets)+1);
 
 %If so, exclude the respective target from the list of possible decisions
 if resperformed 
-    decisionindex = strmatch(decisionname,possibledecisions);
+    decisionindex = strmatch(decisionname, possibledecisions);
     possibledecisions(decisionindex) = [];
 end
 

@@ -1,4 +1,4 @@
-function [Inputs] = InitializePhysarum()
+function [InitalizedInputs, ListNodes] = InitializePhysarum(UserInputs)
 % This is the main file of the physarum solver. 
 % It contains the logic for the algorithm and the solver parameters.
 %
@@ -11,36 +11,26 @@ function [Inputs] = InitializePhysarum()
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-
-%Settings as to which targets are available, how many max. consecutive resonance
-%orbits one wants and the maximum number of visits to each target
-PossibleDecisions = {'A','B','C','D','E','F'};
-MaxConsecutiveRes = -1*ones(1,6);
-MaxVisits = [3 1 1 1 1 1];
-
-
-%Set boundaries. These are used to generate a list of all the possible
-%nodes that can be chosen from.
-mincharboundary  = 0; %The minimum boundary of the characteristic
-maxcharboundary = 100; %The maximum boundary of the characteristic
-stepsize = 1; %The step size by which the characteristic is evaluated
+%Retrieve the user settings
+PhysarumSettings
 
 %Solver Parameters:
-Inputs = struct('LowThrust',                          1,  ... %Set to 1 for low-thrust, 0 for high-thrust
-                'LinearDilationCoefficient',          20,  ... %Linear dilation coefficient 'm'
-                'EvaporationCoefficient',             0,  ... %Evaporation coefficient 'rho'
-                'GrowthFactor',                       0,  ... %Growth factor 'GF'
-                'NumberOfAgents',                     4,  ... %Number of virtual agents 'N_agents'
-                'RamificationProbability',            0.1, ... %Probability of ramification 'p_ram'
-                'RamificationWeight',                 1,  ... %Weight on ramification 'lambda'
-                'MaximumRadius',                      50,  ... %Maximum radius of the veins
-                'MinimumRadius',                      1e-3,  ... %Minimum radius of the veins
-                'StartingRadius',                     1,  ... %The starting radius of the veins
-                'RamificationAmount',                 5,  ... %The number of nodes initially generated for the ramification
-                'PossibleDecisions',{PossibleDecisions},  ... %The list of possible targets
-                'MaxConsecutiveRes',{MaxConsecutiveRes},  ... %Maximum number of consecutive resonance orbits to each target
-                'MaxVisits',                {MaxVisits},  ... %Maximum number of visits to each target
-                'RootChar',                           0   ... %Characteristic of the root
+InitalizedInputs = struct('LowThrust',                UserInputs.LowThrust,  ... %Set to 1 for low-thrust, 0 for high-thrust
+                'LinearDilationCoefficient',          UserInputs.LinearDilationCoefficient,  ... %Linear dilation coefficient 'm'
+                'EvaporationCoefficient',             UserInputs.EvaporationCoefficient,  ... %Evaporation coefficient 'rho'
+                'GrowthFactor',                       UserInputs.GrowthFactor,  ... %Growth factor 'GF'
+                'NumberOfAgents',                     UserInputs.NumberOfAgents,  ... %Number of virtual agents 'N_agents'
+                'RamificationProbability',            UserInputs.RamificationProbability, ... %Probability of ramification 'p_ram'
+                'RamificationWeight',                 UserInputs.RamificationWeight,  ... %Weight on ramification 'lambda'
+                'MaximumRadius',                      UserInputs.MaximumRadius,  ... %Maximum radius of the veins
+                'MinimumRadius',                      UserInputs.MinimumRadius,  ... %Minimum radius of the veins
+                'StartingRadius',                     UserInputs.StartingRadius,  ... %The starting radius of the veins
+                'RamificationAmount',                 UserInputs.RamificationAmount,  ... %The number of nodes initially generated for the ramification
+                'PossibleDecisions',                  {PossibleDecisions},  ... %The list of possible targets
+                'MaxConsecutiveRes',                  {MaxConsecutiveRes},  ... %Maximum number of consecutive resonance orbits to each target
+                'MaxVisits',                          {MaxVisits},  ... %Maximum number of visits to each target
+                'RootChar',                           UserInputs.RootChar,   ... %Characteristic of the root
+                'Generations',                        UserInputs.Generations ... %The number of generations
                 );               
 
 %Create a list of all possible characteristics & decisions
@@ -52,10 +42,10 @@ for i = 1:(length(possiblecharacteristics))
         possdeccharvec(i,j) = strcat(PossibleDecisions(j),'_',num2str(possiblecharacteristics(i)));
     end
 end
-possdeccharvec = reshape(possdeccharvec,[1,numel(possdeccharvec)]);
+possdeccharvec = reshape(possdeccharvec, [1, numel(possdeccharvec)]);
 
 %Add nodes that can be selected to the Inputs structure
-Inputs.PossibleNodes = possdeccharvec;
+InitalizedInputs.PossibleListNodes = possdeccharvec;
 
 
 %Display error if the vectors with number of possible decisions, max. number of consecutive
@@ -63,6 +53,9 @@ Inputs.PossibleNodes = possdeccharvec;
 if ~(max(size(MaxConsecutiveRes))==max(size(PossibleDecisions)))
     error('Check size of PossibleDecisions, MaxConsecutiveRes and MaxVisits')
 end
+
+%Create the list of nodes
+ListNodes = CreateListNodes(InitalizedInputs);
 
 end
 

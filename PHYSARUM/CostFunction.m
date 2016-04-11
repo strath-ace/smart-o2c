@@ -1,4 +1,4 @@
-function [Cost] = CostFunction(fromNode,toNode)
+function [Cost] = CostFunction(fromNode, toNode)
 % This function calculates the cost of a certain connection.
 % It can be altered such that it is applicable to the problem at hand.
 %
