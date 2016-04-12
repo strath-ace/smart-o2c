@@ -22,8 +22,8 @@ InitalizedInputs = struct('LowThrust',                UserInputs.LowThrust,  ...
                 'NumberOfAgents',                     UserInputs.NumberOfAgents,  ... %Number of virtual agents 'N_agents'
                 'RamificationProbability',            UserInputs.RamificationProbability, ... %Probability of ramification 'p_ram'
                 'RamificationWeight',                 UserInputs.RamificationWeight,  ... %Weight on ramification 'lambda'
-                'MaximumRadius',                      UserInputs.MaximumRadius,  ... %Maximum radius of the veins
-                'MinimumRadius',                      UserInputs.MinimumRadius,  ... %Minimum radius of the veins
+                'MaximumRadiusRatio',                 UserInputs.MaximumRadiusRatio,  ... %Maximum radius of the veins
+                'MinimumRadiusRatio',                 UserInputs.MinimumRadiusRatio,  ... %Minimum radius of the veins
                 'StartingRadius',                     UserInputs.StartingRadius,  ... %The starting radius of the veins
                 'RamificationAmount',                 UserInputs.RamificationAmount,  ... %The number of nodes initially generated for the ramification
                 'PossibleDecisions',                  {PossibleDecisions},  ... %The list of possible targets

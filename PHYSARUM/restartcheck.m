@@ -1,4 +1,4 @@
-function [restartflag] = restartcheck(ListNodes,currentnode)
+function [restartflag] = RestartCheck(ListNodes,currentnode)
 % This function handles the restarting of the Physarum algorithm
 %
 % Inputs:

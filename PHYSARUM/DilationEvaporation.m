@@ -46,8 +46,8 @@ for i = 1:length(visistednodes)
 
         %Check if the link's radius is not too large or small. Correct if
         %so
-        ListNodes.(parent).radius(ListNodes.(parent).radius > Inputs.MaximumRadius) = Inputs.MaximumRadius;
-        ListNodes.(parent).radius(ListNodes.(parent).radius < Inputs.MinimumRadius) = Inputs.MinimumRadius;
+        ListNodes.(parent).radius(ListNodes.(parent).radius./Inputs.StartingRadius > Inputs.MaximumRadiusRatio) = Inputs.MaximumRadiusRatio*Inputs.StartingRadius;
+        ListNodes.(parent).radius(ListNodes.(parent).radius./Inputs.StartingRadius < Inputs.MinimumRadiusRatio) = Inputs.MinimumRadiusRatio*Inputs.StartingRadius;
     end
 
 end
