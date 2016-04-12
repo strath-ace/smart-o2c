@@ -17,10 +17,16 @@ function [ListNodes, Agents, agentdeathflag] = AgentMovement(Inputs, ListNodes, 
 %Initialize the agent death flag
 agentdeathflag = 0;
 
+
 %For ease of reading, define the current agent and the current node as
 %variables
 currentagent = char(agent);
 currentnode = char(Agents.(currentagent).currentNode);
+
+if isempty(ListNodes.(currentnode).possibledecisions)
+    agentdeathflag = 1;
+    return
+end
 
 %Generate a random number
 p = rand;

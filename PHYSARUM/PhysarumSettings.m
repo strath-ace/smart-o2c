@@ -38,13 +38,15 @@ UserInputs = struct('LowThrust',                          1,  ... %Set to 1 for 
                     'NumberOfAgents',                     3,  ... %Number of virtual agents 'N_agents'
                     'RamificationProbability',            0.1, ... %Probability of ramification 'p_ram'
                     'RamificationWeight',                 1,  ... %Weight on ramification 'lambda'
-                    'MaximumRadiusRatio',                 2,  ... %Maximum ratio between the link's radius & the starting radius
+                    'MaximumRadiusRatio',                 50,  ... %Maximum ratio between the link's radius & the starting radius
                     'MinimumRadiusRatio',                 1e-3,  ... %Maximum ratio between the link's radius & the starting radius
                     'StartingRadius',                     1,  ... %The starting radius of the veins
                     'RamificationAmount',                 5,  ... %The number of nodes initially generated for the ramification
                     'RootChar',                           0,  ... %Characteristic of the root
                     'Generations',                        3,  ... %The number of generations
-                    'Viscosity',                          1 ... %The viscocity of the "fluid" 
+                    'Viscosity',                          1, ... %The viscocity of the "fluid" 
+                    'DeterminingCharacteristic',          1, ... %The index of the determining characteristic in the 'characteristics' field
+                    'MinCommonNodesThres',                3  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur
                 );  
 
                 

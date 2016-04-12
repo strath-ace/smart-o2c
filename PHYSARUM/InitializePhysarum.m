@@ -31,7 +31,9 @@ InitalizedInputs = struct('LowThrust',                UserInputs.LowThrust,  ...
                 'MaxVisits',                          {MaxVisits},  ... %Maximum number of visits to each target
                 'RootChar',                           UserInputs.RootChar,   ... %Characteristic of the root
                 'Generations',                        UserInputs.Generations, ... %The number of generations
-                'Viscosity',                          UserInputs.Viscosity ... %The viscocity of the "fluid" 
+                'Viscosity',                          UserInputs.Viscosity, ... %The viscocity of the "fluid" 
+                'DeterminingCharacteristic',          UserInputs.DeterminingCharacteristic, ... %The index of the determining characteristic in the 'characteristics' field
+                'MinCommonNodesThres',                UserInputs.MinCommonNodesThres  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur
                 );               
 
 %Create a list of all possible characteristics & decisions
