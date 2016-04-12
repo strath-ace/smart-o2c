@@ -16,6 +16,3 @@ function [Cost] = CostFunction(fromNode, toNode)
 %Calculate cost to change orbital elements with orbit characterstics such
 %as ToF set. Currently simple formula to test functionality.
 Cost = (toNode.characteristics(1)-fromNode.characteristics(1))^2;
-
-
-

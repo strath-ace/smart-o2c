@@ -43,7 +43,8 @@ UserInputs = struct('LowThrust',                          1,  ... %Set to 1 for 
                     'StartingRadius',                     1,  ... %The starting radius of the veins
                     'RamificationAmount',                 5,  ... %The number of nodes initially generated for the ramification
                     'RootChar',                           0,  ... %Characteristic of the root
-                    'Generations',                        3  ... %The number of generations
+                    'Generations',                        3,  ... %The number of generations
+                    'Viscosity',                          1 ... %The viscocity of the "fluid" 
                 );  
 
                 

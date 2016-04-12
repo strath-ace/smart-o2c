@@ -30,7 +30,8 @@ InitalizedInputs = struct('LowThrust',                UserInputs.LowThrust,  ...
                 'MaxConsecutiveRes',                  {MaxConsecutiveRes},  ... %Maximum number of consecutive resonance orbits to each target
                 'MaxVisits',                          {MaxVisits},  ... %Maximum number of visits to each target
                 'RootChar',                           UserInputs.RootChar,   ... %Characteristic of the root
-                'Generations',                        UserInputs.Generations ... %The number of generations
+                'Generations',                        UserInputs.Generations, ... %The number of generations
+                'Viscosity',                          UserInputs.Viscosity ... %The viscocity of the "fluid" 
                 );               
 
 %Create a list of all possible characteristics & decisions

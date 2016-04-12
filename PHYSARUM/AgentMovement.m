@@ -31,7 +31,7 @@ if (p>Inputs.RamificationProbability && ~isempty(ListNodes.(currentnode).childre
     
     %Calculate the probabilities to transverse to each node. The smaller
     %the cost, the higher the probability
-    problist = 1./(ListNodes.(currentnode).lengths);
+    problist = ListNodes.(currentnode).fluxes./(sum(ListNodes.(currentnode).fluxes));
     problist = problist./sum(problist);
 
     %Choose one of the node's children. Cell structure is used to
