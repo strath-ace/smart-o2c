@@ -20,14 +20,14 @@
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-PossibleDecisions = {'A', 'B', 'C', 'D', 'E', 'F'}; %The possible decisions (targets) that the solver can choose from
-MaxConsecutiveRes = -1*ones(1, 6); %The maximum number of resonance orbits to each target (set to -1 to ignore)
-MaxVisits = [3 1 1 1 1 1]; %The maximum nubmer of visists to each target (set to -1 to ignore)
+PossibleDecisions = {'A', 'B', 'C', 'D', 'E'}; %The possible decisions (targets) that the solver can choose from
+MaxConsecutiveRes = -1*ones(1, 5); %The maximum number of resonance orbits to each target (set to -1 to ignore)
+MaxVisits = [3 1 1 1 1]; %The maximum nubmer of visists to each target (set to -1 to ignore)
 
 %Set boundaries. These are used to generate a list of all the possible
 %nodes that can be chosen from.
 mincharboundary  = 0; %The minimum boundary of the characteristic
-maxcharboundary = 100; %The maximum boundary of the characteristic
+maxcharboundary = 1000; %The maximum boundary of the characteristic
 stepsize = 1; %The step size by which the characteristic is evaluated
 
 
@@ -36,14 +36,14 @@ UserInputs = struct('LowThrust',                          1,  ... %Set to 1 for 
                     'EvaporationCoefficient',             0,  ... %Evaporation coefficient 'rho'
                     'GrowthFactor',                       0,  ... %Growth factor 'GF'
                     'NumberOfAgents',                     3,  ... %Number of virtual agents 'N_agents'
-                    'RamificationProbability',            0.1, ... %Probability of ramification 'p_ram'
+                    'RamificationProbability',            0.15, ... %Probability of ramification 'p_ram'
                     'RamificationWeight',                 1,  ... %Weight on ramification 'lambda'
                     'MaximumRadiusRatio',                 50,  ... %Maximum ratio between the link's radius & the starting radius
                     'MinimumRadiusRatio',                 1e-3,  ... %Maximum ratio between the link's radius & the starting radius
                     'StartingRadius',                     1,  ... %The starting radius of the veins
                     'RamificationAmount',                 5,  ... %The number of nodes initially generated for the ramification
                     'RootChar',                           0,  ... %Characteristic of the root
-                    'Generations',                        3,  ... %The number of generations
+                    'Generations',                        5,  ... %The number of generations
                     'Viscosity',                          1, ... %The viscocity of the "fluid" 
                     'DeterminingCharacteristic',          1, ... %The index of the determining characteristic in the 'characteristics' field
                     'MinCommonNodesThres',                3  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur

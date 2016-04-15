@@ -44,7 +44,6 @@ for i = 1:length(agents)
         equalcheck(i,j) = strcat(decisions(i,j), num2str(determiningcharacteristic(i,j)));
     end
 end
-
 %Loop over all the agents
 for i = 1:length(agents)
     for j = 1:length(agents)

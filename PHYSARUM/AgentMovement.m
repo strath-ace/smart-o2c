@@ -23,7 +23,7 @@ agentdeathflag = 0;
 currentagent = char(agent);
 currentnode = char(Agents.(currentagent).currentNode);
 
-if isempty(ListNodes.(currentnode).possibledecisions)
+if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
     agentdeathflag = 1;
     return
 end

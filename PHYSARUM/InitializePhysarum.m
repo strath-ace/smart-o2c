@@ -1,4 +1,4 @@
-function [InitalizedInputs, ListNodes] = InitializePhysarum(UserInputs)
+function [InitalizedInputs, ListNodes] = InitializePhysarum()
 % This is the main file of the physarum solver. 
 % It contains the logic for the algorithm and the solver parameters.
 %
