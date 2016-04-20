@@ -17,8 +17,8 @@ ListNodes = struct(struct('Root',   ...
                          'parent',            [],... % The parent of the node
                          'children',          [],... % Matrix that holds the nodes' connections to each other
                          'radius',            [],... % The radius of each connection
-                         'lengths',           [],... % The length of each connection
-                         'fluxes',            [],... % Matrix containing each connection's flux
+                         'length',           [],... % The length of each connection
+                         'flux',            [],... % Matrix containing each connection's flux
                          'characteristics',   [Inputs.RootChar],... % Characteristics that describe this node (such as orbital elements & ToF .)
                          'previousdecisions', [],... % List of the previous decisions made
                          'possibledecisions', {Inputs.PossibleDecisions}, ... % Targets that can still be visisted by the node

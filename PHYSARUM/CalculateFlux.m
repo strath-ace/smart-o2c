@@ -1,13 +1,12 @@
-function [Flux] = CalculateFlux(Inputs,ListNodes,childnode)
+function [Flux] = CalculateFlux(Inputs,ListNodes,node)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
-childnode = char(childnode);
+node = char(node);
 
-parent = ListNodes.(childnode).parent;
-childindex = find(strcmp(ListNodes.(parent).children,childnode)==1);
-radius = ListNodes.(parent).radius(childindex);
-length = ListNodes.(parent).lengths(childindex);
+parent = ListNodes.(node).parent;
+radius = ListNodes.(node).radius
+length = ListNodes.(node).length;
 
 Flux = pi*radius^4/(8*Inputs.Viscosity)*1/length;
 end

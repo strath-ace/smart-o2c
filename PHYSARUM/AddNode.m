@@ -31,11 +31,11 @@ if ~isempty(parent)
     ListNodes.(parent).children = [ListNodes.(parent).children {newnode_ID}];  
     
     %Add the link's cost to the parent node
-    ListNodes.(parent).lengths = [ListNodes.(parent).lengths linkcost];
-    ListNodes.(parent).radius = [ListNodes.(parent).radius Inputs.StartingRadius];
+    ListNodes.(newnode_ID).length = [linkcost];
+    ListNodes.(newnode_ID).radius = [Inputs.StartingRadius];
     
     %Add the link's flux to the parent node
-    ListNodes.(parent).fluxes = [ListNodes.(parent).fluxes CalculateFlux(Inputs,ListNodes,newnode_ID)];
+    ListNodes.(newnode_ID).flux = [CalculateFlux(Inputs,ListNodes,newnode_ID)];
 end
     
 

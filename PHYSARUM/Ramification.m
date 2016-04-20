@@ -67,9 +67,7 @@ while (length(fields(generatednodes)) < Inputs.RamificationAmount)
         break
     end
        
-    %Choose a random decision (node_ID)
-    randdecision = randi([1 length(possnodes)]);
-    newnode_ID = char(possnodes(randdecision));
+    [newnode_ID] = ChooseNode(possnodes);
     
     %Remove chosen decision from list of possible decisions
     possnodes(strmatch(newnode_ID,possnodes)) = [];

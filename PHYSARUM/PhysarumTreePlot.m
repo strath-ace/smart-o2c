@@ -28,7 +28,7 @@ x = x';
 y = y';
 
 %Set the node_ID as label for each node
-text(x(:,1), y(:,1), nodenames, 'FontSize', 16, 'VerticalAlignment', 'bottom',...
+text(x(:,1), y(:,1), nodenames, 'FontSize', 12, 'VerticalAlignment', 'bottom',...
     'HorizontalAlignment', 'right', 'Interpreter', 'none');
 
 %Remove labels & axis ticks

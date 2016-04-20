@@ -16,16 +16,13 @@ function [ListNodes] = RadiusFluxReset(Inputs, ListNodes)
 nodenames = fieldnames(ListNodes);
 
 %Loop over all the nodes
-for i = 1:length(nodenames)
+for i = 2:length(nodenames) %Ignore root
     %Set the vein radii to their default value
     ListNodes.(char(nodenames(i))).radius = Inputs.StartingRadius*ones(1, length(ListNodes.(char(nodenames(i))).radius));
     
-    %Loop over all the children
-    for j = 1:length(ListNodes.(char(nodenames(i))).children)
-        
-        %Recalculate the fluxes using the previously updated radius
-        ListNodes.(char(nodenames(i))).fluxes(j) = CalculateFlux(Inputs, ListNodes, ListNodes.(char(nodenames(i))).children(j));
-    end
+    %Recalculate the fluxes using the previously updated radius
+    ListNodes.(char(nodenames(i))).flux = CalculateFlux(Inputs, ListNodes, char(nodenames(i)));
+
 end
         
 

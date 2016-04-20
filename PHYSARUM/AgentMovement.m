@@ -21,7 +21,7 @@ agentdeathflag = 0;
 %For ease of reading, define the current agent and the current node as
 %variables
 currentagent = char(agent);
-currentnode = char(Agents.(currentagent).currentNode);
+currentnode = char(Agents.(currentagent).currentNode)
 
 if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
     agentdeathflag = 1;
@@ -36,8 +36,11 @@ p = rand;
 if (p>Inputs.RamificationProbability && ~isempty(ListNodes.(currentnode).children))
     
     %Calculate the probabilities to transverse to each node. The smaller
-    %the cost, the higher the probability
-    problist = ListNodes.(currentnode).fluxes./(sum(ListNodes.(currentnode).fluxes));
+    %the cost (higher flux), the higher the probability
+    for i = 1:length(ListNodes.(currentnode).children)
+        childfluxes(i) = ListNodes.(char(ListNodes.(currentnode).children(i))).flux;
+    end
+    problist = childfluxes./(sum(childfluxes));
     problist = problist./sum(problist);
 
     %Choose one of the node's children. Cell structure is used to
@@ -50,7 +53,7 @@ if (p>Inputs.RamificationProbability && ~isempty(ListNodes.(currentnode).childre
     %Move agent to the new node
     Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
     Agents.(currentagent).currentNode = chosennode;
-    Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(currentnode).lengths(chosenindex)];
+    Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(currentnode).length];
 else
     
     %If there are no children or if the random number falls within the

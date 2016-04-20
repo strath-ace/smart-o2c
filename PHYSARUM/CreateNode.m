@@ -35,8 +35,8 @@ newNode = struct('node_ID',           node_ID,... % The ID of the node
                  'parent',            parent, ... % The parent of the node
                  'children',          [],... % Matrix that holds the nodes' connections to each other
                  'radius',            [],... % The radius of each connection
-                 'lengths',           [],... % The length of each connection
-                 'fluxes',            [],... % Matrix containing each connection's flux
+                 'length',           [],... % The length of each connection
+                 'flux',            [],... % Matrix containing each connection's flux
                  'characteristics',   [characteristic], ... % Characteristics that describe this node (such as orbital elements & ToF .)
                  'previousdecisions', {previousdecisions},... %List of previous decisions made                    
                  'possibledecisions', {possibledecisions}, ... %List containing the decisions that can still be made

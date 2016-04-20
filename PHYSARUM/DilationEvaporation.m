@@ -32,22 +32,19 @@ for i = 1:length(visistednodes)
     evaluatednode = char(visistednodes(i));
     parent = ListNodes.(evaluatednode).parent;
     
-    %Check if the node has a parent
+    %Check if the node has a parent - ignores root
     if ~isempty(parent)
         
-        %Find the node's index in the children list of the parent
-        indexofnode = strcmp(ListNodes.(parent).children,evaluatednode);
-        
         %Dilate the respective link in the parent's node structure
-        ListNodes.(parent).radius = ListNodes.(parent).radius + Inputs.LinearDilationCoefficient*indexofnode.*ListNodes.(parent).radius/totalcost;
+        ListNodes.(evaluatednode).radius = ListNodes.(evaluatednode).radius + Inputs.LinearDilationCoefficient*ListNodes.(evaluatednode).radius/totalcost;
         
         %Simulate evaporation in this link
-        ListNodes.(parent).radius = ListNodes.(parent).radius - Inputs.EvaporationCoefficient*indexofnode.*ListNodes.(parent).radius;
+        ListNodes.(evaluatednode).radius = ListNodes.(evaluatednode).radius - Inputs.EvaporationCoefficient*ListNodes.(evaluatednode).radius;
 
         %Check if the link's radius is not too large or small. Correct if
         %so
-        ListNodes.(parent).radius(ListNodes.(parent).radius./Inputs.StartingRadius > Inputs.MaximumRadiusRatio) = Inputs.MaximumRadiusRatio*Inputs.StartingRadius;
-        ListNodes.(parent).radius(ListNodes.(parent).radius./Inputs.StartingRadius < Inputs.MinimumRadiusRatio) = Inputs.MinimumRadiusRatio*Inputs.StartingRadius;
+        ListNodes.(evaluatednode).radius(ListNodes.(evaluatednode).radius./Inputs.StartingRadius > Inputs.MaximumRadiusRatio) = Inputs.MaximumRadiusRatio*Inputs.StartingRadius;
+        ListNodes.(evaluatednode).radius(ListNodes.(evaluatednode).radius./Inputs.StartingRadius < Inputs.MinimumRadiusRatio) = Inputs.MinimumRadiusRatio*Inputs.StartingRadius;
     end
 
 end
