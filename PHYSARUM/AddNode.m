@@ -1,12 +1,9 @@
-function [ListNodes] = AddNode(Inputs, ListNodes, newNode, linkcost)
+function [ListNodes] = AddNode(ListNodes, newNode)
 % This function adds a node to the list of nodes
 %   
 % Inputs:
-% * Inputs   : Structure containing the PhysarumSolver inputs
 % * ListNodes    : Structure that contains the currently existing nodes
 % * newNode  : Structure that cotnains the new node and its attributes
-% * linkcost : The cost of the connection between the parent and the new
-%              node
 %
 % OUTPUTS: 
 % * ListNodes: Previous ListNodes structure but with additional node
@@ -29,13 +26,7 @@ if ~isempty(parent)
     %Add the node to the children list of the parent node in the the ListNodes 
     %structure
     ListNodes.(parent).children = [ListNodes.(parent).children {newnode_ID}];  
-    
-    %Add the link's cost to the parent node
-    ListNodes.(newnode_ID).length = [linkcost];
-    ListNodes.(newnode_ID).radius = [Inputs.StartingRadius];
-    
-    %Add the link's flux to the parent node
-    ListNodes.(newnode_ID).flux = [CalculateFlux(Inputs,ListNodes,newnode_ID)];
+
 end
     
 

@@ -3,8 +3,8 @@ function [Cost] = CostFunction(fromNode, toNode)
 % It can be altered such that it is applicable to the problem at hand.
 %
 % Inputs:
-% * fromNode  : The node from which the cost is calculated
-% * Inputs    : The node to which the cost should be calculated
+% * fromNode  : The node from which the cost is calculated (structure)
+% * toNode    : The node to which the cost is calculated (structure)
 %
 % Outputs: 
 % * Cost   : The cost of the link between the two nodes

@@ -19,7 +19,7 @@ function [ListNodes, Agents, agentdeathflag] = Ramification(Inputs, ListNodes, A
 
 %If there are no possible decisions, exit function
 
-%For easy of reason, save the agent's current node in a variable
+%For easy of reading, save the agent's current node in a variable
 currentNode = char(Agents.(agent).currentNode);
 agentdeathflag = 0;
 
@@ -82,18 +82,14 @@ while (length(fields(generatednodes)) < Inputs.RamificationAmount)
         
         %Generate the new node & save its cost in a vector
         [newNode] = CreateNode(Inputs, ListNodes, explosiondecision, randchar, currentNode);
-        costvec = [costvec CostFunction(ListNodes.(currentNode), newNode)];
+        costvec = [costvec newNode.length];
         
         %Add generated node to the structure created earlier.
         generatednodes.(newNode.node_ID) = newNode;
         
         %Add generated node name & cost to matrices for ease of access
         nameslist = [nameslist {newnode_ID}];
-        
-        %Prevent 1 / 0
-        if (costvec(end) == 0)
-            costvec(end) = 1e-15;
-        end      
+            
     end
 end
 
@@ -115,7 +111,7 @@ chosennode = char(nameslist(chosenindex));
 
 %Add chosen node to the ListNodes structure
 chosennodestruct = generatednodes.(chosennode);
-ListNodes = AddNode(Inputs, ListNodes, chosennodestruct, costvec(chosenindex));
+ListNodes = AddNode(ListNodes, chosennodestruct);
 
 %Move agent to the new node
 Agents.(agent).previousListNodes = [Agents.(agent).previousListNodes {currentNode}];

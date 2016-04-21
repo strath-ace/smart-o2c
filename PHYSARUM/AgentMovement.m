@@ -10,6 +10,7 @@ function [ListNodes, Agents, agentdeathflag] = AgentMovement(Inputs, ListNodes, 
 % Outputs:
 % * ListNodes       : Structure containing the graph
 % * Agents      : The agents with their new positions
+% * agentdeathflag : Flag that shows whether the agent has 'died'
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
@@ -17,11 +18,10 @@ function [ListNodes, Agents, agentdeathflag] = AgentMovement(Inputs, ListNodes, 
 %Initialize the agent death flag
 agentdeathflag = 0;
 
-
 %For ease of reading, define the current agent and the current node as
 %variables
 currentagent = char(agent);
-currentnode = char(Agents.(currentagent).currentNode)
+currentnode = char(Agents.(currentagent).currentNode);
 
 if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
     agentdeathflag = 1;
@@ -35,8 +35,9 @@ p = rand;
 %falls outside of the probability margin
 if (p>Inputs.RamificationProbability && ~isempty(ListNodes.(currentnode).children))
     
-    %Calculate the probabilities to transverse to each node. The smaller
+    %Pre-allocate and calculate the probabilities to transverse to each node. The smaller
     %the cost (higher flux), the higher the probability
+    childfluxes = zeros(1,length(ListNodes.(currentnode).children));
     for i = 1:length(ListNodes.(currentnode).children)
         childfluxes(i) = ListNodes.(char(ListNodes.(currentnode).children(i))).flux;
     end

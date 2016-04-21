@@ -46,7 +46,8 @@ UserInputs = struct('LowThrust',                          1,  ... %Set to 1 for 
                     'Generations',                        5,  ... %The number of generations
                     'Viscosity',                          1, ... %The viscocity of the "fluid" 
                     'DeterminingCharacteristic',          1, ... %The index of the determining characteristic in the 'characteristics' field
-                    'MinCommonNodesThres',                3  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur
+                    'MinCommonNodesThres',                3,  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur
+                    'IfZeroLength',                       1e-15 ... %Value assigned to the length if it's zero (to prevent flux = inf)
                 );  
 
                 

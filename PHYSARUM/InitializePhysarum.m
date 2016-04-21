@@ -33,8 +33,9 @@ InitalizedInputs = struct('LowThrust',                UserInputs.LowThrust,  ...
                 'Generations',                        UserInputs.Generations, ... %The number of generations
                 'Viscosity',                          UserInputs.Viscosity, ... %The viscocity of the "fluid" 
                 'DeterminingCharacteristic',          UserInputs.DeterminingCharacteristic, ... %The index of the determining characteristic in the 'characteristics' field
-                'MinCommonNodesThres',                UserInputs.MinCommonNodesThres  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur
-                );               
+                'MinCommonNodesThres',                UserInputs.MinCommonNodesThres,  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur
+                'IfZeroLength',                       UserInputs.IfZeroLength ... %Value assigned to the length if it's zero (to prevent flux = inf)
+            );               
 
 %Create a list of all possible characteristics & decisions
 possiblecharacteristics = mincharboundary:stepsize:maxcharboundary;

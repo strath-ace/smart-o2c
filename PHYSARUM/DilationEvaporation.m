@@ -10,7 +10,6 @@ function [ListNodes] = DilationEvaporation(Inputs, ListNodes, Agents, agent)
 % 
 % Outputs:
 % * ListNodes       : Structure containing the updated graph
-% * Agents      : The agents with their new positions
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
@@ -42,7 +41,7 @@ for i = 1:length(visistednodes)
         ListNodes.(evaluatednode).radius = ListNodes.(evaluatednode).radius - Inputs.EvaporationCoefficient*ListNodes.(evaluatednode).radius;
 
         %Check if the link's radius is not too large or small. Correct if
-        %so
+        %so, set to max/min radius
         ListNodes.(evaluatednode).radius(ListNodes.(evaluatednode).radius./Inputs.StartingRadius > Inputs.MaximumRadiusRatio) = Inputs.MaximumRadiusRatio*Inputs.StartingRadius;
         ListNodes.(evaluatednode).radius(ListNodes.(evaluatednode).radius./Inputs.StartingRadius < Inputs.MinimumRadiusRatio) = Inputs.MinimumRadiusRatio*Inputs.StartingRadius;
     end
