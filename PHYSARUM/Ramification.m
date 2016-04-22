@@ -33,7 +33,7 @@ end
 %To do so, get first all the possible nodes that can be made over the
 %entire graph. Split these nodes into their target & characteristic
 possnodes = Inputs.PossibleListNodes;
-temp = regexp(possnodes, '_', 'split');
+temp = regexp(possnodes, '__', 'split');
 [temp]=cat(1, temp{:});
 
 %Next, retrieve the decisions possible in this node
@@ -75,13 +75,10 @@ while (length(fields(generatednodes)) < Inputs.RamificationAmount)
     %Confirm that node doesn't already exist
     if (isempty(strmatch(newnode_ID, existingnodes, 'exact')) && ...
             isempty(strmatch(newnode_ID, fields(generatednodes), 'exact')))
-        
-        %Split the newnode_ID into the chosen target & characteristic
-        temp = strsplit(newnode_ID, '_');
-        explosiondecision = char(temp(1)); randchar = str2num(char(temp(2)));
+
         
         %Generate the new node & save its cost in a vector
-        [newNode] = CreateNode(Inputs, ListNodes, explosiondecision, randchar, currentNode);
+        [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
         costvec = [costvec newNode.length];
         
         %Add generated node to the structure created earlier.

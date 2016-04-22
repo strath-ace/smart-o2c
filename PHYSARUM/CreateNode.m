@@ -1,4 +1,4 @@
-function [newNode] = CreateNode(Inputs,ListNodes,decisionname,characteristic,parent)
+function [newNode] = CreateNode(Inputs,ListNodes,node_ID,parent)
 %This function creates the structure for a new node.
 %
 % Inputs:
@@ -14,9 +14,10 @@ function [newNode] = CreateNode(Inputs,ListNodes,decisionname,characteristic,par
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%Generate the node ID using the decision name (eg target) & the node's
-%characteristic
-node_ID = strcat(decisionname,{'_'}, num2str(characteristic));
+        
+%Split the newnode_ID into the chosen target & characteristic       
+temp = strsplit(node_ID, '__');
+decisionname = char(temp(1)); characteristics = str2double(strsplit(char(temp(2)),'_'));
 
 %Find the decision that was made by the parent
 parentdecision = strsplit(parent,'_');
@@ -37,7 +38,7 @@ newNode = struct('node_ID',           node_ID,... % The ID of the node
                  'radius',            [Inputs.StartingRadius],... % The radius of each connection
                  'length',            [],... % The length of each connection
                  'flux',              [],... % Matrix containing each connection's flux
-                 'characteristics',   [characteristic], ... % Characteristics that describe this node (such as orbital elements & ToF .)
+                 'characteristics',   [SetNodeAttributes(Inputs,characteristics)], ... % Characteristics that describe this node (such as orbital elements & ToF .)
                  'previousdecisions', {previousdecisions},... %List of previous decisions made                    
                  'possibledecisions', {possibledecisions}, ... %List containing the decisions that can still be made
                  'VisitsLeft',        {visitsleft} ... % Vector containing the number of times each target cna still be visisted
@@ -45,7 +46,7 @@ newNode = struct('node_ID',           node_ID,... % The ID of the node
             
  
 %Add the length of the structure. This can only be done after the creation of the structure, as the CostFunction itself needs it             
-newNode.length = CostFunction(ListNodes.(parent), newNode);
+newNode.length = Inputs.CostFunction(ListNodes.(parent), newNode);
 
 %prevent the length from being 0 (and the flux from becoming inf)
 if (newNode.length == 0)

@@ -23,40 +23,28 @@ agents = fieldnames(Agents);
 for i = 1:length(agents)
     
     %Change the agent into characters (needed for structures)
-    agent = char(agents(i));
+    agent = agents(i);
+    agent = agent{1};
     
     %Retrieve the nodes visisted by the agent
-    visistednodes = [Agents.(agent).previousListNodes {Agents.(agent).currentNode}];
+    visistednodes{i} = [Agents.(agent).previousListNodes {Agents.(agent).currentNode}];
     
-    %Loop over all the visisted nodes
+end
+
+%Loop over all the rows
+for i = 1:length(visistednodes)
     for j = 1:length(visistednodes)
         
-        %Obtain the decisions made for these nodes
-        temp = strsplit(char(visistednodes(j)),'_');
-        decisions(i,j) = temp(1);
-        
-        %Retrieve the characteristic that determines whether two nodes are
-        %equal if they have the same target (eg ToA)
-        determiningcharacteristic(i,j) = ListNodes.(char(visistednodes(j))).characteristics(Inputs.DeterminingCharacteristic);
-        
-        %Concatenate the decision & the determining characteristic to
-        %create a matrix used to check whether the same sequence was chosen
-        equalcheck(i,j) = strcat(decisions(i,j), num2str(determiningcharacteristic(i,j)));
-    end
-end
-%Loop over all the agents
-for i = 1:length(agents)
-    for j = 1:length(agents)
-        
-        %Only compare different agents
+        %Only compare different rows
         if i ~= j
             
             %Find the number of equal nodes in the sequences
-            numberequal = sum(strcmp(equalcheck(i,:), equalcheck(j,:)));
+            numberequal = sum(ismember(visistednodes{i}(1,:),visistednodes{j}(1,:)));
             
             %If this exceeds the set threshold, set the restartflag to 1
             if numberequal > Inputs.MinCommonNodesThres
                 restartflag = 1;
+                break
             end
         end
     end

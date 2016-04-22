@@ -19,7 +19,7 @@ ListNodes = struct(struct('Root',   ...
                          'radius',            [],... % The radius of each connection
                          'length',           [],... % The length of each connection
                          'flux',            [],... % Matrix containing each connection's flux
-                         'characteristics',   [Inputs.RootChar],... % Characteristics that describe this node (such as orbital elements & ToF .)
+                         'characteristics',   [SetNodeAttributes(Inputs,Inputs.RootChar)],... % Characteristics that describe this node (such as orbital elements & ToF .)
                          'previousdecisions', [],... % List of the previous decisions made
                          'possibledecisions', {Inputs.PossibleDecisions}, ... % Targets that can still be visisted by the node
                          'VisitsLeft',        {Inputs.MaxVisits} ... % Vector containing the number of times each target cna still be visisted

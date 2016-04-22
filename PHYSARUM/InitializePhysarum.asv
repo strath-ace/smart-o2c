@@ -54,13 +54,12 @@ addpath(InitializedInputs.ProjectDirectory);
 
 %Display error if the vectors with number of possible decisions, max. number of consecutive
 %resonance orbits & the max. number of visists is not equal
-if ~(length(InitializedInputs.MaxConsecutiveRes)==length(InitializedInputs.PossibleDecisions))
+if ~(length(InitializedInputs.MaxConsecutiveRes)==max(size(InitializedInputs.PossibleDecisions)))
     error('Check size of PossibleDecisions, MaxConsecutiveRes and MaxVisits')
 end
 
-%Check if the number of boundaries and stepsizes correspond
-if ~(length(InitializedInputs.IDBoundaries)==length(InitializedInputs.IDStepSize))
-    error('Check size of IDBoundaries and IDStepSize')
+if ~(size(InitializedInputs.MaxConsecutiveRes))==max(size(InitializedInputs.PossibleDecisions)))
+    error('Check size of PossibleDecisions, MaxConsecutiveRes and MaxVisits')
 end
 
 %%%Create a list of all the possible nodes%%%
