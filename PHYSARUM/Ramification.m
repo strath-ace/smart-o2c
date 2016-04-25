@@ -33,7 +33,7 @@ end
 %To do so, get first all the possible nodes that can be made over the
 %entire graph. Split these nodes into their target & characteristic
 possnodes = Inputs.PossibleListNodes;
-temp = regexp(possnodes, '__', 'split');
+temp = regexp(possnodes, '___', 'split');
 [temp]=cat(1, temp{:});
 
 %Next, retrieve the decisions possible in this node

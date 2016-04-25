@@ -16,8 +16,13 @@ function [newNode] = CreateNode(Inputs,ListNodes,node_ID,parent)
 
         
 %Split the newnode_ID into the chosen target & characteristic       
-temp = strsplit(node_ID, '__');
-decisionname = char(temp(1)); characteristics = str2double(strsplit(char(temp(2)),'_'));
+temp = strsplit(node_ID, '___');
+decisionname = char(temp(1)); 
+
+charstring = strsplit(char(temp(2)),'__');
+charwithdot = strrep(charstring,'_','.');
+
+characteristics = str2double(charwithdot);
 
 %Find the decision that was made by the parent
 parentdecision = strsplit(parent,'_');

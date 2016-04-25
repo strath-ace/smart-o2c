@@ -39,7 +39,7 @@ for i = 1:length(targets)
             %being possible to create a matrix). As such, a different value
             %is taken for each target.
             if cellflag
-                possiblecharacteristics{i,j} = cell2mat(charvalues{j}{i});
+                possiblecharacteristics{i,j} = cell2mat(charvalues{j}(i));
             else
                 
             %Otherwise, the possible values for the characterstic are given as
@@ -62,12 +62,24 @@ for i = 1:length(targets)
     %for this target
     possiblecombinations = combvec(possiblecharacteristics{i,:})';
     
-    %Combine each combination into 1 string, where the different
-    %characteristics are seperated by an underscore
+    
+    %%%Create UID%%%
+    %As only underscores can be used in field names, the UID is made up as follows:
+    %3 underscores define the difference between the target and the
+    %  characteristics
+    %2 underscores define the difference between two characteristics
+    %1 underscore denotes the location of the decimal point within a
+    %  characteristic
+    
+    %First, combine all characteristics into 1 string, where the different
+    %characteristics are initially seperated by 1 underscore. The goal is
+    %to have each characteristic separated by two, but this is a neccessary
+    %the initial step to do so.
     for j = 1:length(possiblecombinations)
         temp = possiblecombinations(j,:);
         posscharrstr{j} = strrep(num2str(temp(:)'),' ','_');
     end
+    
     
     %As MATLAB sometimes sometimes replaces multiple spaces by underscores,
     %a while loop is needed to correct the strings such that they only
@@ -76,17 +88,29 @@ for i = 1:length(targets)
         posscharrstr = strrep(posscharrstr,'__','_');
     end
     
+    %Once all the characteristics are separated by exactly 1 underscore, 
+    %replace them all by 2 underscores to reach the final result.
+    posscharrstr = strrep(posscharrstr,'_','__');
+    
     %Combine the target name and the characteristics into the UID by
-    %looping over this target's possible cahracteristics and concatenating
+    %looping over this target's possible characteristics and concatenating
     %the two strings.
     for j = 1:length(posscharrstr)
-        possdeccharvec(i,j) = strcat(targetname,'__',posscharrstr{j});
+        possdeccharvec(i,j) = strcat(targetname,'___',posscharrstr{j});
+        
+        %As dots are not possible in field names, use 1 underscore to
+        %denote the location of the decimal point
+        possdeccharvec(i,j) = strrep(possdeccharvec(i,j),'.','_');
     end
 end
 
+
 %Reshape the possdeccharvec variable such that it becomes a cell array 
 %with a single row.
-possnodes = reshape(possdeccharvec, [1, numel(possdeccharvec)]);
+possnodesvec = reshape(possdeccharvec, [1, numel(possdeccharvec)]);
 
+%Remove empty cells that are the result of more possible characteristics
+%for certain targets
+possnodes = possnodesvec(~cellfun('isempty',possnodesvec));
 end
 

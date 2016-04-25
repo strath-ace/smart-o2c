@@ -22,13 +22,14 @@
 
 
 %Targets the Physarum can choose from
-Targets = {'neo163693', 'neo164294', 'neo1998DK36', 'neo2004JG6', 'neo2005TG45','neo2006WE4','neo2007EB26','neo2008EA32' ,'neo2008UL90' ,'neo2010XB11' ,'neo2012VE46' ,'neo2013JX28'}; 
+targets = {'neo163693', 'neo164294', 'neo1998DK36', 'neo2004JG6', 'neo2005TG45','neo2006WE4','neo2007EB26','neo2008EA32' ,'neo2008UL90' ,'neo2010XB11' ,'neo2012VE46' ,'neo2013JX28'}; 
+%targets = {'A','B','C'};
 
 %The maximum number of resonance orbits to each target (set to -1 to ignore)
-MaxConsecutiveRes = -1*ones(1, length(Targets)); 
+MaxConsecutiveRes = -1*ones(1, length(targets)); 
 
 %The maximum nubmer of visists to each target (set to -1 to ignore)
-MaxVisits = ones(1, length(Targets)); %[3 1 1 1 1]; 
+MaxVisits = ones(1, length(targets)); %[3 1 1 1 1]; 
 
 %Index of the attributes that determine the unique ID (characteristics)
 AttributeIDIndex = [1 3];  
@@ -40,7 +41,8 @@ AttributeIDIndex = [1 3];
 %it impossible to define a matrix), a cell array can be used for that characteristic 
 %as well.
 charvalues{1} = 0:1:20;
-charvalues{2} = {{2 3 4}; {2 3}};
+load('epochsnode.mat')
+charvalues{2} = epochsnode;
 
 %Low Thrust Flag. Set to 1 for low-thrust, 0 for high-thrust
 LowThrust = 1;
