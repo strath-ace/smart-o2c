@@ -27,8 +27,11 @@ treeplot(treeplotnodes);
 x = x';
 y = y';
 
+%Obtain the current axis size
+ax = axis;
+
 %Set the node_ID as label for each node
-text(x(:,1), y(:,1), nodenames, 'FontSize', 12, 'VerticalAlignment', 'bottom',...
+txt = text(x(:,1), y(:,1), nodenames, 'FontSize', 5/(ax(4)-ax(3)), 'VerticalAlignment', 'bottom',...
     'HorizontalAlignment', 'right', 'Interpreter', 'none');
 
 %Remove labels & axis ticks
@@ -37,6 +40,18 @@ set(gca, 'YTick', [])
 xlabel('')
 ylabel('')
 
+
+h = zoom; % get handle to zoom utility
+set(h,'ActionPostCallback',@zoomCallBack);
+set(h,'Enable','on');
+%Every time ones zooms in, this function is executed
+function zoomCallBack(~, evd)      
+    % Since it's expect that ax(4)-ax(3) gets smaller when one zooms in, the
+    % fontsize gets bigger.
+    ax = axis(evd.Axes); % get axis size
+    % change font size accordingly      
+    set(txt,'FontSize',5/(ax(4)-ax(3))); 
+end
 
 end
 

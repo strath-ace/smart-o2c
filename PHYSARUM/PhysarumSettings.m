@@ -20,40 +20,90 @@
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-PossibleDecisions = {'A', 'B', 'C', 'D', 'E'}; %The possible decisions (targets) that the solver can choose from
-MaxConsecutiveRes = -1*ones(1, 5); %The maximum number of resonance orbits to each target (set to -1 to ignore)
-MaxVisits = [3 1 1 1 1]; %The maximum nubmer of visists to each target (set to -1 to ignore)
 
-%Set boundaries. These are used to generate a list of all the possible
-%nodes that can be chosen from.
-mincharboundary  = 0; %The minimum boundary of the characteristic
-maxcharboundary = 1000; %The maximum boundary of the characteristic
-stepsize = 1; %The step size by which the characteristic is evaluated
+%Targets the Physarum can choose from
+Targets = {'neo163693', 'neo164294', 'neo1998DK36', 'neo2004JG6', 'neo2005TG45','neo2006WE4','neo2007EB26','neo2008EA32' ,'neo2008UL90' ,'neo2010XB11' ,'neo2012VE46' ,'neo2013JX28'}; 
+
+%The maximum number of resonance orbits to each target (set to -1 to ignore)
+MaxConsecutiveRes = -1*ones(1, length(Targets)); 
+
+%The maximum nubmer of visists to each target (set to -1 to ignore)
+MaxVisits = ones(1, length(Targets)); %[3 1 1 1 1]; 
+
+%Index of the attributes that determine the unique ID (characteristics)
+AttributeIDIndex = [1 3];  
+
+%Set values of these characteristics. If the values are the same for every
+%target, a vector can be used. Otherwise a matrix should be set with the
+%characteristics for every target, where every row denotes a target. If the
+%number of values a characteristic can take differs per target (thus making 
+%it impossible to define a matrix), a cell array can be used for that characteristic 
+%as well.
+charvalues{1} = 0:1:20;
+charvalues{2} = {{2 3 4}; {2 3}};
+
+%Low Thrust Flag. Set to 1 for low-thrust, 0 for high-thrust
+LowThrust = 1;
+
+%Linear dilation coefficient 'm'
+LinearDilationCoefficient = 20;
+
+%Evaporation coefficient 'rho'
+EvaporationCoefficient = 0;
+
+%Growth factor 'GF'
+GrowthFactorVal = 0;
+
+%Number of virtual agents 'N_agents'
+NumberOfAgents = 3;
+
+%Probability of ramification 'p_ram'
+RamificationProbability = 0.15;
+
+%Weight on ramification 'lambda'
+RamificationWeight = 1;
+
+%Maximum ratio between the link's radius & the starting radius
+MaximumRadiusRatio = 1000;
+
+%Maximum ratio between the link's radius & the starting radius
+MinimumRadiusRatio = 1e-3;
+
+%The starting radius of the veins
+StartingRadius = 1;
+
+%The number of nodes initially generated for the ramification
+RamificationAmount = 5;   
+
+%Characteristic of the root
+RootChar = [0 0];   
+
+%The number of generations
+Generations = 5;   
+
+%The viscocity of the "fluid" 
+Viscosity = 1;  
+
+%The index of the determining characteristic in the 'characteristics' field
+DeterminingCharacteristic = 1;  
+
+%The minimum number of nodes two decision sequences should have in common for a restart to occur
+MinCommonNodesThres = 7;  
+
+%Value assigned to the length if it's zero (to prevent flux = inf)
+IfZeroLength = 1e-15; 
+
+%The functio nreference to the cost function
+CostFunction = @MyCostFunction; 
+
+%The class that contains the node attributes
+NodeAttributes = @MyAttributes; 
+
+%The project directory
+ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing\Atira Algorithm';
 
 
-UserInputs = struct('LowThrust',                          1,  ... %Set to 1 for low-thrust, 0 for high-thrust
-                    'LinearDilationCoefficient',          20,  ... %Linear dilation coefficient 'm'
-                    'EvaporationCoefficient',             0,  ... %Evaporation coefficient 'rho'
-                    'GrowthFactor',                       0,  ... %Growth factor 'GF'
-                    'NumberOfAgents',                     3,  ... %Number of virtual agents 'N_agents'
-                    'RamificationProbability',            0.15, ... %Probability of ramification 'p_ram'
-                    'RamificationWeight',                 1,  ... %Weight on ramification 'lambda'
-                    'MaximumRadiusRatio',                 1000,  ... %Maximum ratio between the link's radius & the starting radius
-                    'MinimumRadiusRatio',                 1e-3,  ... %Maximum ratio between the link's radius & the starting radius
-                    'StartingRadius',                     1,  ... %The starting radius of the veins
-                    'RamificationAmount',                 5,  ... %The number of nodes initially generated for the ramification
-                    'RootChar',                           [0 0],  ... %Characteristic of the root
-                    'Generations',                        5,  ... %The number of generations
-                    'Viscosity',                          1, ... %The viscocity of the "fluid" 
-                    'DeterminingCharacteristic',          1, ... %The index of the determining characteristic in the 'characteristics' field
-                    'MinCommonNodesThres',                7,  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur
-                    'IfZeroLength',                       1e-15, ... %Value assigned to the length if it's zero (to prevent flux = inf)
-                    'CostFunction',                       @CostFunction, ...
-                    'NodeAttributes',                     @CreateMyAttributes, ...
-                    'ProjectDirectory',                   'C:\Users\ckb16114\Desktop\Internship\Code\Developing\Atira Algorithm', ...
-                    'AttributeIDIndex',                   [1 3], ... %Index of the attributes that determine the unique ID
-                    'IDBoundaries',                       [0 20; 0 6], ... %Boundaries for the attributes that determine the unique ID. Separate by ;
-                    'IDStepSize',                         [1; 2] ... %Stepsize for the attributes that determine the unique ID. Separate by ;
-                );  
+
+
 
                 
