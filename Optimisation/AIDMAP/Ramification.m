@@ -72,10 +72,10 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
         break
     end
        
-    [newnode_ID] = ChooseNode(possnodes);
+    [newnode_ID,childID] = ChooseNode(currentNode,possnodes);
     
     %Remove chosen decision from list of possible decisions
-    possnodes(strmatch(newnode_ID,possnodes)) = [];
+    possnodes(strmatch(childID,possnodes)) = [];
     
     [validflag] = MyNodeCheck(ListNodes,newnode_ID,currentNode,generatednodes);
     %Confirm that node doesn't already exist

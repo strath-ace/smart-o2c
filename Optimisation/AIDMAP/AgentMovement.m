@@ -22,6 +22,7 @@ agentdeathflag = 0;
 %variables
 currentagent = char(agent);
 currentnode = char(Agents.(currentagent).currentNode);
+disp(strcat([datestr(now),' === Moved to',' ',currentnode]));
 
 if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
     agentdeathflag = 1;

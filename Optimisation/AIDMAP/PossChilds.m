@@ -1,4 +1,4 @@
-function [possnodes] = PossNodes(targets,charvalues)
+function [posschildren] = PossChilds(targets,sets)
 % This script creates a cell array containing all the unique IDs (UIDs) the
 % Physarum algorithm can choose from. 
 %
@@ -10,13 +10,16 @@ function [possnodes] = PossNodes(targets,charvalues)
 %                be used. Otherwise, a matrix should be the input. 
 %
 % Outputs: 
-% * possnodes  : A cell array with all the UIDs the algorithm can
+% * posschildren  : A cell array with all the UIDs the algorithm can
 %                choose from
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
 %Loop over all the targets
+
+charvalues = struct2cell(sets);
+
 for i = 1:length(targets)
     
     %Set for convenience the current target name as a variable
@@ -31,40 +34,9 @@ for i = 1:length(targets)
         onevalueflag = (length(charvalues{j}(1,:))==1);
         cellflag = iscell(charvalues{j});
         
-        if vectorflag %(vectorflag && notonevalue)
-            
-            %If the values of the characteristic have been defined as a
-            %cell array, the value is different for each target and a cell
-            %array was used due to the number of values of the
-            %characteristic not being equal for each target (thus it not
-            %being possible to create a matrix). As such, a different value
-            %is taken for each target.
-            if cellflag
-                possiblecharacteristics{i,j} = cell2mat(charvalues{j}(i));
-            elseif onevalueflag
-                
-                %If only 1 value is available for this target's
-                %characteristic, take the ith value in the jth cell
-                %of the charvalues array
-                possiblecharacteristics{i,j} = charvalues{j}(i);
-            else
-                
-            %Otherwise, the possible values for the characterstic are given as
-            % a normal vector. The possible values are then the same for every target. 
-            %As such, the same "charvalues" values are taken for every loop over i.
-                possiblecharacteristics{i,j} = charvalues{j};
-            end         
-                 
-        else
-            
-            %If the possible values are given as a matrix, these possible
-            %values may differ per target, but the number of values the characteristic
-            %is equal for each target. As such, the ith row is taken of
-            %this charvalues cell.
-            possiblecharacteristics{i,j} = charvalues{j}(i,:);
-        end
+        possiblecharacteristics{i,j} = cell2mat(charvalues{j}(i));
     end
-    
+           
     %Determine all possible combinations of the possible characteristics
     %for this target
     possiblecombinations = combvec(possiblecharacteristics{i,:})';
@@ -114,10 +86,10 @@ end
 
 %Reshape the possdeccharvec variable such that it becomes a cell array 
 %with a single row.
-possnodesvec = reshape(possdeccharvec, [1, numel(possdeccharvec)]);
+posschildrenvec = reshape(possdeccharvec, [1, numel(possdeccharvec)]);
 
 %Remove empty cells that are the result of more possible characteristics
 %for certain targets
-possnodes = possnodesvec(~cellfun('isempty',possnodesvec));
+posschildren = posschildrenvec(~cellfun('isempty',posschildrenvec));
 end
 
