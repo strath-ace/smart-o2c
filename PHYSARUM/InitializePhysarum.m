@@ -28,7 +28,7 @@ InitializedInputs = struct('LowThrust',               LowThrust,  ... %Set to 1 
                 'MinimumRadiusRatio',                 MinimumRadiusRatio,  ... %Minimum radius of the veins
                 'StartingRadius',                     StartingRadius,  ... %The starting radius of the veins
                 'RamificationAmount',                 RamificationAmount,  ... %The number of nodes initially generated for the ramification
-                'PossibleDecisions',                  {targets},  ... %The list of possible targets
+                'PossibleDecisions',                  {Targets},  ... %The list of possible targets
                 'MaxConsecutiveRes',                  {MaxConsecutiveRes},  ... %Maximum number of consecutive resonance orbits to each target
                 'MaxVisits',                          {MaxVisits},  ... %Maximum number of visits to each target
                 'RootChar',                           RootChar,   ... %Characteristic of the root
@@ -60,7 +60,7 @@ if ~(length(InitializedInputs.AttributeIDIndex)==length(charvalues))
 end
 
 %Add nodes that can be selected to the Inputs structure
-InitializedInputs.PossibleListNodes = PossNodes(targets,charvalues);
+InitializedInputs.PossibleListNodes = PossNodes(Targets,charvalues);
 
 %Create the list of nodes
 ListNodes = CreateListNodes(InitializedInputs);
