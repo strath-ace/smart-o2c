@@ -1,4 +1,4 @@
-function [memories_out,B_mean,bubble, archivebest,options] = MP_AIDEA_ALR(fname, input, options, varargin)
+function [memories_out,vval, B_mean,bubble, archivebest,options, exitflag] = MP_AIDEA_ALR(fname,vlb, vub, pop, options, varargin)
 %
 % =========================================================================
 % - Multipopulation Adaptive AIDEA
@@ -48,155 +48,69 @@ bubble.pop2 = [];
 bubble.pop3 = [];
 bubble.pop4 = [];
 
-%% Initialise parameters
+%% Default parameters
 
-
-% =========================================================================
-% Input
-% =========================================================================
-
-if ~exist('input','var')
-    
-    error('input structure not supplied')
-    
-else
-    
-    if ~isfield(input,'pop')
-        
-        error('input.pop not defined')
-        
-    else
-        
-        pop = input.population;
-        
-    end
-    
-    if ~isfield(input,'vlb')
-        
-        error('input.vlb not defined')
-        
-    else
-        
-        vlb = input.vlb;
-        
-    end
-    
-    if ~isfield(input,'vub')
-        
-        error('input.vub not defined')
-        
-    else
-        
-        vub = input.vub;
-        
-    end
-    
-end
-
-% =========================================================================
-% Default values for "options" parameters
-% =========================================================================
-
-% if ~exist('options','var')
-%     
-%     disp('Options parameter not defined by the user - Default options are used instead')
-%     
-%     if isempty(pop)
-%         disp('-- Population not defined by the user')
-%         disp('---- Number of elements of the population and problem dimension not defined by the user')
-%         disp('------ UNABLE TO CONTINUE')
-%         return
-%     else
-%         % Number of elements of the population
-%         NP  = size(pop,1);
-%     end
-%     
-%     % Limit for global restart - its dimension has to be related to the
-%     % searching space defined by vlb and vub.
-%     options.delta_global = max(vub-vlb)/50;
-%     
-%     % Population restart threshold - has to be related to the dimension of
-%     % the searching space
-%     options.rho = max(vub-vlb)/100;
-%     
-%     % Probability of DE strategy
-%     options.prob_DE_strategy = 0.5;
-%     
-%     options.dd_CRF = 3;
-%     %    options(36) = 0;
-%     %    options(37) = 0;
-%     options.nFeValMax = 100000;
-%     
-%     options.DE_strategy = 1;
-% end
-
-if ~isfield(options,'delta_global')
-    
-    warning('options.delta_global not defined by the user - Default options are used instead');
+% Check if delta_global was provided by the user
+if ~isfield(options,'delta_global')    
+    warning('\delta_{global} (options.delta_global) not defined - Default value is used');
     options.delta_global = max(vub-vlb)/50;
-
 end
 
+% Check if convergence threshold was provided by the user
 if ~isfield(options,'rho')
-    
-    warning('options.rho not defined by the user - Default options are used instead');
+    warning('\rho (options.rho) not defined by the user - Default value is used');
     options.rho = max(vub-vlb)/100;
-
 end
 
-if ~isfield(options,'prob_DE_strategy')
-    
-    warning('options.prob_DE_strategy not defined by the user - Default options are used instead');
+% Chek if user choose DE strategy
+if ~isfield(options,'DE_strategy')    
+    warning('DE strategy (options.prob_DE_strategy) not defined by the user - Default value is used');
     options.prob_DE_strategy = 0.5;
 
 end
 
+% Chek if user choose probability of DE strategy
+if ~isfield(options,'prob_DE_strategy')
+    warning('Probablity of DE strategy (options.prob_DE_strategy) not defined by the user - Default value is used');
+    options.prob_DE_strategy = 0.5;
+end
+
+% Chek if user choose CRF
 if ~isfield(options,'dd_CRF')
-    
-    warning('options.dd_CRF not defined by the user - Default options are used instead');
+    warning('options.dd_CRF not defined by the user - Default value is used');
     options.dd_CRF = 3;
 
 end
 
+% Check on maximum number of function evaluations
 if ~isfield(options,'nFeValMax')
-    
-    warning('options.nFeValMax not defined by the user - Default options are used instead');
+    warning('Maximum number of function evaluations (options.nFeValMax) not defined by the user - Default value is used');
     options.nFeValMax = 100000;
-
 end
 
-if ~isfield(options,'DE_strategy')
-    
-    warning('options.DE_strategy not defined by the user - Default options are used instead');
-    options.DE_strategy = 1;
-
-end
-
+% check on plot flag
 if ~isfield(options,'plot_flag')
-    
-    warning('options.plot_flag not defined by the user - Default options are used instead');
+        warning('Flag for plots (options.plot_flag) not defined by the user - Default value is used');
     options.plot_flag = 0;
 
 end
 
-% =========================================================================
-% Problem parameters
-% =========================================================================
-% Number of elements of the populations
-NP         = size(pop,1);
-
-% The following line is added because the code does not run when the
-% population has a number of elements greater than the value defined in
-% options(4)
-if NP < size(pop,1)
-    error('The input population has a number of elements greater than the expected value (defined in options(4))')
+% check on plot flag
+if ~isfield(options,'text')
+        warning('Flag for text (options.text) not defined by the user - Default value is used');
+    options.text = 0;
 end
+
+%% MP-AIDEA parameters and options
+
+% Number of individuals of the populations
+NP         = size(pop, 1);
 
 % Neighborhood limit for GLOBAL restart
 expstepglo = options.delta_global;
 
 % Convergence threshold
-mmdist     = options.rho  ;
+mmdist     = options.rho;
 
 % Probability of using strategy best
 P6         = options.prob_DE_strategy;
@@ -225,6 +139,9 @@ distrmin   = sqrt(D*(expstepglo)^2);
 % Initial cost function minimum value (to be compared to cost function
 % values corresponding to population elements)
 fmin       = 1e15;
+
+
+%% Initialization
 
 % Number of local restart performed by each population
 inite      = zeros(1,pop_number);
@@ -304,45 +221,26 @@ var3 = zeros(1,pop_number);
 
 
 
-%% =========================================================================
-% Initialize population (member of the population) if necessary - if the
-% provided population does not have all the required elements. Also useful
-% if no population at all is provided
-% =========================================================================
-
-% If the input population is not complete, generate other elements through
-% latin hypercube sampling and then add them (called dummy) to the existing
-% population until the population has NP elements
-
-if size(pop,1) < NP
-    
-    pop = [pop; zeros((NP-size(pop,1)),D,pop_number)];
-    
-    for i_pop_number = 1 : pop_number
-        
-        % lhsdesign(N,P) generates a latin hypercube sample containing N
-        % values on each of P variables. The input variable criterion is the
-        % criterion to use to measure design improvement; 'maximin' is the
-        % default and is choosen to maximize the minimum distance between
-        % points.
-        % The vub and vlb values are used to create elements inside the defined
-        % boundaries
-        dummy = lhsdesign(NP-size(pop,1),D,'criterion','maximin') .* repmat(vub-vlb,NP-size(pop,1),1) + repmat(vlb,NP-size(pop,1),1);
-        
-        for k = 1 : (NP-size(pop,1))
-            pop(size(pop,1)+1,:,i_pop_number) = dummy(k,:);
-        end
-        
-    end
+for i_pop_number = 1 : pop_number
+    vval_NEW{i_pop_number} = [];
 end
+
 
 step = 1;
 record = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 
+
+
+%% Main loop
+% Exit when the maximum number of function evaluations has been reached
 while sum(nFeVal) < nFeValMax
     
-    
+    %% DE loop for all the populations 
+    % Exit from this cycle when population contracts (break condition) or when
+    % the maximum number of function evaluations is reached
     while sum(nFeVal) < nFeValMax
+        
+        % Cycle over all the populations
         for i_pop_number = 1 : pop_number
             
             % =================================================================
@@ -351,7 +249,7 @@ while sum(nFeVal) < nFeValMax
             % being allowed to enter the following cycle and therefore advance
             % in the DE algorith.
             % This condition is expressed through the following line.
-            % iglob is a variable with a number of column equal to the number
+            % iglob is a variable with a number of columns equal to the number
             % of populations which gives, for each population, the number of
             % time that that population has performed a global restart.
             if iglob(1,i_pop_number) == min(iglob)
@@ -362,16 +260,37 @@ while sum(nFeVal) < nFeValMax
                 % =============================================================
                 
                 % Advance from parents to offspring
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                %                 disp('---------------------------------------------------------------------------------------')
-                %                 disp('DIFFERENTIAL EVOLUTION')
-                %                 disp(['Population number: ' num2str(i_pop_number)]);
-                %                 disp('---------------------------------------------------------------------------------------')
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                pause(5)
-                [BestMem(i_pop_number,:),BestVal(1,i_pop_number),nFeVal,pop(:,:,i_pop_number),Val(:,i_pop_number),iter,vval_DE,new_elements] =...
-                    DE_step(fname,vlb,vub,pop(:,:,i_pop_number),nFeVal,i_pop_number,mmdist,P6,archivebest,dd_limit,DE_strategy,nFeValMax,varargin{:});
+                if options.text == 1
+                    disp('---------------------------------------------------------------------------------------')
+                    disp('DIFFERENTIAL EVOLUTION')
+                    disp(['Population number: ' num2str(i_pop_number)]);
+                    disp('---------------------------------------------------------------------------------------')
+                end
+
                 
+                [BestMem(i_pop_number,:),... % Best member of the current population
+                 BestVal(1,i_pop_number),... % Function value associated to the best member of the current population
+                 nFeVal,...                  % Function evaluations
+                 pop(:,:,i_pop_number),...   % Current population after DE
+                 Val(:,i_pop_number),...     % Function value for the individual of the current population
+                 iter,...                    % 
+                 vval_DE,...                 % 
+                 new_elements ...            %
+                 ] = DE_step(fname, ...                 % Handle to function to optimise
+                             vlb,...                    % Lower boundaries
+                             vub,...                    % Upper boundaries
+                             pop(:,:,i_pop_number),...  % Current population
+                             nFeVal,...                 % Vector with number of function evaluations for each population
+                             i_pop_number,...           % index of current population
+                             mmdist,...                 % Contraction threshold
+                             P6,...                     % Probability of using the two selected DE strategies
+                             archivebest,...            % 
+                             dd_limit,...               % CRF
+                             DE_strategy,...            % Selected DE strategy 
+                             nFeValMax,...              % Maximum number of functions evaluations
+                             varargin{:});
+                
+                vval_NEW{i_pop_number} = [vval_NEW{i_pop_number}; vval_DE];
                 
                 % ---------------------------------------------------------------------
                 % Check condition related to maximum number of function evaluations
@@ -1219,24 +1138,22 @@ end
 
 %% Differential Evolution with adaptive F and CR and local search
 
-function [BestMem,BestVal,nFeVal,pop,Val,iter,vval,new_elements] = DE_step(fname,lb,ub,pop,nFeVal,i_pop_number,mmdist,P6,archivebest,dd_limit,DE_strategy,nFeValMax,varargin)
+function [BestMem, BestVal, nFeVal, pop, Val, iter, vval, new_elements] = DE_step(fname, lb, ub, pop, nFeVal, i_pop_number, mmdist, P6, archivebest, dd_limit, DE_strategy, nFeValMax, varargin)
 
-%
-%    [BestMem,BestVal,nFeVal,pop,val,iter,savesol,isave, count6,count7] = differential(fname,lb,ub,refresh,pop,mmdist,nFeVal,isave,savesol,vsave,P6,varargin)
-%
 %    INPUT
-%           fname   : function handle to cost function
-%           lb,ub   : lower and upper boundaries
-%           pop     : population
-%           mmdist  : convergence threshold (for population contraction)
-%           nFeVal  : number of funtion evaluations
-%           P6      : probability of running strategy best
-%           archivebest:
-%           dd_limit:
-%           DE_strategy:
-%           nFeValMax: maximum number of function evaluations
-%           varargin: additional inputs
-%           varargin: additional inputs
+%           fname        : function handle to cost function
+%           lb,ub        : lower and upper boundaries
+%           pop          : population
+%           nFeVal       : vector with the number of functions evaluations for
+%                          each population
+%           i_pop_number : number of the current population
+%           mmdist       : convergence threshold (for population contraction)
+%           P6           : probability of running selected DE strategies
+%           archivebest  :
+%           dd_limit     :
+%           DE_strategy  : integer to identify selected DE strategies
+%           nFeValMax    : maximum number of function evaluations allowed
+%           varargin     : additional inputs
 %
 %   OUTPUT
 %           BestMem       : best solution vector
@@ -1244,33 +1161,32 @@ function [BestMem,BestVal,nFeVal,pop,Val,iter,vval,new_elements] = DE_step(fname
 %           nFeVal        : number of function evaluations
 %           pop           : population
 %           Val           : cost function associated to pop
+%           iter          :
+%           vval          :
+%           new_elements  :
 
 
 
 % (c) Edmondo Minisci and Massimiliano Vasile 2013
-%     Marilena Di Carlo
+%     Marilena Di Carlo, 2015
 
 % =========================================================================
 % Initialization
 % =========================================================================
+% ?
 new_elements = 0;
 
+% ?
 step_DE = 0;
 
 % The population is composed by NP elements with dimension D
 [NP,D]    = size(pop);
-
-% toggle population
-popold    = zeros(NP,D);
 
 % Val is what in idea2.m was called fitness
 Val       = zeros(1,NP);
 
 % Best population member ever
 BestMem   = zeros(1,D);
-
-% Best population member in iteration
-CurrBest = zeros(1,D);
 
 % Mean element of the population
 MeanPop   = mean(pop);
@@ -1301,10 +1217,9 @@ pop_number = size(archivebest,3);
 % =========================================================================
 % Function Evaluation for Initial Population (Parents)
 % =========================================================================
-
 % start with first population member
 ibest   = 1;
-% keyboard
+
 Val(1)  = feval(fname,pop(ibest,:)',varargin{:});
 BestVal = Val(1);                 % best objective function value so far
 nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
@@ -1343,16 +1258,8 @@ BestMem = CurrBest;                 % best member ever
 % DE Initialization
 % =========================================================================
 
-PopMat1 = zeros(NP,D);              % initialize population matrices
-PopMat2 = zeros(NP,D);
-PopMat3 = zeros(NP,D);
-PopMat4 = zeros(NP,D);
-PopMat5 = zeros(NP,D);
-
 BestMat  = zeros(NP,D);                 % initialize bestmember  matrix
 InterPop  = zeros(NP,D);                % intermediate population of perturbed vectors
-MaskInterPop = zeros(NP,D);             % mask for intermediate population
-MaskOldPop = zeros(NP,D);               % mask for old population
 
 RotIndArr = (0:1:NP-1);               % rotating index array (size NP)
 
