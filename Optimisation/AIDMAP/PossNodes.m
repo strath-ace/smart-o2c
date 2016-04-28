@@ -28,9 +28,10 @@ for i = 1:length(targets)
         %Determine whether the currently evaluated characterstic has a
         %matrix or vector as input
         vectorflag = isvector(charvalues{j});
+        onevalueflag = (length(charvalues{j}(1,:))==1);
         cellflag = iscell(charvalues{j});
         
-        if vectorflag
+        if vectorflag %(vectorflag && notonevalue)
             
             %If the values of the characteristic have been defined as a
             %cell array, the value is different for each target and a cell
@@ -40,6 +41,12 @@ for i = 1:length(targets)
             %is taken for each target.
             if cellflag
                 possiblecharacteristics{i,j} = cell2mat(charvalues{j}(i));
+            elseif onevalueflag
+                
+                %If only 1 value is available for this target's
+                %characteristic, take the ith value in the jth cell
+                %of the charvalues array
+                possiblecharacteristics{i,j} = charvalues{j}(i);
             else
                 
             %Otherwise, the possible values for the characterstic are given as

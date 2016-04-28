@@ -31,8 +31,13 @@ end
 %Find all the nodes that can be chosen:
 
 %To do so, get first all the possible nodes that can be made over the
-%entire graph. Split these nodes into their target & characteristic
+%entire graph. 
 possnodes = Inputs.PossibleListNodes;
+
+%Remove the already existing nodes
+possnodes(ismember(possnodes,fieldnames(ListNodes)))=[];
+
+%Split the remaining nodes into their target & characteristic
 temp = regexp(possnodes, '___', 'split');
 [temp]=cat(1, temp{:});
 
@@ -44,7 +49,7 @@ possdecisions = ListNodes.(currentNode).possibledecisions;
 possnodes(ismember(temp(:,1), possdecisions)==0) = [];
 
 %Retrieve list of currently existing nodes
-existingnodes = fields(ListNodes);
+%existingnodes = fields(ListNodes);
 
 %Initialize structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
@@ -57,7 +62,7 @@ costvec = [];
 warning('off','MATLAB:catenate:DimensionMismatch');
 
 %Start loop to generate the desired number of nodes
-while (length(fields(generatednodes)) < Inputs.RamificationAmount)
+while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     
     %If no more decisions are possible, exit while loop and set
     %agentdeathflag to 1
@@ -71,10 +76,10 @@ while (length(fields(generatednodes)) < Inputs.RamificationAmount)
     
     %Remove chosen decision from list of possible decisions
     possnodes(strmatch(newnode_ID,possnodes)) = [];
-
+    
+    [validflag] = MyNodeCheck(ListNodes,newnode_ID,currentNode,generatednodes);
     %Confirm that node doesn't already exist
-    if (isempty(strmatch(newnode_ID, existingnodes, 'exact')) && ...
-            isempty(strmatch(newnode_ID, fields(generatednodes), 'exact')))
+    if (validflag)
 
         
         %Generate the new node & save its cost in a vector
