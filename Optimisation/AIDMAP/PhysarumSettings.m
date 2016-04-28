@@ -22,17 +22,17 @@
 
 
 %Targets the Physarum can choose from
-targets = {'neo163693', 'neo164294', 'neo1998DK36', 'neo2004JG6', 'neo2005TG45','neo2006WE4','neo2007EB26','neo2008EA32' ,'neo2008UL90' ,'neo2010XB11' ,'neo2012VE46' ,'neo2013JX28'}; 
+Targets = {'neo163693', 'neo164294', 'neo1998DK36', 'neo2004JG6', 'neo2005TG45','neo2006WE4','neo2007EB26','neo2008EA32' ,'neo2008UL90' ,'neo2010XB11' ,'neo2012VE46' ,'neo2013JX28'}; 
 %targets = {'A','B','C'};
 
 %The maximum number of resonance orbits to each target (set to -1 to ignore)
-MaxConsecutiveRes = -1*ones(1, length(targets)); 
+MaxConsecutiveRes = -1*ones(1, length(Targets)); 
 
 %The maximum nubmer of visists to each target (set to -1 to ignore)
-MaxVisits = ones(1, length(targets)); %[3 1 1 1 1]; 
+MaxVisits = -1*ones(1, length(Targets)); %[3 1 1 1 1]; 
 
 %Index of the attributes that determine the unique ID (characteristics)
-AttributeIDIndex = [1 3];  
+AttributeIDIndex = [11 10];  
 
 %Set values of these characteristics. If the values are the same for every
 %target, a vector can be used. Otherwise a matrix should be set with the
@@ -40,7 +40,7 @@ AttributeIDIndex = [1 3];
 %number of values a characteristic can take differs per target (thus making 
 %it impossible to define a matrix), a cell array can be used for that characteristic 
 %as well.
-charvalues{1} = 0:1:20;
+charvalues{1} = 30:10:365;
 load('epochsnode.mat')
 charvalues{2} = epochsnode;
 

@@ -1,5 +1,5 @@
 
-%mex cec14_func.cpp -DWINDOWS
+mex cec14_func.cpp 
 
 % Number of populations
 pop_number = 4;
