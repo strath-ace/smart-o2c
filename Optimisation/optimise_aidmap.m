@@ -1,4 +1,4 @@
-function [x,fval,exitflag,output] = optimisation_aidmap(fitnessfcn,LB,UB,options)
+function [x,fval,exitflag,output] = optimisation_aidmap(fitnessfcn,sets,options)
 
 %% myfunction: brief function description
 % Extensive function description

@@ -16,10 +16,13 @@ function [newNode] = CreateNode(Inputs,ListNodes,node_ID,parent)
 
         
 %Split the newnode_ID into the chosen target & characteristic       
-temp = strsplit(node_ID, '___');
-decisionname = char(temp(1)); 
+temp = strsplit(node_ID, '____');
+newnode = temp{2};
 
-charstring = strsplit(char(temp(2)),'__');
+temp = strsplit(newnode, '___');
+decisionname = temp{1}; 
+
+charstring = strsplit(temp{2},'__');
 charwithdot = strrep(charstring,'_','.');
 
 characteristics = str2double(charwithdot);

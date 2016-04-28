@@ -26,10 +26,10 @@ Targets = {'neo163693', 'neo164294', 'neo1998DK36', 'neo2004JG6', 'neo2005TG45',
 %targets = {'A','B','C'};
 
 %The maximum number of resonance orbits to each target (set to -1 to ignore)
-MaxConsecutiveRes = -1*ones(1, length(Targets)); 
+MaxConsecutiveRes = 1*ones(1, length(Targets)); 
 
 %The maximum nubmer of visists to each target (set to -1 to ignore)
-MaxVisits = -1*ones(1, length(Targets)); %[3 1 1 1 1]; 
+MaxVisits = 1*ones(1, length(Targets)); %[3 1 1 1 1]; 
 
 %Index of the attributes that determine the unique ID (characteristics)
 AttributeIDIndex = [11 10];  
