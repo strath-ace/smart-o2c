@@ -1,4 +1,4 @@
-function [InitializedInputs, ListNodes] = InitializePhysarum(options,sets)
+function [InitializedInputs, ListNodes] = InitializePhysarum(fitnessfcn,options,sets)
 % This is the main file of the physarum solver. 
 % It contains the logic for the algorithm and the solver parameters.
 %
@@ -28,13 +28,13 @@ InitializedInputs = struct('LowThrust',               options.LowThrust,  ... %S
                 'PossibleDecisions',                  {options.Targets},  ... %The list of possible targets
                 'MaxConsecutiveRes',                  options.MaxConsecutiveRes,  ... %Maximum number of consecutive resonance orbits to each target
                 'MaxVisits',                          options.MaxVisits,  ... %Maximum number of visits to each target
-                'RootChar',                           options.RootChar,   ... %Characteristic of the root
+                'RootAttrib',                         options.RootAttrib,   ... %Attributes of the root
                 'Generations',                        options.Generations, ... %The number of generations
                 'Viscosity',                          options.Viscosity, ... %The viscocity of the "fluid" 
-                'DeterminingCharacteristic',          options.DeterminingCharacteristic, ... %The index of the determining characteristic in the 'characteristics' field
+                'DeterminingAttribute',               options.DeterminingAttribute, ... %The index of the determining attribute in the 'attributes' field
                 'MinCommonNodesThres',                options.MinCommonNodesThres,  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur
                 'IfZeroLength',                       options.IfZeroLength, ... %Value assigned to the length if it's zero (to prevent flux = inf)
-                'CostFunction',                       options.CostFunction,  ...
+                'CostFunction',                       fitnessfcn,  ...
                 'NodeAttributes',                     options.NodeAttributes, ...
                 'ProjectDirectory',                   options.ProjectDirectory, ...
                 'AttributeIDIndex',                   options.AttributeIDIndex ... %Index of the attributes that determine the unique ID
@@ -53,7 +53,7 @@ end
 
 %Check if the number of boundaries and stepsizes correspond
 if ~(length(InitializedInputs.AttributeIDIndex)==length(fieldnames(sets)))
-    error('Check size of AttributeIDIndex and charvalues')
+    error('Check size of AttributeIDIndex and sets')
 end
 
 %Add nodes that can be selected to the Inputs structure

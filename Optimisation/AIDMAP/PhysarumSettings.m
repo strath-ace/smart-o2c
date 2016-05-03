@@ -12,9 +12,9 @@
 %                        target (set to -1 to ignore)
 % * MaxVisits          : The maximum nubmer of visists to each target (set
 %                        to -1 to ignore)
-% * mincharboundary    : The minimum boundary for the characteristic(s)
-% * maxcharboundary    : The maximum boundary for the characteristic(s)
-% * stepsize           : The stepsize with which the characteristic(s) is/are 
+% * minattribboundary    : The minimum boundary for the attribute(s)
+% * maxattribboundary    : The maximum boundary for the attribute(s)
+% * stepsize           : The stepsize with which the attribute(s) is/are 
 %                        to be evaluated
 %
 % Author: Aram Vroom - 2016
@@ -26,23 +26,23 @@ Targets = {'neo163693', 'neo164294', 'neo1998DK36', 'neo2004JG6', 'neo2005TG45',
 %targets = {'A','B','C'};
 
 %The maximum number of resonance orbits to each target (set to -1 to ignore)
-MaxConsecutiveRes = 1*ones(1, length(Targets)); 
+MaxConsecutiveRes = 0*ones(1, length(Targets)); 
 
 %The maximum nubmer of visists to each target (set to -1 to ignore)
 MaxVisits = 1*ones(1, length(Targets)); %[3 1 1 1 1]; 
 
-%Index of the attributes that determine the unique ID (characteristics)
+%Index of the attributes that determine the unique ID
 AttributeIDIndex = [11 10];  
 
-%Set values of these characteristics. If the values are the same for every
+%Set values of these attributes. If the values are the same for every
 %target, a vector can be used. Otherwise a matrix should be set with the
-%characteristics for every target, where every row denotes a target. If the
-%number of values a characteristic can take differs per target (thus making 
-%it impossible to define a matrix), a cell array can be used for that characteristic 
+%attributes for every target, where every row denotes a target. If the
+%number of values an attribute can take differs per target (thus making 
+%it impossible to define a matrix), a cell array can be used for that attribute 
 %as well.
-charvalues{1} = 30:10:365;
+attribvalues{1} = 30:10:365;
 load('epochsnode.mat')
-charvalues{2} = epochsnode;
+attribvalues{2} = epochsnode;
 
 %Low Thrust Flag. Set to 1 for low-thrust, 0 for high-thrust
 LowThrust = 1;
@@ -77,8 +77,8 @@ StartingRadius = 1;
 %The number of nodes initially generated for the ramification
 RamificationAmount = 5;   
 
-%Characteristic of the root
-RootChar = [0 0];   
+%Attributes of the root
+RootAttrib = [0 0];   
 
 %The number of generations
 Generations = 5;   
@@ -86,8 +86,8 @@ Generations = 5;
 %The viscocity of the "fluid" 
 Viscosity = 1;  
 
-%The index of the determining characteristic in the 'characteristics' field
-DeterminingCharacteristic = 1;  
+%The index of the determining attribute in the 'attributes' field
+DeterminingAttribute = 1;  
 
 %The minimum number of nodes two decision sequences should have in common for a restart to occur
 MinCommonNodesThres = 7;  
@@ -95,7 +95,7 @@ MinCommonNodesThres = 7;
 %Value assigned to the length if it's zero (to prevent flux = inf)
 IfZeroLength = 1e-15; 
 
-%The functio nreference to the cost function
+%The function reference to the cost function
 CostFunction = @MyCostFunction; 
 
 %The class that contains the node attributes

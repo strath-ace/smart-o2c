@@ -1,24 +1,10 @@
-% This script contains the settings for the physarum solver. As such, this
-% script will be run before the solver itself is started
-%
-% Inputs:
-% * 
-%
-% Outputs: 
-% * UserInputs         : Structure containing the uesr's PhysarumSolver inputs
-% * PossibleDecisions  : The possible decisions (targets) that the solver
-%                        can choose from
-% * MaxConsecutiveRes  : The maximum number of resonance orbits to each
-%                        target (set to -1 to ignore)
-% * MaxVisits          : The maximum nubmer of visists to each target (set
-%                        to -1 to ignore)
-% * mincharboundary    : The minimum boundary for the characteristic(s)
-% * maxcharboundary    : The maximum boundary for the characteristic(s)
-% * stepsize           : The stepsize with which the characteristic(s) is/are 
-%                        to be evaluated
+clear all; close all; clc
+addpath(genpath(fileparts(fileparts(fileparts(pwd)))));
+% This is the main file for the Atira problem
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
+    
 
 tofvalues = 30:10:365;                                  %Set the value of the sets. 
 sets.tof = mat2cell(ones(12,1)...  %Input should be a cell array where each line depicts a target.
@@ -33,9 +19,9 @@ options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum ca
     'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
     'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
     'neo2013JX28'}; 
-options.MaxConsecutiveRes = ones(1, length(options.Targets));%The maximum number of resonance orbits to each target (set to -1 to ignore)
+options.MaxConsecutiveRes = 0*ones(1, length(options.Targets));%The maximum number of resonance orbits to each target (set to -1 to ignore)
 options.MaxVisits = ones(1, length(options.Targets));        %The maximum nubmer of visists to each target (set to -1 to ignore)                    
-options.AttributeIDIndex = [11 10];                     %Index of the attributes that determine the unique ID (characteristics)
+options.AttributeIDIndex = [11 10];                     %Index of the attributes that determine the unique ID
 options.LowThrust = 1;                                  %Low Thrust Flag. Set to 1 for low-thrust, 0 for high-thrust
 options.LinearDilationCoefficient = 20;                 %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 0;                     %Evaporation coefficient 'rho'
@@ -47,18 +33,19 @@ options.MaximumRadiusRatio = 1000;                      %Maximum ratio between t
 options.MinimumRadiusRatio = 1e-3;                      %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 1;                             %The starting radius of the veins
 options.RamificationAmount = 5;                         %The number of nodes initially generated for the ramification
-options.RootChar = [0 0];                               %Characteristic of the root  
+options.RootAttrib = [0 0];                             %Attributes of the root  
 options.Generations = 5;                                %The number of generations
 options.Viscosity = 1;                                  %The viscocity of the "fluid" 
-options.DeterminingCharacteristic = 1;                  %The index of the determining characteristic in the 'characteristics' field
+options.DeterminingAttribute = 1;                       %The index of the determining attribute in the 'attributes' field
 options.MinCommonNodesThres = 7;                        %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                           %Value assigned to the length if it's zero (to prevent flux = inf)
-options.CostFunction = @MyCostFunction;                 %The function reference to the cost function
+fitnessfcn = @MyCostFunction;                           %The function reference to the cost function
 options.NodeAttributes = @MyAttributes;                 %The class that contains the node attributes
 options.ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing\Atira Algorithm'; %The project directory
 
 
+[output] = optimise_aidmap(fitnessfcn,sets,options);
+%[x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)    
 
-
-
-                
+PhysarumTreePlot(output.ListNodes)
+set(gca,'xcolor','w','ycolor','w','xtick',[],'ytick',[]);
