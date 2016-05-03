@@ -4,7 +4,7 @@ function [ListNodes, Agents, agentdeathflag] = AgentMovement(Inputs, ListNodes, 
 % Inputs:
 % * Inputs      : Structure containing the PhysarumSolver inputs
 % * ListNodes       : Structure containing the graph
-% * Agents      : Structure containing the Agents & their characteristics
+% * Agents      : Structure containing the Agents
 % * agent       : Cell with the current agents' name
 % 
 % Outputs:

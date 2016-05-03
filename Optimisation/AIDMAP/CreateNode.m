@@ -4,8 +4,7 @@ function [newNode] = CreateNode(Inputs,ListNodes,node_ID,parent)
 % Inputs:
 % * Inputs         : Structure containing the PhysarumSolver inputs
 % * ListNodes      : Structure containing the graph
-% * decisionname   : string with the chosen target
-% * characteristic : a number that describes this new node (eg ToF)
+% * node_ID        : The unique ID of the node
 % * parent         : a string containing the node_ID of the parent node
 %
 % Outputs: 
@@ -15,17 +14,17 @@ function [newNode] = CreateNode(Inputs,ListNodes,node_ID,parent)
 % Email:  aram.vroom@strath.ac.uk
 
         
-%Split the newnode_ID into the chosen target & characteristic       
+%Split the newnode_ID into the chosen target & attribute       
 temp = strsplit(node_ID, '____');
 newnode = temp{2};
 
 temp = strsplit(newnode, '___');
-decisionname = temp{1}; 
+targetname = temp{1}; 
 
-charstring = strsplit(temp{2},'__');
-charwithdot = strrep(charstring,'_','.');
+attribstring = strsplit(temp{2},'__');
+attribwithdot = strrep(attribstring,'_','.');
 
-characteristics = str2double(charwithdot);
+attributes = str2double(attribwithdot);
 
 %Find the decision that was made by the parent
 parentdecision = strsplit(parent,'_');
@@ -37,7 +36,7 @@ previousdecisions = [previousdecisions{:}];
 
 %Determine the possible decisions & the number of times each target can
 %still be visisted
-[possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNodes, parent, previousdecisions, decisionname);
+[possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNodes, parent, previousdecisions, targetname);
 
 %Create structure of the new node
 newNode = struct('node_ID',           node_ID,... % The ID of the node
@@ -46,7 +45,7 @@ newNode = struct('node_ID',           node_ID,... % The ID of the node
                  'radius',            [Inputs.StartingRadius],... % The radius of each connection
                  'length',            [],... % The length of each connection
                  'flux',              [],... % Matrix containing each connection's flux
-                 'characteristics',   [SetNodeAttributes(Inputs,characteristics)], ... % Characteristics that describe this node (such as orbital elements & ToF .)
+                 'attributes',   [SetNodeAttributes(Inputs,attributes)], ... % Attributes that describe this node (such as orbital elements & ToF .)
                  'previousdecisions', {previousdecisions},... %List of previous decisions made                    
                  'possibledecisions', {possibledecisions}, ... %List containing the decisions that can still be made
                  'VisitsLeft',        {visitsleft} ... % Vector containing the number of times each target cna still be visisted
