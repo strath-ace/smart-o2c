@@ -22,7 +22,7 @@ for j = 1:InitializedInputs.Generations
     disp(strcat(['Starting Generation',' ',num2str(j)]));
     
     %Create a new structure for the agents
-    Agents = CreateAgents(InitializedInputs.NumberOfAgents);
+    Agents = CreateAgents(ListNodes,InitializedInputs.NumberOfAgents);
     
     %Retrieve the agent names
     agentnames = fieldnames(Agents);

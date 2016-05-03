@@ -15,8 +15,8 @@ function [output] = optimisation_aidmap(fitnessfcn,sets,options)
 %% Output:
 % * output : The structure containing the AIDMAP algorithm's outputs
 %
-% Author: your name
-% email: your@email
+% Author: Aram Vroom - 2016
+% Email:  aram.vroom@strath.ac.uk
 
 [InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
 

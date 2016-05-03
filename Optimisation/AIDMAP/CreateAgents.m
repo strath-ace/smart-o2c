@@ -1,4 +1,4 @@
-function [Agents] = CreateAgents(NumberOfAgents)
+function [Agents] = CreateAgents(ListNodes,NumberOfAgents)
 %This function creates the structure containing the Agent decisions and
 %other characteristics.
 %
@@ -15,6 +15,9 @@ function [Agents] = CreateAgents(NumberOfAgents)
 %Initialize the Agents structure
 Agents = struct();          
 
+existingnodes = fieldnames(ListNodes);
+rootname = existingnodes(1);
+
 %Loop over the number of agents to be created
 for i = 1:NumberOfAgents
 
@@ -24,8 +27,7 @@ for i = 1:NumberOfAgents
     %Create the structure for each agent
     AgentStruct = struct('previousListNodes',           [], ...
                          'previouscosts',           [], ...
-                         'currentNode',       ['Root'], ...
-                         'currentconnections',      []  ...
+                         'currentNode',       [rootname] ...
                         );
 
     %Add agent's structure to the Agents main structure                              

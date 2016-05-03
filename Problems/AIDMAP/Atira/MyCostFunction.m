@@ -12,8 +12,8 @@ function [Cost] = MyCostFunction(fromNode, toNode)
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-attributenames = fieldnames(toNode.characteristics);
+attributenames = fieldnames(toNode.attributes);
 
 %Calculate cost to change orbital elements with orbit characterstics such
 %as ToF set. Currently simple formula to test functionality.
-Cost = ((toNode.characteristics.t_arr - toNode.characteristics.tof) - fromNode.characteristics.t_arr)^5;
+Cost = ((toNode.attributes.t_arr - toNode.attributes.tof) - fromNode.attributes.t_arr)^5;

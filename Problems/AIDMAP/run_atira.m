@@ -6,7 +6,10 @@ addpath(genpath(fileparts(fileparts(fileparts(pwd)))));
 % Email:  aram.vroom@strath.ac.uk
     
 
-tofvalues = 30:10:365;                                  %Set the value of the sets. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%           Sets input             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tofvalues = 30:10:365;             %Set the value of the sets. 
 sets.tof = mat2cell(ones(12,1)...  %Input should be a cell array where each line depicts a target.
     *tofvalues,[ones(12,1)],...
     [length(tofvalues)]);
@@ -14,6 +17,9 @@ load('epochsnode.mat')
 sets.epochsnode = epochsnode;
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%              Options             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum can choose from
     'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
     'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
@@ -34,18 +40,29 @@ options.MinimumRadiusRatio = 1e-3;                      %Maximum ratio between t
 options.StartingRadius = 1;                             %The starting radius of the veins
 options.RamificationAmount = 5;                         %The number of nodes initially generated for the ramification
 options.RootAttrib = [0 0];                             %Attributes of the root  
-options.Generations = 5;                                %The number of generations
+options.Generations = 1;                                %The number of generations
 options.Viscosity = 1;                                  %The viscocity of the "fluid" 
 options.DeterminingAttribute = 1;                       %The index of the determining attribute in the 'attributes' field
 options.MinCommonNodesThres = 7;                        %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                           %Value assigned to the length if it's zero (to prevent flux = inf)
 fitnessfcn = @MyCostFunction;                           %The function reference to the cost function
 options.NodeAttributes = @MyAttributes;                 %The class that contains the node attributes
-options.ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing\Atira Algorithm'; %The project directory
+options.MyAttributeCalcFile = @MyAttributeCalcs;     %The file that does the additonal calculations wrt the attributes
+options.ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing\smart-o2c\Problems\AIDMAP'; %The project directory
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%         Run the optimiser        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [output] = optimise_aidmap(fitnessfcn,sets,options);
 %[x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)    
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%       Display the result         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 PhysarumTreePlot(output.ListNodes)
 set(gca,'xcolor','w','ycolor','w','xtick',[],'ytick',[]);
+
+
+
+
+%To do: use Parent kep_trans to find r_dep & v_dep

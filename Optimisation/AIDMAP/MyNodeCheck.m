@@ -20,6 +20,7 @@ chosent_arr = str2double(strrep(temp(2),'_','.'));
 
 parentt_arr = ListNodes.(char(currentNode)).attributes.t_arr;
 
+
 check3 = (chosent_arr - chosentof > parentt_arr);
 
 
