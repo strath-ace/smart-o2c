@@ -1,11 +1,11 @@
 classdef MyAttributes
     % The atributes of each node should be noted in this file
     
-    properties         
+    properties  
         dV_dep %dV for departure
         dV_arr %dV needed at arrival
         dV_tot %total dV
-        kep %The keplerian elements of the transfer
+        kep_trans %The keplerian elements describing the s/c orbit (the transfer)
         r_dep %departure r
         v_dep %departure velocity
         r_arr %arrival r

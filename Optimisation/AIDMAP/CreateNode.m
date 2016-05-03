@@ -45,7 +45,7 @@ newNode = struct('node_ID',           node_ID,... % The ID of the node
                  'radius',            [Inputs.StartingRadius],... % The radius of each connection
                  'length',            [],... % The length of each connection
                  'flux',              [],... % Matrix containing each connection's flux
-                 'attributes',   [SetNodeAttributes(Inputs,attributes)], ... % Attributes that describe this node (such as orbital elements & ToF .)
+                 'attributes',        [SetNodeAttributes(Inputs,ListNodes.(parent),targetname,attributes)], ... % Attributes that describe this node (such as orbital elements & ToF .)
                  'previousdecisions', {previousdecisions},... %List of previous decisions made                    
                  'possibledecisions', {possibledecisions}, ... %List containing the decisions that can still be made
                  'VisitsLeft',        {visitsleft} ... % Vector containing the number of times each target cna still be visisted

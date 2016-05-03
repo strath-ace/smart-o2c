@@ -19,6 +19,16 @@ classdef Asteroids
     
      properties(Constant = true)  
          
+        %Earth
+        Root = CelestialBody('Root',    ... % Name 
+                                  1, ... % Semimajor axis [AU]  
+                                  0.0167, ... % Eccentricity 
+                                  0,  ... % Inclination [deg]  
+                                  -11.26064, ... % Asc. Node/raan [deg]
+                                  102.94719, ... % Arg. Perigee [deg]
+                                  78.835491,   ... % Mean anomoly, M at time given t0 [deg]
+                                  5055.5);          % Epoch [MJD2000]
+         
         % Asteroid '163693'
         neo163693 = CelestialBody('163693',    ... % Name 
                                   0.741089104, ... % Semimajor axis [AU]  
