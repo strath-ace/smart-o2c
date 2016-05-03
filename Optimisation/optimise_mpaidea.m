@@ -18,7 +18,7 @@ function [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, nvars, LB, UB, 
 
 % Check dimension
 if length(LB) ~= length(UB) || length(LB) ~= nvars || length(UB) ~= nvars
-    error('Dimension of upper or lower boundary not compatible with dimension of the problem')
+    error('Dimension of upper or lower boundaries are not compatible with the dimension of the problem')
 end
 
 

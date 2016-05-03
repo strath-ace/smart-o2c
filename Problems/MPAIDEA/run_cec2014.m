@@ -8,6 +8,8 @@ clc
 
 % Add path to optimiser folder
 addpath(genpath('..\..\Optimisation'))
+
+% Add path to problem folder
 addpath(genpath('CEC2014'))
 
 % Mexify cpp file
@@ -50,17 +52,12 @@ options.rho = 0.2;
 % Choose the DE strategies. 
 % -------------------------------------------------------------------------
 % The DE evolution of MP-AIDEA uses two DE strategies, with probability
-% defined by options.prob_DE_strategy.
+% defined by options.prob_DE_strategy (see later).
 % DE/Rand, DE/CurrentToBest and DE/Best are well know DE strategies.
-% DE/Archive is ..... (explain)
 % Uncomment the following line for DE strategies DE/Rand and DE/CurrentToBest:
 options.DE_strategy = 1;
 % Uncomment the following line for DE strategies DE/Rand and DE/Best:
 % options.DE_strategy = 2;
-% Uncomment the following line for DE strategies DE/Best and DE/Archive
-% options.DE_strategy = 3;
-% Uncomment the following line for DE strategies DE/Rand and DE/Archive
-% options.DE_strategy = 4;
 
 
 % -------------------------------------------------------------------------
@@ -83,6 +80,7 @@ options.plot_flag = 0;
 % 
 options.text = 0;
 
+
 %% CEC 2014 guidelines
 
 % Lower and upper boundaries of the search space
@@ -98,9 +96,9 @@ nFeValMax = 10000 * D;
 % Maximum number of function evaluations
 options.nFeValMax = nFeValMax;
 
-
-
-
+% Solutions are saved not only when nFeValMax has been reached but also at
+% fraction of nFeValMax. Define this fraction in options.record:
+options.record = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 
 % Initialise populations
 population = zeros(NP,D,pop_number);
@@ -116,8 +114,10 @@ options.population = population;
 
 %% Optimisation
 
+% Function to optimise
 fitnessfcn = @(x)cec14_func(x,func_num);
 
+% MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, D, LB, UB, options);
 
 

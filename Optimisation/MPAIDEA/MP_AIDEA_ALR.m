@@ -1,36 +1,27 @@
-function [memories_out,vval, B_mean,bubble, archivebest,options, exitflag] = MP_AIDEA_ALR(fname,vlb, vub, pop, options, varargin)
+function [memories_out,vval, B_mean,bubble, archivebest, population_evolution, vval_evolution, options, exitflag] = ...
+         MP_AIDEA_ALR(fname, vlb, vub, pop, options, varargin)
 %
 % =========================================================================
-% - Multipopulation Adaptive AIDEA
-% - DE strategy randomly chosen between DE/best and DE/rand, or DE/best and
-%   DE/arch, or DE/arch and DE/rand
+% - Multipopulation AIDEA
 % - Adaptation of CR and F inside the single populations
-% - Adaptation of the dimension of the bubble
-% - DE strategy randomly chosen between DE/best and DE/rand
+% - Adaptation of the dimension of the bubble for the local restart
+% - Adaptive local/global restart
+% References: M. Di Carlo, M. Vasile, E. Minisci, "Multi-Population
+% Adaptive Inflationary Differential Evolution Algorithm with Adaptive
+% Local Restart", IEEE Congress on Evolutionary Computation, CEC 2015,
+% Sendai, Japan
 % =========================================================================
 % =========================================================================
-%
-%   [memories,archivebest,options] = MP_AIDEA_SINGLE_AdaptBubble(fname,pop,vlb,vub,options,varargin)
-%
 %    INPUT
 %           fname   = function handle to cost function
+%           vlb     = lower boundaries
+%           vub     = upper boundaries
 %           pop     = initial population matrix
 %                     if pop is an empty or partial matrix then aidea
 %                     will generate the missing elements
 %                     pop is a 3D matrix where the third dimension identify
 %                     the numbers of populations
-%           vlb     = lower boundaries
-%           vub     = upper boundaries
-%           options = options vector
-%                     options(4)  = number of elements of the population
-%                     options(12) = neighborhood limit for GLOBAL restart
-%                     options(27) = population contraction threshold
-%                     options(31) = limit number of local restart
-%                     options(34) = probability of using strategy
-%                                   DE/best/1/bin (rather than
-%                                   DE/rand/1/bin) or others
-%                     options(35) = limit on delta f for CR update (CRC)
-%                     options(36) = 1 to get a video, 0 otherwise
+%           options = structure containing options for the problem
 %
 %   OUTPUT
 %          memories   = archive containing all the local minima plus the
@@ -39,7 +30,7 @@ function [memories_out,vval, B_mean,bubble, archivebest,options, exitflag] = MP_
 %          archivebest = archive of local minima
 
 % (c) Edmondo Minisci and Massimiliano Vasile 2013
-%     Marilena Di Carlo 2014
+%     Marilena Di Carlo 2015
 %
 % =========================================================================
 B_mean = [];
@@ -219,16 +210,22 @@ var1 = zeros(1,pop_number);
 var2 = zeros(1,pop_number);
 var3 = zeros(1,pop_number);
 
+%%% OK da Qui
 
-
+% Initialise vector
 for i_pop_number = 1 : pop_number
-    vval_NEW{i_pop_number} = [];
+    population_evolution{i_pop_number} = [];
+    vval_evolution{i_pop_number}       = [];
 end
 
+% Solutions will be saved when fraction of the number evaluations will be
+% reached. This fractions are defined in input.record. An example could be:
+% record = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
+options = input.record;
 
+% Initialise step for the saving of solution at fraction of maximum number
+% of function evaluations
 step = 1;
-record = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
-
 
 
 %% Main loop
@@ -267,14 +264,19 @@ while sum(nFeVal) < nFeValMax
                     disp('---------------------------------------------------------------------------------------')
                 end
 
+                % Save population and other parameters of the population
+                population_evolution{i_pop_number} = [population_evolution{i_pop_number}; pop(:,:,i_pop_number)]; 
                 
+                % ---------------------------------------------------------
+                % Run DE until contraction
+                % ---------------------------------------------------------
                 [BestMem(i_pop_number,:),... % Best member of the current population
                  BestVal(1,i_pop_number),... % Function value associated to the best member of the current population
                  nFeVal,...                  % Function evaluations
                  pop(:,:,i_pop_number),...   % Current population after DE
                  Val(:,i_pop_number),...     % Function value for the individual of the current population
-                 iter,...                    % 
-                 vval_DE,...                 % 
+                 ~,...                       % number of generations for contraction (not used)
+                 vval_DE,...                 % Vector with useful quantities for the evolution of the population
                  new_elements ...            %
                  ] = DE_step(fname, ...                 % Handle to function to optimise
                              vlb,...                    % Lower boundaries
@@ -284,63 +286,110 @@ while sum(nFeVal) < nFeValMax
                              i_pop_number,...           % index of current population
                              mmdist,...                 % Contraction threshold
                              P6,...                     % Probability of using the two selected DE strategies
-                             archivebest,...            % 
-                             dd_limit,...               % CRF
+                             dd_limit,...               % dd limit for adaptation of CRF
                              DE_strategy,...            % Selected DE strategy 
                              nFeValMax,...              % Maximum number of functions evaluations
                              varargin{:});
                 
-                vval_NEW{i_pop_number} = [vval_NEW{i_pop_number}; vval_DE];
+                % Save population and other parameters of the population
+                population_evolution{i_pop_number} = [population_evolution{i_pop_number}; pop(:,:,i_pop_number)];         
+                vval_evolution{i_pop_number}       = [vval_evolution{i_pop_number};       vval_DE];
                 
                 % ---------------------------------------------------------------------
                 % Check condition related to maximum number of function evaluations
                 % ---------------------------------------------------------------------
-                if sum(nFeVal) >= record(step)*nFeValMax
+                if sum(nFeVal) >= record(step) * nFeValMax
                     
+                    % If the total maximum number of function evaluations
+                    % has been reached
                     if sum(nFeVal)>= nFeValMax
+                        
+                        % For cycle over all the populations
                         for i_population = 1 : pop_number
+                            
+                            % Update populations before i_pop_number with
+                            % all the elements (NP)
                             if i_population < i_pop_number
-                                % Update each memories with NP new elements
-                                memories(end+1:end+NP,:,1:pop_number)= NaN*ones(NP,D+1,pop_number);
+                                
+                                % DELETE this:
+%                                 memories(end+1:end+NP,:,1:pop_number)= NaN*ones(NP,D+1,pop_number);
+%                                 memories_update = [pop(:,:,i_population) Val(:,i_population)];
+%                                 memories(end-NP+1:end,:,i_population)=memories_update;
+%                                 memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
+%                                 memories_out(step,:,i_population) = memories(1,:,i_population);
+                                
                                 memories_update = [pop(:,:,i_population) Val(:,i_population)];
-                                memories(end-NP+1:end,:,i_population)=memories_update;
-                                memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
-                                memories_out(step,:,i_population) = memories(1,:,i_population);
+                                memories{i_pop_number} = [memories{i_pop_number}; memories_update];
+                                memories{i_pop_number} = sortrows(memories{i_pop_number}, D+1);
+                                memories_out(step, :, i_population) = memories{i_pop_number}(1,:);
+                                
+                            % Update the population i_pop_number with a number of 
+                            % elements equal to new_elements (and no more)
                             elseif i_population == i_pop_number
-                                % Update this populatio with new_elements
-                                % new elements
-                                memories(end+1:end+new_elements,:,1:pop_number)= NaN*ones(new_elements,D+1,pop_number);
-                                memories_update = [pop(1:new_elements,:,i_population) Val(1:new_elements,i_population)];
-                                memories(end-new_elements+1:end,:,i_population)=memories_update;
-                                memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
-                                memories_out(step,:,i_population) = memories(1,:,i_population);
+       
+                                % DELETE this:
+%                                 memories(end+1:end+new_elements,:,1:pop_number)= NaN*ones(new_elements,D+1,pop_number);
+%                                 memories_update = [pop(1:new_elements,:,i_population) Val(1:new_elements,i_population)];
+%                                 memories(end-new_elements+1:end,:,i_population)=memories_update;
+%                                 memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
+%                                 memories_out(step,:,i_population) = memories(1,:,i_population);
+                                
+                                memories_update = [pop(1:new_elemements,:,i_population) Val(1:new_elements,i_population)];
+                                memories{i_pop_number} = [memories{i_pop_number}; memories_update];
+                                memories{i_pop_number} = sortrows(memories{i_pop_number}, D+1);
+                                memories_out(step, :, i_population) = memories{i_pop_number}(1,:);
+                                
+                            % The remaininf population did not had the opportunity to do a DE    
                             elseif i_population > i_pop_number
+                                
                                 % Take best element
-                                memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
-                                memories_out(step,:,i_population) = memories(1,:,i_population);
+%                                 memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
+%                                 memories_out(step,:,i_population) = memories(1,:,i_population);
+                                
+                                memories{i_pop_number} = sortrows(memories{i_pop_number}, D+1);
+                                memories_out(step, :, i_population) = memories{i_pop_number}(1,:);
+                                
+                                
                             end
                         end
                         sum(nFeVal)
                         return
+                        
+                    % else, if total maximum number of function evaluations has not been reached    
                     else
-                        memories_out(step,:,:) = NaN * ones(1,D+1,pop_number);
+                        memories_out(step,:,:) = NaN * ones(1, D+1, pop_number);
                         for i_population = 1 : i_pop_number
-                            memories(end+1:end+NP,:,1:pop_number)= NaN*ones(NP,D+1,pop_number);
+                            
+                            % DELETE this:
+%                             memories(end+1:end+NP,:,1:pop_number)= NaN*ones(NP,D+1,pop_number);
+%                             memories_update = [pop(:,:,i_population) Val(:,i_population)];
+%                             memories(end-NP+1:end,:,i_population)=memories_update;
+%                             memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
+%                             memories_out(step,:,i_population) = memories(1,:,i_population);
+                            
                             memories_update = [pop(:,:,i_population) Val(:,i_population)];
-                            memories(end-NP+1:end,:,i_population)=memories_update;
-                            memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
-                            memories_out(step,:,i_population) = memories(1,:,i_population);
+                            memories{i_pop_number} = [memories{i_pop_number}; memories_update];
+                            memories{i_pop_number} = sortrows(memories{i_pop_number}, D+1);
+                            memories_out(step, :, i_population) = memories{i_pop_number}(1,:);
                         end
                         
                         for i_population = i_pop_number + 1 : pop_number
-                            memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
-                            memories_out(step,:,i_population) = memories(1,:,i_population);
+                            
+                              % DELETE this:
+%                             memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
+%                             memories_out(step,:,i_population) = memories(1,:,i_population);
+                            
+                            memories{i_pop_number} = sortrows(memories{i_pop_number}, D+1);
+                            memories_out(step, :, i_population) = memories{i_pop_number}(1,:);
                         end
+                        
+                        % Increase step by one
                         step = step + 1;
                     end
                 end
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
                 
-                
+             %%% DA QUI   
                 contraction(1,i_pop_number ) = 1;
                 % =================================================================
                 % end of -----if iglob(1,i_pop_number) == min(iglob)
@@ -1136,21 +1185,21 @@ end
 
 
 
-%% Differential Evolution with adaptive F and CR and local search
+%% Differential Evolution with adaptive F and CR 
 
-function [BestMem, BestVal, nFeVal, pop, Val, iter, vval, new_elements] = DE_step(fname, lb, ub, pop, nFeVal, i_pop_number, mmdist, P6, archivebest, dd_limit, DE_strategy, nFeValMax, varargin)
+function [BestMem, BestVal, nFeVal, pop, Val, iter, vval, new_elements] = DE_step(fname, ...
+         lb, ub, pop, nFeVal, i_pop_number, mmdist, P6, dd_limit, DE_strategy, nFeValMax, varargin)
 
 %    INPUT
 %           fname        : function handle to cost function
 %           lb,ub        : lower and upper boundaries
-%           pop          : population
+%           pop          : input population (parents)
 %           nFeVal       : vector with the number of functions evaluations for
 %                          each population
 %           i_pop_number : number of the current population
 %           mmdist       : convergence threshold (for population contraction)
 %           P6           : probability of running selected DE strategies
-%           archivebest  :
-%           dd_limit     :
+%           dd_limit     : limit value of dd for adaptation of CR and F
 %           DE_strategy  : integer to identify selected DE strategies
 %           nFeValMax    : maximum number of function evaluations allowed
 %           varargin     : additional inputs
@@ -1159,10 +1208,12 @@ function [BestMem, BestVal, nFeVal, pop, Val, iter, vval, new_elements] = DE_ste
 %           BestMem       : best solution vector
 %           BestVal       : best solution value
 %           nFeVal        : number of function evaluations
-%           pop           : population
+%           pop           : population (children at contraction of the
+%                           population)
 %           Val           : cost function associated to pop
-%           iter          :
-%           vval          :
+%           iter          : number of generations for contraction
+%           vval          : vector with useful information about the
+%                           evolution of the population
 %           new_elements  :
 
 
@@ -1176,17 +1227,13 @@ function [BestMem, BestVal, nFeVal, pop, Val, iter, vval, new_elements] = DE_ste
 % ?
 new_elements = 0;
 
-% ?
-step_DE = 0;
-
 % The population is composed by NP elements with dimension D
 [NP,D]    = size(pop);
 
-% Val is what in idea2.m was called fitness
+% Val is what in idea2.m was called fitness - vector collecting the
+% objective function value for all the individuals of the population
 Val       = zeros(1,NP);
 
-% Best population member ever
-BestMem   = zeros(1,D);
 
 % Mean element of the population
 MeanPop   = mean(pop);
@@ -1195,7 +1242,7 @@ MeanPop   = mean(pop);
 mmdistm = -1.e10;
 
 for imm = 1 : size(pop)
-    dista = norm(pop(imm,:)-MeanPop);
+    dista = norm(pop(imm,:) - MeanPop);
     if dista > mmdistm
         mmdistm = dista;
     end
@@ -1211,16 +1258,13 @@ mmdistm0 = mmdistm;
 vval=[0 min(Val) mean(Val) max(Val) mmdistm mmdistm/mmdistm0];
 
 
-% Number of populations
-pop_number = size(archivebest,3);
-
 % =========================================================================
 % Function Evaluation for Initial Population (Parents)
 % =========================================================================
 % start with first population member
 ibest   = 1;
 
-Val(1)  = feval(fname,pop(ibest,:)',varargin{:});
+Val(1)  = feval(fname, pop(ibest,:)', varargin{:});
 BestVal = Val(1);                 % best objective function value so far
 nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
 
@@ -1232,7 +1276,7 @@ if sum(nFeVal) >= nFeValMax
 end
 
 for i = 2 : NP                        % check the remaining members
-    Val(i) = feval(fname,pop(i,:)',varargin{:});
+    Val(i) = feval(fname, pop(i,:)', varargin{:});
     nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + 1;
     
     if (Val(i) < BestVal)           % if member is better
@@ -1253,54 +1297,36 @@ CurrBest = pop(ibest,:);            % best member of current iteration
 BestMem = CurrBest;                 % best member ever
 
 
-
 % =========================================================================
 % DE Initialization
 % =========================================================================
 
-BestMat  = zeros(NP,D);                 % initialize bestmember  matrix
-InterPop  = zeros(NP,D);                % intermediate population of perturbed vectors
-
 RotIndArr = (0:1:NP-1);               % rotating index array (size NP)
-
-RotIndArr2  = zeros(NP);                % another rotating index array
-
-IndArr1  = zeros(NP);                % index arrays
-IndArr2  = zeros(NP);
-IndArr3  = zeros(NP);
-IndArr4  = zeros(NP);
-IndArr5  = zeros(NP);
-IndPointArr = zeros(4);
 
 iter = 1;
 
-mmdistm=1.e10;
-
 nostop = 1;
-% nFeValmem = nFeVal;
-% itermem = 0;
 
 
 %% Initialization of CRF to uniform distribution
 
 % Crossover probability CR is defined in the interval 0.1 to 0.99
-% CRa is a (D+1)*3 matrix
+% CRa is a matrix with ((D/2)+1) rows and 3 columns
 % If D = 3 CRa will be
 % CRa = [0.1  0  0;...
 %        CR2  0  0;...
 %        CR3  0  0;...
 %        0.99 0  0];
-
-% delta     = (.99-.1)/(D);
 delta = (.99-.1)/(D/2);
 CRa_1st   = (0.1:delta:0.99)';          % 1st column of matrix CRa
+% CRa_1st = linspace(0.1, 0.99, fix(sqrt(D + 1)))';
 CRa       = [CRa_1st zeros(size(CRa_1st)) zeros(size(CRa_1st))];
 
 % Differential weight F is defined in the interval -1 to 1
-% Fa is a (D+1)*3 matrix
-% delta     = (1-(-1))/(D);
+% Fa is a (D/2+1)*3 matrix
 delta     = (1-(-1))/(D/2);
 Fa_1st    = (-1:delta:1)';             % 1st column of matrix Fa
+% Fa_1st = linspace(-1, 1, fix(sqrt(D + 1)))';
 Fa        = [Fa_1st zeros(size(Fa_1st)) zeros(size(Fa_1st))];
 
 CRFa = [];
@@ -1319,13 +1345,17 @@ CRFa = [];
 %         CR3 F1 0 0;...
 %         .....
 %         CR4 F4 0 0];
-% and therefore its dimensions will be (D+1)(D+1)x4
+% and therefore its dimensions will be [(D/2+1)x(D/2+1)]*4
 for im = 1 : size(CRa(:,1))
     for in = 1 : size(Fa(:,1))
         CRFa=[CRFa; CRa(im,1) Fa(in,1) 0 0];
     end
 end
 
+
+
+
+%% Main DE loop
 while nostop
     
     % =====================================================================
@@ -1333,16 +1363,18 @@ while nostop
     % =====================================================================
     % CRFv is a NP*2 matrix which, for each population elements (row)
     % contains the CR (1st column) and F (2nd column) values
-    CRFv=parzenself_k([],CRFa(:,1:2),ones(size(CRFa(:,1))),NP,'norm',0);
+    CRFv = parzenself_k([], CRFa(:,1:2), ones(size(CRFa(:,1))), NP, 'norm', 0);
     
     % Separate CR from F values
     % At the end of the following lines:
-    % CRv -> pop_number*1 matrix
-    % Fv  -> pop_number*1 matrix
-    CRv=CRFv(:,1);
-    Fv=CRFv(:,2);
+    % CRv -> NP*1 
+    % Fv  -> NP*1 
+    CRv = CRFv(:,1);    
+    Fv  = CRFv(:,2);
     
+    % --------------------------------------------------------------------- 
     % Avoid CR outside the boundaries 0.1 to 0.99
+    % ---------------------------------------------------------------------
     % If some of the obtained CRv associated to a population element is
     % lower than 0.1, its values is brought back to 0.1
     % At the same time, is some element have a value bigger than 0.99, it
@@ -1351,189 +1383,113 @@ while nostop
     % CRv = [CR1 CR2 CR3 ..... CRn;...
     %        0.1 0.1 0.1       0.1]
     % where CR1, CR2 etc represent the CR values associated to the 1st, 2nd
-    % and so on element of the population
+    % and so on individual of the population.
     % The max function returns a row vector containing the maximum value in
     % each column
     % The same holds for the min comparison
-    % At the end of the following two lines CRv will be a pop_numberx1 column vector
+    % At the end of the following two lines CRv will be a NP column vector
     % (it is transposed back at the end of the lines!)
-    CRv=(max([CRv'; 0.1*ones(size(CRv'))]))';
-    CRv=(min([CRv';  0.99*ones(size(CRv'))]))';
-    CR=repmat(CRv,1,D);
+    CRv = (max ( [CRv'; 0.1  * ones(size(CRv')) ] ) )';
+    CRv = (min ( [CRv'; 0.99 * ones(size(CRv')) ] ) )';
+    % CR is of size [D,NP]
+    CR  = repmat(CRv, 1, D);
     
-    Fv=(max([Fv'; -1*ones(size(Fv'))]))';
-    Fv=(min([Fv';  1*ones(size(Fv'))]))';
-    F=repmat(Fv,1,D);
+    Fv  = (max ( [Fv'; -1*ones(size(Fv')) ] ) )';
+    Fv  = (min ( [Fv';  1*ones(size(Fv')) ] ) )';
+    % F is of size [D, NP]
+    F   = repmat(Fv, 1, D);
     
     
-    
-    % =========================================================================
-    % Offspring generation
-    % =========================================================================
     
     % =====================================================================
-    % Probabilistic selection of the strategy (and count how many times a
-    % given strategy is applied)
+    % Generation of the offspring
     % =====================================================================
+    
+    % ---------------------------------------------------------------------
+    % Probabilistic selection of the strategy 
+    % ---------------------------------------------------------------------
     if rand(1,1) < P6
-        %
         strategy = 1;
     else
-        
         strategy = 2;
     end
     
     
-    
-    % =====================================================================
+    % ---------------------------------------------------------------------    
     % Creation of the offspring population
-    % =====================================================================
+    % --------------------------------------------------------------------- 
     
-    popold = pop;                   % save the old population
+    % Save old population in "popold"
+    popold = pop;                 
     
-    IndPointArr = randperm(4);              % index pointer array
+    % Index pointer array
+    IndPointArr = randperm(4);              
     
-    IndArr1  = randperm(NP);             % shuffle locations of vectors
-    RotIndArr2 = rem(RotIndArr+IndPointArr(1),NP);        % rotate indices by IndPointArr(1) positions
-    IndArr2  = IndArr1(RotIndArr2+1);                 % rotate vector locations
+    % Shuffle locations of vectors
+    IndArr1  = randperm(NP);             
+    
+    % Rotate indices by IndPointArr(1) positions
+    RotIndArr2 = rem(RotIndArr + IndPointArr(1), NP); 
+    
+    IndArr2  = IndArr1(RotIndArr2+1);               
     RotIndArr2 = rem(RotIndArr+IndPointArr(2),NP);
     IndArr3  = IndArr2(RotIndArr2+1);
-    RotIndArr2 = rem(RotIndArr+IndPointArr(3),NP);
-    IndArr4  = IndArr3(RotIndArr2+1);
-    RotIndArr2 = rem(RotIndArr+IndPointArr(4),NP);
-    IndArr5  = IndArr4(RotIndArr2+1);
-    
+   
     PopMat1 = popold(IndArr1,:);             % shuffled population 1
     PopMat2 = popold(IndArr2,:);             % shuffled population 2
     PopMat3 = popold(IndArr3,:);             % shuffled population 3
-    PopMat4 = popold(IndArr4,:);             % shuffled population 4
-    PopMat5 = popold(IndArr5,:);             % shuffled population 5
     
-    for i=1:NP                      % population filled with the best member
-        BestMat(i,:) = CurrBest;          % of the last iteration
-    end
+    % Population filled with the best member of the last iteration
+    % ---Old implementation:
+%     for i = 1 : NP                      
+%         BestMat(i,:) = CurrBest;         
+%     end
+    % ---New implementation
+    BestMat = repmat(CurrBest, NP, 1);
     
-    
-    st = strategy;		                     % binomial crossover
+
     % Mask e
-    % To each element of the population is associated a different value of
-    % CR!
+    % To each individual of the population a different value of
+    % CR is associated!
     MaskInterPop = rand(NP,D) < CR;          % all random numbers < CR are 1, 0 otherwise
     MaskOldPop = MaskInterPop < 0.5;         % inverse mask to MaskInterPop
     
-    
-    % According to the randomly selected value of strategy, the DE will
-    % produce a mutant vector using a completely random vector or a random
-    % vector taken from the archive of minima of all the populations or
-    % from the best member of the population
-    
+   
     % ---------------------------------------------------------------------
-    % DE_strategy = 1 : DE/best, DE/rand
+    % DE_strategy = 1 : DE/CurrentToBest, DE/Rand
     % ---------------------------------------------------------------------
     
     if DE_strategy == 1
         
-        if (st == 1)                                                            % DE/best/1
-            InterPop = popold  + F.*(BestMat - popold) + F.*(PopMat1 - PopMat2);
-            %             InterPop = BestMat + F.*(PopMat1 - PopMat2);                        % differential variation
-            InterPop = popold.*MaskOldPop + InterPop.*MaskInterPop;             % crossover
-        elseif (st == 2)                                                        % DE/rand/1
+        if (strategy == 1) % DE/CurrentToBest
+            InterPop = popold  + F.*(BestMat - popold) + F.*(PopMat1 - PopMat2);                      % differential variation
+            InterPop = popold.*MaskOldPop + InterPop.*MaskInterPop;                                   % crossover
+        elseif (strategy == 2) % DE/Rand
             InterPop = PopMat3 + F.*(PopMat1 - PopMat2);
             InterPop = popold.*MaskOldPop + InterPop.*MaskInterPop;
         end
         
-        % ---------------------------------------------------------------------
-        % DE_strategy = 3 : DE/best, DE/arch
-        % ---------------------------------------------------------------------
-    elseif DE_strategy == 3
-        
-        if (st == 1)                                                            % DE/best/1
-            InterPop = BestMat + F.*(PopMat1 - PopMat2);                        % differential variation
-            InterPop = popold.*MaskOldPop + InterPop.*MaskInterPop;             % crossover
-        elseif (st == 2)                                                        % DE/rand/1
-            % When the population have not yet reached condition of contraction
-            % archivebest is still empty and therefore a random vector is
-            % chosen instead. Otherwise use DE/best here!!
-            if isempty(archivebest)
-                InterPop = PopMat3 + F.*(PopMat1 - PopMat2);
-            else
-                
-                while 1
-                    
-                    % Define a random index to choose which archive population
-                    % to use
-                    archive_number = ceil(rand*pop_number);
-                    
-                    % Define a random index for the element of archivebest
-                    random_index = ceil(rand*size(archivebest,1));
-                    
-                    % archivebest is composed of NaN values (see above). We can
-                    % not accept these values therefore we perform a check on
-                    % the selected value of archivebest. If the selected values
-                    % is acceptable we assign it to PopMat3
-                    if isnan(archivebest(random_index,1,archive_number))
-                    else
-                        for i = 1 : NP
-                            PopMat3(i,1:D) = archivebest(random_index,1:D,archive_number);
-                        end
-                        break
-                    end
-                end
-                InterPop = PopMat3 + F.*(PopMat1 - PopMat2);
-            end
-            InterPop = popold.*MaskOldPop + InterPop.*MaskInterPop;
-            
-        end
         
         % ---------------------------------------------------------------------
-        % DE_strategy = 2 : DE/rand, DE/arch
+        % DE_strategy = 2 : DE/Best, DE/Rand
         % ---------------------------------------------------------------------
     elseif DE_strategy == 2
         
-        if (st == 1)                                                            % DE/best/1
-            % When the population have not yet reached condition of contraction
-            % archivebest is still empty and therefore a random vector is
-            % chosen instead. Otherwise use DE/best here!!
-            if isempty(archivebest)
-                InterPop = PopMat3 + F.*(PopMat1 - PopMat2);
-            else
-                
-                while 1
-                    
-                    % Define a random index to choose which archive population
-                    % to use
-                    archive_number = ceil(rand*pop_number);
-                    
-                    % Define a random index for the element of archivebest
-                    random_index = ceil(rand*size(archivebest,1));
-                    
-                    % archivebest is composed of NaN values (see above). We can
-                    % not accept these values therefore we perform a check on
-                    % the selected value of archivebest. If the selected values
-                    % is acceptable we assign it to PopMat3
-                    if isnan(archivebest(random_index,1,archive_number))
-                    else
-                        for i = 1 : NP
-                            PopMat3(i,1:D) = archivebest(random_index,1:D,archive_number);
-                        end
-                        break
-                    end
-                end
-                InterPop = PopMat3 + F.*(PopMat1 - PopMat2);
-            end
-            InterPop = popold.*MaskOldPop + InterPop.*MaskInterPop;
-            
-        elseif (st == 2)                                                        % DE/rand/1
+        if (strategy == 1) % DE/Best
+            InterPop = BestMat + F.*(PopMat1 - PopMat2);                        % differential variation
+            InterPop = popold.*MaskOldPop + InterPop.*MaskInterPop;             % crossover
+        elseif (strategy == 2)   % DE/Rand                                                     
             InterPop = PopMat3 + F.*(PopMat1 - PopMat2);
             InterPop = popold.*MaskOldPop + InterPop.*MaskInterPop;
         end
+        
         
     end
     
     % =====================================================================
     % Select which vectors are allowed to enter the new population
     %======================================================================
-    CRFa=sortrows(CRFa, [3 4]);
+    CRFa = sortrows(CRFa, [3 4]);
     
     % When I exit this function I want to return the maximum dd value for
     % all the elements of the population. Therefore the part of the code
@@ -1548,96 +1504,118 @@ while nostop
     for i = 1 : NP
         
         % =================================================================
-        % Every component violating the boundaries is projected back into D
-        % by picking a new value dependent upon the boundaries and a random
-        % uniform distribution (pag.5)
+        % Every individual violating the boundaries is projected back into
+        % the boundaries
         % =================================================================
         
         % Distance of the i-th element of the population from the lower
         % boundaries
-        dInterPopl = InterPop(i,:)-lb;
+        dInterPopl = InterPop(i,:) - lb;
         
         % How many component of the i-th element of the population are
         % below the lower boundary?
-        ElTooLow  = find(dInterPopl<0);
+        ElTooLow  = find(dInterPopl < 0);
         lElTooLow = length(ElTooLow);
-        
         
         % Distance of the i-th element of the population from the upper
         % boundaries
-        dInterPopr = ub-InterPop(i,:);
+        dInterPopr = ub - InterPop(i,:);
         
         % How many component of the i-th element of the population are
         % above the lower boundary?
-        ElTooHigh  = find(dInterPopr<0);
+        ElTooHigh  = find(dInterPopr < 0);
         lElTooHigh = length(ElTooHigh);
         
-        
         % Bring back the considered element into the boundaries of the
-        % problem
-        if lElTooLow > 0
-            %             InterPop(i,ElTooLow) = lb(ElTooLow) + rand(1,lElTooLow).*(ub(ElTooLow) - lb(ElTooLow));
+        % problem:
+        
+        % -----------------------------------------------------------------
+        % Random re-initialisation
+        % -----------------------------------------------------------------
+%         if lElTooLow > 0
+%            InterPop(i,ElTooLow) = lb(ElTooLow) + rand(1,lElTooLow).*(ub(ElTooLow) - lb(ElTooLow));
+%         end
+%         
+%         if lElTooHigh > 0
+%            InterPop(i,ElTooHigh) = lb(ElTooHigh) + rand(1,lElTooHigh).*(ub(ElTooHigh) - lb(ElTooHigh));
+%         end
+        
+        % -----------------------------------------------------------------
+        % Bounce back re-initialisation
+        % -----------------------------------------------------------------
+        while lElTooLow > 0
             InterPop(i,ElTooLow) = ( popold(ElTooLow) + lb(ElTooLow) ) / 2;
+            
+            dInterPopl = InterPop(i,:) - lb;
+            ElTooLow  = find(dInterPopl < 0);
+            lElTooLow = length(ElTooLow);
         end
-        if lElTooHigh > 0
-            %             InterPop(i,ElTooHigh) = lb(ElTooHigh) + rand(1,lElTooHigh).*(ub(ElTooHigh) - lb(ElTooHigh));
+        
+        while lElTooHigh > 0
             InterPop(i,ElTooHigh) = ( popold(ElTooHigh) + ub(ElTooHigh) ) / 2;
+            
+            dInterPopr = ub - InterPop(i,:);
+            ElTooHigh  = find(dInterPopr < 0);
+            lElTooHigh = length(ElTooHigh);
         end
+ 
         
         
         % =================================================================
         % Value of the function f for each new element of the population
         % =================================================================
         
-        TempVal = feval(fname,InterPop(i,:)',varargin{:});   % check cost of competitor
+        TempVal = feval(fname, InterPop(i,:)', varargin{:});   
+        
+        % Increase number of function evalutations
         nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
         
         
-        if (TempVal <= Val(i))  % if competitor is better than value in "cost array"
+        if (TempVal <= Val(i))  % if competitor is better than parent
             
+            dd = abs((TempVal-Val(i)));
             
-            dd=abs((TempVal-Val(i)));
-            
-            
-            % replace old vector with new one (for new iteration)
+            % Replace parent vector with child (for new iteration)
             pop(i,:) = InterPop(i,:);
             
-            % save value in "cost array"
+            % Save value
             Val(i) = TempVal;
             
-            
-            % Adattamento di CR e F nella popolazione
-            for ic=1:size(CRFa,1)
+            % -------------------------------------------------------------
+            % Adaptation of CR and F
+            % -------------------------------------------------------------
+            for ic = 1 : size(CRFa,1)
                 
                 % If the previous difference between parent and offspring
                 % function value is smaller than the new one (under the
                 % condition that the offspring perform better than the
                 % parent - we are already in an if condition, that is if
                 % TempVal <= Val(i) )
-                if CRFa(ic,3)<dd
+                if CRFa(ic,3) < dd
                     
                     % The substitution of CR is subject to another
                     % limitation
-                    if abs(dd)>dd_limit
+                    if abs(dd) > dd_limit
                         
                         % Substitution of CR
-                        CRFa(ic,1)=CRv(i);
+                        CRFa(ic,1) = CRv(i);
                     end
                     
                     % Substitue the previous value of F with the one used
                     % for the considered offspring
-                    CRFa(ic,2)=Fv(i);
+                    CRFa(ic,2) = Fv(i);
                     
                     % Associate the corresponding dd and iter value
-                    CRFa(ic,3)=dd;
-                    CRFa(ic,4)=iter;
+                    CRFa(ic,3) = dd;
+                    CRFa(ic,4) = iter;
                     break
                 end
             end
             
-            
-            if (TempVal < BestVal)     % if competitor better than the best one ever
-                BestVal = TempVal;      % new best value
+            % If the value of the function for the considered child
+            % individual is better than best value ever..
+            if (TempVal < BestVal)     
+                BestVal = TempVal;            % new best value
                 BestMem = InterPop(i,:);      % new best parameter vector ever
             end
         end
@@ -1664,43 +1642,32 @@ while nostop
     mmdistm = -1.e10;
     
     for imm = 1 : size(pop)
-        dista = norm(pop(imm,:)-MeanPop);
+        
+        % Distance of individual from mean individual
+        dista = norm(pop(imm,:) - MeanPop);
         if dista > mmdistm
-            mmdistm=dista;
+            mmdistm = dista;
         end
     end
     
     % mmdistm is the maximum distance between population mean and elements
     % of the population
-    %[mmdistm min(val)]
-    %
-    %     if isave < size(vsave,2)
-    %         if nFeVal >= vsave(1,isave+1)
-    %             isave = isave + 1;
-    %             savesol = [savesol; BestMem BestVal nFeVal];
-    %         end
-    %     end
-    %
+
     % Collects results of the considered offspring
     vvalr = [iter min(Val) mean(Val) max(Val) mmdistm mmdistm/mmdistm0];
     vval = [vval; vvalr];
-    %
+    
+    % Increase number of generations by one
     iter = iter + 1;
-    %
-    %     % nFeVal is equal to nFeValmem only if the population has not advanced
-    %     % from parent to offspring. If the population has not advanced, itermem
-    %     % increases by one
-    %     if nFeVal~=nFeValmem
-    %         nFeValmem=nFeVal;
-    %         itermem=0;
-    %     else
-    %         itermem=itermem+1;
-    %     end
     
-    step_DE = step_DE + 1;
+    % Exit when one of the following conditions happens:
+    % - the population contracts (mmdistm/max(vval(:,5))<mmdist)
+    % - the maximum number of function evaluations has been reached
+    % (sum(nFeVal)>nFeValMax)
+    % - the DE is running from more than (D/10)*100 generations    
+    nostop = mmdistm/max(vval(:,5))>mmdist  && sum(nFeVal)<nFeValMax && iter < (D/10)*100 ;
+
     
-    nostop=mmdistm/max(vval(:,5))>mmdist  && sum(nFeVal)<nFeValMax && step_DE < (D/10)*100 ;
-    % nostop=mmdistm/max(vval(:,5))>mmdist  && sum(nFeVal)<nFeValMax  ;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %     disp(['DE generation: ' num2str(step_DE)]);
     % %     disp(strcat('\rho for DE convergence: ', num2str(mmdistm/max(vval(:,5)) - mmdist)))
