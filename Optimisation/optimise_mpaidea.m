@@ -1,4 +1,4 @@
-function [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, nvars, LB, UB, options)
+function [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options)
 
 %% optimise_mpaidea
 
@@ -16,17 +16,16 @@ function [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, nvars, LB, UB, 
 % Author: Marilena Di Carlo
 % email: marilena.di-carlo@strath.ac.uk
 
-% Check dimension
-if length(LB) ~= length(UB) || length(LB) ~= nvars || length(UB) ~= nvars
-    error('Dimension of upper or lower boundaries are not compatible with the dimension of the problem')
-end
 
 
 % Run MP-AIDEA
-[memories, B_mean, bubble, archivebest,options, exitflag] = MP_AIDEA_ALR(fitnessfcn, LB, UB, options.population, options);
+[memories_out, memories, vval, B_mean, bubble, archivebest,...
+    population_evolution, vval_evolution, options] = MP_AIDEA_ALR(fitnessfcn, LB, UB, options.population, options);
 
 % Define output
-x = memories(1,1:nvars);
-fval = memories(1,nvars + 1);
-output = [];
+% x = memories(1,1:nvars);
+% fval = memories(1,nvars + 1);
+% output = [];
+
+keyboard
 end

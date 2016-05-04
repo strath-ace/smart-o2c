@@ -95,6 +95,7 @@ end
 x=x-repmat(o,ps,1);
 fit=sum(x.^2,2);
 
+
 % 	2.Shifted Schwefel's Problem 1.2
 function f=schwefel_102(x)
 global initial_flag
