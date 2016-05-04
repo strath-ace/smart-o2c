@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Example of run of optimisation problem of CEC 2014 using MP-AIDEA
+% Example of run of optimisation problem of CEC 2005 using MP-AIDEA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all
@@ -20,7 +20,7 @@ initial_flag = 0;
 
 % Number of the function to optimise. The CEC 2014 competition includes 30
 % test functions. func_num must be betwen 1 and 30
-func_num = 1;
+func_num = 12;
 
 % Dimension of the problem - Choose between 10, 30, 50 and 100 dimensions
 D = 10;
@@ -119,7 +119,7 @@ options.population = population;
 fitnessfcn = @(x)benchmark_func(x,func_num);
 
 % MP-AIDEA optimisation
-[x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, D, LB, UB, options);
+[x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
 
 
 
