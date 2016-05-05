@@ -77,7 +77,6 @@ kep_transfer_orbit = cart2kep([departure_r, vel_initial],mu);
 ecc = kep_transfer_orbit(2);
  
 if ecc > 1
-    disp('Transfer orbit eccentricity greater than 1')
     toNode.length = Inf;
     return
 end
@@ -111,7 +110,6 @@ curr_departure_orbit = CelestialBody('transfer_orbit',             ... % Name of
                                      toNode.attributes.t_dep); % Time at which Mo is given [MJD2000]  
 
 toNode.attributes.kep_trans = curr_departure_orbit;
-%toNode.attributes.kep_trans = CelestialBody('Transfer Orbit',kep(1), kep(2), kep(3), kep(4), kep(5), kep(6), kep(7));
 
 toNode.length = deltaV_Total;
 end

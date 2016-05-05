@@ -18,8 +18,12 @@ function [output] = optimisation_aidmap(fitnessfcn,sets,options)
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
+tic;
+
 [InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
 
-[output.Solutions output.ListNodes,output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
+[output.Solutions, output.ListNodes,output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
+
+output.CompTime = toc;
 
 end
