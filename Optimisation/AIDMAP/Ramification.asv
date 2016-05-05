@@ -1,4 +1,4 @@
-function [ListNodes, Solutions, Agents, agentdeathflag] = Ramification(Inputs, Solutions, ListNodes, Agents, agent)
+function [ListNodes, Agents, agentdeathflag] = Ramification(Inputs, ListNodes, Agents, agent)
 % This function handles the ramification to new nodes. It does so by
 % generating a preset number of random nodes and making a probabilistic
 % selection based on the cost function.
@@ -25,7 +25,7 @@ agentdeathflag = 0;
 
 if isempty(ListNodes.(currentNode).possibledecisions)   
     agentdeathflag = 1;
-    Solutions = [Solutions; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
+    Solutions = 
     return
 end
 
@@ -70,7 +70,6 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     if isempty(possnodes)
         disp(strcat(agent,' died'))
         agentdeathflag = 1;
-        Solutions = [Solutions; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
         break
     end
        

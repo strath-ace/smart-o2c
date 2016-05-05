@@ -11,8 +11,7 @@ classdef CelestialBody
         W    % Arg. Perigee [deg]     
         M0   % Mean anomoly, M at time given t0 [deg]
         t0   % Time at which Mo is given [MJD2000]   
-        mag  % Abs Magnitude (i.e. intrinsic brightness)             
-        mass % Mass [kg]        
+   
     end
     
     methods

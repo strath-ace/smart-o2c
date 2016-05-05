@@ -20,6 +20,6 @@ function [output] = optimisation_aidmap(fitnessfcn,sets,options)
 
 [InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
 
-[output.ListNodes,output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
+[output.Solutions output.ListNodes,output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
 
 end
