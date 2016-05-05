@@ -1,6 +1,6 @@
-function [memories_out,vval, B_mean,bubble, archivebest, population_evolution, vval_evolution, options, exitflag] = ...
+function [memories_out, memories, archivebest, population_evolution, vval_evolution, B_mean, delta_local, options, exitflag] = ...
          MP_AIDEA_ALR(fname, vlb, vub, pop, options, varargin)
-%
+
 % =========================================================================
 % - Multipopulation AIDEA
 % - Adaptation of CR and F inside the single populations
@@ -24,20 +24,30 @@ function [memories_out,vval, B_mean,bubble, archivebest, population_evolution, v
 %           options = structure containing options for the problem
 %
 %   OUTPUT
+%          memories_out = archive containing the best individual, for each
+%                         population, at each value of function evaluations
+%                         chosen to record the results obtained
 %          memories   = archive containing all the local minima plus the
 %                       population for each restart. The solutions are sorted
-%                       from the best to the worst
-%          archivebest = archive of local minima
+%                       from the best to the worst. One cell for each
+%                       population
+%          archivebest = archive of local minima (obtained by local search)
+%          population_evolution = initial and final population obtained at
+%                                 each DE step for each population
+%          vval_evolution = for each population, important DE parameters 
+%          B_mean   = mean value of the matrix for the adaptation of delta
+%                     local
+%          delta_local = value of delta_local for each population
+%          options
+%          exitflag = exitflag from fmincon
+% =========================================================================
 
 % (c) Edmondo Minisci and Massimiliano Vasile 2013
 %     Marilena Di Carlo 2015
 %
 % =========================================================================
-B_mean = [];
-bubble.pop1 = [];
-bubble.pop2 = [];
-bubble.pop3 = [];
-bubble.pop4 = [];
+
+
 
 %% Default parameters
 
@@ -132,7 +142,9 @@ distrmin   = sqrt(D*(expstepglo)^2);
 fmin       = 1e15;
 
 
-%% Initialization
+flag_test = options.text;
+
+%% Initialization - clear here
 
 % Number of local restart performed by each population
 inite      = zeros(1,pop_number);
@@ -143,10 +155,12 @@ iglob      = zeros(1,pop_number);
 % Initialize archivebest (matrix for the collection of all the local minima
 % found using fmincon) and memories (matrix for the collection of all
 % population elements and local minima)
-archivebest=[];
-memories   =[];
+% archivebest=[];
+% memories   =[];
 
 archiveALL = [];
+
+B_mean = [];
 
 % Initialize matrices for the collection of the best members of the
 % populaiton and the corresponding local minima and for the collection of
@@ -216,12 +230,15 @@ var3 = zeros(1,pop_number);
 for i_pop_number = 1 : pop_number
     population_evolution{i_pop_number} = [];
     vval_evolution{i_pop_number}       = [];
+    memories{i_pop_number}             = [];
+    archivebest{i_pop_number}          = [];
+    delta_local{i_pop_number}          = [];
 end
 
 % Solutions will be saved when fraction of the number evaluations will be
 % reached. This fractions are defined in input.record. An example could be:
 % record = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
-options = input.record;
+record = options.record;
 
 % Initialise step for the saving of solution at fraction of maximum number
 % of function evaluations
@@ -255,9 +272,9 @@ while sum(nFeVal) < nFeValMax
                 % =============================================================
                 % PARENTS --> OFFSPRING
                 % =============================================================
-                
+
                 % Advance from parents to offspring
-                if options.text == 1
+                if options.text 
                     disp('---------------------------------------------------------------------------------------')
                     disp('DIFFERENTIAL EVOLUTION')
                     disp(['Population number: ' num2str(i_pop_number)]);
@@ -311,82 +328,60 @@ while sum(nFeVal) < nFeValMax
                             % all the elements (NP)
                             if i_population < i_pop_number
                                 
-                                % DELETE this:
-%                                 memories(end+1:end+NP,:,1:pop_number)= NaN*ones(NP,D+1,pop_number);
-%                                 memories_update = [pop(:,:,i_population) Val(:,i_population)];
-%                                 memories(end-NP+1:end,:,i_population)=memories_update;
-%                                 memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
-%                                 memories_out(step,:,i_population) = memories(1,:,i_population);
-                                
                                 memories_update = [pop(:,:,i_population) Val(:,i_population)];
-                                memories{i_pop_number} = [memories{i_pop_number}; memories_update];
-                                memories{i_pop_number} = sortrows(memories{i_pop_number}, D+1);
-                                memories_out(step, :, i_population) = memories{i_pop_number}(1,:);
+                                memories{i_population} = [memories{i_population}; memories_update];
+                                memories{i_population} = sortrows(memories{i_population}, D+1);
+                                memories_out(step, :, i_population) = memories{i_population}(1,:);
                                 
-                            % Update the population i_pop_number with a number of 
-                            % elements equal to new_elements (and no more)
+                                % Update the population i_pop_number with a number of
+                                % elements equal to new_elements (and no more)
                             elseif i_population == i_pop_number
-       
-                                % DELETE this:
-%                                 memories(end+1:end+new_elements,:,1:pop_number)= NaN*ones(new_elements,D+1,pop_number);
-%                                 memories_update = [pop(1:new_elements,:,i_population) Val(1:new_elements,i_population)];
-%                                 memories(end-new_elements+1:end,:,i_population)=memories_update;
-%                                 memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
-%                                 memories_out(step,:,i_population) = memories(1,:,i_population);
                                 
-                                memories_update = [pop(1:new_elemements,:,i_population) Val(1:new_elements,i_population)];
-                                memories{i_pop_number} = [memories{i_pop_number}; memories_update];
-                                memories{i_pop_number} = sortrows(memories{i_pop_number}, D+1);
-                                memories_out(step, :, i_population) = memories{i_pop_number}(1,:);
+                                memories_update = [pop(1:new_elements,:,i_population) Val(1:new_elements,i_population)];
+                                memories{i_population} = [memories{i_population}; memories_update];
+                                memories{i_population} = sortrows(memories{i_population}, D+1);
+                                memories_out(step, :, i_population) = memories{i_population}(1,:);
                                 
-                            % The remaininf population did not had the opportunity to do a DE    
+                                % The remaininf population did not had the opportunity to do a DE
                             elseif i_population > i_pop_number
                                 
                                 % Take best element
-%                                 memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
-%                                 memories_out(step,:,i_population) = memories(1,:,i_population);
-                                
-                                memories{i_pop_number} = sortrows(memories{i_pop_number}, D+1);
-                                memories_out(step, :, i_population) = memories{i_pop_number}(1,:);
+                                memories{i_population} = sortrows(memories{i_population}, D+1);
+                                memories_out(step, :, i_population) = memories{i_population}(1,:);
                                 
                                 
                             end
                         end
-                        sum(nFeVal)
+                        
                         return
                         
-                    % else, if total maximum number of function evaluations has not been reached    
+                        % else, if total maximum number of function evaluations has not been reached
                     else
-                        memories_out(step,:,:) = NaN * ones(1, D+1, pop_number);
+
                         for i_population = 1 : i_pop_number
                             
-                            % DELETE this:
-%                             memories(end+1:end+NP,:,1:pop_number)= NaN*ones(NP,D+1,pop_number);
-%                             memories_update = [pop(:,:,i_population) Val(:,i_population)];
-%                             memories(end-NP+1:end,:,i_population)=memories_update;
-%                             memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
-%                             memories_out(step,:,i_population) = memories(1,:,i_population);
-                            
                             memories_update = [pop(:,:,i_population) Val(:,i_population)];
-                            memories{i_pop_number} = [memories{i_pop_number}; memories_update];
-                            memories{i_pop_number} = sortrows(memories{i_pop_number}, D+1);
-                            memories_out(step, :, i_population) = memories{i_pop_number}(1,:);
+                            memories{i_population} = [memories{i_population}; memories_update];
+                            memories{i_population} = sortrows(memories{i_population}, D+1);
+                            memories_out(step, :, i_population) = memories{i_population}(1,:);
                         end
                         
                         for i_population = i_pop_number + 1 : pop_number
                             
-                              % DELETE this:
-%                             memories(:,:,i_population)    = sortrows(memories(:,:,i_population),D+1);
-%                             memories_out(step,:,i_population) = memories(1,:,i_population);
                             
-                            memories{i_pop_number} = sortrows(memories{i_pop_number}, D+1);
-                            memories_out(step, :, i_population) = memories{i_pop_number}(1,:);
+                            if ~isempty(memories{i_population})
+                                memories{i_population} = sortrows(memories{i_population}, D+1);
+                                memories_out(step, :, i_population) = memories{i_population}(1,:);
+                            end
                         end
                         
                         % Increase step by one
                         step = step + 1;
                     end
                 end
+                % ---------------------------------------------------------------------
+                % End of check condition related to maximum number of function evaluations
+                % ---------------------------------------------------------------------
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
                 
              %%% DA QUI   
@@ -489,11 +484,11 @@ while sum(nFeVal) < nFeValMax
     
     for i_pop_number = 1 : pop_number
         
-        if iglob(1,i_pop_number) == min(iglob)
-            archivebest(end+1,1:D+2,1:pop_number) = NaN*ones(1,D+2,pop_number);
-            memories(end+1:end+1+NP,:,1:pop_number)= NaN*ones(NP+1,D+1,pop_number);
-            break
-        end
+%         if iglob(1,i_pop_number) == min(iglob)
+%             archivebest(end+1,1:D+2,1:pop_number) = NaN*ones(1,D+2,pop_number);
+%             memories(end+1:end+1+NP,:,1:pop_number)= NaN*ones(NP+1,D+1,pop_number);
+%             break
+%         end
         
     end
     
@@ -606,7 +601,7 @@ while sum(nFeVal) < nFeValMax
                 % - output     structure with information about the optimization
                 %              (output.funcCount = number of function evaluations)
                 foptionsNLP = optimset('Display','off','MaxFunEvals',nfev(1,i_pop_number),'LargeScale','off','FinDiffType','central','Algorithm','sqp');
-                [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:)',[],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
+                [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:),[],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
                 
                 nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
                 
@@ -627,7 +622,7 @@ while sum(nFeVal) < nFeValMax
                 % Archiving of solutions
                 % ==================================================================
                 % Add local minimum to the archive
-                ArchiveBM_LM(2,:,end) = [xgrad' fvalgrad];
+                ArchiveBM_LM(2,:,end) = [xgrad fvalgrad];
                 
                 
                 % isnan is true for Not-A-Number
@@ -644,7 +639,9 @@ while sum(nFeVal) < nFeValMax
                     % the one given by the best element of the population)
                     
                     archivebest_update = [BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
-                    archivebest(end,:,i_pop_number) = archivebest_update;
+
+%                     archivebest(end,:,i_pop_number) = archivebest_update;
+                     archivebest{i_pop_number} = [archivebest{i_pop_number}; archivebest_update];
                     
                     archiveALL = [archiveALL; BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
                     
@@ -657,8 +654,10 @@ while sum(nFeVal) < nFeValMax
                     % the matrix memories - therefore memories contains the
                     % population at the moment of the contraction of the population
                     memories_update = [pop(:,:,i_pop_number) Val(:,i_pop_number);...
-                        xgrad' fvalgrad];
-                    memories(end-NP:end,:,i_pop_number)=memories_update;
+                        xgrad fvalgrad];
+%                     memories(end-NP:end,:,i_pop_number)=memories_update;
+                    
+                    memories{i_pop_number} = [memories{i_pop_number}; memories_update];
                 end
                 
                 
@@ -730,8 +729,13 @@ while sum(nFeVal) < nFeValMax
         % ---------------------------------------------------------------------
         if sum(nFeVal) >= record(step)*nFeValMax
             for i_pop_number = 1 : pop_number
-                memories(:,:,i_pop_number)    = sortrows(memories(:,:,i_pop_number),D+1);
-                memories_out(step,:,i_pop_number) = memories(1,:,i_pop_number);
+%                 keyboard
+                if ~isempty(memories{i_pop_number})
+                    memories{i_pop_number}    = sortrows(memories{i_pop_number},D+1);
+                    memories_out(step,:,i_pop_number) = memories{i_pop_number}(1,:);
+                    
+%                     memories
+                end
             end
             if sum(nFeVal)>= nFeValMax
                 sum(nFeVal)
@@ -809,7 +813,8 @@ while sum(nFeVal) < nFeValMax
         for i = 1 : i_pop_number
             
             % Create a matrix composed of all the known minima up to now
-            minima_populations(:,:,i) = sortrows(archivebest(:,:,i),D+1);
+%             minima_populations(:,:,i) = sortrows(archivebest(:,:,i),D+1);
+            minima_populations(:,:,i) = sortrows(archivebest{i},D+1);
             minima = [minima; minima_populations(1:archivebest_elements(1,i),1:D,i)];
             clear minima_populations
         end
@@ -874,7 +879,8 @@ while sum(nFeVal) < nFeValMax
                 % Difference between previous local minimum and current local
                 % minimum - this has to be different from zero for a bubble to
                 % be sufficiently big
-                p = norm(archivebest(end,1:D,i_pop_number) - archivebest(end-1,1:D,i_pop_number));
+%                 p = norm(archivebest(end,1:D,i_pop_number) - archivebest(end-1,1:D,i_pop_number));
+                p = norm(archivebest{i_pop_number}(end,1:D) - archivebest{i_pop_number}(end-1,1:D) );
                 
                 for ic = 1 : size(B,1)
                     
@@ -898,7 +904,7 @@ while sum(nFeVal) < nFeValMax
             end
             
             B = sortrows(B, [2 3]);
-            B_mean = [B_mean, mean(B(:,1))];
+            B_mean = [B_mean; mean(B(:,1))/norm(DELTA)];
         end
         
     end
@@ -921,15 +927,17 @@ while sum(nFeVal) < nFeValMax
         % Link each bubble dimension value to a population
         bubble_dimension(1, i_pop_number) = Bv(i_pop_number,1);
         
-        if i_pop_number == 1
-            bubble.pop1 = [bubble.pop1 bubble_dimension(1,i_pop_number)];
-        elseif i_pop_number == 2
-            bubble.pop2 = [bubble.pop2 bubble_dimension(1,i_pop_number)];
-        elseif i_pop_number == 3
-            bubble.pop3 = [bubble.pop3 bubble_dimension(1,i_pop_number)];
-        elseif i_pop_number == 4
-            bubble.pop4 = [bubble.pop4 bubble_dimension(1,i_pop_number)];
-        end
+%         if i_pop_number == 1
+%             bubble.pop1 = [bubble.pop1 bubble_dimension(1,i_pop_number)];
+%         elseif i_pop_number == 2
+%             bubble.pop2 = [bubble.pop2 bubble_dimension(1,i_pop_number)];
+%         elseif i_pop_number == 3
+%             bubble.pop3 = [bubble.pop3 bubble_dimension(1,i_pop_number)];
+%         elseif i_pop_number == 4
+%             bubble.pop4 = [bubble.pop4 bubble_dimension(1,i_pop_number)];
+%         end
+        
+        delta_local{i_pop_number} = [delta_local{i_pop_number}; bubble_dimension(1,i_pop_number)/norm(DELTA)];
         
         % Do not try to perform local or global restart if the population has
         % been already globally restarted and is waiting for the other
@@ -1172,7 +1180,7 @@ end
 % =========================================================================
 
 for i_pop_number = 1 : pop_number
-    memories(:,:,i_pop_number) = sortrows(memories(:,:,i_pop_number),D+1);
+    memories{i_pop_number} = sortrows(memories{i_pop_number},D+1);
 end
 
 % =========================================================================
@@ -1263,8 +1271,7 @@ vval=[0 min(Val) mean(Val) max(Val) mmdistm mmdistm/mmdistm0];
 % =========================================================================
 % start with first population member
 ibest   = 1;
-
-Val(1)  = feval(fname, pop(ibest,:)', varargin{:});
+Val(1)  = feval(fname, pop(ibest,:), varargin{:});
 BestVal = Val(1);                 % best objective function value so far
 nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
 
@@ -1272,11 +1279,15 @@ if sum(nFeVal) >= nFeValMax
     vval = 0;
     iter = 0;
     new_elements = 1;
+    
+    BestMem = pop(ibest,:);
+    BestVal = Val(1);
+    
     return
 end
 
 for i = 2 : NP                        % check the remaining members
-    Val(i) = feval(fname, pop(i,:)', varargin{:});
+    Val(i) = feval(fname, pop(i,:), varargin{:});
     nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + 1;
     
     if (Val(i) < BestVal)           % if member is better
@@ -1288,6 +1299,9 @@ for i = 2 : NP                        % check the remaining members
         new_elements = i;
         vval = 0;
         iter = 0;
+        
+        BestMem = pop(ibest,:);
+    
         return
     end
     
@@ -1565,7 +1579,7 @@ while nostop
         % Value of the function f for each new element of the population
         % =================================================================
         
-        TempVal = feval(fname, InterPop(i,:)', varargin{:});   
+        TempVal = feval(fname, InterPop(i,:), varargin{:});   
         
         % Increase number of function evalutations
         nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
@@ -1622,6 +1636,7 @@ while nostop
         
         if sum(nFeVal) >= nFeValMax
             new_elements = i;
+            
             return
         end
         
