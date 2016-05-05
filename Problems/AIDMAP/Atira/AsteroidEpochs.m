@@ -8,7 +8,7 @@ epoch_end = 3650;
 Asteroids = Asteroids();
 
 asteroidnames = fieldnames(Asteroids);
-for i = 1:length(asteroidnames)
+for i = 2:length(asteroidnames)
 asteroid = char(asteroidnames(i));
 
 mu = AstroConstants.Sun_Planetary_Const;
