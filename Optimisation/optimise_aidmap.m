@@ -22,7 +22,7 @@ tic;
 
 [InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
 
-[output.Solutions, output.ListNodes,output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
+[output.Solutions, options, output.ListNodes, output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
 
 output.CompTime = toc;
 

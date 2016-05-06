@@ -51,6 +51,7 @@ for j = 1:length(epochsnode{i,1})
     xnode{i,1}(j) = cartnode{i,1}(j,1);
     ynode{i,1}(j) = cartnode{i,1}(j,2);
     znode{i,1}(j) = cartnode{i,1}(j,3);
+    
 end
 orbitchars(i,:) = [asteroidorbit.a asteroidorbit.e asteroidorbit.i asteroidorbit.OM asteroidorbit.W asteroidorbit.M0 asteroidorbit.t0];
 
