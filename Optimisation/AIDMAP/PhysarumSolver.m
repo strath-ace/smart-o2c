@@ -1,4 +1,4 @@
-function [Solutions, ListNodes, Agents] = PhysarumSolver(InitializedInputs, ListNodes)
+function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(InitializedInputs, ListNodes)
 % This script contains the main logic of AIDMAP solver. 
 %
 % Inputs:
