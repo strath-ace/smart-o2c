@@ -31,7 +31,7 @@ if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(curr
     agentdeathflag = 1;
     
     %Save the solution
-    Solutions = [Solutions; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
+    Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
     return
 end
 

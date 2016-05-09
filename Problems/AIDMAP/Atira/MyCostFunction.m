@@ -49,6 +49,13 @@ ToF = toNode.attributes.tof;
                                                                                     %     - 0: no display
                                                                                     %     - 1: warnings are displayed only when the algorithm does not converge
                                                                                     %     - 2: full warnings displayed
+if (err==1 || err==3 || err==4)
+    toNode.length = Inf;
+    return
+end
+%Save initial & final lambert velocity
+toNode.attributes.lambertV_ini = vel_initial;
+toNode.attributes.lambertV_final = vel_final;
                                                                                     
 % Compute the Total DeltaV - ignore arrival dV due to flyby
 dv1(1) = vel_initial(1) - departure_v(1);
@@ -76,7 +83,7 @@ kep_transfer_orbit = cart2kep([departure_r, vel_initial],mu);
 % Eccentricity of transfer orbit
 ecc = kep_transfer_orbit(2);
  
-if ecc > 1
+if ecc >= 1
     toNode.length = Inf;
     return
 end

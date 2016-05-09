@@ -2,8 +2,8 @@
 close all; clear all; clc
 addpath('astro_tool')
 
-epoch_start = 0;
-epoch_end = 3650;
+epoch_start = 7304.5;
+epoch_end = 10957.5;
 
 Asteroids = Asteroids();
 
