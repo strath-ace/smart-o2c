@@ -25,7 +25,7 @@ agentdeathflag = 0;
 
 if isempty(ListNodes.(currentNode).possibledecisions)   
     agentdeathflag = 1;
-    Solutions = [Solutions; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
+    Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
     return
 end
 
@@ -70,7 +70,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     if isempty(possnodes)
         disp(strcat(agent,' died'))
         agentdeathflag = 1;
-        Solutions = [Solutions; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
+        Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
         break
     end
        
@@ -86,6 +86,9 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
         
         %Generate the new node & save its cost in a vector
         [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
+        if newNode.length ~= Inf
+            [newNode] = MyCreatedNodeCheck(Inputs, newNode, ListNodes);
+        end
         if newNode.length ~= Inf
             costvec = [costvec newNode.length];
 

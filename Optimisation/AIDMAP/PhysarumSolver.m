@@ -15,7 +15,7 @@ function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(Init
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-Solutions = [];
+Solutions.Nodes = [];
 
 %Loop over the generations
 for j = 1:InitializedInputs.Generations
@@ -63,6 +63,10 @@ for j = 1:InitializedInputs.Generations
 
 %End generation loop
 end
+
+%Retrieve the costs
+[Solutions.Costs] = RetrieveCosts(Solutions.Nodes,ListNodes);
+
 
 end
 
