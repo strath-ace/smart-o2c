@@ -882,7 +882,7 @@ for i=1:n_a                                                                 % fo
                     
                     niter=niter+1;
                     fprintf('Iter %d\n',niter)
-                    foptionsNLP=optimset('Display','iter','MaxFunEvals',100*sum(params.vars_to_opt),'TolFun',1e-6,'Algorithm','interior-point');
+                    foptionsNLP=optimset('Display','iter','MaxFunEvals',100*sum(params.vars_to_opt),'TolFun',1e-6,'Algorithm','sqp');
                     rvlb=x(i,:)-rho(i,1)*Delta;
                     rvub=x(i,:)+rho(i,1)*Delta;
                     rvlb=max([rvlb;params.vlb]);
@@ -991,7 +991,7 @@ for i=1:n_a                                                                 % fo
                         
                         niter=niter+1;
                         fprintf('Iter %d\n',niter)
-                        foptionsNLP=optimset('Display','iter','MaxFunEvals',100*sum(params.vars_to_opt),'TolFun',1e-6,'Algorithm','interior-point');
+                        foptionsNLP=optimset('Display','iter','MaxFunEvals',100*sum(params.vars_to_opt),'TolFun',1e-6,'Algorithm','sqp');
                         rvlb=x(i,:)-rho(i,1)*Delta;
                         rvub=x(i,:)+rho(i,1)*Delta;
                         rvlb=max([rvlb;params.vlb]);
