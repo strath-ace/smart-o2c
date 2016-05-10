@@ -1,4 +1,4 @@
-function [memory,nfeval]=macs7v16(func,memory,vlb,vub,options,filename,fileload,varargin)
+function [memory,nfeval,ener]=macs7v16(func,memory,vlb,vub,options,filename,fileload,varargin)
 
 %  memory=macs7v15c2(func,vlb,vub,options,filename,fileload,varargin)
 %
