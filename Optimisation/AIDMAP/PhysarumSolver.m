@@ -16,6 +16,7 @@ function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(Init
 % Email:  aram.vroom@strath.ac.uk
 
 Solutions.Nodes = [];
+Solutions.Costs = [];
 
 %Loop over the generations
 for j = 1:InitializedInputs.Generations
@@ -51,7 +52,7 @@ for j = 1:InitializedInputs.Generations
     end
     
     %Update the veins with the growth factor mechanic
-    [ListNodes] = GrowthFactor(InitializedInputs, ListNodes, Agents);
+    [ListNodes] = GrowthFactor(InitializedInputs, ListNodes, Solutions);
     
     %Check whether the algorithm should be restarted
     restartflag = RestartCheck(InitializedInputs, ListNodes, Agents);
@@ -65,7 +66,7 @@ for j = 1:InitializedInputs.Generations
 end
 
 %Retrieve the costs
-[Solutions.Costs] = RetrieveCosts(Solutions.Nodes,ListNodes);
+%[Solutions.Costs] = RetrieveCosts(Solutions.Nodes,ListNodes);
 
 
 end

@@ -26,24 +26,23 @@ options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum ca
     'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
     'neo2013JX28','neo2013TQ5', 'neo2014FO47', ...
     'neo2015DR215', 'neo2015ME131'}; 
-options.MaxConsecutiveRes = -1*ones(1, length(options.Targets));%The maximum number of resonance orbits to each target (set to -1 to ignore)
-options.MaxVisits = -1*ones(1, length(options.Targets));        %The maximum nubmer of visists to each target (set to -1 to ignore)                    
+options.MaxConsecutiveRes = 0*ones(1, length(options.Targets));%The maximum number of resonance orbits to each target (set to -1 to ignore)
+options.MaxVisits = ones(1, length(options.Targets));        %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [11 10];                     %Index of the attributes that determine the unique ID
 options.LowThrust = 1;                                  %Low Thrust Flag. Set to 1 for low-thrust, 0 for high-thrust
-options.LinearDilationCoefficient = 20;                 %Linear dilation coefficient 'm'
-options.EvaporationCoefficient = 0;                     %Evaporation coefficient 'rho'
-options.GrowthFactorVal = 0;                            %Growth factor 'GF'
-options.NumberOfAgents = 3;                             %Number of virtual agents 'N_agents'
-options.RamificationProbability = 0.6;                 %Probability of ramification 'p_ram'
+options.LinearDilationCoefficient = 0.005;                 %Linear dilation coefficient 'm'
+options.EvaporationCoefficient = 0.0001;                     %Evaporation coefficient 'rho'
+options.GrowthFactorVal = 0.005;                            %Growth factor 'GF'
+options.NumberOfAgents = 2;                             %Number of virtual agents 'N_agents'
+options.RamificationProbability = 0.4;                 %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                         %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 20;                      %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                      %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 1;                             %The starting radius of the veins
-options.RamificationAmount = 5;                         %The number of nodes initially generated for the ramification
+options.RamificationAmount = 3;                         %The number of nodes initially generated for the ramification
 options.RootAttrib = [0 7304.5];                             %Attributes of the root  
-options.Generations = 5;                                %The number of generations
+options.Generations = 2;                                %The number of generations
 options.Viscosity = 1;                                  %The viscocity of the "fluid" 
-options.DeterminingAttribute = 1;                       %The index of the determining attribute in the 'attributes' field
 options.MinCommonNodesThres = 5;                        %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                           %Value assigned to the length if it's zero (to prevent flux = inf)
 fitnessfcn = @MyCostFunction;                           %The function reference to the cost function
@@ -63,6 +62,10 @@ options.ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing
 PhysarumTreePlot(output.ListNodes)
 set(gca,'xcolor','w','ycolor','w','xtick',[],'ytick',[]);
 
-[r] = PlotTrajectories(output.Solutions.Nodes,output.ListNodes);
+[r] = PlotTrajectories(output.Solutions.Nodes,output.Solutions.Costs,output.ListNodes);
+
+
+%Notes:
+%20160510 - GrowthFactor has been change
 
 

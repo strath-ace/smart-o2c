@@ -26,6 +26,7 @@ agentdeathflag = 0;
 if isempty(ListNodes.(currentNode).possibledecisions)   
     agentdeathflag = 1;
     Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
+    Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
     return
 end
 
@@ -71,6 +72,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
         disp(strcat(agent,' died'))
         agentdeathflag = 1;
         Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
+        Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
         break
     end
        

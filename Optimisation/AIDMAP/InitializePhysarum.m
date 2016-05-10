@@ -31,7 +31,6 @@ InitializedInputs = struct('LowThrust',               options.LowThrust,  ... %S
                 'RootAttrib',                         options.RootAttrib,   ... %Attributes of the root
                 'Generations',                        options.Generations, ... %The number of generations
                 'Viscosity',                          options.Viscosity, ... %The viscocity of the "fluid" 
-                'DeterminingAttribute',               options.DeterminingAttribute, ... %The index of the determining attribute in the 'attributes' field
                 'MinCommonNodesThres',                options.MinCommonNodesThres,  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur
                 'IfZeroLength',                       options.IfZeroLength, ... %Value assigned to the length if it's zero (to prevent flux = inf)
                 'CostFunction',                       fitnessfcn,  ...

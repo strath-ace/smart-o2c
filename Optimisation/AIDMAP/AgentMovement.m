@@ -31,7 +31,8 @@ if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(curr
     agentdeathflag = 1;
     
     %Save the solution
-    Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
+    Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';   
+    Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
     return
 end
 
@@ -61,7 +62,7 @@ if (p>Inputs.RamificationProbability && ~isempty(ListNodes.(currentnode).childre
     %Move agent to the new node
     Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
     Agents.(currentagent).currentNode = chosennode;
-    Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(currentnode).length];
+    Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];
 else
     
     %If there are no children or if the random number falls within the
