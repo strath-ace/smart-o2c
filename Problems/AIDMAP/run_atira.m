@@ -14,7 +14,7 @@ sets.tof = mat2cell(ones(12,1)...  %Input should be a cell array where each line
     *tofvalues,[ones(12,1)],...
     [length(tofvalues)]);
 load('epochsnode.mat')
-sets.epochsnode = epochsnode;
+sets.epochsnode = epochsnode(2:end);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,7 +40,7 @@ options.MinimumRadiusRatio = 1e-3;                      %Maximum ratio between t
 options.StartingRadius = 1;                             %The starting radius of the veins
 options.RamificationAmount = 5;                         %The number of nodes initially generated for the ramification
 options.RootAttrib = [0 0];                             %Attributes of the root  
-options.Generations = 1;                                %The number of generations
+options.Generations = 30;                                %The number of generations
 options.Viscosity = 1;                                  %The viscocity of the "fluid" 
 options.DeterminingAttribute = 1;                       %The index of the determining attribute in the 'attributes' field
 options.MinCommonNodesThres = 7;                        %The minimum number of nodes two decision sequences should have in common for a restart to occur
@@ -62,7 +62,6 @@ options.ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing
 PhysarumTreePlot(output.ListNodes)
 set(gca,'xcolor','w','ycolor','w','xtick',[],'ytick',[]);
 
+%[r] = PlotTrajectories(output.Solutions,output.ListNodes);
 
 
-
-%To do: use Parent kep_trans to find r_dep & v_dep

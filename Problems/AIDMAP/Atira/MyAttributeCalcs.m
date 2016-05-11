@@ -10,7 +10,7 @@ if ismember(targetname,fieldnames(Asteroids))
     
     %Find the departure time by subtracting the ToF from the arrival time
     Attributes.t_dep = Attributes.t_arr - Attributes.tof;
-    
+            
     %Check if the node has a parent (excludes the root)
     if ~isempty(Parent)
         
@@ -24,7 +24,7 @@ if ismember(targetname,fieldnames(Asteroids))
 
         %The current keplerian orbit is then assumed to be that of the root
         kep = Asteroids.(targetname).getKeplerianElements;
-        Attributes.kep_trans = [kep.a kep.e kep.i kep.OM kep.W kep.M0 kep.t0];
+        Attributes.kep_trans = CelestialBody('Transfer Orbit',kep.a, kep.e, kep.i, kep.OM, kep.W, kep.M0, kep.t0);
     end 
     
 else

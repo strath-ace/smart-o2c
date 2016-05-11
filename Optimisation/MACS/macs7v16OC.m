@@ -58,7 +58,7 @@ default.explore_DE_strategy='best';
 default.social_DE_strategy='DE/current-to-rand/1';
 default.v=0;
 default.dyn_pat_search = 1;
-default.upd_subproblems = 0;
+default.upd_subproblems = 1;
 default.max_rho_contr = 5;
 default.pat_search_strategy = 'standard';
 default.optimal_control = 0;
@@ -273,8 +273,14 @@ else
 end
 
 if isfield(options,'pat_search_strategy')
-    if ~(strcmp(options.pat_search_strategy,'standard') || strcmp(options.pat_search_strategy,'tracking') || strcmp(options.pat_search_strategy,'random') || strcmp(options.pat_search_strategy,'none'))
+    if ~(strcmp(options.pat_search_strategy,'standard') || strcmp(options.pat_search_strategy,'tracking') || strcmp(options.pat_search_strategy,'random') || strcmp(options.pat_search_strategy,'MADS') || strcmp(options.pat_search_strategy,'none'))
         error('Unrecognized pat_search_strategy: must be either standard, tracking or none')
+    end
+    if strcmp(options.pat_search_strategy,'MADS')
+        %if options.dyn_pat_search
+        %    warning('MADS and dynamic pattern search are not compatible. Setting dyn_pat_search to 0');
+        %    options.dyn_pat_search = 0;
+        %end
     end
 else
     warning(['pat_search_strategy not supplied, using defauld value ' default.pat_search_strategy])
@@ -312,21 +318,16 @@ else
     warning('vars_to_opt not supplied, using defauld value (all)')
     options.vars_to_opt = default.vars_to_opt;
 end
+
 options.vars_to_opt = logical(options.vars_to_opt);
 
-if options.optimal_control
+if options.optimal_control==1
     if isfield(options,'oc')
         if ~isfield(options.oc,'structure')
             error('oc.structure must be supplied');
         end
-        if ~isfield(options.oc,'f')
-            error('oc.f must be supplied');
-        end
-        if ~isfield(options.oc,'dfx')
-            error('oc.dfx must be supplied');
-        end
-        if ~isfield(options.oc,'dfu')
-            error('oc.dfu must be supplied');
+        if ~isfield(options.oc,'structure')
+            error('oc.structure must be supplied');
         end
         if ~isfield(options.oc,'init_type')
             error('oc.init_type must be supplied');
@@ -334,20 +335,31 @@ if options.optimal_control
             if ~(strcmp(options.oc.init_type,'copy_ic'))
                 error('Unrecognized oc.init_type: only ''copy_ic'' implemented for now')
             else
-                 if ~isfield(options.oc,'init_cond')
-                     error('No oc.init_cond field found');
-                 end
-                 if ~isfield(options.oc,'state_vars')
-                     error('No oc.state_vars field found');
-                 else
-                     options.oc.state_vars = logical(options.oc.state_vars);
-                 end
-                 if ~isfield(options.oc,'control_vars')
-                     error('No oc.control_vars field found');
-                 else
-                     options.oc.control_vars = logical(options.oc.control_vars);
-                 end
-            end          
+                if ~isfield(options.oc,'x_0')
+                    error('No oc.x_0 field found');
+                end
+                if ~isfield(options.oc,'x_f')
+                    error('No oc.x_f field found');
+                end
+                if ~isfield(options.oc,'imposed_final_states')
+                    error('No oc.imposed_final_states field found');
+                end
+                if ~isfield(options.oc,'state_vars')
+                    error('No oc.state_vars field found');
+                else
+                    options.oc.state_vars = logical(options.oc.state_vars);
+                end
+                if ~isfield(options.oc,'control_vars')
+                    error('No oc.control_vars field found');
+                else
+                    options.oc.control_vars = logical(options.oc.control_vars);
+                end
+                if options.MBHflag>0
+                    if ~isfield(options.oc,'smooth_scal_constr_fun')
+                        error('No oc.smooth_scal_constr_fun field found');
+                    end
+                end
+            end
         end
         options.oc.transcription_vars = xor(options.oc.control_vars,options.oc.state_vars);
     else
@@ -385,7 +397,7 @@ if isempty(memory)                                                          % if
     %% CHOOSE RANDOM PARAMETERS AND SET UP PROBLEM DIMENSIONALITY AND CONSTRAINTS
     
     if options.optimal_control
-   
+        
         x=lhsu(vlb,vub,options.popsize,options.id_vars_to_opt);                                        % latin hypercube sampling over the whole domain
         % states are all zero, for some problems this is BAD, thus we need
         % to initialise them in a proper way. The more robust way seems to
@@ -394,12 +406,12 @@ if isempty(memory)                                                          % if
         % is saved, convergence should be much easier
         
         for i = 1:options.popsize
-            x(i,options.oc.transcription_vars) = make_first_guess(options.oc.f,options.oc.init_cond,0,x(i,1),x(i,options.oc.control_vars),options.oc.structure)';
+            x(i,options.oc.transcription_vars) = make_first_guess(options.oc.structure.f,options.oc.x_0,0,x(i,1),x(i,options.oc.control_vars),options.oc.structure)';
         end
     else
         
         x=lhsu(vlb,vub,options.popsize,options.id_vars_to_opt);                                        % latin hypercube sampling over the whole domain
-    
+        
     end
     maxC=zeros(options.popsize,1);                                          % maximum constraint violation
     
@@ -448,37 +460,52 @@ if isempty(memory)                                                          % if
             alfas=alfas(randperm(n_lambda-2));                              % shuffle the alphas, to shuffle the subproblems (why is this needed???)
             lambda=[eye(mfit); sin(alfas) cos(alfas)];                      % finally, in lambdas are m orthogonal subproblems, plus all the other ones around a 1/4 circle
             
-        case 3                                                              % Tri-objective
-            
-            if options.upd_subproblems                                                  % number of iterations after which new subproblems are chosen
-                
-                n_lambda=mfit*100;                                              % number of subproblems is 100 times the number of objectives, so always 200... that 100 could be a parameter...
-                
-            else
-                
-                n_lambda=n_social;
-                
-            end
-            n_alpha=round(sqrt(n_lambda));                                  % subproblems of a Tri-objective optimization are distributed regularly around a 1/8 sphere, so here we compute the angles (always 17)
-            n_beta=round(n_lambda/n_alpha);                                 % always 18
-            alphas=linspace(0,1/4,n_alpha)'*2*pi;                           % compute distribution of alphas
-            betas=acos(linspace(-0.5,0.5,n_beta)'-0.5)-pi/2;                % betas
-            lambda=eye(3);                                                  % orthogonal subproblems
-            for i=1:n_alpha                                                 % compute points on the sphere
-                for j=1:n_beta
-                    if (i*j~=1)&&~(i==n_alpha&&j==1)&&(i*j~=n_alpha*n_beta) % excluding the ones on the borders...
-                        
-                        lambda=[lambda;cos(alphas(i))*cos(betas(j)),sin(alphas(i))*cos(betas(j)),sin(betas(j))];
-                    end
-                end
-            end
-            n_lambda=n_alpha*n_beta;                                        % evaluates to 306, not 300...
-            lambda(4:end,:)=lambda(3+randperm(n_lambda-3),:);
+            %         case 3                                                              % Tri-objective
+            %
+            %             if options.upd_subproblems                                                  % number of iterations after which new subproblems are chosen
+            %
+            %                 n_lambda=mfit*100;                                              % number of subproblems is 100 times the number of objectives, so always 200... that 100 could be a parameter...
+            %
+            %             else
+            %
+            %                 n_lambda=n_social;
+            %
+            %             end
+            %             n_alpha=round(sqrt(n_lambda));                                  % subproblems of a Tri-objective optimization are distributed regularly around a 1/8 sphere, so here we compute the angles (always 17)
+            %             n_beta=round(n_lambda/n_alpha);                                 % always 18
+            %             alphas=linspace(0,1/4,n_alpha)'*2*pi;                           % compute distribution of alphas
+            %             betas=acos(linspace(-0.5,0.5,n_beta)'-0.5)-pi/2;                % betas
+            %             lambda=eye(3);                                                  % orthogonal subproblems
+            %             for i=1:n_alpha                                                 % compute points on the sphere
+            %                 for j=1:n_beta
+            %                     if (i*j~=1)&&~(i==n_alpha&&j==1)&&(i*j~=n_alpha*n_beta) % excluding the ones on the borders...
+            %
+            %                         lambda=[lambda;cos(alphas(i))*cos(betas(j)),sin(alphas(i))*cos(betas(j)),sin(betas(j))];
+            %                     end
+            %                 end
+            %             end
+            %             n_lambda=n_alpha*n_beta;                                        % evaluates to 306, not 300...
+            %             lambda(4:end,:)=lambda(3+randperm(n_lambda-3),:);
             
         otherwise                                                           % Many objectives
             
-            n_lambda=mfit*100;                                              % latin hypercube sampling
-            lambda=[eye(mfit); lhsu(zeros(1,mfit),ones(1,mfit),n_lambda-mfit)];
+            %n_lambda=mfit*100;                                              % latin hypercube sampling
+            %             lambda=[eye(mfit); lhsu(zeros(1,mfit),ones(1,mfit),n_lambda-mfit)];
+            
+            n_lambda = n_social*10;
+            lambda = rand(n_lambda,mfit);
+            
+            norms = sum(lambda.^2,2).^0.5;
+            lambda = lambda./repmat(norms,1,3);
+            
+            minl = min(lambda);
+            maxl = max(lambda);
+            
+            [mm,ddt,eett,ene2t] = arch_shrk6([],[],[eye(mfit);lambda(1:n_social-mfit,:)],0,[],minl,maxl,0,mfit,n_social); % first pass, add extremas
+            [mm,~,~,~] = arch_shrk6(mm,ddt,lambda(n_social+1-mfit:end,:),eett,ene2t,minl,maxl,0,mfit,n_social-mfit);
+            
+            lambda = mm;
+            n_lambda = size(lambda,1);
     end
     
     %% NORMALZATION OF VECTORS ASSOCIATED TO THE SUBPROBLEMS
@@ -572,7 +599,7 @@ if isempty(memory)                                                          % if
     
     for i=1:n_lambda                                                        % for each subproblem
         
-        g_tmp = hp_g_fun(memory(:,lx+1:lx+mfit),lambda(i,:),z,zstar);             % evaluate g_fun on all agents for current i-th subproblem
+        g_tmp = hp_g_fun(memory(:,lx+1:lx+mfit),lambda(i,:),z,zstar);       % evaluate g_fun on all agents for current i-th subproblem
         [~,tmp_id]=min(g_tmp);                                              % store the minimum g and it's id (position), so tmp_id is the ID of the agent that best solves i-th subproblem
         lambda_f_best(i,:)=memory(tmp_id,lx+1:lx+mfit);                     % populate lambda_f_best with the f value of tmp agent
         lambda_x_best(i,:)=memory(tmp_id,1:lx);                             % populate lambda_x_best with the x value of tmp agent
@@ -673,6 +700,13 @@ explore_params.pat_search_strategy= options.pat_search_strategy;
 explore_params.optimal_control = options.optimal_control;
 explore_params.vars_to_opt = options.vars_to_opt;
 explore_params.id_vars_to_opt = options.id_vars_to_opt;
+explore_params.id_vars_to_leave = setdiff(1:length(vlb),options.vars_to_opt);
+
+if explore_params.optimal_control == 1
+    
+    explore_params.oc = options.oc;
+    
+end
 
 %%  SOCIAL PARAMETERS SETTING
 
@@ -703,6 +737,8 @@ end
 %%  MAIN LOOP
 
 MBH_positions = [];
+MADS_dirs = [];
+loc_opt = zeros(options.popsize,1);
 
 iter=0;
 oldmin = min(memory(:,lx+1:lx+mfit),[],1);
@@ -713,35 +749,60 @@ for i =1:options.popsize
     
 end
 
-while (nfeval<options.maxnfeval)
+oldmem = memory;
+
+local_only = 0;
+
+while nfeval<options.maxnfeval
     
+    fold = f;
+    
+    %     if size(oldmem,1)==size(memory,1)
+    %
+    %         if isempty(setdiff(oldmem,memory,'rows','stable'))
+    %
+    %             nequal = nequal+1;
+    %
+    %         else
+    %
+    %             nequal = 0;
+    %
+    %         end
+    %
+    %     else
+    %
+    %         nequal = 0;
+    %
+    %     end
+    %
+    %     oldmem = memory;
     nfeval_old = nfeval;
     
-    %tic
+    tic
     
     newmins = (min(memory(:,lx+1:lx+mfit))<oldmin);
     
-    if any(newmins)
-       
-        for i=1:mfit
-            
-            if newmins(i)
-       
-                fprintf('Min of objective %d has changed! Old value = %g, new value = %g \n',i,oldmin(i),min(memory(:,lx+i)));
-            
-            end
-            
-        end
-        
-        oldmin = min(memory(:,lx+1:lx+mfit),[],1);
-        
-    end
+    %     if any(newmins)
+    %
+    %         for i=1:mfit
+    %
+    %             if newmins(i)
+    %
+    %                 fprintf('Min of objective %d has changed! Old value = %g, new value = %g \n',i,oldmin(i),min(memory(:,lx+i)));
+    %
+    %             end
+    %
+    %         end
+    %
+    %         oldmin = min(memory(:,lx+1:lx+mfit),[],1);
+    %
+    %     end
     
-%     if any(min(memory(:,lx+1:lx+mfit))<oldmin)
-%         
-%         oldmin = min(memory(:,lx+1:lx+mfit),[],1)
-%         
-%     end
+    %     if any(min(memory(:,lx+1:lx+mfit))<oldmin)
+    %
+    %         oldmin = min(memory(:,lx+1:lx+mfit),[],1)
+    %
+    %     end
     
     % Pattern search coord_ratio dynamically adapted, depending on filling
     % ratio of archive
@@ -762,10 +823,29 @@ while (nfeval<options.maxnfeval)
     
     %% INDIVIDUALISTIC MOVES, SELECTION AND ARCHIVING
     
-    [xtrial,vtrial,ftrial,maxC,nfeval,discarded,rho,patdirs,MBH_positions]=explore(memory,x,v,f,cid,nfeval,lambda,act_subpr,id_pop_act_subpr,z,zstar,rho,patdirs,pigr,MBH_positions,explore_params);
+    local_only = 0;
     
+    [xtrial,vtrial,ftrial,maxC,nfeval,discarded,rho,patdirs,MBH_positions,MADS_dirs,int_loc_opt]=explore2(memory,x,v,f,cid,nfeval,lambda,act_subpr,id_pop_act_subpr,z,zstar,rho,patdirs,pigr,MBH_positions,MADS_dirs,local_only,explore_params);
+    
+    oldz = z;
     z=min([z;ftrial;discarded.f],[],1);            % update the min of each function (i.e, the columnwise min).
-    zstar=max(memory(:,lx+1:lx+mfit),[],1);
+    zstar=max([memory(:,lx+1:lx+mfit); f],[],1);
+    
+    if any(z<oldz)
+        
+        fprintf('INDIVIDUAL MOVES IMPROVED MINIMAS\n');
+        
+        for i=1:mfit
+            
+            if z(i)<oldz(i)
+                
+                fprintf('Min of objective %d has changed! Old value = %g, new value = %g \n',i,oldz(i),z(i));
+                
+            end
+            
+        end
+        
+    end
     
     for i=1:options.popsize                                             % for all agents performing local search
         
@@ -776,13 +856,16 @@ while (nfeval<options.maxnfeval)
                 v(i,:) = vtrial(i,:);                                       % given velocity
                 
                 % nornalisation of v, to avoid friction
-                %v(i,:) = v(i,:)/norm(v(i,:));
-                %v(i,:) = ~isnan(v(i,:)).*v(i,:);                                                                                                                                                          
+                if norm(v(i,:))>0
+                    
+                    v(i,:) = v(i,:)/norm(v(i,:));
+                    
+                end
                 
                 x(i,:)=xtrial(i,:);                                         % position
                 f(i,:)=ftrial(i,:);                                         % objective function value
                 cid(i)=maxC(i);                                             % and max constraint violation
-                
+                loc_opt(i)=int_loc_opt(i);
                 patdirs(i).avail = 1:lx;
                 
             end
@@ -828,7 +911,7 @@ while (nfeval<options.maxnfeval)
         
     end
     
-        
+    
     if ~isempty(fnfeas)
         
         domtmp=dominance(cnfeas,0);                                         % compute dominance on ftrial
@@ -848,6 +931,16 @@ while (nfeval<options.maxnfeval)
         end
         
     end
+    
+    gg=sprintf('%d ', loc_opt);
+    fprintf('loc_opt=%s\n',gg);
+    
+    %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
+    %
+    %         keyboard
+    %
+    %     end
+    %
     
     %% SOCIAL MOVES, SELECTION AND ARCHIVING
     
@@ -956,8 +1049,24 @@ while (nfeval<options.maxnfeval)
         
     end
     
+    oldz = z;
     z=min(memory(:,lx+1:lx+mfit),[],1);
-    zstar=max(memory(:,lx+1:lx+mfit),[],1);
+    zstar=max([memory(:,lx+1:lx+mfit); f],[],1);
+    if any(z<oldz)
+        
+        fprintf('SOCIAL MOVES IMPROVED MINIMAS\n');
+        
+        for i=1:mfit
+            
+            if z(i)<oldz(i)
+                
+                fprintf('Min of objective %d has changed! Old value = %g, new value = %g \n',i,oldz(i),z(i));
+                
+            end
+            
+        end
+        
+    end
     
     %% FORCED POSITIONING
     
@@ -968,61 +1077,185 @@ while (nfeval<options.maxnfeval)
     % algorithm proposed above is similar to this one, but should work
     % better if the objectives are not scaled.
     
-%         avail = memory;
-%     
-%         if size(memory,1)>=mfit && n_social>0
-%     
-%             n_move = mfit;
-%     
-%             if size(memory,1)>mfit
-%     
-%                 n_move = min(size(memory,1),n_social);
-%     
-%             end
-%     
-%             for i = 1:n_move %problems
-%     
-%                 sel = 0;
-%                 val = g_fun(f(id_pop_act_subpr(i),:),lambda(act_subpr(i),:),z,zstar);
-%     
-%                 for j = 1:size(avail,1) %new points
-%     
-%                     if (avail(j,end)<=0)                                                    % if this social action is in feasible region
-%     
-%                         if (g_fun(avail(j,lx+1:lx+mfit),lambda(act_subpr(i),:),z,zstar)<=val)%||all(avail(j,lx+1:lx+mfit)<=f(id_pop_act_subpr(i),:)) % if sampled position for agent solving i-th subproblem is good (i.e it's gfun is better than the gfun for the old agent)
-%     
-%                             sel = j;
-%                             val = g_fun(avail(j,lx+1:lx+mfit),lambda(act_subpr(i),:),z,zstar);
-%     
-%                         end
-%     
-%                     elseif (avail(j,end)>0)&&(avail(j,end)<cid(id_pop_act_subpr(i)))            % if this social action is not in feasible region but it improves previous constraint violation
-%     
-%                         sel = j;
-%                         val = g_fun(avail(j,lx+1:lx+mfit),lambda(act_subpr(i),:),z,zstar);
-%     
-%     
-%                     end
-%     
-%                 end
-%     
-%                 if sel>0
-%     
-%                     f(id_pop_act_subpr(i),:)=avail(sel,lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
-%                     x(id_pop_act_subpr(i),:)=avail(sel,1:lx);                                 % idem with it's position
-%                     cid(id_pop_act_subpr(i))=avail(sel,end);
-%                     avail(sel,:) = [];
-%     
-%                     patdirs(id_pop_act_subpr(i)).avail = 1:lx;
-%     
-%                     %                 rho(i,1)=options.rhoini;
-%                     %                 rho(i,2)=0;
-%     
-%                 end
-%     
-%             end
-%     
-%         end
+    %             avail = memory;
+    %
+    %             if size(memory,1)>=mfit && n_social>0
+    %
+    %                 n_move = mfit;
+    %
+    %                 if size(memory,1)>mfit
+    %
+    %                     n_move = min(size(memory,1),n_social);
+    %
+    %                 end
+    %
+    %                 for i = 1:n_move %problems
+    %
+    %                     sel = 0;
+    %                     val = g_fun(f(id_pop_act_subpr(i),:),lambda(act_subpr(i),:),z,zstar);
+    %
+    %                     for j = 1:size(avail,1) %new points
+    %
+    %                         if (avail(j,end)<=0)                                                    % if this social action is in feasible region
+    %
+    %                             if (g_fun(avail(j,lx+1:lx+mfit),lambda(act_subpr(i),:),z,zstar)<=val)%||all(avail(j,lx+1:lx+mfit)<=f(id_pop_act_subpr(i),:)) % if sampled position for agent solving i-th subproblem is good (i.e it's gfun is better than the gfun for the old agent)
+    %
+    %                                 sel = j;
+    %                                 val = g_fun(avail(j,lx+1:lx+mfit),lambda(act_subpr(i),:),z,zstar);
+    %
+    %                             end
+    %
+    %                         elseif (avail(j,end)>0)&&(avail(j,end)<cid(id_pop_act_subpr(i)))            % if this social action is not in feasible region but it improves previous constraint violation
+    %
+    %                             sel = j;
+    %                             val = g_fun(avail(j,lx+1:lx+mfit),lambda(act_subpr(i),:),z,zstar);
+    %
+    %
+    %                         end
+    %
+    %                     end
+    %
+    %                     if sel>0
+    %
+    %                         f(id_pop_act_subpr(i),:)=avail(sel,lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
+    %                         x(id_pop_act_subpr(i),:)=avail(sel,1:lx);                                 % idem with it's position
+    %                         cid(id_pop_act_subpr(i))=avail(sel,end);
+    %                         avail(sel,:) = [];
+    %
+    %                         patdirs(id_pop_act_subpr(i)).avail = 1:lx;
+    %
+    %                         %                 rho(i,1)=options.rhoini;
+    %                         %                 rho(i,2)=0;
+    %
+    %                     end
+    %
+    %                 end
+    %
+    %             end
+    
+    %% GRADIENT BASED LOCAL MOVES AS FINISHING STEP, ONLY FOR OPTIMAL CONTROL
+    
+    if mod(iter+99,100)==0 || nfeval>=options.maxnfeval
+        
+        local_only = 1;
+        
+        [xtrial,vtrial,ftrial,maxC,nfeval,discarded,rho,patdirs,MBH_positions,MADS_dirs,int_loc_opt]=explore2(memory,x,v,f,cid,nfeval,lambda,act_subpr,id_pop_act_subpr,z,zstar,rho,patdirs,pigr,MBH_positions,MADS_dirs,local_only,explore_params);
+        
+        oldz = z;
+        z=min([z;ftrial;discarded.f],[],1);            % update the min of each function (i.e, the columnwise min).
+        zstar=max([memory(:,lx+1:lx+mfit);ftrial],[],1);
+        
+        if any(z<oldz)
+            
+            fprintf('INDIVIDUAL MOVES IMPROVED MINIMAS\n');
+            
+            for i=1:mfit
+                
+                if z(i)<oldz(i)
+                    
+                    fprintf('Min of objective %d has changed! Old value = %g, new value = %g \n',i,oldz(i),z(i));
+                    
+                end
+                
+            end
+            
+        end
+        
+        for i=1:options.popsize                                             % for all agents performing local search
+            
+            if (maxC(i)<=0)                                                     % if current agent is in feasible region
+                
+                if (all(ftrial(i,:)<=f(i,:))&&(norm(xtrial(i,:)-x(i,:))>0))||(any(i==id_pop_act_subpr)&&g_fun(ftrial(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)) % if agent performing local search has moved and it's objective function value has improved OR if this agent was selected to solve a sub-problem and it's partial objective function value is better than previous one
+                    
+                    v(i,:) = vtrial(i,:);                                       % given velocity
+                    
+                    % nornalisation of v, to avoid friction
+                    if norm(v(i,:))>0
+                        
+                        v(i,:) = v(i,:)/norm(v(i,:));
+                        
+                    end
+                    
+                    x(i,:)=xtrial(i,:);                                         % position
+                    f(i,:)=ftrial(i,:);                                         % objective function value
+                    cid(i)=maxC(i);                                             % and max constraint violation
+                    loc_opt(i)=int_loc_opt(i);
+                    patdirs(i).avail = 1:lx;
+                    
+                end
+                
+            elseif (maxC(i)>0)&&(maxC(i)<cid(i))                                % if current agent is not in feasible region but it's position improves previous constraint violation
+                
+                v(i,:)=xtrial(i,:)-x(i);                                             % store it's velocity
+                x(i,:)=xtrial(i,:);                                             % position
+                f(i,:)=ftrial(i,:);                                             % objective function values
+                cid(i)=maxC(i);                                                 % and max constraint violation
+                
+            end
+            
+        end
+        
+        % splitting feasible and non feasible solutions
+        ffeas = discarded.f(discarded.c<=0,:);
+        xfeas = discarded.x(discarded.c<=0,:);
+        cfeas = discarded.c(discarded.c<=0,:);
+        
+        fnfeas = discarded.f(discarded.c>0,:);
+        xnfeas = discarded.x(discarded.c>0,:);
+        cnfeas = discarded.c(discarded.c>0,:);
+        
+        if ~isempty(ffeas)
+            
+            domtmp=dominance(ffeas,0);                                          % compute dominance on ffeas
+            x_tmp=xfeas(domtmp==0,:);                                           % and resize x_tmp keeping only non-dominated elements of domtmp
+            f_tmp=ffeas(domtmp==0,:);                                           % idem with f
+            c_tmp=cfeas(domtmp==0,:);                                           % and c
+            
+            [domA,domB]=dominant(memory(memory(:,end)<=0,lx+1:lx+mfit),f_tmp);  % compute dominance of memory wrt f_tmp, and viceversa
+            
+            [memory,dd,energy,ener2]=arch_rem(memory,dd,memory(domA~=0,:));
+            
+            if sum(domB==0)>0                                                   % if there are non-dominated elements in f wrt to memory
+                
+                qq = [x_tmp(domB==0,:) f_tmp(domB==0,:) domB(domB==0) c_tmp(domB==0)];
+                
+                [memory,dd,energy,ener2,mins,maxs]=arch_shrk6(memory,dd,qq,energy,ener2,mins,maxs,lx,mfit,options.max_arch);
+                
+            end
+            
+        end
+        
+        if ~isempty(fnfeas)
+            
+            domtmp=dominance(cnfeas,0);                                         % compute dominance on ftrial
+            x_tmp=xnfeas(domtmp==0,:);                                          % and resize x_tmp keeping only non-dominated elements of domtmp
+            f_tmp=fnfeas(domtmp==0,:);                                          % idem with f
+            c_tmp=cnfeas(domtmp==0,:);                                          % and c
+            
+            [domA,domB]=dominant(memory(:,end),c_tmp);                               % compute dominance of memory wrt cf_tmp, and viceversa
+            [memory,dd,energy,ener2]=arch_rem(memory,dd,memory(domA~=0,:));
+            
+            if sum(domB==0)>0                                                       % if there are non-dominated elements in f wrt to memory
+                
+                qq = [x_tmp(domB==0,:) f_tmp(domB==0,:) domB(domB==0) c_tmp(domB==0)];
+                
+                [memory,dd,energy,ener2,mins,maxs]=arch_shrk6(memory,dd,qq,energy,ener2,mins,maxs,lx,mfit,options.max_arch);
+                
+            end
+            
+        end
+        
+        gg=sprintf('%d ', loc_opt);
+        fprintf('loc_opt=%s\n',gg);
+        
+        %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
+        %
+        %         keyboard
+        %
+        %     end
+        %
+        
+    end
     
     %% REDISTRIBUTE
     
@@ -1046,10 +1279,17 @@ while (nfeval<options.maxnfeval)
             
             if (ming<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)) || (all(avail_memory(posming,lx+1:lx+mfit)<=f(i,:)) && (norm(avail_memory(posming,1:lx)-x(i,:))>0) )
                 
-                %v(i,:)=0*v(i,:);
-                f(i,:)=avail_memory(posming,lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
-                x(i,:)=avail_memory(posming,1:lx);                                 % idem with it's position
-                cid(i)=avail_memory(posming,end);
+                if norm(f(i,:)-avail_memory(posming,lx+1:lx+mfit))>0
+                    
+                    %v(i,:)=0*v(i,:);
+                    f(i,:)=avail_memory(posming,lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
+                    x(i,:)=avail_memory(posming,1:lx);                                 % idem with it's position
+                    cid(i)=avail_memory(posming,end);
+                    loc_opt(i) = 0; %we cannot be sure...
+                    %rho(i,1) = options.rhoini;
+                    %rho(i,2) = 0;
+                    
+                end
                 
             end
             
@@ -1069,60 +1309,64 @@ while (nfeval<options.maxnfeval)
             
         end
         
-        if size(avail_memory,1)>=(n_social-mfit)  % more memories than remaining agents, free choice
+        %if size(avail_memory,1)>=(n_social-mfit)  % more memories than remaining agents, free choice
+        if size(avail_memory,1)>0  % more memories remaining
             
-            mm0 = setdiff(memory,avail_memory,'rows','stable');
+            n_pick = min(size(avail_memory,1),n_social-mfit);
             
-            [mm,ddt,eett,ene2t] = arch_shrk6([],[],mm0,0,[],mins,maxs,lx,mfit,mfit); % first pass, add extremas
-            [mm,~,~,~] = arch_shrk6(mm,ddt,avail_memory,eett,ene2t,mins,maxs,lx,mfit,options.popsize);
-            
-            avail_memory = setdiff(mm,mm0,'rows','stable');
-            
-            id_agents_non_orth_subprs = id_pop_act_subpr(mfit+1:end);
-            
-            for i = id_agents_non_orth_subprs
+            if n_pick == n_social-mfit
                 
-                gtmp = hp_g_fun(avail_memory(:,lx+1:lx+mfit),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)';
-                [ming,posming] = min(gtmp);
+                mm0 = setdiff(memory,avail_memory,'rows','stable');
                 
-                %if (ming<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z)) || (all(avail_memory(posming,lx+1:lx+mfit)<=f(i,:)) && (norm(avail_memory(posming,1:lx)-x(i,:))>0) )
+                [mm,ddt,eett,ene2t] = arch_shrk6([],[],mm0,0,[],mins,maxs,lx,mfit,mfit); % first pass, add extremas
+                [mm,~,~,~] = arch_shrk6(mm,ddt,avail_memory,eett,ene2t,mins,maxs,lx,mfit,n_pick+mfit);
                 
-                %v(i,:)=0*v(i,:);
-                f(i,:)=avail_memory(posming,lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
-                x(i,:)=avail_memory(posming,1:lx);                                 % idem with it's position
-                cid(i)=avail_memory(posming,end);
-                avail_memory(posming,:) = [];
-                
-                %end
+                avail_memory = setdiff(mm,mm0,'rows','stable');
                 
             end
             
-            %        else    % little choice, move only the most agents most distant to z
+            id_agents_non_orth_subprs = id_pop_act_subpr(mfit+1:end);
+            
+            gtmp = hp_g_fun(avail_memory(:,lx+1:lx+mfit),lambda(act_subpr(mfit+1:end),:),z,zstar);
+            [id_point,id_agent,vals] = associate_agents_positions (gtmp,id_agents_non_orth_subprs);
+            
+            for i = 1:length(id_point)
+                
+                oldval = f(id_agent(i),:);
+                
+                %if vals(i)< g_fun(oldval,lambda(act_subpr(id_pop_act_subpr==id_agent(i)),:),z,zstar)
+                
+                f(id_agent(i),:)=avail_memory(id_point(i),lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
+                x(id_agent(i),:)=avail_memory(id_point(i),1:lx);                                 % idem with it's position
+                cid(id_agent(i))=avail_memory(id_point(i),end);
+                
+                %end
+                
+                if norm(f(id_agent(i),:)-oldval)>0
+                    
+                    loc_opt(id_agent(i)) = 0; %we cannot be sure...
+                    
+                end
+                
+            end
+            
+            %             for i = id_agents_non_orth_subprs
             %
-            %             if size(avail_memory,1)>1
+            %                 gtmp = hp_g_fun(avail_memory(:,lx+1:lx+mfit),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)';
+            %                 [ming,posming] = min(gtmp);
             %
-            %                 id_agents_non_orth_subprs = id_pop_act_subpr(mfit+1:end);
+            %                 oldval = f(i,:);
             %
-            %                 dist_to_z  = sum((repmat(z,length(id_agents_non_orth_subprs),1)-f(id_agents_non_orth_subprs,:)).^2,2);
+            %                 f(i,:)=avail_memory(posming,lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
+            %                 x(i,:)=avail_memory(posming,1:lx);                                 % idem with it's position
+            %                 cid(i)=avail_memory(posming,end);
+            %                 avail_memory(posming,:) = [];
             %
-            %                 [~,choice_order] = sort(dist_to_z,'descend');
+            %                 if norm(f(i,:)-oldval)>0
             %
-            %                 id_far_agents = id_agents_non_orth_subprs(choice_order(1:size(avail_memory,1)));
-            %
-            %                 for i = id_far_agents
-            %
-            %                     gtmp = hp_g_fun(avail_memory(:,lx+1:lx+mfit),lambda(act_subpr(id_pop_act_subpr==i),:),z)';
-            %                     [ming,posming] = min(gtmp);
-            %
-            %                     if (ming<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z)) || (all(avail_memory(posming,lx+1:lx+mfit)<=f(i,:)) && (norm(avail_memory(posming,1:lx)-x(i,:))>0) )
-            %
-            %                         %v(i,:)=0*v(i,:);
-            %                         f(i,:)=avail_memory(posming,lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
-            %                         x(i,:)=avail_memory(posming,1:lx);                                 % idem with it's position
-            %                         cid(i)=avail_memory(posming,end);
-            %                         avail_memory(posming,:) = [];
-            %
-            %                     end
+            %                     v(i,:)=0*v(i,:);
+            %                     rho(i,1) = options.rhoini;
+            %                     rho(i,2) = 0;
             %
             %                 end
             %
@@ -1130,7 +1374,151 @@ while (nfeval<options.maxnfeval)
             
         end
         
+        %else
+        
     end
+    
+    gg=sprintf('%d ', loc_opt);
+    fprintf('loc_opt=%s\n',gg);
+    
+    %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
+    %
+    %         keyboard
+    %
+    %     end
+    
+    %% REDISTRIBUTE AND ADAPT SUBPROBLEMS
+    
+    % Alternative to social move (NOT to the generation of sample but to
+    % the actual repositioning of the agent), can be useful especially if
+    % objectives are badly scale. Following implementation is buggy, but
+    % the idea is promising
+    
+    %     id_agents_orth_subprs = id_pop_act_subpr(1:mfit);   %pick the id of the agents that are currently associated to the orthogonal (first mfit) subproblems
+    %
+    %     avail_memory = memory;
+    %
+    %     if size(avail_memory,1)>=mfit          % if there are at least mfit points in the archive, satisfy as best as possible the orthogonal subproblems
+    %
+    %         % deal with orthogonal subproblems first
+    %
+    %         for i = id_agents_orth_subprs %for each orth subproblem, move the agent that is solving it to the best position possible
+    %
+    %             gtmp = hp_g_fun(avail_memory(:,lx+1:lx+mfit),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)';
+    %             [ming,posming] = min(gtmp);
+    %
+    %             if (ming<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)) || (all(avail_memory(posming,lx+1:lx+mfit)<=f(i,:)) && (norm(avail_memory(posming,1:lx)-x(i,:))>0) )
+    %
+    %                 if norm(f(i,:)-avail_memory(posming,lx+1:lx+mfit))>0
+    %
+    %                     %v(i,:)=0*v(i,:);
+    %                     f(i,:)=avail_memory(posming,lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
+    %                     x(i,:)=avail_memory(posming,1:lx);                                 % idem with it's position
+    %                     cid(i)=avail_memory(posming,end);
+    %                     %rho(i,1) = options.rhoini;
+    %                     %rho(i,2) = 0;
+    %
+    %                 end
+    %
+    %             end
+    %
+    %         end
+    %
+    %         [~,idava] = setdiff(avail_memory(:,1:lx),x(id_agents_orth_subprs,:),'rows','stable');
+    %         avail_memory = avail_memory(idava,:);
+    %
+    %         if (size(avail_memory,1) == size(memory,1))   %ugly sanity check
+    %
+    %             idmin = zeros(mfit,1);
+    %
+    %             for i = 1:mfit
+    %
+    %                 [~,idmin(i)] = min(memory(:,lx+i));
+    %
+    %             end
+    %
+    %             avail_memory(idmin,:) = [];
+    %
+    %         end
+    %
+    %         %if size(avail_memory,1)>=(n_social-mfit)  % more memories than remaining agents, free choice
+    %         if size(avail_memory,1)>=mfit  % more memories remaining
+    %
+    %             n_pick = min(size(avail_memory,1),n_social-mfit);
+    %
+    %             if n_pick == n_social-mfit
+    %
+    %                 mm0 = setdiff(memory,avail_memory,'rows','stable');
+    %
+    %                 [mm,ddt,eett,ene2t] = arch_shrk6([],[],mm0,0,[],mins,maxs,lx,mfit,mfit); % first pass, add extremas
+    %                 [mm,~,~,~] = arch_shrk6(mm,ddt,avail_memory,eett,ene2t,mins,maxs,lx,mfit,n_pick+mfit);
+    %
+    %                 avail_memory = setdiff(mm,mm0,'rows','stable');
+    %
+    %             end
+    %
+    %             id_agents_non_orth_subprs = id_pop_act_subpr(mfit+1:end);
+    %
+    %             gtmp = hp_g_fun(avail_memory(:,lx+1:lx+mfit),lambda(act_subpr(mfit+1:end),:),z,zstar);
+    %             [id_point,id_agent,vals] = associate_agents_positions (gtmp,id_agents_non_orth_subprs);
+    %
+    %             for i = 1:length(id_point)
+    %
+    %                 oldval = f(id_agent(i),:);
+    %
+    %                 %if vals(i)< g_fun(oldval,lambda(act_subpr(id_pop_act_subpr==id_agent(i)),:),z,zstar)
+    %
+    %                     f(id_agent(i),:)=avail_memory(id_point(i),lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
+    %                     x(id_agent(i),:)=avail_memory(id_point(i),1:lx);                                 % idem with it's position
+    %                     cid(id_agent(i))=avail_memory(id_point(i),end);
+    %                     lambda(act_subpr(id_pop_act_subpr==id_agent(i)),:) = (f(id_agent(i),:)-z)./(((zstar-z).*((zstar-z)~=0))+((zstar-z)==0))/norm((f(id_agent(i),:)-z)./(((zstar-z).*((zstar-z)~=0))+((zstar-z)==0)));
+    %
+    %                 %end
+    %
+    %                 %                 if norm(f(id_agent(i),:)-oldval)>0
+    %                 %
+    %                 %                     v(id_agent(i),:) = 0*v(id_agent(i),:);
+    %                 %                     rho(id_agent(i),1) = options.rhoini;
+    %                 %                     rho(id_agent(i),2) = 0;
+    %                 %
+    %                 %                 end
+    %
+    %             end
+    %
+    %             %             for i = id_agents_non_orth_subprs
+    %             %
+    %             %                 gtmp = hp_g_fun(avail_memory(:,lx+1:lx+mfit),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)';
+    %             %                 [ming,posming] = min(gtmp);
+    %             %
+    %             %                 oldval = f(i,:);
+    %             %
+    %             %                 f(i,:)=avail_memory(posming,lx+1:lx+mfit);                                 % fsamp becomes f(active_problem)
+    %             %                 x(i,:)=avail_memory(posming,1:lx);                                 % idem with it's position
+    %             %                 cid(i)=avail_memory(posming,end);
+    %             %                 avail_memory(posming,:) = [];
+    %             %
+    %             %                 if norm(f(i,:)-oldval)>0
+    %             %
+    %             %                     v(i,:)=0*v(i,:);
+    %             %                     rho(i,1) = options.rhoini;
+    %             %                     rho(i,2) = 0;
+    %             %
+    %             %                 end
+    %             %
+    %             %             end
+    %
+    %         end
+    %
+    %         %else
+    %
+    %     end
+    %
+    %     %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
+    %     %
+    %     %         keyboard
+    %     %
+    %     %     end
+    %
     
     %% SUBPROBLEMS UPDATE
     
@@ -1143,28 +1531,28 @@ while (nfeval<options.maxnfeval)
     
     %% TEMPORARY (FASTER) PLOTTING OF FRONT
     
-%     if max(memory(:,end)<=0)
-%         if mfit==3
-%             plot3(memory(:,lx+1),memory(:,lx+2),memory(:,lx+3),'b.',f(:,1),f(:,2),f(:,3),'r+')
-%             view(-160,30)
-%         else
-%             if mfit==2
-%                 %subplot(2,2,1)
-%                 plot(memory(:,lx+1),memory(:,lx+2),'b.',f(:,1),f(:,2),'r+')%,ftrial(:,1),ftrial(:,2),'g+')
-%                 %subplot(2,2,2)
-%                 %plot(memory(:,1),memory(:,2),'b.',x(:,1),x(:,2),'r+')%,xtrial(:,1),xtrial(:,2),'g+')
-%                 %subplot(2,2,3)
-%                 %plot(memory(:,3),memory(:,4),'b.',x(:,3),x(:,4),'r+')%,xtrial(:,3),xtrial(:,4),'g+')
-%                 %subplot(2,2,4)
-%                 %plot(memory(:,5),memory(:,6),'b.',x(:,5),x(:,6),'r+')%,xtrial(:,5),xtrial(:,6),'g+')
-%             else
-%                 
-%                 plot(1:options.popsize,f(:,1),'r+',1:options.popsize,ones(1,options.popsize)*memory(1,lx+1),'b');
-%                 
-%             end
-%         end
-%         drawnow
-%     end
+    if max(memory(:,end)<=0)
+        if mfit==3
+            plot3(memory(:,lx+1),memory(:,lx+2),memory(:,lx+3),'b.',f(:,1),f(:,2),f(:,3),'r+')
+            view(-160,30)
+        else
+            if mfit==2
+                %subplot(2,2,1)
+                plot(memory(:,lx+1),memory(:,lx+2),'b.',f(:,1),f(:,2),'r+',fold(:,1),fold(:,2),'go')
+                %subplot(2,2,2)
+                %plot(memory(:,1),memory(:,2),'b.',x(:,1),x(:,2),'r+')%,xtrial(:,1),xtrial(:,2),'g+')
+                %subplot(2,2,3)
+                %plot(memory(:,3),memory(:,4),'b.',x(:,3),x(:,4),'r+')%,xtrial(:,3),xtrial(:,4),'g+')
+                %subplot(2,2,4)
+                %plot(memory(:,5),memory(:,6),'b.',x(:,5),x(:,6),'r+')%,xtrial(:,5),xtrial(:,6),'g+')
+            else
+                
+                plot(1:options.popsize,f(:,1),'r+',1:options.popsize,ones(1,options.popsize)*memory(1,lx+1),'b');
+                
+            end
+        end
+        drawnow
+    end
     
     %% ARCHIVE SHRINKING
     
@@ -1283,17 +1671,17 @@ while (nfeval<options.maxnfeval)
         fprintf('\tMax Constraint violation : %6.3f\n', max(memory(:,end)));
     end
     
-    %eltime = toc;
+    eltime = toc;
     
-    %if mfit==1
-    %    
-    %    fprintf('Total nfeval: %d, Elapsed time: %f, feasible solutions: %d, fun_evals: %d, time/num_fun_evals: %f\n',nfeval,eltime,sum(f~=Inf),nfeval-nfeval_old,eltime/(nfeval-nfeval_old));
-    %    
-    %else
-    %    
-    %    fprintf('Total nfeval: %d, Elapsed time: %f, feasible solutions: %d, fun_evals: %d, time/num_fun_evals: %f\n',nfeval,eltime,sum(all(f~=Inf)),nfeval-nfeval_old,eltime/(nfeval-nfeval_old));
-    %    
-    %end
+    if mfit==1
+        
+        fprintf('Total nfeval: %d, Elapsed time: %f, feasible solutions: %d, fun_evals: %d, time/num_fun_evals: %f\n',nfeval,eltime,sum(f~=Inf),nfeval-nfeval_old,eltime/(nfeval-nfeval_old));
+        
+    else
+        
+        fprintf('Total nfeval: %d, Elapsed time: %f, feasible solutions: %d, fun_evals: %d, time/num_fun_evals: %f\n',nfeval,eltime,sum(all(f~=Inf)),nfeval-nfeval_old,eltime/(nfeval-nfeval_old));
+        
+    end
     
 end
 

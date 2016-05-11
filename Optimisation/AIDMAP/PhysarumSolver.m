@@ -1,4 +1,4 @@
-function [ListNodes,Agents] = PhysarumSolver(InitializedInputs, ListNodes)
+function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(InitializedInputs, ListNodes)
 % This script contains the main logic of AIDMAP solver. 
 %
 % Inputs:
@@ -14,6 +14,8 @@ function [ListNodes,Agents] = PhysarumSolver(InitializedInputs, ListNodes)
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
+
+Solutions = [];
 
 %Loop over the generations
 for j = 1:InitializedInputs.Generations
@@ -38,7 +40,7 @@ for j = 1:InitializedInputs.Generations
         
         %Continue moving the agent until the death flag becomes 1
         while ~agentdeathflag
-            [ListNodes, Agents, agentdeathflag] = AgentMovement(InitializedInputs, ListNodes, Agents, agentnames(i));
+            [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i));
             
         end
         

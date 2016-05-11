@@ -1,4 +1,4 @@
-function [ListNodes, Agents, agentdeathflag] = AgentMovement(Inputs, ListNodes, Agents, agent)
+function [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement(Inputs, Solutions, ListNodes, Agents, agent)
 % This function is used to move agents through the graph/tree
 %
 % Inputs:
@@ -25,7 +25,13 @@ currentnode = char(Agents.(currentagent).currentNode);
 disp(strcat([datestr(now),' === Moved to',' ',currentnode]));
 
 if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
+    
+    %If there are no more possible decisions or visists left, set the death
+    %flag to 1
     agentdeathflag = 1;
+    
+    %Save the solution
+    Solutions = [Solutions; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
     return
 end
 
@@ -60,6 +66,6 @@ else
     
     %If there are no children or if the random number falls within the
     %probability margin, ramificate towards a new node
-    [ListNodes, Agents, agentdeathflag] = Ramification(Inputs, ListNodes, Agents, currentagent);
+    [ListNodes, Solutions, Agents, agentdeathflag] = Ramification(Inputs, Solutions, ListNodes, Agents, currentagent);
 end
    

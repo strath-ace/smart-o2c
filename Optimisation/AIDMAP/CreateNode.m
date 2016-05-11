@@ -53,7 +53,11 @@ newNode = struct('node_ID',           node_ID,... % The ID of the node
             
  
 %Add the length of the structure. This can only be done after the creation of the structure, as the CostFunction itself needs it             
-newNode.length = Inputs.CostFunction(ListNodes.(parent), newNode);
+newNode = Inputs.CostFunction(ListNodes.(parent), newNode);
+
+if (newNode.length == Inf)
+    return
+end
 
 %prevent the length from being 0 (and the flux from becoming inf)
 if (newNode.length == 0)
