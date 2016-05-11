@@ -1,4 +1,4 @@
-function [ListNodes, Agents, agentdeathflag] = Ramification(Inputs, ListNodes, Agents, agent)
+function [ListNodes, Solutions, Agents, agentdeathflag] = Ramification(Inputs, Solutions, ListNodes, Agents, agent)
 % This function handles the ramification to new nodes. It does so by
 % generating a preset number of random nodes and making a probabilistic
 % selection based on the cost function.
@@ -25,6 +25,7 @@ agentdeathflag = 0;
 
 if isempty(ListNodes.(currentNode).possibledecisions)   
     agentdeathflag = 1;
+    Solutions = [Solutions; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
     return
 end
 
@@ -69,6 +70,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     if isempty(possnodes)
         disp(strcat(agent,' died'))
         agentdeathflag = 1;
+        Solutions = [Solutions; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
         break
     end
        
@@ -84,13 +86,15 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
         
         %Generate the new node & save its cost in a vector
         [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
-        costvec = [costvec newNode.length];
-        
-        %Add generated node to the structure created earlier.
-        generatednodes.(newNode.node_ID) = newNode;
-        
-        %Add generated node name & cost to matrices for ease of access
-        nameslist = [nameslist {newnode_ID}];
+        if newNode.length ~= Inf
+            costvec = [costvec newNode.length];
+
+            %Add generated node to the structure created earlier.
+            generatednodes.(newNode.node_ID) = newNode;
+
+            %Add generated node name & cost to matrices for ease of access
+            nameslist = [nameslist {newnode_ID}];
+        end
             
     end
 end

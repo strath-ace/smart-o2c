@@ -81,6 +81,7 @@ for i = 1:length(targets)
         %denote the location of the decimal point
         possdecattribvec(i,j) = strrep(possdecattribvec(i,j),'.','_');
     end
+    clear possattribstr
 end
 
 

@@ -26,8 +26,8 @@ classdef Asteroids
                                   0,  ... % Inclination [deg]  
                                   -11.26064, ... % Asc. Node/raan [deg]
                                   102.94719, ... % Arg. Perigee [deg]
-                                  78.835491,   ... % Mean anomoly, M at time given t0 [deg]
-                                  5055.5);          % Epoch [MJD2000]
+                                  0,   ... % Mean anomoly, M at time given t0 [deg]
+                                  0);          % Epoch [MJD2000]
          
         % Asteroid '163693'
         neo163693 = CelestialBody('163693',    ... % Name 
