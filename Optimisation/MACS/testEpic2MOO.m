@@ -4,7 +4,7 @@ clc
 
 sigma=0;
 
-test_function = 'Cassini';
+test_function = 'UF6';
 func=@(name)cec09(name);
 
 switch test_function
@@ -257,12 +257,12 @@ test_function
 
 %% test MACS2
 
-opt.maxnfeval=900000;     % maximum number of f evals
-opt.popsize=250;         % popsize (forM4 each archive)
+opt.maxnfeval=300000;     % maximum number of f evals
+opt.popsize=150;         % popsize (forM4 each archive)
 opt.rhoini=1;           % initial span of each local hypercube (1=full domain)
 opt.F=0.9;              % F, the parameter for Differential Evolution
 opt.CR=0.9;             % CR, crossover probability
-opt.p_social=2/5;         % popratio
+opt.p_social=0.2;         % popratio
 opt.max_arch=100;          % archive size
 opt.coord_ratio=1;
 opt.contr_ratio=0.5;         % contraction ratio
@@ -271,11 +271,11 @@ opt.cp=0;          % constraints yes/no
 opt.MBHflag=0;          % number of MBH steps
 opt.explore_DE_strategy = 'rand';
 opt.social_DE_strategy = 'DE/current-to-rand/1';
-opt.v = 0;
+opt.v = 1;
 opt.dyn_pat_search = 1;
 opt.upd_subproblems = 0;
 opt.max_rho_contr = 5;
-opt.pat_search_strategy = 'random';
+opt.pat_search_strategy = 'standard';
 opt.optimal_control = 0;
 opt.vars_to_opt = ~isinf(vlb0);
 %opt.oc.structure = structure;

@@ -269,14 +269,14 @@ if (qty_to_add < candsize)                                                  % no
     
 end
 
-for m= 1:mfit
-    
-    if min(candidates(:,lx+m))<min(memories(:,lx+m))
-        
-        keyboard
-        
-    end
-    
-end
+% for m= 1:mfit
+%     
+%     if min(candidates(:,lx+m))<min(memories(:,lx+m))
+%         
+%         keyboard
+%         
+%     end
+%     
+% end
 
 end

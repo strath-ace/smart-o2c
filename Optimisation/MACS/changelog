@@ -1,0 +1,444 @@
+04/03/15
+
+arch_shrk5
+* new strategy for archiviation and equipartition. The archive now has a total energy, the inverse of squared distances are kept to avoid recomputation. The strategy is: add agents until there's less than max_archive elements in the archive (updating all values of total energy, contributions, distances etc). If there are candidates left, compute what energy would the archive have if at turn each of the candidates replaced one of the archive. If We find a better candidate, we replace the agent in the archive with this one (updating matrices and vectors accordingly)
+
+TODO :
+macs
+memory is stored in a maxrix containing positions of agetns, objective function values, dominance and constraint violation. This obliges to write very ugly code when addressing only some components of it (i.e 1:lx, or lx+1:lx+mfit, or lx+mfit+2 etc). Consider restructuring as a structure of arrays (memory.x[:], memory.f[:], memory.d[:], memory.cid[:]) to improve readability
+In explore function, discarded is stored as a vector of structures. If it were a structure of vectors (as suggested for memory, above) it would be both more efficient and readable, plus, some vector operations could be performed within MACS main body
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+23/02/15
+
+arch_shrk3
+* algorithm improvement over arch_shrk2: now computes inverse squared distances ONCE for every couple and stores these values. MUCH faster and easier to read
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+16/02/15
+
+arch_shrk2
+* fully vectorized through 3D matrices. 5x+ speedup!
+
+macs
+* re-introduced constraints, should work properly
+
+TODO :
+TEST CONSTRAINTS
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+13/02/15
+
+macs
+* greatly simplified in-loop control of dominance and archiviation for individual moves. BEWARE, IT'S NOT CONSIDERING CONSTRAINTS FOR NOW!!!! WILL HAVE TO SPLIT THE MEMORY BETWEEN FEASIBLE AND INFEASIBLE SOLUTIONS AND TREAT THEM SEPARATELY
+
+arch_shrk2
+* corrected energy computation for orthogonal subproblems. Changed to physical energy (inverse of sum of square discances). WORKS AS CHARM, PARETO FRONT IS EXCEPTIONALLY WELL DISTRIBUTED!
+
+TODO : 
+dominance_new: Correct an error: BEWARE WHEN REMOVING PENALITIES (pen(i)~=0 && i==pen(pen(i))), BECAUSE pen(i) CAN BE GREATER THAN length(pen) thus pen(pen(i)) is an invalid call!!!
+arch_shrk2: try to vectorize the inner loops of the passes. Other orders of magnitude to improve... (may require 3d marices...)
+social : the function should loop over the various n_social parameters INTERNALLY!!!
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+11/02/15
+
+new function arch_shrk2 (will substitute original one, with time)
+* implemented yesterday's idea. Also makes recursive subsequent adjustments, gets almost exact absolute minima with many orders of magnitude LESS computational time.
+
+macs
+* introduced new parameter int_arch_mult to specify internal archive multiplier (>1, was a fixed 1.5)
+
+TODO
+Probably it isn't a good idea to call "spars" on with a single element to evaluate... try to do it once per set of actions
+Arch_shrk2: evaluate impact of normalizing all objectives so that criteria space is mapped to a [0-1]-hypercube
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+10/02/15
+
+Prototyped an alternative way to shrink the archive, based upon min of gravitational potential. Real solution requires computation of energy for all possible combinations, making it an NP hard problem (factorial of n). Approximate solution takes 4 ORDERS OF MAGNITUDE LESSER ON A 30/20 PROBLEM, and is almost identical to true min. It's based upon the assumption that the min is can be constructed sequentially by taking the element which minimizes energy addition of already existing subset.
+
+TODO
+- Test it on more complex "geometries" and implement it on MACS
+- Solutions computed "later" depend on solutions computed "first". However, this is not a 2 way coupling, since first found solutions have no chance to change due to next found solutions. Can the algorithm be further improved by re-scanning previously found minimas, so that first found solutions are allowed to change due to next found ones?
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+04/02/15
+
+Dominance_new function
+* works, although no improvements measured, yet
+
+dominant_new function
+* tested: more than 1 order of magnitude faster than original one ;)
+
+deltacomp
+* rewritten for high performance: mor than 1 order of magnitude faster than original one ;)
+
+TODO :
+For some reason, MACS doesn't keep points in vertical parts of the front even when it finds them. It's almost surely a matter of how we choose to keep points in the archive (those points shouldn't be filtered out). It's in the archiviation/selection of agents after local searches. For some reasons, those points are not "liked". Probably will have to try another strategy (min energy?)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+03/02/15
+
+hp_gfun (new function)
+* this will progressively substitute the standard g_fun. It's simply a vectorized, high performance gfun, but will help much in cleaning the code
+
+MACS function
+* now calls hp_gfun whenever possible (other 12.5% reduction in computational time when substituting in the CHECK WICH IS THE BEST APPROX OF I-TH SUBPROBLEM)
+* noted that lambda_x_best and lambda_f_best are filled with many repetitions of the same agents at initialization... Find out what does it mean
+* renamed id_social to id_local (clearer meaning, now actually referring to current implementation)
+* fixed behaviour for cpat, now no longer giving errors (when c_pat was 1, sometimes discarded was shorter than x_trial, thus it wasn't possible to compare x_trial(i) and discarded.x(i), etc.. now when it's not possible, it simply uses x_trial which always exists. This also mean that with c_pat=1, local actions are somewhat less effective)
+
+explore function/MACS function
+* discarded has changed from a vector of structures to a structure of vectors. More efficient, and many operations are now easier to do (because discarded.f is a vector, while before it wasn't)
+* added a parameter 'v' to choose if computing velocity on DE or pattern search steps (explore), or after social steps
+
+TODO :
+* the selection of best agent for local i-th subproblem is not easy to parallelize: if the problem is dealt with a min of a vector, later on the position of the new min will coincide with the position of and old min, thus creating duplicates. THIS BEHAVIOUR IS WRONG! TRY TO FIND A VECTOR SOLUTION TO THIS PROBLEM
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+02/02/15
+
+upd_act_subpr function
+* removed unused input delta
+* removed redundant input parameters lx and mfit
+* removed unused output x and f
+* renamed input parameter n_local to n_agents_subpr (clearer meaning)
+
+macs function
+* renamed p_local to p_social (clearer meaning, now actually referring to current implementation)
+* renamed n_local to n_social (clearer meaning, now actually referring to current implementation)
+* corrected initialization of lambda_f_best and lambda_x_best to (n_lambda,mfit) and (n_lambda,lx)
+
+TODO :
+In MACS, better understanding of INITIAL SELECTION OF SUBPROBLEMS TO BE SOLVED... there's a little ambiguity (in my understanding) between n_social and n_lambda in the creation of local subproblems
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+30/01/15
+
+spars function
+* Deciphered and commented. Could be optimized but for now probably it's not worth the effort.
+
+arch_shrk function
+* Deciphered and commented. 
+* removed useless parameter archsize (can be immediately computed from archive).
+* solved duplicate agents bug (id_max contained duplicate items)
+
+upd_act_subpr
+* dechiphered and commented
+
+TODO :
+memory is stored in a maxrix containing positions of agetns, objective function values, dominance and constraint violation. This obliges to write very ugly code when addressing only some components of it (i.e 1:lx, or lx+1:lx+mfit, or lx+mfit+2 etc). Consider restructuring as a structure of arrays (memory.x[:], memory.f[:], memory.d[:], memory.cid[:]) to improve readability
+In explore function, discarded is stored as a vector of structures. If it were a structure of vectors (as suggested for memory, above) it would be both more efficient and readable, plus, some vector operations could be performed within MACS main body
+In MACS main body, local actions can produce offspring which is appended to a tmp vector together with discarded(i). Often (always?) this operation is useless since then we will filter out non dominated elements, and if a copy exists one of the two will be penalized and excluded. It'd be much simple and clearer simply AVOIDING ADDING DUPLICATES JUST TO REMOVE THEM
+In arch_shrk, the nested loops computing distances could be vectorized
+In upd_act_subpr, the inner loop checking for minimum gfun and agent which gives minimum gfun for given subproblem could be simplified and vectorized (look into the code, it's already hinted what to do)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+29/01/15
+
+MACS function
+* in general, there should be at least 3 agents, otherwise if there's no memory, DE cannot work! Hardcapped a min value of 3.
+
+social function
+* temp_dist is now computed in a single line. Maybe it'd be better to put that line in a separate function (it's a bit involved...)
+* filtered out eventually duplicate elements in memories and x_DE, making the rotation of P and id_pop unnecessary, as for sure all elements will have distance greater than 0. If those matrices become too small or empty, the rotation would be useless anyway.
+
+dominant2 function (efficient reimplementation of dominant)
+* written and tested, should work and be much more efficient. For now is in testing only
+
+delta_comp function
+* Deciphered and commented. Could be optimized but for now probably it's not worth the effort.
+
+TODO :
+Noticed that, to have a well covered Pareto front, is much more important to ho have a large archive than a large number of agents. It seems also much more cost effective (less dominances to compute?)
+Test respective influence of num agents, ratio local/social, max archive size and max fun evals. Probably, there should be a budget of moves for each agent, otherwise some in bad position will steal moves from the others while not progressing. Try to implement this idea, splitting local moves each in its loop, and for pattern search, each agent has 1 try before next agent tries.
+Decipher and comment spars function
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+28/01/15
+
+social function
+* removed "lx" input variable, as it's redundant (equal to the length of vlb or vub).
+* grouped several parameters into "params" structure
+T		-> params.T
+F		-> params.F
+CR		-> params.CR
+vlb		-> params.vlb
+vub		-> params.vub
+func		-> params.func
+cp		-> params.cp
+arg		-> params.arg
+* added params.DE_type as external parameter
+* restricted memories and x_DE to a subset that DOESN'T contain x, so that for sue it isn't counted in the list of elements closest to itself! This lead to a simplification of many checks and reduction of minimum archive size to 3, to perform DE sampling from archive
+
+MACS
+* to differentiate DE strategies in exploration and social actions, the structure now has 2 fields: explore_DE_strategy and social_DE_strategy
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+27/01/15
+
+MACS
+* preallocated c variable
+* corrected assignment of discarded.f elements to ztmp. As it was before, since expl_agents was a vector containing only the IDs of the agents performing local exploration and COULD HAVE HAD GAPS, the assignment made with for i:expl_agents was not correct, as expl_agents could have only contained the id 10, but within the loop we were trying to access discarded(10).f, which wasn't existing. The proper way (for i=1:length(expl_agents)) is now implemented
+* same as above in main loop of individualistic selection and archiving
+
+explore function
+* same correction as in MACS, changed from for i=agents, to for i=1:length(agents). THIS LEADS TO A HUGE CHANGE: INSTEAD OF ACCESSING TO x(i,:), WE SHOULD ACCESS x(agents(i),:)!!!!! AND SO ON TO EVERY OTHER VAR PASSED AS INPUT!!! THIS IS VERY DANGEROUS AND ERROR PRONE.... DONE IT IN agenst_fix BRANCH!
+
+social function
+* removed unused input parameter f_DE
+* removed unused input parameter lambda
+* removed unused input parameter z
+* removed unused input parameter delta
+* removed unused input parameter rho
+* removed unused input parameter T
+* reimplemented bounds check
+
+
+TODO :
+Try to properly preallocate lambda in 3 objective problems
+Try to preallocate ztmp (this could require to suppress "discarded" structure and replace it with (more proper, perhaps) vectors
+In MACS, Fix naming of local/social variables names (now they are almost certainly THE CONTRARY of what they should be, as the logic of the code changed in the past...). Already created a BRANCH to make that LARGE fix...
+Idea: in social, DE initialization, P is sorted in ascendent distance fashion. This way, it's possible for the algorithm to choose a point with 0 distance (ie the point itself). Why not exclude it?
+Change from many parameters to structure of parameters in social function
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+26/01/15
+
+explore function
+* Although the alpha clipping works, sometimes roundoffs cause xtrial to be out of bounds (by an amount close to machine eps). If the problem involves even roots, logs, divisions or any other math operation that has bounded domain, this can lead to undesired NaNs, complex numbers, or Infs. This happened in the inertia part. Added hard clipping to prevent this issue.
+* "compop" var renamed to "agents".
+* updated function description. Next step is refurbishing of function (passing to structure of parameters, no defaults or checks should be needed as they are simply inherited from caller MACS function).
+* removed "lx" input variable, as it's redundant (equal to the length of vlb or vub).
+* grouped several parameters into "params" structure
+
+F		->	params.F, inherited from MACS
+CR		->	params.CR, inherited from MACS
+vlb		->	params.vlb, inherited from MACS
+vub		->	params.vub, inherited form MACS
+coord_ratio	->	params.coord_ratio, inherited from MACS
+contr_ratio	->	params.contr_ratio, inherited from MACS
+rhoini		->	params.rhoini, inherited from MACS
+cp		->	params.cp, inherited from MACS
+cpat		->	params.cpat, inherited from MACS
+ncon		->	params.ncon, inherited from MACS
+func		->	params.func, inherited from MACS
+arg		->	params.arg, inherited from MACS (varargin)
+
+MACS
+* added parameter (flag) "explore_all" in options, to properly choose if all agents should perform local exploration or not. It's defaulted to 1.
+
+TODO : 
+Max number of evaluations is (for now) imposed only in a rather weak way. Consider feasibility and utility of enforcing this constraint in a rigorous way.
+"id_social" variable within MACS function seems rather useless... Try to understand why and if it's needed
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+23/01/15
+
+* Noticed that with single objective functions, the MACS crashes. The problem is in the selection of local subproblems (act_subpr is a scalar, but then is treated as a vector). Changed it's initialization as a vector with the right size (n_lambda).
+* DE: starting to understand how it' implemented. The selection of the "best" element is now clear. What stays nebulous is the procedure which picks 2 or 3 random agents from the whole list. As of now, this is performed in a very involved fashion (creating vectors of the agents IDs, shuffled, picking the i-th element, where i is the current agent being DEed, and changing these vectors for every agent). A much simpler way is: for each agent, create a vector with the IDs of the agents, shuffle it, and pick the first 2 or 3 elements. Implemented. Must be tested
+
+TODO :
+
+Very strangely, even reverting all today's modifications, sometimes solutions with complex component are generated (although of the order of 10e-8). Probably, there must be some imperfect clipping. Inserted a check where it could most probably happen (inside my_test_problem2). LOTS of testing needed, as it's a VERY rare situation. FOUND IT!!! It's in the INERTIA PART, CLIPPING IS TOO WEAK
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+22/01/15
+
+alpha_clip/alpha_clip2 functions
+* detected little problem when single objective (or when all components of v are zero): clipping operations will return a NaN, and since min(alpha, NaN) is always alpha, no clipping will be performed. The real problem is that we are ALSO changing v inside alpha_clip2, but not setting it as output. Thus, we will performe an illicit move. Changed so that alpha_clip2 also outputs v.
+
+explore function
+* removed unused input parameters id_pop_act_subpr,act_subpr,lambda,z,pigr,MBHflag
+* commented out xsample and fsample, currently unused (they will be required in the DDS and MBH step, when they will be working)
+* there are now (commented) lines in DE step that change the way an out of bounds point is treated. 2 more options are considered: a simple hard clipping (instead of resampling the out of bound component at a random position), and an alpha_clip2 version. The last seems to have very beneficial impact on accuracy. More tests needed.
+* the reduction of rho seems to never be necessary...
+
+explore2 function
+* is just a clone of explore function, in which I'll try to insert the trymove function, to clean up code and avoid code duplication (as written in TODO).
+* NEEDS TESTING!!!
+
+TODO :
+The piece of code where a new sample is evaluated and decided to store it into "discarded" structure is repeated 3 or 4 times. Consider making it a function to improve readability and mantainability
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+21/01/15
+
+* PORTED ALL THE WORK ON GIT ;D
+* profiling showed that the single function requiring more runtime on mytest problem is g_fun, the simplest function of all the code! It takes approx 8 secs of total self time, and is called more than 1M times! Of this number, almost 100% is called within upd_act_subpr, which is the second function in term of self time. This happened because it was called in a double loop whithin upd_act_subpr. I have temporarily vectorized the inner loop function, and total runtime is now 1/3 of original! This can probably carry on to MANY other sections of the code...
+
+explore function
+* Preallocated discarded array of structures to improve speed
+* n_ids is constant, so it has been moved out of the main loop
+* completely commented out unused DDS and MBH phases
+* created new function to clip alpha to the max allowed value (avoiding to sample outside feasible area). It's correct and efficient, keeps code clearer
+* created alternative version (alpha_clip2), to zero out a component if point is on boundary and velocity would push it out (helps explore corners)
+* removed double checks, no longer necessary
+* changed the condition that checks if the new sample is good: if ANY f(x_trial)<f(x), than... Same logic, more readable
+* in bounds control within DE step is now performed more efficiently through a mask
+
+TODO : 
+Idea: to measure which local algorithm is driving the solution, count how many times each improvement is made by either inertia, differential evolution or pattern search
+Differential Evolution : understand first part within explore function
+Differential Evolution : why not repeat alpha clipping? we have a velocity vector (dx), and can consider alpha to be 1...
+Pattern Search : understand the impact of cpat, and if a random choice between 0 and 1 can be useful
+Test alpha_clip2
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+20/01/15
+
+explore function
+* Removed unused input mfit. Eventually will be passed as parameter of a structure.
+
+TODO:
+
+Change interface of explore function. It originally took too many parameters, will have change it to structure of parameters for future mantainability
+Update it's help and description to fit future interface
+INERTIA: change clipping behaviour (bounds check). Clipping the vector within bounds is correct, but if a point moves to one of the edges, and has a velocity pointing out of that edge, alpha will necessarily become null, so this action becomes useless!!!! A different behaviour is be considered here, i.e: if we are on a border and velocity vector (inherited from previous step) pulls the agent out of the box, IGNORE the component that would overflow (I.E change velocity vector). This way, velocity vector will be tangent to the bounds in the search space. This modification should help searching in the neighborhood of the bounds of the search space
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+19/01/15
+
+Trying to test the scheme with my 3-objective test functions: (x+1)^4, 2x-sqrt(x), x^x. Problems found when evaluating the function with varargin{}, if the function has no other in.. 
+
+* To change less things possible, the external function will have a bogus varargin. THIS IS UGLY, WILL HAVE TO CHANGE IT
+* When the number of subproblems is less than the dimensionality of the problem, id_pop_act_subpr=[] but act_subpr is not set to void vector, causing errors in explore function. added act_subpr=[]. Basically this means that when the number of subproblems is less than the dimensionality of the problem, ONLY SOCIAL ACTIONS WILL BE PERFORMED!
+* subsituted memories to memory, as in some part of the code the variable memories was used instead of memory, and forced the function to a stupid assignment like memory=memories 
+* removed bogus cap max_iter hardcoded as 1000.
+
+TODO : 
+VECTORIZE THE CHECK OF WHICH IS THE BEST APPROX OF I-TH SUBPROBLEM
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+16/01/15
+
+* Passed from options as a vector to options as a struct, much more mantainable, readable and easier to check!!!
+
+maxnfeval	-> options.maxnfeval, with a default of 5000
+popsize	 	-> options.popsize, with a default of 10
+rhoini	 	-> options.rhoini, with a default of 1
+F	 	-> options.F, with a default of 0.9
+CR	 	-> options.CR, with a default of 0.9
+p_local 	-> options.p_local, with a default of 0.2
+max_arch 	-> options.max_arch, with a default of 10
+coord_ratio 	-> options.coord_ratio, with a default of 0.25
+contr_ratio 	-> options.coord_ratio, with a default of 0.5
+draw_flag 	-> options.default_flag, with a default of 0
+cp	 	-> options.cp, with a default of 0
+MBHflag	 	-> options.MBHflag, with a default of 0
+cpat	 	-> options.cpat, with a default of 0
+
+
+* moved all other functions OUTSIDE macs7v15c2.m, in their own file!
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+15/01/15
+Started cleaning operations, will take time and *A LOT* of patience...
+
+* removed tolconv=options(4), not used anymore -> BEWARE, ALL THE OPTIONS FROM 4 ON WILL HAVE TO BE MOVED BACKWARDS BY 1 (IE. options(5) will become options(4) and so on...)
+* removed tollocconv=options(9), not used anymore -> BEWARE, ALL THE OPTIONS FROM 9 ON WILL HAVE TO BE MOVED BACKWARDS BY 1 (IE. options(10) will become options(9) and so on...)
+* removed supbr_upd_freq=options(9), not used anymore -> BEWARE, ALL THE OPTIONS FROM 9 ON WILL HAVE TO BE MOVED BACKWARDS BY 1 (IE. options(10) will become options(9) and so on...)
+* removed T=options(9), not used anymore -> BEWARE, ALL THE OPTIONS FROM 9 ON WILL HAVE TO BE MOVED BACKWARDS BY 1 (IE. options(10) will become options(9) and so on...)
+* removed rest_freq=options(11), not used anymore -> BEWARE, ALL THE OPTIONS FROM 11 ON WILL HAVE TO BE MOVED BACKWARDS BY 1 (IE. options(12) will become options(11) and so on...)
+* removed pigr_thres=options(10), not used anymore -> BEWARE, ALL THE OPTIONS FROM 10 ON WILL HAVE TO BE MOVED BACKWARDS BY 1 (IE. options(11) will become options(10) and so on...)
+* removed p_arch_vs_pop, not given as a parameter anymore, but hardwired in the code (in a function, actually)
+* removed mfit, not given as a parameter anymore, but hardwired in the code (in a function, actually)-> BEWARE, ALL THE OPTIONS FROM 6 ON WILL HAVE TO BE MOVED BACKWARDS BY 1 (IE. options(7) will become options(6) and so on...)
+
+Filling in holes created by the previous operations
+
+* coord_ratio=options(10) -> moved to coord_ratio=options(9), as options(9) was empty
+* contr_ratio=options(11) -> moved to contr_ratio=options(10), as options (10) was empty
+* draw_flags=options(12) -> moved to draw_flags=options(11), as options (11) was empty
+* cp=options(13) -> moved to cp=options(12), as options (12) was empty
+* MBHflag=options(14) -> moved to MBHflag=options(13), as options (13) was empty
+* cpat=options(15) -> moved to cpat=options(14), as options (14) was empty
+
+After all this, the function prototype is then
+
+[memory,nfeval]=macs7v15c2(func,memory,vlb,vub,options,filename,fileload,varargin)
+
+with
+
+%         func    : function handle
+%         vlb,vub : boundaries of the search domain, as vectors
+%         options : vector of optimisation parameters
+%                   maxnfeval=options(1);   max num of function evaluation
+%                                           albeit forced in a "weak" way
+%                   popsize=options(2);     max num of agents
+%                   rhoini=options(3);      Initial local hypercube size
+%                   F=options(4);           Probably the F parameter for
+%                                           Differential Evolution
+%                   CR=options(5);          DO NOT UNDERSTAND, something
+%                                           like CRossover chance???
+%                   p_local=options(6);     ratio between elite and total
+%                                           population
+%                   max_arch=options(7);    max size of the archive at
+%                                           output
+%                   coord_ratio=options(8); probably the ratio of
+%                                           coordinates to check after
+%                                           which no further search will be
+%                                           performed, as in Zuiani 3b, pag
+%                                           6
+%                   contr_ratio=options(9); Contraction ratio
+%                   draw_flag=options(10);  plot flag
+%                   cp=options(11);         constraint flag
+%                   MBHflag=options(12);    number of MBH steps  !! currently only for unconstrained !!
+%                   cpat= options(13);      pattern to DE vs pattern to
+%                                           local (???)
+%
+%  OUTPUT
+%           memories :  matrix containing the archived solutions and the
+%                       associated value of the cost function
+%                       memories=[x f]
+%           nfeval   :  number of total function evaluations
+
+
+* Reordered Parameters settings section, commented out many unused rows
+
+* modified renormalization of lambda to avoid deorthogonalization of first m vectors
+
+/// OLD CODE
+    for i=1:n_lambda
+        lambda(i,lambda(i,:)==0)=0.0001;
+        lambda(i,:)=lambda(i,:)/norm(lambda(i,:));
+    end
+///
+
+/// NEW CODE
+    lambda(lambda(mfit+1:end,:)==0)=0.0001;    			
+    lambda=lambda./repmat(sum(lambda.*lambda,2).^0.5,1,mfit);		<- smarter normalization, avoiding for loop: sum(lambda.*lambda,2).^0.5 is the length of each vector, and is tiled mfit times to allow 										elementwise division
+///
+
+TODO:
+
+FOR FUTURE MANTAINABILITY, options WILL BECOME A STRUCTURE WITH NAME OF PARAMETERS/FLAGS AND VALUES. THIS WAY options WILL NOT BE A VECTOR ANYMORE, AND NO SUCH PAIN IN THE *** WILL BE NEEDED TO ADD/REMOVE PARAMS
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+14/01/15
+This is the first revision of the files I were given from Massimiliano on Fri 9 Jan.
+Some lines had to be changed to make testEPIC2MOO work (lines to be changed were in macs7v15cs, actually).
+
+Here I simply made it work, but code needs TONS of cleanup, explaination and optimization.
+Already have some ideas to implement, but first of all I'll work on cleaning it
