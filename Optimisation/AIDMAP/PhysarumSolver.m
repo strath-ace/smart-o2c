@@ -41,11 +41,11 @@ for j = 1:InitializedInputs.Generations
         
         %Continue moving the agent until the death flag becomes 1
         while ~agentdeathflag
-            [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i));
+            [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement2(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i));
             
         end
         
-        %Update veins with hte dilation and evaporation mechanics
+        %Update veins with the dilation and evaporation mechanics
         [ListNodes] = DilationEvaporation(InitializedInputs, ListNodes, Agents, agentnames(i));
         
     %End agent loop

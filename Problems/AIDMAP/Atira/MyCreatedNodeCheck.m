@@ -31,7 +31,6 @@ check4 = newNode.attributes.t_dep-ListNodes.(newNode.parent).attributes.t_arr < 
 % check5 = (newNode.attributes.tof*86400*1e-7 >= 2*dVEdelbaum);
 
 checktot = check1*check2*check3*check4;
-
 %checktot = check1*check2*check3*check4*check5;
 
 
