@@ -1,4 +1,4 @@
-function [ListNodes, Solutions, Agents, agentdeathflag] = Ramification(Inputs, Solutions, ListNodes, Agents, agent)
+function [generatednodes, agentdeathflag] = Ramification2(Inputs, Solutions, ListNodes, Agents, agent)
 % This function handles the ramification to new nodes. It does so by
 % generating a preset number of random nodes and making a probabilistic
 % selection based on the cost function.
@@ -25,8 +25,8 @@ agentdeathflag = 0;
 
 if isempty(ListNodes.(currentNode).possibledecisions)   
     agentdeathflag = 1;
-    Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
-    Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
+%     Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
+%     Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
     return
 end
 
@@ -70,66 +70,53 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     %agentdeathflag to 1
     if isempty(possnodes)
         disp(strcat(agent,' died'))
-        agentdeathflag = 1;
-        Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
-        Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
+         agentdeathflag = 1;
         break
     end
-       
+    
+    %Choose a node from the list of possible nodes to generate
     [newnode_ID,childID] = ChooseNode(currentNode,possnodes);
     
     %Remove chosen decision from list of possible decisions
     possnodes(find(strcmp(childID,possnodes))) = [];
     
+    
     [validflag] = MyNodeCheck(ListNodes,newnode_ID,currentNode,generatednodes);
    
     %Confirm that node doesn't already exist
-    if (validflag)
+    if (~validflag)
+        continue
+    end
 
         
-        %Generate the new node & save its cost in a vector
-        [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
-        if newNode.length ~= Inf
-            [newNode] = MyCreatedNodeCheck(Inputs, newNode, ListNodes);
-        end
-        if newNode.length ~= Inf
-            costvec = [costvec newNode.length];
-
-            %Add generated node to the structure created earlier.
-            generatednodes.(newNode.node_ID) = newNode;
-
-            %Add generated node name & cost to matrices for ease of access
-            nameslist = [nameslist {newnode_ID}];
-        end
-            
+    %Generate the new node & save its cost in a vector
+    [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
+    
+    if newNode.length == Inf
+        continue
     end
+    
+    
+    [newNode] = MyCreatedNodeCheck(Inputs, newNode, ListNodes);
+    
+    if newNode.length == Inf
+        continue
+    end
+
+    costvec = [costvec newNode.length];
+
+    %Add generated node to the structure created earlier.
+    generatednodes.(newNode.node_ID) = newNode;
+
+    %Add generated node name & cost to matrices for ease of access
+    nameslist = [nameslist {newnode_ID}];
+
+            
+    
 end
 
 %Remove temporary field within the generatednodes stucture
 generatednodes = rmfield(generatednodes, 'temp');
-
-%If no nodes are found, exit the function
-if isempty(costvec)
-    return
-end
-
-%Use node name & cost matrices to make a probabilistic choice based on the
-%cost. The lower the cost, the higher the chance of the node being selected
-problist = 1./(costvec.^Inputs.RamificationWeight);
-problist = problist./sum(problist);
-
-chosenindex = find(rand<cumsum(problist), 1, 'first');
-chosennode = char(nameslist(chosenindex));
-
-%Add chosen node to the ListNodes structure
-chosennodestruct = generatednodes.(chosennode);
-ListNodes = AddNode(ListNodes, chosennodestruct);
-
-%Move agent to the new node
-Agents.(agent).previousListNodes = [Agents.(agent).previousListNodes {currentNode}];
-Agents.(agent).currentNode = chosennode;
-Agents.(agent).previouscosts = [Agents.(agent).previouscosts costvec(chosenindex)];
-
 
 end
 

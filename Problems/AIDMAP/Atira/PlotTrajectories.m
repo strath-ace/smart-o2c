@@ -24,7 +24,7 @@ for i = 1:length(Solutions)
         h = plot3(depnode.attributes.r_arr(1),depnode.attributes.r_arr(2),depnode.attributes.r_arr(3),'ko');
         set(h,'MarkerEdgeColor','none','MarkerFaceColor','k')
         
-        quiver3(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),vvec(1),vvec(2),vvec(3),'g','linewidth',1.5);
+        quiver3(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),vvec(1),vvec(2),vvec(3),'g','linewidth',1.5,'MaxHeadSize',1);
         
 %         if j == 2
 %              plot3(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),'ko');
