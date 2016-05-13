@@ -75,7 +75,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     possnodes(find(strcmp(childID,possnodes))) = [];
     
     %Check if the node is valid based on the UID
-    [validflag] = options.NodeIDCheckFile(ListNodes,newnode_ID,currentNode,generatednodes);
+    [validflag] = Inputs.NodeIDCheckFile(ListNodes,newnode_ID,currentNode,generatednodes);
    
     %Confirm that node doesn't already exist
     if (~validflag)
@@ -93,7 +93,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     
     %If the node is valid according to the first check, use the created
     %node structure to further determine the validity
-    [newNode] = options.CreatedNodeCheckFile(Inputs, newNode, ListNodes);
+    [newNode] = Inputs.CreatedNodeCheckFile(Inputs, newNode, ListNodes);
     
     %Sanity Check
     if newNode.length == Inf
