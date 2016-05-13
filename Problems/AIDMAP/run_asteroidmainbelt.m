@@ -1,5 +1,6 @@
 clear all; close all; clc
-addpath(genpath(fileparts(fileparts(fileparts(pwd)))));
+addpath(strcat(pwd,'/AsteroidMainBelt'));
+addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP'));
 % This is the main file for the Atira problem
 %
 % Author: Aram Vroom - 2016
@@ -11,7 +12,7 @@ addpath(genpath(fileparts(fileparts(fileparts(pwd)))));
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 1;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 5;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.4;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 20;                                %Maximum ratio between the link's radius & the starting radius
@@ -36,17 +37,17 @@ options.MaxVisits = ones(1, length(options.Targets));           %The maximum nub
 options.AttributeIDIndex = [11 10];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 7304.5];                                %Attributes of the root  
 options.NodeCheckBoundaries = [10 0.31 0 10*365];               %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
-fitnessfcn = @MyCostFunction;                                   %The function reference to the cost function
-options.NodeAttributes = @MyAttributes;                         %The class that contains the node attributes
-options.MyAttributeCalcFile = @MyAttributeCalcs;                %The file that does the additonal calculations wrt the attributes
-options.MyNodeIDCheck = @MyNodeCheck;                           %The function that checks whether a node can be linked. Can only use the UID
-options.MyCreatedNodeCheck = @MyCreatedNodeCheck;               %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
+fitnessfcn = @MyCostFunctionMainBelt;                                   %The function reference to the cost function
+options.NodeAttributes = @MyAttributesMainBelt;                         %The class that contains the node attributes
+options.MyAttributeCalcFile = @MyAttributeCalcsMainBelt;                %The file that does the additonal calculations wrt the attributes
+options.MyNodeIDCheck = @MyNodeCheckMainBelt;                           %The function that checks whether a node can be linked. Can only use the UID
+options.MyCreatedNodeCheck = @MyCreatedNodeCheckMainBelt;               %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
 options.ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing\smart-o2c\Problems\AIDMAP\AsteroidMainBelt'; %The project directory
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 180:50:550;             %Set the value of the sets. 
+tofvalues = 180:50:4*365;             %Set the value of the sets. 
 sets.tof = mat2cell(ones(length(options.Targets),1)... %Input should be a cell array where each line depicts a target.
    *tofvalues,[ones(length(options.Targets),1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
@@ -84,7 +85,7 @@ end
 %Save all the solutions
 for i = 1:length(BestSolutions)
     filename = strcat(['MainBelt_',num2str(length(BestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
-    SaveTrajectorySolution(BestSolutions{i},output.ListNodes,strcat('Results/',filename))
+    SaveTrajectorySolution(BestSolutions{i},output.ListNodes,strcat(filename));
 end
 
 %Notes:
