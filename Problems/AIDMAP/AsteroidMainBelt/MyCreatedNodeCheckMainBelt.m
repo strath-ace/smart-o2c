@@ -1,4 +1,4 @@
-function [newNode] = MyCreatedNodeCheck(Inputs, newNode, ListNodes)
+function [newNode] = MyCreatedNodeCheckMainBelt(Inputs, newNode, ListNodes)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 

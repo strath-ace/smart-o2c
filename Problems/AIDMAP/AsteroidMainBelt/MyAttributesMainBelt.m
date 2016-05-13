@@ -1,4 +1,4 @@
-classdef MyAttributes
+classdef MyAttributesMainBelt
     % The atributes of each node should be noted in this file
     
     properties  
