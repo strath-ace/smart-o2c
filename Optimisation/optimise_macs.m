@@ -1,5 +1,5 @@
 function [x,fval,exitflag,output] = optimisation_macs(fitnessfcn,LB,UB,options)
-
+ 
 %% myfunction: brief function description
 % Extensive function description
 % (If you need to insert formulas use latex conventions: 
