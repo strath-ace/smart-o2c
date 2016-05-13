@@ -50,9 +50,6 @@ possdecisions = ListNodes.(currentNode).possibledecisions;
 %in this node
 possnodes(ismember(temp(:,1), possdecisions)==0) = [];
 
-%Retrieve list of currently existing nodes
-%existingnodes = fields(ListNodes);
-
 %Initialize structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
 %empty structures
