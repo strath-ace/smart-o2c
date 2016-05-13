@@ -1,8 +1,5 @@
 clear all; close all; clc
 addpath(genpath(fileparts(fileparts(fileparts(pwd)))));
-diary on
-diary 10Agents40GenerationsNewRam
-
 % This is the main file for the Atira problem
 %
 % Author: Aram Vroom - 2016
@@ -21,7 +18,7 @@ sets.epochsnode = epochsnode(2:end);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%              Options             %
+%     Problem-Specific Options     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum can choose from
     'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
@@ -32,7 +29,17 @@ options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum ca
 options.MaxConsecutiveRes = 0*ones(1, length(options.Targets));%The maximum number of resonance orbits to each target (set to -1 to ignore)
 options.MaxVisits = ones(1, length(options.Targets));        %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [11 10];                     %Index of the attributes that determine the unique ID
-options.LowThrust = 1;                                  %Low Thrust Flag. Set to 1 for low-thrust, 0 for high-thrust
+options.RootAttrib = [0 7304.5];                             %Attributes of the root  
+fitnessfcn = @MyCostFunction;                           %The function reference to the cost function
+options.NodeAttributes = @MyAttributes;                 %The class that contains the node attributes
+options.MyAttributeCalcFile = @MyAttributeCalcs;     %The file that does the additonal calculations wrt the attributes
+options.MyNodeIDCheck = @MyNodeCheck;                %The function that checks whether a node can be linked. Can only use the UID
+options.MyCreatedNodeCheck = @MyCreatedNodeCheck;    %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
+options.ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing\smart-o2c\Problems\AIDMAP'; %The project directory
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%         Physarum Options         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 options.LinearDilationCoefficient = 5e-3;                 %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                     %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                            %Growth factor 'GF'
@@ -43,16 +50,10 @@ options.MaximumRadiusRatio = 20;                      %Maximum ratio between the
 options.MinimumRadiusRatio = 1e-3;                      %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 1;                             %The starting radius of the veins
 options.RamificationAmount = 3;                         %The number of nodes initially generated for the ramification
-options.RootAttrib = [0 7304.5];                             %Attributes of the root  
 options.Generations = 40;                                %The number of generations
 options.Viscosity = 1;                                  %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                        %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                           %Value assigned to the length if it's zero (to prevent flux = inf)
-fitnessfcn = @MyCostFunction;                           %The function reference to the cost function
-options.NodeAttributes = @MyAttributes;                 %The class that contains the node attributes
-options.MyAttributeCalcFile = @MyAttributeCalcs;     %The file that does the additonal calculations wrt the attributes
-options.ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing\smart-o2c\Problems\AIDMAP'; %The project directory
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Run the optimiser        %
@@ -74,6 +75,7 @@ for i = 1:length(output.Solutions.Nodes);
 end
 maxasteroidnumindex = find(asteroidnum==max(asteroidnum));
 
+%Plot the solutions with the most asteroids
 for i = 1:length(maxasteroidnumindex)
     BestSolutions{i,1} = output.Solutions.Nodes{maxasteroidnumindex(i)};
     BestCosts{i,1} = output.Solutions.Costs{maxasteroidnumindex(i)};
@@ -81,15 +83,13 @@ end
 
 [r] = PlotTrajectories(BestSolutions,BestCosts,output.ListNodes);
 
-%Save Solution
+%Save all the solutions
 for i = 1:length(BestSolutions)
-    filename = strcat([num2str(length(BestSolutions{1})),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+    filename = strcat([num2str(length(BestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
     SaveTrajectorySolution(BestSolutions{i},output.ListNodes,filename)
 end
-save('10Agents40GenerationsNewRam')
-%diary off
 
 %Notes:
-%20160510 - GrowthFactor has been change
+%20160510 - GrowthFactor has been changed
 
 
