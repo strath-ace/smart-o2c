@@ -1,4 +1,4 @@
-function [Attributes] = MyAttributeCalcs(Inputs, Parent, targetname, Attributes)
+function [Attributes] = MyAttributeCalcsMainBelt(Inputs, Parent, targetname, Attributes)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
