@@ -65,9 +65,6 @@ for j = 1:InitializedInputs.Generations
 %End generation loop
 end
 
-%Retrieve the costs
-%[Solutions.Costs] = RetrieveCosts(Solutions.Nodes,ListNodes);
-
 
 end
 

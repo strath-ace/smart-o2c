@@ -56,7 +56,6 @@ for i = 1:length(generatednodenames)
     ramfluxesmod(i) = generatednodes.(generatednodenames{i}).flux^(Inputs.RamificationWeight);
 end
     
-
 %check whether the current node has children & whether the random number
 %falls outside of the probability margin
 if (~isempty(ListNodes.(currentnode).children))
@@ -108,11 +107,6 @@ if chosenindex <=length(generatednodenames)
     chosennodestruct = generatednodes.(chosennode);
     ListNodes = AddNode(ListNodes, chosennodestruct);
     
-    %Move the agent to the chosen node
-    Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
-    Agents.(currentagent).currentNode = chosennode;
-    Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];
-    
 %If the index falls outside of the list of generated nodes, the agent
 %moves to one of the children    
 else
@@ -123,34 +117,13 @@ else
     %Find the child that was chosen. The -length(generatednodenames) is
     %used to find the correct index of the child in the children list of the node 
     chosennode = nodechildren{chosenindex-length(generatednodenames)};
-    
-    %Move the agent to the child that was chosen
-    Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
-    Agents.(currentagent).currentNode = chosennode;
-    Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];    
+
 end
-
-%     problist = childfluxes./(sum(childfluxes));
-%     problist = problist./sum(problist);
-% 
-%     %Choose one of the node's children. Cell structure is used to
-%     %circumvent issues with node selection if only 1 child is present and
-%     %hocsenindex = 1 (it will otherwise only return the first letter)
-%     chosenindex = find(rand<cumsum(problist),1,'first');
-%     nodechildren = cell(ListNodes.(currentnode).children);
-%     chosennode = nodechildren{chosenindex};
-%     
-%     %Move agent to the new node
-%     Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
-%     Agents.(currentagent).currentNode = chosennode;
-%     Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];
     
-    %If there are no children or if the random number falls within the
-    %probability margin, ramificate towards a new node
-
-
-% problist = 1./(costvec.^Inputs.RamificationWeight);
-% problist = problist./sum(problist);
+%Move the agent to the chosen node
+Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
+Agents.(currentagent).currentNode = chosennode;
+Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];
 
 end
    
