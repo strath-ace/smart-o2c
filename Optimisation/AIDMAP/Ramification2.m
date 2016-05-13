@@ -25,8 +25,6 @@ agentdeathflag = 0;
 
 if isempty(ListNodes.(currentNode).possibledecisions)   
     agentdeathflag = 1;
-%     Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
-%     Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
     return
 end
 
@@ -50,15 +48,11 @@ possdecisions = ListNodes.(currentNode).possibledecisions;
 %in this node
 possnodes(ismember(temp(:,1), possdecisions)==0) = [];
 
-%Retrieve list of currently existing nodes
-%existingnodes = fields(ListNodes);
-
 %Initialize structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
 %empty structures
 generatednodes = struct('temp',0);
 nameslist = [];
-costvec = [];
 
 %Disable the "Concatenate empty structure" warning
 warning('off','MATLAB:catenate:DimensionMismatch');
@@ -80,8 +74,8 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     %Remove chosen decision from list of possible decisions
     possnodes(find(strcmp(childID,possnodes))) = [];
     
-    
-    [validflag] = MyNodeCheck(ListNodes,newnode_ID,currentNode,generatednodes);
+    %Check if the node is valid based on the UID
+    [validflag] = options.NodeIDCheckFile(ListNodes,newnode_ID,currentNode,generatednodes);
    
     %Confirm that node doesn't already exist
     if (~validflag)
@@ -92,26 +86,25 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     %Generate the new node & save its cost in a vector
     [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
     
+    %Sanity Check
     if newNode.length == Inf
         continue
     end
     
+    %If the node is valid according to the first check, use the created
+    %node structure to further determine the validity
+    [newNode] = options.CreatedNodeCheckFile(Inputs, newNode, ListNodes);
     
-    [newNode] = MyCreatedNodeCheck(Inputs, newNode, ListNodes);
-    
+    %Sanity Check
     if newNode.length == Inf
         continue
     end
-
-    costvec = [costvec newNode.length];
 
     %Add generated node to the structure created earlier.
     generatednodes.(newNode.node_ID) = newNode;
 
     %Add generated node name & cost to matrices for ease of access
-    nameslist = [nameslist {newnode_ID}];
-
-            
+    nameslist = [nameslist {newnode_ID}];           
     
 end
 
