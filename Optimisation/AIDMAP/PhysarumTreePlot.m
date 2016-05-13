@@ -13,6 +13,10 @@ function [] = PhysarumTreePlot(ListNodes)
 %Retireve the node names
 nodenames = fieldnames(ListNodes);
 
+if (length(fieldnames(ListNodes))==1)
+    error('No chains have been found');
+end
+
 %Loop over all the nodes
 for i = 2:length(nodenames)
     %Find each node's parent

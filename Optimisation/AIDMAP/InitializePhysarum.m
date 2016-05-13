@@ -14,7 +14,7 @@ function [InitializedInputs, ListNodes] = InitializePhysarum(fitnessfcn,options,
 disp('Initializing Physarum...')
 
 %Solver Parameters:
-InitializedInputs = struct('LowThrust',               options.LowThrust,  ... %Set to 1 for low-thrust, 0 for high-thrust
+InitializedInputs = struct(...
                 'LinearDilationCoefficient',          options.LinearDilationCoefficient,  ... %Linear dilation coefficient 'm'
                 'EvaporationCoefficient',             options.EvaporationCoefficient,  ... %Evaporation coefficient 'rho'
                 'GrowthFactor',                       options.GrowthFactorVal,  ... %Growth factor 'GF'
