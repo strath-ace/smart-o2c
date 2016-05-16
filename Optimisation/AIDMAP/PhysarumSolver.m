@@ -7,6 +7,9 @@ function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(Init
 % * ListNodes          : Structure containing the initial list of nodes
 %
 % Outputs: 
+% * Solutions          : The structure containing the solutions found
+% * InitializedInputs  : The structure containing the options set by the
+%                        user
 % * ListNodes          : Structure containing the final structure with the
 %                        nodes
 % * Agents             : the structure containing the set of agents and their
@@ -15,6 +18,7 @@ function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(Init
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
+%Initialize the Solutions structure
 Solutions.Nodes = [];
 Solutions.Costs = [];
 
@@ -55,7 +59,7 @@ for j = 1:InitializedInputs.Generations
     [ListNodes] = GrowthFactor(InitializedInputs, ListNodes, Solutions);
     
     %Check whether the algorithm should be restarted
-    restartflag = RestartCheck(InitializedInputs, ListNodes, Agents);
+    restartflag = RestartCheck(InitializedInputs, Agents);
     
     %If so, reset the veins 
     if (restartflag && j ~= InitializedInputs.Generations) %~= as check whether it works (doesn't reset when last generation is completed)

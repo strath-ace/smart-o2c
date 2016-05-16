@@ -3,6 +3,7 @@ function [Agents] = CreateAgents(ListNodes,NumberOfAgents)
 %other characteristics.
 %
 % Inputs:
+% * ListNodes      : Structure containing the graph
 % * NumberOfAgents : the number of agents used in the solver
 %
 % Outputs: 
@@ -15,6 +16,7 @@ function [Agents] = CreateAgents(ListNodes,NumberOfAgents)
 %Initialize the Agents structure
 Agents = struct();          
 
+%Retreive the currently existing nodes and the name of the root
 existingnodes = fieldnames(ListNodes);
 rootname = existingnodes(1);
 

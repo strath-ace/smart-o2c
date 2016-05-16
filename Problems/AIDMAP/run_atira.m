@@ -1,6 +1,8 @@
 clear all; close all; clc
-addpath(strcat(pwd,'/Atira'));
-addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP'));
+addpath(genpath(strcat(pwd,'/Atira')));
+addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
+addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
+
 % This is the main file for the Atira problem
 %
 % Author: Aram Vroom - 2016
@@ -19,7 +21,7 @@ options.MaximumRadiusRatio = 20;                                %Maximum ratio b
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 1;                                     %The starting radius of the veins
 options.RamificationAmount = 3;                                 %The number of nodes initially generated for the ramification
-options.Generations = 3;                                       %The number of generations
+options.Generations = 1;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
@@ -33,7 +35,7 @@ options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum ca
     'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
     'neo2013JX28','neo2013TQ5', 'neo2014FO47', ...
     'neo2015DR215', 'neo2015ME131'}; 
-options.MaxConsecutiveRes = 0*ones(1, length(options.Targets)); %The maximum number of resonance orbits to each target (set to -1 to ignore)
+options.MaxConsecutiveRes = 1*ones(1, length(options.Targets)); %The maximum number of resonance orbits to each target (set to -1 to ignore)
 options.MaxVisits = ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [11 10];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 7304.5];                                %Attributes of the root  
@@ -43,7 +45,6 @@ options.NodeAttributes = @MyAttributes;                         %The class that 
 options.MyAttributeCalcFile = @MyAttributeCalcs;                %The file that does the additonal calculations wrt the attributes
 options.MyNodeIDCheck = @MyNodeCheck;                           %The function that checks whether a node can be linked. Can only use the UID
 options.MyCreatedNodeCheck = @MyCreatedNodeCheck;               %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
-options.ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing\smart-o2c\Problems\AIDMAP\Atira'; %The project directory
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %

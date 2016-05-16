@@ -3,10 +3,14 @@ function [InitializedInputs, ListNodes] = InitializePhysarum(fitnessfcn,options,
 % It contains the logic for the algorithm and the solver parameters.
 %
 % Inputs:
-% * 
+% * fitnessfcn : Reference to the fitness function
+% * options    : The structure containg the options set by the user
+% * sets       : The structure with the possible values for the attributes
+%                put in the UID
 %
 % Outputs: 
-% * Inputs         : Structure containing the PhysarumSolver inputs
+% * InitializedInputs     : Structure containing the PhysarumSolver inputs
+% * ListNodes             : The structure containing all the nodes
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
@@ -39,13 +43,9 @@ InitializedInputs = struct(...
                 'MyAttributeCalcFile',                options.MyAttributeCalcFile, ...
                 'NodeIDCheckFile',                    options.MyNodeIDCheck, ...
                 'CreatedNodeCheckFile',               options.MyCreatedNodeCheck, ...
-                'ProjectDirectory',                   options.ProjectDirectory, ...
                 'AttributeIDIndex',                   options.AttributeIDIndex ... %Index of the attributes that determine the unique ID
         );      
       
-%Include Project Directory
-addpath(InitializedInputs.ProjectDirectory);
-
 %%%Error Checking%%%
 
 %Display error if the vectors with number of possible decisions, max. number of consecutive
