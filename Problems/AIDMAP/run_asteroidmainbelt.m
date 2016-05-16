@@ -14,7 +14,7 @@ addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 5;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 3;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.4;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 20;                                %Maximum ratio between the link's radius & the starting radius
@@ -45,6 +45,7 @@ options.MyAttributeCalcFile = @MyAttributeCalcsMainBelt;                %The fil
 options.MyNodeIDCheck = @MyNodeCheckMainBelt;                           %The function that checks whether a node can be linked. Can only use the UID
 options.MyCreatedNodeCheck = @MyCreatedNodeCheckMainBelt;               %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
 options.ProjectDirectory = 'C:\Users\ckb16114\Desktop\Internship\Code\Developing\smart-o2c\Problems\AIDMAP\AsteroidMainBelt'; %The project directory
+options.RootName = 'Ceres';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
