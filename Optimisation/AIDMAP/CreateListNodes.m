@@ -10,16 +10,18 @@ function [ListNodes] = CreateListNodes(Inputs)
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
+
+
 %Create the ListNodes structure
-ListNodes = struct(struct('Root',   ...
+ListNodes = struct(struct(Inputs.RootName,   ...
                          struct(...
-                         'node_ID',           'Root',...
+                         'node_ID',           Inputs.RootName,...
                          'parent',            [],... % The parent of the node
                          'children',          [],... % Matrix that holds the nodes' connections to each other
                          'radius',            [],... % The radius of each connection
                          'length',           [],... % The length of each connection
                          'flux',            [],... % Matrix containing each connection's flux
-                         'attributes',      [SetNodeAttributes(Inputs,[],'Root',Inputs.RootAttrib)],... % Attributes that describe this node (such as orbital elements & ToF .)
+                         'attributes',      [SetNodeAttributes(Inputs,[],Inputs.RootName,Inputs.RootAttrib)],... % Attributes that describe this node (such as orbital elements & ToF .)
                          'previousdecisions', [],... % List of the previous decisions made
                          'possibledecisions', {Inputs.PossibleDecisions}, ... % Targets that can still be visisted by the node
                          'VisitsLeft',        {Inputs.MaxVisits} ... % Vector containing the number of times each target cna still be visisted
