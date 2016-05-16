@@ -54,7 +54,7 @@ resperformed = max(strfind(previousdecisions,checkforcontargets))==(length(previ
 
 %If so, exclude the respective target from the list of possible decisions
 if resperformed 
-    decisionindex = find(strcmp(decisionname, possibledecisions));
+    decisionindex = strcmp(decisionname, possibledecisions);
     possibledecisions(decisionindex) = [];
 end
 

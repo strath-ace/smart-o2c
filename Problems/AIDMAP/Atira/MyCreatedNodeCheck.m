@@ -1,6 +1,17 @@
 function [newNode] = MyCreatedNodeCheck(Inputs, newNode, ListNodes)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+% This function does the further checking on whether the node is valid
+%
+% Inputs:
+% * Inputs   : The initialized inputs
+% * newNode   : The structure containing the current node
+% * ListNodes : The structure containing all the nodes
+%
+% Outputs: 
+% * newNode   : The updated node structure
+
+% Author: Aram Vroom - 2016
+% Email:  aram.vroom@strath.ac.uk
+
 
 %Retreive the boundaries set for the node validity checks
 CheckBounds = Inputs.NodeCheckBoundaries;
@@ -22,7 +33,6 @@ check4 = newNode.attributes.t_dep-ListNodes.(newNode.parent).attributes.t_arr < 
 
 checktot = check1*check2*check3*check4;
 
-checktot = 1;
 if checktot ==1
     newNode.length = newNode.length;
 else

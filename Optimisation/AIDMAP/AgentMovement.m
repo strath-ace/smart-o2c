@@ -3,13 +3,15 @@ function [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement(Inputs, 
 %
 % Inputs:
 % * Inputs      : Structure containing the PhysarumSolver inputs
-% * ListNodes       : Structure containing the graph
+% * Solutions   : Structure containing the solutions found so far
+% * ListNodes   : Structure containing the graph
 % * Agents      : Structure containing the Agents
 % * agent       : Cell with the current agents' name
 % 
 % Outputs:
-% * ListNodes       : Structure containing the graph
-% * Agents      : The agents with their new positions
+% * Solutions      : Updated structure containing the solutions found so far
+% * ListNodes      : Structure containing the graph
+% * Agents         : The agents with their new positions
 % * agentdeathflag : Flag that shows whether the agent has 'died'
 %
 % Author: Aram Vroom - 2016

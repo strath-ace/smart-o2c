@@ -52,7 +52,10 @@ possnodes(ismember(temp(:,1), possdecisions)==0) = [];
 %structure has a temporary field to circumvent issues with adding fields to
 %empty structures
 generatednodes = struct('temp',0);
-nameslist = [];
+nameslist = cell(1,Inputs.RamificationAmount);
+
+%Initial index for the nameslist variable
+i = 1;
 
 %Disable the "Concatenate empty structure" warning
 warning('off','MATLAB:catenate:DimensionMismatch');
@@ -72,7 +75,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     [newnode_ID,childID] = ChooseNode(currentNode,possnodes);
     
     %Remove chosen decision from list of possible decisions
-    possnodes(find(strcmp(childID,possnodes))) = [];
+    possnodes(strcmp(childID,possnodes)) = [];
     
     %Check if the node is valid based on the UID
     [validflag] = Inputs.NodeIDCheckFile(ListNodes,newnode_ID,currentNode,generatednodes);
@@ -102,10 +105,12 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
 
     %Add generated node to the structure created earlier.
     generatednodes.(newNode.node_ID) = newNode;
-
-    %Add generated node name & cost to matrices for ease of access
-    nameslist = [nameslist {newnode_ID}];           
     
+    %Add generated node name & cost to matrices for ease of access
+    nameslist{i} = newnode_ID;           
+    
+    %Increase the index for the nameslist struct
+    i = i+1;
 end
 
 %Remove temporary field within the generatednodes stucture
