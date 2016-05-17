@@ -1,4 +1,4 @@
-function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(InitializedInputs, ListNodes)
+function [Solutions, BestSolution, InitializedInputs, ListNodes, Agents] = PhysarumSolver(InitializedInputs, ListNodes)
 % This script contains the main logic of AIDMAP solver. 
 %
 % Inputs:
@@ -21,6 +21,9 @@ function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(Init
 %Initialize the Solutions structure
 Solutions.Nodes = [];
 Solutions.Costs = [];
+
+BestSolution.BestChain = [];
+BestSolution.BestCost = [];
 
 %Loop over the generations
 for j = 1:InitializedInputs.Generations
@@ -56,7 +59,7 @@ for j = 1:InitializedInputs.Generations
     end
     
     %Update the veins with the growth factor mechanic
-    [ListNodes] = GrowthFactor(InitializedInputs, ListNodes, Solutions);
+    [ListNodes, BestSolution] = GrowthFactor(InitializedInputs, ListNodes, Solutions, BestSolution);
     
     %Check whether the algorithm should be restarted
     restartflag = RestartCheck(InitializedInputs, Agents);

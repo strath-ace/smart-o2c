@@ -45,6 +45,7 @@ options.NodeAttributes = @MyAttributes;                         %The class that 
 options.MyAttributeCalcFile = @MyAttributeCalcs;                %The file that does the additonal calculations wrt the attributes
 options.MyNodeIDCheck = @MyNodeCheck;                           %The function that checks whether a node can be linked. Can only use the UID
 options.MyCreatedNodeCheck = @MyCreatedNodeCheck;               %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
+options.MyBestChainFile = @MyBestChain;
 options.RootName = 'Earth';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,8 +62,8 @@ sets.epochsnode = epochsnode(2:end);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Run the optimiser        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[output] = optimise_aidmap(fitnessfcn,sets,options);
-%[x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)    
+[BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn,sets,options);    
+%[output] = optimise_aidmap(fitnessfcn,sets,options);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Display the result         %
@@ -79,16 +80,23 @@ maxasteroidnumindex = find(asteroidnum==max(asteroidnum));
 
 %Plot the solutions with the most asteroids
 for i = 1:length(maxasteroidnumindex)
-    BestSolutions{i,1} = output.Solutions.Nodes{maxasteroidnumindex(i)};
-    BestCosts{i,1} = output.Solutions.Costs{maxasteroidnumindex(i)};
+    AllBestSolutions{i,1} = output.Solutions.Nodes{maxasteroidnumindex(i)};
+    %AllBestCosts{i,1} = output.Solutions.Costs{maxasteroidnumindex(i)};
 end
 
-[r] = PlotTrajectories(BestSolutions,BestCosts,output.ListNodes);
+%Find the individual costs corresponding to the best solution
+for i = 1:length(BestSolution)
+    for j = 2:length(BestSolution{i})
+      bestnodecosts{i}(j-1) = output.ListNodes.(char(BestSolution{i}(j))).length;
+    end
+end
+
+[r] = PlotTrajectories(BestSolution,bestnodecosts,output.ListNodes);
 
 %Save all the solutions
-for i = 1:length(BestSolutions)
-    filename = strcat([num2str(length(BestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
-    SaveTrajectorySolution(BestSolutions{i},output.ListNodes,strcat(filename));
+for i = 1:length(AllBestSolutions)
+    filename = strcat([num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+    SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 end
 
 %Notes:

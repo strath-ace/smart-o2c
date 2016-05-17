@@ -32,6 +32,7 @@ check3 = (newNode.attributes.tof*86400*1e-7 >= CheckBounds(3)*(norm(newNode.attr
 check4 = newNode.attributes.t_dep-ListNodes.(newNode.parent).attributes.t_arr < CheckBounds(4);
 
 checktot = check1*check2*check3*check4;
+checktot = 1;
 
 if checktot ==1
     newNode.length = newNode.length;
