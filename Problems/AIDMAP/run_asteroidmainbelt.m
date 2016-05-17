@@ -61,8 +61,8 @@ sets.epochsnode = epochsnode(2:end);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Run the optimiser        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[output] = optimise_aidmap(fitnessfcn,sets,options);
-%[x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)    
+[BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn,sets,options);    
+%[output] = optimise_aidmap(fitnessfcn,sets,options);  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Display the result         %
@@ -71,8 +71,6 @@ PhysarumTreePlot(output.ListNodes)
 set(gca,'xcolor','w','ycolor','w','xtick',[],'ytick',[]);
 
 
-[BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn,sets,options);    
-%[output] = optimise_aidmap(fitnessfcn,sets,options);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Display the result         %
