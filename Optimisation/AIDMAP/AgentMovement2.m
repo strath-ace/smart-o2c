@@ -26,6 +26,7 @@ currentagent = char(agent);
 currentnode = char(Agents.(currentagent).currentNode);
 disp(strcat([datestr(now),' === Moved to',' ',currentnode]));
 
+
 %Sanity check #1
 if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
     
@@ -120,6 +121,22 @@ else
     %used to find the correct index of the child in the children list of the node 
     chosennode = nodechildren{chosenindex-length(generatednodenames)};
 
+end
+
+%Find the current target
+temp = strsplit(currentnode,'____');
+temp = strsplit(temp{end},'___');
+currenttarget = temp{1};
+
+%Check if the final target has been reached
+if  ~(sum(ismember(currenttarget, Inputs.EndTarget))==0)
+    %If so, set the agentdeathflag to 1
+    agentdeathflag = 1;
+    
+    %Save the solution
+    Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.((char(agent))).currentNode}]}];   
+    Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
+    return 
 end
     
 %Move the agent to the chosen node

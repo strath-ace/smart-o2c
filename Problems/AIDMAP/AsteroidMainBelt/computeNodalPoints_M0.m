@@ -71,10 +71,16 @@ angular_moment_orb2 = tmp_vec/norm3(tmp_vec);
 % Compute the Mutual Inclination
 imutual = acos(dotprod(angular_moment_orb1, angular_moment_orb2'));
 
+% % Sanity check
+% if imutual < 1*pi/180
+%     error('The Mutual inclination is Zero, so the mutual nodal points are not defined.')    
+% end
+
 % Sanity check
-if imutual < 1*pi/180
+if imutual == 0
     error('The Mutual inclination is Zero, so the mutual nodal points are not defined.')    
 end
+
 
 % Compute the unit vector pointing to the Ascending Mutual Node
 tmp_vec = cross(angular_moment_orb1, angular_moment_orb2);
