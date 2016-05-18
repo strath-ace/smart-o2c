@@ -56,6 +56,3 @@ Disclaimer
 
 The copyright holders are not liable for any damage(s) incurred due to improper use of `smart-o2c`.
 
-
-
-
