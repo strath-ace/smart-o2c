@@ -1,11 +1,11 @@
 %Find epochs of all asteroids
 close all; clear all; clc
-addpath('astro_tool')
+addpath(genpath('astro_tool'));
 
 AsteroidsMainBelt();
 
-epoch_start = '2020/01/01';
-epoch_end = '2030/01/01';
+epoch_start = '2030/01/01';
+epoch_end = '2050/01/01';
 decimalplaces = 2;
 
 
@@ -42,8 +42,8 @@ asteroidorbit = Asteroids.(asteroid).getKeplerianElements();
 satelliteorbit = satellite.getKeplerianElements();
 
 %Compute Nodal points
-[Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalPoints_M0(satellite,Asteroids.(asteroid),mu);
 
+[Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalPoints_M0(satellite,Asteroids.(asteroid),mu);
 epochsnode1 = computeNodalPassesEpochs(asteroidorbit,Mnode1,epoch_start, epoch_end, mu);
 idnode1 = ones(1,length(epochsnode1));
 epochsnode2 = computeNodalPassesEpochs(asteroidorbit,Mnode2,epoch_start, epoch_end, mu);

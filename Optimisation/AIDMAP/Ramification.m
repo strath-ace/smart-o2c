@@ -27,7 +27,7 @@ currentNode = char(Agents.(agent).currentNode);
 agentdeathflag = 0;
 
 %Sanity check: confirm that there are decisions possible
-if isempty(ListNodes.(currentNode).possibledecisions)   
+if (isempty(ListNodes.(currentNode).possibledecisions))
     
     %If not, ste the death flag to 1
     agentdeathflag = 1;

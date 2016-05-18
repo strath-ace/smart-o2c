@@ -23,7 +23,7 @@ function [generatednodes, agentdeathflag] = Ramification2(Inputs, Solutions, Lis
 currentNode = char(Agents.(agent).currentNode);
 agentdeathflag = 0;
 
-if isempty(ListNodes.(currentNode).possibledecisions)   
+if (isempty(ListNodes.(currentNode).possibledecisions))
     agentdeathflag = 1;
     return
 end

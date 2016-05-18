@@ -1,4 +1,4 @@
-[ephemerides, names] = xlsread('Bodies2.xlsx');
+[ephemerides, names] = xlsread('DiameterGreater100NEW.xlsx');
 
 Asteroids.initialize = [];
                      
