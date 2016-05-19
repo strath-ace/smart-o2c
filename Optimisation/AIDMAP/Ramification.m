@@ -64,9 +64,9 @@ possnodes(ismember(temp(:,1), possdecisions)==0) = [];
 generatednodes = struct('temp',0);
 nameslist = cell(1,Inputs.RamificationAmount);
 
-%Initial index for the nameslist & costvec variable
+%Initial index for the nameslist, the attempt counter & costvec variable
 i = 1;
-
+attempt = 1;
 costvec = [];
 
 %Disable the "Concatenate empty structure" warning
@@ -77,7 +77,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     
     %If no more decisions are possible, exit while loop and set
     %agentdeathflag to 1
-    if isempty(possnodes)
+    if (isempty(possnodes) || attempt == Inputs.MaxChildFindAttempts)
         disp(strcat(agent,' died'))
         agentdeathflag = 1;
         
@@ -86,7 +86,10 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
         Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
         break
     end
-       
+    
+    %Increase the attempt counter
+    attempt = attempt+1;
+    
     [newnode_ID,childID] = ChooseNode(currentNode,possnodes);
     
     %Remove chosen decision from list of possible decisions
