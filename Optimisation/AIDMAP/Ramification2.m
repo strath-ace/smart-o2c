@@ -54,8 +54,9 @@ possnodes(ismember(temp(:,1), possdecisions)==0) = [];
 generatednodes = struct('temp',0);
 nameslist = cell(1,Inputs.RamificationAmount);
 
-%Initial index for the nameslist variable
+%Initial index for the nameslist variable and the attempt counter
 i = 1;
+attempt = 1;
 
 %Disable the "Concatenate empty structure" warning
 warning('off','MATLAB:catenate:DimensionMismatch');
@@ -65,11 +66,14 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     
     %If no more decisions are possible, exit while loop and set
     %agentdeathflag to 1
-    if isempty(possnodes)
+    if (isempty(possnodes) || attempt == Inputs.MaxChildFindAttempts)
         disp(strcat(agent,' died'))
          agentdeathflag = 1;
         break
     end
+    
+    %Increase the attempt counter by 1
+    attempt = attempt +1;
     
     %Choose a node from the list of possible nodes to generate
     [newnode_ID,childID] = ChooseNode(currentNode,possnodes);
