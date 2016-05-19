@@ -12,11 +12,17 @@ function [x,fval,exitflag,output] = optimise_macs(fitnessfcn,LB,UB,options,varar
 % are NOT optimisation variables
 %
 %% Output:
-% * y : explanation
+% * x : archive containing the solution vectors
+% * fval : archive containing obejctive function values
+% * exitflag : UNUSED AT MOMENT
+% * output : additional outputs from MACS
+%          * memory : the entire archive
+%          * nfeval : effective number of objective function evaluations
+%          * ener : value of the energy of the archive, used by Energy
+%                   Based Archiving strategy
 %
-% Author: Lorenzo A. Ricciardi
+% Author: Lorenzo A. Ricciardi (2015-2016)
 % email: lorenzo.ricciardi@strath.ac.uk
-
 
 % Run MACS
 [memory,nfeval,ener]=macs7v16OC(fitnessfcn,[],LB,UB,options,[],[],varargin{1:end});
@@ -24,7 +30,6 @@ function [x,fval,exitflag,output] = optimise_macs(fitnessfcn,LB,UB,options,varar
 % Output
 x    = memory(:,1:length(LB));
 fval = memory(:,length(LB):end-2);
-
 
 output.memory               = memory;
 output.nfeval               = nfeval;
