@@ -3,10 +3,14 @@ function [InitializedInputs, ListNodes] = InitializePhysarum(fitnessfcn,options,
 % It contains the logic for the algorithm and the solver parameters.
 %
 % Inputs:
-% * 
+% * fitnessfcn : Reference to the fitness function
+% * options    : The structure containg the options set by the user
+% * sets       : The structure with the possible values for the attributes
+%                put in the UID
 %
 % Outputs: 
-% * Inputs         : Structure containing the PhysarumSolver inputs
+% * InitializedInputs     : Structure containing the PhysarumSolver inputs
+% * ListNodes             : The structure containing all the nodes
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
@@ -14,7 +18,7 @@ function [InitializedInputs, ListNodes] = InitializePhysarum(fitnessfcn,options,
 disp('Initializing Physarum...')
 
 %Solver Parameters:
-InitializedInputs = struct('LowThrust',               options.LowThrust,  ... %Set to 1 for low-thrust, 0 for high-thrust
+InitializedInputs = struct(...
                 'LinearDilationCoefficient',          options.LinearDilationCoefficient,  ... %Linear dilation coefficient 'm'
                 'EvaporationCoefficient',             options.EvaporationCoefficient,  ... %Evaporation coefficient 'rho'
                 'GrowthFactor',                       options.GrowthFactorVal,  ... %Growth factor 'GF'
@@ -29,21 +33,23 @@ InitializedInputs = struct('LowThrust',               options.LowThrust,  ... %S
                 'MaxConsecutiveRes',                  options.MaxConsecutiveRes,  ... %Maximum number of consecutive resonance orbits to each target
                 'MaxVisits',                          options.MaxVisits,  ... %Maximum number of visits to each target
                 'RootAttrib',                         options.RootAttrib,   ... %Attributes of the root
+                'NodeCheckBoundaries',                options.NodeCheckBoundaries  , ...  
                 'Generations',                        options.Generations, ... %The number of generations
                 'Viscosity',                          options.Viscosity, ... %The viscocity of the "fluid" 
-                'DeterminingAttribute',               options.DeterminingAttribute, ... %The index of the determining attribute in the 'attributes' field
                 'MinCommonNodesThres',                options.MinCommonNodesThres,  ... %The minimum number of nodes two decision sequences should have in common for a restart to occur
                 'IfZeroLength',                       options.IfZeroLength, ... %Value assigned to the length if it's zero (to prevent flux = inf)
+                'MaxChildFindAttempts',               options.MaxChildFindAttempts, ...
                 'CostFunction',                       fitnessfcn,  ...
                 'NodeAttributes',                     options.NodeAttributes, ...
                 'MyAttributeCalcFile',                options.MyAttributeCalcFile, ...
-                'ProjectDirectory',                   options.ProjectDirectory, ...
-                'AttributeIDIndex',                   options.AttributeIDIndex ... %Index of the attributes that determine the unique ID
-        );      
-        
-%Include Project Directory
-addpath(InitializedInputs.ProjectDirectory);
-
+                'NodeIDCheckFile',                    options.MyNodeIDCheck, ...
+                'CreatedNodeCheckFile',               options.MyCreatedNodeCheck, ...
+                'BestChainFile',                      options.MyBestChainFile, ...
+                'AttributeIDIndex',                   options.AttributeIDIndex, ... %Index of the attributes that determine the unique ID
+                'EndTarget',                          {options.EndTarget}, ...
+                'RootName',                           options.RootName ...
+            );      
+      
 %%%Error Checking%%%
 
 %Display error if the vectors with number of possible decisions, max. number of consecutive

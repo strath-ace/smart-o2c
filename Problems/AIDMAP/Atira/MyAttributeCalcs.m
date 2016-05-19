@@ -1,6 +1,19 @@
 function [Attributes] = MyAttributeCalcs(Inputs, Parent, targetname, Attributes)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+% This function calculates the attributes that can not be retrieved from
+% the unique ID.
+%
+% Inputs:
+% * Inputs        : Structure containing the PhysarumSolver inputs
+% * Parent        : Structure containing the parent
+% * targetname    : The target of the node to be created
+% * Attributes    : The structure with attributes of the node to be created 
+%                   known so far
+%
+% Outputs: 
+% * Attributes   : The updated attributes structure
+%
+% Author: Aram Vroom - 2016
+% Email:  aram.vroom@strath.ac.uk
 
 %Check if the target is in the Asteroid class
 if ismember(targetname,fieldnames(Asteroids))

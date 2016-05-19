@@ -20,14 +20,14 @@ classdef Asteroids
      properties(Constant = true)  
          
         %Earth
-        Root = CelestialBody('Root',    ... % Name 
+        Earth = CelestialBody('Earth',    ... % Name 
                                   1, ... % Semimajor axis [AU]  
                                   0.0167, ... % Eccentricity 
                                   0,  ... % Inclination [deg]  
                                   -11.26064, ... % Asc. Node/raan [deg]
                                   102.94719, ... % Arg. Perigee [deg]
-                                  0,   ... % Mean anomoly, M at time given t0 [deg]
-                                  0);          % Epoch [MJD2000]
+                                  124.9799993,   ... % Mean anomoly, M at time given t0 [deg]
+                                  5972.5);          % Epoch [MJD2000]
          
         % Asteroid '163693'
         neo163693 = CelestialBody('163693',    ... % Name 
@@ -148,6 +148,47 @@ classdef Asteroids
                                     354.847281,  ... % Arg. Perigee [deg]
                                     185.3451515, ... % Mean anomoly, M at time given t0 [deg]
                                     5055.5);          % Epoch [MJD2000]
+                                
+                                
+        %Additional Atira asteroids found                        
+        neo2013TQ5 = CelestialBody('2013TQ5',  ... % Name 
+                                    0.773678583, ... % Semimajor axis [AU] 
+                                    0.155608989, ... % Eccentricity 
+                                    16.39858808,  ... % Inclination [deg]  
+                                    286.7788721,  ... % Asc. Node/raan [deg]
+                                    247.3049075,  ... % Arg. Perigee [deg]
+                                    232.5338344, ... % Mean anomoly, M at time given t0 [deg]
+                                    6055.5);          % Epoch [MJD2000]
+                                
+        neo2014FO47 = CelestialBody('2014FO47',  ... % Name 
+                                    0.75217103, ... % Semimajor axis [AU] 
+                                    0.271103034, ... % Eccentricity 
+                                    19.1979544,  ... % Inclination [deg]  
+                                    358.659958,  ... % Asc. Node/raan [deg]
+                                    347.4557791,  ... % Arg. Perigee [deg]
+                                    52.10898445, ... % Mean anomoly, M at time given t0 [deg]
+                                    6055.5);          % Epoch [MJD2000]
+                                                                
+        neo2015DR215 = CelestialBody('2015DR215',  ... % Name 
+                                    0.666373934, ... % Semimajor axis [AU] 
+                                    0.471605157, ... % Eccentricity 
+                                    4.090341693,  ... % Inclination [deg]  
+                                    314.9818619,  ... % Asc. Node/raan [deg]
+                                    42.26044456,  ... % Arg. Perigee [deg]
+                                    50.88874632, ... % Mean anomoly, M at time given t0 [deg]
+                                    6055.5);          % Epoch [MJD2000]
+                                                                                                
+        neo2015ME131 = CelestialBody('2015ME131',  ... % Name 
+                                    0.804887454, ... % Semimajor axis [AU] 
+                                    0.198922545, ... % Eccentricity 
+                                    28.87648991,  ... % Inclination [deg]  
+                                    314.363762,  ... % Asc. Node/raan [deg]
+                                    164.0284595,  ... % Arg. Perigee [deg]
+                                    189.7431366, ... % Mean anomoly, M at time given t0 [deg]
+                                    5652.5);          % Epoch [MJD2000]
+                                
+                                
+                                
          
      end    
        

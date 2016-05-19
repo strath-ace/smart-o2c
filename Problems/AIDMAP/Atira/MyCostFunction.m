@@ -7,20 +7,19 @@ function [toNode] = MyCostFunction(fromNode, toNode)
 % * toNode    : The node to which the cost is calculated (structure)
 %
 % Outputs: 
-% * newNode   : The node currently being evaluated (structure)
-%
+% * toNode   : The updated node structure
+
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
+%Retrieve the names of the atttributes
 attributenames = fieldnames(toNode.attributes);
 
-%Calculate cost to change orbital elements with orbit characterstics such
-%as ToF set. Currently simple formula to test functionality.
-%toNode.length = ((toNode.attributes.t_arr - toNode.attributes.tof) - fromNode.attributes.t_arr)^5;
-
+%Obtain the current orbit & mu
 curr_orbit = fromNode.attributes.kep_trans;
 mu = AstroConstants.Sun_Planetary_Const;
 
+%Find the departure date and the departure velocity
 [departure_r, departure_v] = StardustTool.CartesianElementsAt(curr_orbit,toNode.attributes.t_dep);
 
 %Save the departure coordinates
@@ -48,7 +47,18 @@ ToF = toNode.attributes.tof;
                                                                                     %   optionsLMR(1) = display options:
                                                                                     %     - 0: no display
                                                                                     %     - 1: warnings are displayed only when the algorithm does not converge
+
                                                                                     %     - 2: full warnings displayed
+
+%If there's an error, set the cost to infinity
+if (err==1 || err==3 || err==4)
+    toNode.length = Inf;
+    return
+end
+
+%Save initial & final lambert velocity
+toNode.attributes.lambertV_ini = vel_initial;
+toNode.attributes.lambertV_final = vel_final;
                                                                                     
 % Compute the Total DeltaV - ignore arrival dV due to flyby
 dv1(1) = vel_initial(1) - departure_v(1);
@@ -76,7 +86,7 @@ kep_transfer_orbit = cart2kep([departure_r, vel_initial],mu);
 % Eccentricity of transfer orbit
 ecc = kep_transfer_orbit(2);
  
-if ecc > 1
+if ecc >= 1
     toNode.length = Inf;
     return
 end

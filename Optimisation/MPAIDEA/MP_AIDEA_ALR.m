@@ -345,10 +345,13 @@ while sum(nFeVal) < nFeValMax
                                 % The remaininf population did not had the opportunity to do a DE
                             elseif i_population > i_pop_number
                                 
-                                % Take best element
-                                memories{i_population} = sortrows(memories{i_population}, D+1);
-                                memories_out(step, :, i_population) = memories{i_population}(1,:);
-                                
+                                if ~isempty( memories{i_population} )
+                                    
+                                    % Take best element
+                                    memories{i_population} = sortrows(memories{i_population}, D+1);
+                                    memories_out(step, :, i_population) = memories{i_population}(1,:);
+                                    
+                                end
                                 
                             end
                         end
@@ -1563,6 +1566,7 @@ while nostop
             dInterPopl = InterPop(i,:) - lb;
             ElTooLow  = find(dInterPopl < 0);
             lElTooLow = length(ElTooLow);
+            popold(ElTooLow) = InterPop(i,ElTooLow);
         end
         
         while lElTooHigh > 0
@@ -1571,6 +1575,7 @@ while nostop
             dInterPopr = ub - InterPop(i,:);
             ElTooHigh  = find(dInterPopr < 0);
             lElTooHigh = length(ElTooHigh);
+            popold(ElTooHigh) = InterPop(i,ElTooHigh);
         end
  
         

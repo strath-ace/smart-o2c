@@ -2,8 +2,9 @@
 close all; clear all; clc
 addpath('astro_tool')
 
-epoch_start = 0;
-epoch_end = 3650;
+epoch_start = 7304.5;
+epoch_end = 10957.5;
+decimalplaces = 2;
 
 Asteroids = Asteroids();
 
@@ -55,6 +56,12 @@ for j = 1:length(epochsnode{i,1})
 end
 orbitchars(i,:) = [asteroidorbit.a asteroidorbit.e asteroidorbit.i asteroidorbit.OM asteroidorbit.W asteroidorbit.M0 asteroidorbit.t0];
 
+end
+
+for i = 1:length(epochsnode)
+    for j = 1:length(epochsnode{i})
+        epochsnode{i,:} = round(epochsnode{i,:},decimalplaces);
+    end
 end
 
 save('epochsnode','epochsnode')
