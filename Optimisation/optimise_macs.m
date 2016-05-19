@@ -1,7 +1,6 @@
 function [x,fval,exitflag,output] = optimise_macs(fitnessfcn,LB,UB,options,varargin)
 
 %% optimise_macs
-
 %% Inputs:
 %
 % * fitnessfcn : function handle to function to optimise

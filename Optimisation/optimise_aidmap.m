@@ -1,6 +1,6 @@
-function [output] = optimisation_aidmap(fitnessfcn,sets,options)
+function [x,fval,exitflag,output] = optimisation_aidmap(fitnessfcn,sets,options)
+%function [output] = optimisation_aidmap(fitnessfcn,sets,options)
 
-%function [x,fval,exitflag,output] = optimisation_aidmap(fitnessfcn,sets,options)
 %% optimisation_aidmap: This function handles the optimisation using the AIDMAP algorithm
 % Extensive function description
 % (If you need to insert formulas use latex conventions: 
@@ -13,6 +13,8 @@ function [output] = optimisation_aidmap(fitnessfcn,sets,options)
 %
 %
 %% Output:
+% * x      : The best chain of nodes found
+% * fval   : The cost of the best chain of nodes found
 % * output : The structure containing the AIDMAP algorithm's outputs
 %
 % Author: Aram Vroom - 2016
@@ -22,8 +24,13 @@ tic;
 
 [InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
 
-[output.Solutions, options, output.ListNodes, output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
+[output.Solutions, BestSolution, output.options, output.ListNodes, output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
+
+x = BestSolution.BestChain;
+fval = BestSolution.BestCost;
 
 output.CompTime = toc;
+
+exitflag = 0;
 
 end

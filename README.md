@@ -7,7 +7,7 @@
 
 `SMART` is aimed at making code development inside the team more efficient, reusable and easy maintainabile.
 
-Features    
+Features
 ------
 
   - Matlab project ([Matlab](http://www.mathworks.com/products/matlab/ "Matlab homepage"))
@@ -55,7 +55,4 @@ Disclaimer
 ------
 
 The copyright holders are not liable for any damage(s) incurred due to improper use of `smart-o2c`.
-
-
-
 
