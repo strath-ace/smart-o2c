@@ -40,7 +40,10 @@ function [memory,nfeval,ener]=macs7v16OC(func,memory,vlb,vub,options,filename,fi
 %                                   neighbourhood before restarting takes
 %                                   place
 %                   'pat_search_strategy' pattern search strategy
-%                   'optimal_control' flag ...
+%                   'optimal_control' flag specifying if the problem to be
+%                                     solved is an optimal control one
+%                   'vars_to_opt' vector specifying which vars to optimise
+%                                (needed for optimal control problem)
 %
 %  OUTPUT
 %           memory : matrix containing the archived solutions, the
@@ -946,10 +949,7 @@ while nfeval<options.maxnfeval
         end
         
     end
-    
-    gg=sprintf('%d ', loc_opt);
-    fprintf('loc_opt=%s\n',gg);
-    
+        
     %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
     %
     %         keyboard
@@ -1260,9 +1260,6 @@ while nfeval<options.maxnfeval
             
         end
         
-        gg=sprintf('%d ', loc_opt);
-        fprintf('loc_opt=%s\n',gg);
-        
         %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
         %
         %         keyboard
@@ -1392,9 +1389,6 @@ while nfeval<options.maxnfeval
         %else
         
     end
-    
-    gg=sprintf('%d ', loc_opt);
-    fprintf('loc_opt=%s\n',gg);
     
     %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
     %
