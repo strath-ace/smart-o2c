@@ -21,7 +21,7 @@ for i =2:num_times
     curr_elem = ceil(i/(coeffs+1*(structure.state_order==0)));
        
     % extrapolate correct subvector
-    this_u = u_state(1+(structure.control_order+1)*structure.num_controls*(curr_elem-1):(structure.control_order+1)*curr_elem*structure.num_controls);
+    this_u = u_state(1+(structure.control_order+1)*structure.num_controls*(curr_elem-1):(structure.control_order+1)*curr_elem*structure.num_controls,:);
     
     % scale time between to element-time [-1 1]
     tmax = structure.in_nodes_state(curr_elem,end)*t(end);
