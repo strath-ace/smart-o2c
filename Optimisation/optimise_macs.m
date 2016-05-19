@@ -1,19 +1,34 @@
-function [x,fval,exitflag,output] = optimisation_macs(fitnessfcn,LB,UB,options)
+function [x,fval,exitflag,output] = optimise_macs(fitnessfcn,LB,UB,options,varargin)
 
-%% myfunction: brief function description
-% Extensive function description
-% (If you need to insert formulas use latex conventions: 
-% $x_1+x_2$) 
+%% optimise_macs
+
 %% Inputs:
 %
-% * x1 : explanation
-% * x2 : explanation
-%
+% * fitnessfcn : function handle to function to optimise
+% * LB : lower boundaries
+% * UB : upper boundaries
+% * options : 
+% * varargin : additional parameters on which fitnessfcn depends but that
+% are NOT optimisation variables
 %
 %% Output:
 % * y : explanation
 %
-% Author: your name
-% email: your@email
+% Author: Lorenzo A. Ricciardi
+% email: lorenzo.ricciardi@strath.ac.uk
+
+
+% Run MACS
+[memory,nfeval,ener]=macs7v16OC(fitnessfcn,[],LB,UB,options,[],[],varargin{1:end});
+
+% Output
+x    = memory(:,1:length(LB));
+fval = memory(:,length(LB):end-2);
+
+
+output.memory               = memory;
+output.nfeval               = nfeval;
+output.ener                 = ener;
+exitflag                    = 1;
 
 end
