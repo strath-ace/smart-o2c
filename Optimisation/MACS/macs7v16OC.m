@@ -1,9 +1,11 @@
 function [memory,nfeval,ener]=macs7v16OC(func,memory,vlb,vub,options,filename,fileload,varargin)
 
-%  memory=macs7v16OC(func,vlb,vub,options,filename,fileload,varargin)
-%
-%  INPUT
-%         func    : function handle
+%% MACS FOR OPTIMAL CONTROL PROBLEMS
+
+%%  INPUT
+%         func    : function handle to objective functions
+%         memory  : external archive, in case an existing archive is 
+%                   supplied from the beginning 
 %         vlb,vub : boundaries of the search domain, as vectors
 %         options : structure of optimization parameters
 %                   'maxnfeval' max num of function evaluations albeit
@@ -24,19 +26,32 @@ function [memory,nfeval,ener]=macs7v16OC(func,memory,vlb,vub,options,filename,fi
 %                   'draw_flag' plot flag (default 0)
 %                   'cp'        constraint flag (default 0)
 %                   'MBHflag'   MBH steps flag (default 0)
-%                               Currently only for unconstrained
-%                   'DE_strategy' Strategy to use for DE (ie pull towards
-%                               best element or random one, default 'best')
+%                   'expore_ DE_strategy' Strategy to use for DE in explore
+%                   'social_DE_strategy' Strategy to use for DE in social
+%                                        actions
+%                   'v' flag used for computing velocity from every move or
+%                       not (CHECK, PARTIALLY OBSOLETE)
+%                   'dyn_pat_search' flag used to dynamically compute the
+%                                    max number of pattern search moves 
+%                                    depending on filling ratio of archive
+%                   'upd_subproblems' flag regulating if subproblems are to
+%                                     be updated during optimisation
+%                   'max_rho_contr' max number of contractions for local
+%                                   neighbourhood before restarting takes
+%                                   place
+%                   'pat_search_strategy' pattern search strategy
+%                   'optimal_control' flag ...
 %
 %  OUTPUT
-%           memory :  matrix containing the archived solutions and the
-%                       associated value of the cost function
-%                       memory=[x f]
-%           nfeval   :  number of total function evaluations
+%           memory : matrix containing the archived solutions, the
+%                    associated value of the cost functions, max constraint 
+%                    violations and dominance index (memory=[x f c i])
+%           nfeval : number of total function evaluations
+%           ener   : energy associated to the archive
 
 % CHANGE LOG
 % Created by: Federico Zuiani 2011
-% Revised, cleaned and optimized by: Lorenzo A. Ricciardi 2015
+% Revised, cleaned and optimized by: Lorenzo A. Ricciardi 2015-2016
 
 %%  MACS PARAMETERS DEFAULT VALUES
 
