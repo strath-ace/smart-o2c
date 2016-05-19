@@ -3,6 +3,9 @@ addpath(genpath(strcat(pwd,'/AsteroidMainBelt')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
+diary on
+diary MainBelt10Agents20Generations_NewGen_1000MaxFindAttempts
+
 % This is the main file for the Atira problem
 %
 % Author: Aram Vroom - 2016
@@ -21,7 +24,7 @@ options.MaximumRadiusRatio = 20;                                %Maximum ratio b
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 1;                                     %The starting radius of the veins
 options.RamificationAmount = 3;                                 %The number of nodes initially generated for the ramification
-options.Generations = 40;                                       %The number of generations
+options.Generations = 20;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
@@ -106,6 +109,8 @@ for i = 1:length(AllBestSolutions)
     filename = strcat(['MainBelt_',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 end
+
+diary off
 
 %Notes:
 %20160510 - GrowthFactor has been changed
