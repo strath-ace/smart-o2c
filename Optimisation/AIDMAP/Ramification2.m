@@ -66,9 +66,13 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     
     %If no more decisions are possible, exit while loop and set
     %agentdeathflag to 1
-    if (isempty(possnodes) || attempt == Inputs.MaxChildFindAttempts)
+    if isempty(possnodes)
         disp(strcat(agent,' died'))
          agentdeathflag = 1;
+        break
+    end
+    
+    if (attempt == Inputs.MaxChildFindAttempts)
         break
     end
     
