@@ -3,8 +3,8 @@ addpath(genpath(strcat(pwd,'/AsteroidMainBelt')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
-diary on
-diary MainBelt10Agents10GenerationsM0750Attempt
+%diary on
+%diary MainBelt10Agents10GenerationsM0750Attempt
 
 % This is the main file for the Atira problem
 %
@@ -17,23 +17,23 @@ diary MainBelt10Agents10GenerationsM0750Attempt
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 10;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 3;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 20;                                %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 1;                                     %The starting radius of the veins
 options.RamificationAmount = 3;                                 %The number of nodes initially generated for the ramification
-options.Generations = 20;                                       %The number of generations
+options.Generations = 1;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
-options.MaxChildFindAttempts = 750;
+options.MaxChildFindAttempts = 500;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-options.Targets = textread('AsteroidNames.txt','%s')';
+options.Targets = textread('InnerMainBeltNames.txt','%s')';
 options.MaxConsecutiveRes = 0*ones(1, length(options.Targets)); %The maximum number of resonance orbits to each target (set to -1 to ignore)
 options.MaxVisits = 1*ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [11 10];                             %Index of the attributes that determine the unique ID
@@ -48,17 +48,17 @@ options.MyBestChainFile = @MyBestChainMainBelt;
 options.EndTarget = {};
 options.RootName = 'Start';
 
-AsteroidsMainBelt = load('AsteroidsMainBelt');
+AsteroidsMainBelt = load('InnerMainBelt');
 options.AdditonalInputs{1} = AsteroidsMainBelt.Asteroids;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 10:20:2*365;             %Set the value of the sets. 
+tofvalues = 365:20:2*365;             %Set the value of the sets. 
 sets.tof = mat2cell(ones(length(options.Targets),1)... %Input should be a cell array where each line depicts a target.
    *tofvalues,[ones(length(options.Targets),1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
-load('AsteroidMainBelt/epochsnode.mat')
+load('AsteroidMainBelt/InnerMainBeltEpochs.mat')
 sets.epochsnode = epochsnode(2:end);
 
 
@@ -83,7 +83,6 @@ maxasteroidnumindex = find(asteroidnum==max(asteroidnum));
 %Plot the solutions with the most asteroids
 for i = 1:length(maxasteroidnumindex)
     AllBestSolutions{i,1} = output.Solutions.Nodes{maxasteroidnumindex(i)};
-    %AllBestCosts{i,1} = output.Solutions.Costs{maxasteroidnumindex(i)};
 end
 
 %Find the individual costs corresponding to the best solution
@@ -99,12 +98,12 @@ end
 %         Save the result          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i = 1:length(AllBestSolutions)
-    filename = strcat(['MainBelt_',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'GenerationsM0750Attempt','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+    filename = strcat(['MainBelt_',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 end
 
-save('MainBelt10Agents10Generations_20160520M0750Attempt')
-diary off
+%save('MainBelt10Agents10Generations_20160520M0750Attempt')
+%diary off
 
 %Notes:
 %20160510 - GrowthFactor has been changed

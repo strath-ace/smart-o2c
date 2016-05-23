@@ -22,7 +22,6 @@ check4 = newNode.attributes.t_dep-ListNodes.(newNode.parent).attributes.t_arr < 
 
 checktot = check1*check2*check3*check4;
 
-
 if checktot ==1
     newNode.length = newNode.length;
 else

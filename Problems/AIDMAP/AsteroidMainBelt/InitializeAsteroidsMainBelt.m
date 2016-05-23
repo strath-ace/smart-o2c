@@ -2,7 +2,13 @@
 close all; clear all; clc
 addpath(genpath('astro_tool'));
 
-AsteroidsMainBelt();
+AsteroidsFileName = 'InnerMainBelt.xlsx';
+MatFileName = 'InnerMainBelt.mat';
+NameFile = 'InnerMainBeltNames.txt';
+epochsnodename = 'InnerMainBeltEpochs.mat';
+orbitcharsname = 'InnerMainBeltOrbitChars.mat';
+
+[Asteroids] = EvaluateAsteroidsXLS(AsteroidsFileName,MatFileName,NameFile);
 
 epoch_start = '2030/01/01';
 epoch_end = '2050/01/01';
@@ -68,8 +74,8 @@ for i = 1:length(epochsnode)
     end
 end
 
-save('MNodes','Mnode1','Mnode2')
-save('epochsnodeAllM','epochsnode')
-save('asteroidorbitcharsAllM','orbitchars')
+%save('MNodes','Mnode1','Mnode2')
+save(epochsnodename,'epochsnode')
+save(orbitcharsname,'orbitchars')
 
 
