@@ -49,6 +49,7 @@ options.MyCreatedNodeCheck = @MyCreatedNodeCheck;               %After the node 
 options.MyBestChainFile = @MyBestChain;
 options.EndTarget = {};
 options.RootName = 'Earth';
+options.AdditonalInputs = {'a'};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %

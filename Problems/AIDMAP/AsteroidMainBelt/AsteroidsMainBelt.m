@@ -1,5 +1,5 @@
-[ephemerides, names] = xlsread('DiameterGreater50.xlsx');
-
+[ephemerides, names] = xlsread('DiameterGreater10kmM90.xlsx');
+%Note: all asteroids names must start with a letter
 Asteroids.initialize = [];
                      
 for k = 1 : length(names)
@@ -25,6 +25,6 @@ end
 
 Asteroids = rmfield(Asteroids,'initialize');
 clearvars -except Asteroids
-save('AsteroidsMainBelt.mat')
+save('AsteroidsMainBelt90.mat')
 
 

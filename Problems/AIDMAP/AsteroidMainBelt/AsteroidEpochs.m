@@ -43,10 +43,10 @@ satelliteorbit = satellite.getKeplerianElements();
 
 %Compute Nodal points
 
-[Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalPoints_M0(satellite,Asteroids.(asteroid),mu);
-epochsnode1 = computeNodalPassesEpochs(asteroidorbit,Mnode1,epoch_start, epoch_end, mu);
+[Mnode1(i), Mnode2(i), error_status, theta1(i), E1, theta2(i), E2 ] = computeNodalPoints_M0(satellite,Asteroids.(asteroid),mu);
+epochsnode1 = computeNodalPassesEpochs(asteroidorbit,Mnode1(i),epoch_start, epoch_end, mu);
 idnode1 = ones(1,length(epochsnode1));
-epochsnode2 = computeNodalPassesEpochs(asteroidorbit,Mnode2,epoch_start, epoch_end, mu);
+epochsnode2 = computeNodalPassesEpochs(asteroidorbit,Mnode2(i),epoch_start, epoch_end, mu);
 idnode2 = 2*ones(1,length(epochsnode2));
 
 epochsnode{i,1} = [epochsnode1 epochsnode2];
@@ -68,7 +68,8 @@ for i = 1:length(epochsnode)
     end
 end
 
-save('epochsnode','epochsnode')
-save('asteroidorbitchars','orbitchars')
+save('MNodes','Mnode1','Mnode2')
+save('epochsnodeAllM','epochsnode')
+save('asteroidorbitcharsAllM','orbitchars')
 
 
