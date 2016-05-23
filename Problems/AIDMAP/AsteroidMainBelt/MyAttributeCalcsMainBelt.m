@@ -15,8 +15,7 @@ function [Attributes] = MyAttributeCalcsMainBelt(Inputs, Parent, targetname, Att
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-AsteroidsMainBelt = load('AsteroidsMainBelt');
-Asteroids = AsteroidsMainBelt.Asteroids;
+Asteroids = Inputs.AdditionalInputs;
 
 %Check if the target is in the Asteroid class
 if ismember(targetname,fieldnames(Asteroids))
