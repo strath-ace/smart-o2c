@@ -4,7 +4,7 @@ addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
 %diary on
-%diary MainBelt10Agents10GenerationsM0750Attempt
+%diary InnerBelt10Agents5Generations250Attempts
 
 % This is the main file for the Atira problem
 %
@@ -17,7 +17,7 @@ addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 3;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 1;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 20;                                %Maximum ratio between the link's radius & the starting radius
@@ -28,7 +28,7 @@ options.Generations = 1;                                       %The number of ge
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
-options.MaxChildFindAttempts = 500;
+options.MaxChildFindAttempts = 250;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
@@ -38,7 +38,7 @@ options.MaxConsecutiveRes = 0*ones(1, length(options.Targets)); %The maximum num
 options.MaxVisits = 1*ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [11 10];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 10957.5];                                %Attributes of the root  
-options.NodeCheckBoundaries = [3 2 2 365];               %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
+options.NodeCheckBoundaries = [3 1 2 365];               %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
 fitnessfcn = @MyCostFunctionMainBelt;                                   %The function reference to the cost function
 options.NodeAttributes = @MyAttributesMainBelt;                         %The class that contains the node attributes
 options.MyAttributeCalcFile = @MyAttributeCalcsMainBelt;                %The file that does the additonal calculations wrt the attributes
@@ -54,7 +54,7 @@ options.AdditonalInputs{1} = AsteroidsMainBelt.Asteroids;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 365:20:2*365;             %Set the value of the sets. 
+tofvalues = 10:20:2*365;             %Set the value of the sets. 
 sets.tof = mat2cell(ones(length(options.Targets),1)... %Input should be a cell array where each line depicts a target.
    *tofvalues,[ones(length(options.Targets),1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
@@ -98,11 +98,11 @@ end
 %         Save the result          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i = 1:length(AllBestSolutions)
-    filename = strcat(['MainBelt_',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+    filename = strcat(['InnerBelt_',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 end
 
-%save('MainBelt10Agents10Generations_20160520M0750Attempt')
+%save('InnerBelt10Agents10Generations_20160524')
 %diary off
 
 %Notes:
