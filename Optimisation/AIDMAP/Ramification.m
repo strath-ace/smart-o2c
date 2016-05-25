@@ -90,10 +90,10 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     %Increase the attempt counter
     attempt = attempt+1;
     
-    [newnode_ID,childID] = ChooseNode(currentNode,possnodes);
+    [newnode_ID,nodeindex] = ChooseNode(currentNode,possnodes);
     
     %Remove chosen decision from list of possible decisions
-    possnodes(strcmp(childID,possnodes)) = [];
+    possnodes(nodeindex) = [];
     
     %Check if the node is valid based on the UID
     [validflag] = MyNodeCheck(ListNodes,newnode_ID,currentNode,generatednodes);

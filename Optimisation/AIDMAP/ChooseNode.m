@@ -1,4 +1,4 @@
-function [newnode_ID,childID] = ChooseNode(currentNode,posschildren)
+function [newnode_ID,nodeindex] = ChooseNode(currentNode,posschildren)
 % This function is used to choose a new node for ramification
 %
 % Inputs:
@@ -7,7 +7,7 @@ function [newnode_ID,childID] = ChooseNode(currentNode,posschildren)
 % 
 % Outputs:
 % * newnode_ID     : The node_ID chosen
-% * childID        : The ID of the chosen node
+% * nodeindex      : The index of the node in the posschildren array
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
@@ -25,8 +25,7 @@ else
 end
 
 %Choose a random decision (node_ID)
-randdecision = randi([1 length(posschildren)]);
-childID = posschildren{randdecision};
+nodeindex = randi([1 length(posschildren)]);
 newnode_ID = strcat(exchild,'____',childID);
 
 
