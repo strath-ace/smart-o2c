@@ -80,10 +80,10 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     attempt = attempt +1;
     
     %Choose a node from the list of possible nodes to generate
-    [newnode_ID,childID] = ChooseNode(currentNode,possnodes);
+    [newnode_ID,nodeindex] = ChooseNode(currentNode,possnodes);
     
     %Remove chosen decision from list of possible decisions
-    possnodes(strcmp(childID,possnodes)) = [];
+    possnodes(nodeindex) = [];
     
     %Check if the node is valid based on the UID
     [validflag] = Inputs.NodeIDCheckFile(ListNodes,newnode_ID,currentNode,generatednodes);
