@@ -3,8 +3,7 @@ addpath(genpath(strcat(pwd,'/AsteroidMainBelt')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
-%diary on
-%diary InnerBelt10Agents5Generations250Attempts
+
 
 % This is the main file for the Atira problem
 %
@@ -102,8 +101,6 @@ for i = 1:length(AllBestSolutions)
     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 end
 
-%save('InnerBelt10Agents10Generations_20160524')
-%diary off
 
 %Notes:
 %20160510 - GrowthFactor has been changed
