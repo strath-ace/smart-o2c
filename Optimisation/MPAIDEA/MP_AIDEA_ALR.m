@@ -1561,21 +1561,25 @@ while nostop
         % Bounce back re-initialisation
         % -----------------------------------------------------------------
         while lElTooLow > 0
+
             InterPop(i,ElTooLow) = ( popold(ElTooLow) + lb(ElTooLow) ) / 2;
             
             dInterPopl = InterPop(i,:) - lb;
+            popold(ElTooLow) = InterPop(i,ElTooLow);
             ElTooLow  = find(dInterPopl < 0);
             lElTooLow = length(ElTooLow);
-            popold(ElTooLow) = InterPop(i,ElTooLow);
+
         end
         
         while lElTooHigh > 0
+
             InterPop(i,ElTooHigh) = ( popold(ElTooHigh) + ub(ElTooHigh) ) / 2;
             
             dInterPopr = ub - InterPop(i,:);
+            popold(ElTooHigh) = InterPop(i,ElTooHigh);
             ElTooHigh  = find(dInterPopr < 0);
             lElTooHigh = length(ElTooHigh);
-            popold(ElTooHigh) = InterPop(i,ElTooHigh);
+
         end
  
         
