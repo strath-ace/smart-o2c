@@ -20,7 +20,7 @@ classdef Asteroids
      properties(Constant = true)  
          
         %Earth
-        Root = CelestialBody('Root',    ... % Name 
+        Earth = CelestialBody('Earth',    ... % Name 
                                   1, ... % Semimajor axis [AU]  
                                   0.0167, ... % Eccentricity 
                                   0,  ... % Inclination [deg]  

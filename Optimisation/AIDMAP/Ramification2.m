@@ -23,10 +23,8 @@ function [generatednodes, agentdeathflag] = Ramification2(Inputs, Solutions, Lis
 currentNode = char(Agents.(agent).currentNode);
 agentdeathflag = 0;
 
-if isempty(ListNodes.(currentNode).possibledecisions)   
+if (isempty(ListNodes.(currentNode).possibledecisions))
     agentdeathflag = 1;
-%     Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
-%     Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
     return
 end
 
@@ -50,15 +48,15 @@ possdecisions = ListNodes.(currentNode).possibledecisions;
 %in this node
 possnodes(ismember(temp(:,1), possdecisions)==0) = [];
 
-%Retrieve list of currently existing nodes
-%existingnodes = fields(ListNodes);
-
 %Initialize structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
 %empty structures
 generatednodes = struct('temp',0);
-nameslist = [];
-costvec = [];
+nameslist = cell(1,Inputs.RamificationAmount);
+
+%Initial index for the nameslist variable and the attempt counter
+i = 1;
+attempt = 1;
 
 %Disable the "Concatenate empty structure" warning
 warning('off','MATLAB:catenate:DimensionMismatch');
@@ -74,14 +72,21 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
         break
     end
     
+    if (attempt == Inputs.MaxChildFindAttempts)
+        break
+    end
+    
+    %Increase the attempt counter by 1
+    attempt = attempt +1;
+    
     %Choose a node from the list of possible nodes to generate
-    [newnode_ID,childID] = ChooseNode(currentNode,possnodes);
+    [newnode_ID,nodeindex] = ChooseNode(currentNode,possnodes);
     
     %Remove chosen decision from list of possible decisions
-    possnodes(find(strcmp(childID,possnodes))) = [];
+    possnodes(nodeindex) = [];
     
-    
-    [validflag] = MyNodeCheck(ListNodes,newnode_ID,currentNode,generatednodes);
+    %Check if the node is valid based on the UID
+    [validflag] = Inputs.NodeIDCheckFile(ListNodes,newnode_ID,currentNode,generatednodes);
    
     %Confirm that node doesn't already exist
     if (~validflag)
@@ -92,27 +97,28 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     %Generate the new node & save its cost in a vector
     [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
     
+    %Sanity Check
     if newNode.length == Inf
         continue
     end
     
+    %If the node is valid according to the first check, use the created
+    %node structure to further determine the validity
+    [newNode] = Inputs.CreatedNodeCheckFile(Inputs, newNode, ListNodes);
     
-    [newNode] = MyCreatedNodeCheck(Inputs, newNode, ListNodes);
-    
+    %Sanity Check
     if newNode.length == Inf
         continue
     end
-
-    costvec = [costvec newNode.length];
 
     %Add generated node to the structure created earlier.
     generatednodes.(newNode.node_ID) = newNode;
-
-    %Add generated node name & cost to matrices for ease of access
-    nameslist = [nameslist {newnode_ID}];
-
-            
     
+    %Add generated node name & cost to matrices for ease of access
+    nameslist{i} = newnode_ID;           
+    
+    %Increase the index for the nameslist struct
+    i = i+1;
 end
 
 %Remove temporary field within the generatednodes stucture

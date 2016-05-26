@@ -4,10 +4,8 @@ function [posschildren] = PossChilds(targets,sets)
 %
 % Inputs:
 % * targets    : A cell array with the names of the targets
-% * attribvalues : A cell array with the possible values each attribute
-%                shown in the unique ID can take. If the possible values for 
-%                an attribute are the same for each target, a vector can 
-%                be used. Otherwise, a matrix should be the input. 
+% * sets       : A structure with the possible values each attribute
+%                shown in the unique ID can take.
 %
 % Outputs: 
 % * posschildren  : A cell array with all the UIDs the algorithm can

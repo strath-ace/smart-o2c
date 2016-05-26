@@ -4,10 +4,10 @@ times = structure.in_nodes_state'*(t_f-t_0);
 times = times(:);   % arranges times as a vector
 
 % Clone Initial condition
-x_temp = CloneIC(f,x_0,u,structure,times);
+%x_temp = CloneIC(f,x_0,u,structure,times);
 
 % Explicit Euler
-%x_temp = ExpEulContr(f,x_0,u,structure,times);
+x_temp = ExpEulContr(f,x_0,u,structure,times);
 
 % if max(max(abs(x_temp)))>1e15
 %    
@@ -37,7 +37,10 @@ for i = 1:structure.num_elems
     start_pos = end_pos+1;
     end_pos = start_pos+structure.num_controls*(structure.control_order+1)-1;
     
-    x(start_pos:end_pos) = u(1+(structure.control_order+1)*structure.num_controls*(i-1):(structure.control_order+1)*structure.num_controls*i);
+    x(start_pos:end_pos) = reshape(u(1+(structure.control_order+1)*(i-1):(structure.control_order+1)*i,:),(structure.control_order+1)*structure.num_controls,1);
+    
+    % BUG!!!! WHEN THERE'S MORE THAN ONE CONTROL THIS IS WRONG
+    %x(start_pos:end_pos) = u(1+(structure.control_order+1)*structure.num_controls*(i-1):(structure.control_order+1)*structure.num_controls*i);
     
     start_pos = end_pos+1;
     

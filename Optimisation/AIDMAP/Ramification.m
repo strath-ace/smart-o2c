@@ -4,15 +4,18 @@ function [ListNodes, Solutions, Agents, agentdeathflag] = Ramification(Inputs, S
 % selection based on the cost function.
 %
 % Inputs:
-% * ListNodes       : Structure containing the graph
 % * Inputs      : Structure containing the PhysarumSolver inputs
+% * Solutions   : Structure containing the solutions found so far
+% * ListNodes   : Structure containing the graph
 % * Agents      : The structure containing the agents
 % * agent       : A string containing the name of the current agent
 %
 % Outputs: 
-% * ListNodes       : ListNodes structure where the radii have been updated with
+% * ListNodes   : ListNodes structure where the radii have been updated with
 %                 the dilation and evaporation
+% * Solutions   : Structure containing the solutions found so far
 % * Agents      : The updated structure containing the agents
+% * agentdeathflag : flag that shows wether the current agent has died
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
@@ -23,8 +26,13 @@ function [ListNodes, Solutions, Agents, agentdeathflag] = Ramification(Inputs, S
 currentNode = char(Agents.(agent).currentNode);
 agentdeathflag = 0;
 
-if isempty(ListNodes.(currentNode).possibledecisions)   
+%Sanity check: confirm that there are decisions possible
+if (isempty(ListNodes.(currentNode).possibledecisions))
+    
+    %If not, ste the death flag to 1
     agentdeathflag = 1;
+    
+    %Save the solution
     Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
     Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
     return
@@ -50,14 +58,15 @@ possdecisions = ListNodes.(currentNode).possibledecisions;
 %in this node
 possnodes(ismember(temp(:,1), possdecisions)==0) = [];
 
-%Retrieve list of currently existing nodes
-%existingnodes = fields(ListNodes);
-
 %Initialize structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
 %empty structures
 generatednodes = struct('temp',0);
-nameslist = [];
+nameslist = cell(1,Inputs.RamificationAmount);
+
+%Initial index for the nameslist, the attempt counter & costvec variable
+i = 1;
+attempt = 1;
 costvec = [];
 
 %Disable the "Concatenate empty structure" warning
@@ -68,19 +77,25 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     
     %If no more decisions are possible, exit while loop and set
     %agentdeathflag to 1
-    if isempty(possnodes)
+    if (isempty(possnodes) || attempt == Inputs.MaxChildFindAttempts)
         disp(strcat(agent,' died'))
         agentdeathflag = 1;
+        
+        %Save the solution
         Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
         Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
         break
     end
-       
-    [newnode_ID,childID] = ChooseNode(currentNode,possnodes);
+    
+    %Increase the attempt counter
+    attempt = attempt+1;
+    
+    [newnode_ID,nodeindex] = ChooseNode(currentNode,possnodes);
     
     %Remove chosen decision from list of possible decisions
-    possnodes(find(strcmp(childID,possnodes))) = [];
+    possnodes(nodeindex) = [];
     
+    %Check if the node is valid based on the UID
     [validflag] = MyNodeCheck(ListNodes,newnode_ID,currentNode,generatednodes);
    
     %Confirm that node doesn't already exist
@@ -99,7 +114,10 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
             generatednodes.(newNode.node_ID) = newNode;
 
             %Add generated node name & cost to matrices for ease of access
-            nameslist = [nameslist {newnode_ID}];
+            nameslist{i} = newnode_ID;
+            
+            %Increase the index for the nameslist variable
+            i = i+1;
         end
             
     end
