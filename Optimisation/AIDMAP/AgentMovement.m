@@ -3,13 +3,15 @@ function [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement(Inputs, 
 %
 % Inputs:
 % * Inputs      : Structure containing the PhysarumSolver inputs
-% * ListNodes       : Structure containing the graph
+% * Solutions   : Structure containing the solutions found so far
+% * ListNodes   : Structure containing the graph
 % * Agents      : Structure containing the Agents
 % * agent       : Cell with the current agents' name
 % 
 % Outputs:
-% * ListNodes       : Structure containing the graph
-% * Agents      : The agents with their new positions
+% * Solutions      : Updated structure containing the solutions found so far
+% * ListNodes      : Structure containing the graph
+% * Agents         : The agents with their new positions
 % * agentdeathflag : Flag that shows whether the agent has 'died'
 %
 % Author: Aram Vroom - 2016
@@ -22,7 +24,25 @@ agentdeathflag = 0;
 %variables
 currentagent = char(agent);
 currentnode = char(Agents.(currentagent).currentNode);
+
 disp(strcat([datestr(now),' === Moved to',' ',currentnode]));
+
+%Find the current target
+temp = strsplit(currentnode,'____');
+temp = strsplit(temp{end},'___');
+currenttarget = temp{1};
+
+%Check if the final target has been reached
+if  ~(sum(ismember(currenttarget, Inputs.EndTarget))==0)
+    %If so, set the agentdeathflag to 1
+    agentdeathflag = 1;
+    
+    %Save the solution
+    Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.((char(agent))).currentNode}]}];   
+    Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
+    return 
+end
+
 
 if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
     
@@ -59,14 +79,19 @@ if (p>Inputs.RamificationProbability && ~isempty(ListNodes.(currentnode).childre
     nodechildren = cell(ListNodes.(currentnode).children);
     chosennode = nodechildren{chosenindex};
     
+       
     %Move agent to the new node
     Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
     Agents.(currentagent).currentNode = chosennode;
     Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];
 else
     
+       
     %If there are no children or if the random number falls within the
     %probability margin, ramificate towards a new node
     [ListNodes, Solutions, Agents, agentdeathflag] = Ramification(Inputs, Solutions, ListNodes, Agents, currentagent);
 end
+
+
+
    

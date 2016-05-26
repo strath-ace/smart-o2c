@@ -256,7 +256,7 @@ x_only = loc_state(:);
 
 if structure.DFET==1
     
-    x_only = [x_only;x(end-structure.num_free_states+1:end)'];
+    x_only = [x_only;x(end-structure.num_free_states+1:end)];
     
 end
 

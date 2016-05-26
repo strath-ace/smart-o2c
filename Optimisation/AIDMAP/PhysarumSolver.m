@@ -1,4 +1,4 @@
-function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(InitializedInputs, ListNodes)
+function [Solutions, BestSolution, InitializedInputs, ListNodes, Agents] = PhysarumSolver(InitializedInputs, ListNodes)
 % This script contains the main logic of AIDMAP solver. 
 %
 % Inputs:
@@ -7,6 +7,9 @@ function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(Init
 % * ListNodes          : Structure containing the initial list of nodes
 %
 % Outputs: 
+% * Solutions          : The structure containing the solutions found
+% * InitializedInputs  : The structure containing the options set by the
+%                        user
 % * ListNodes          : Structure containing the final structure with the
 %                        nodes
 % * Agents             : the structure containing the set of agents and their
@@ -15,8 +18,12 @@ function [Solutions, InitializedInputs, ListNodes, Agents] = PhysarumSolver(Init
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
+%Initialize the Solutions structure
 Solutions.Nodes = [];
 Solutions.Costs = [];
+
+BestSolution.BestChain = [];
+BestSolution.BestCost = [];
 
 %Loop over the generations
 for j = 1:InitializedInputs.Generations
@@ -52,10 +59,10 @@ for j = 1:InitializedInputs.Generations
     end
     
     %Update the veins with the growth factor mechanic
-    [ListNodes] = GrowthFactor(InitializedInputs, ListNodes, Solutions);
+    [ListNodes, BestSolution] = GrowthFactor(InitializedInputs, ListNodes, Solutions, BestSolution);
     
     %Check whether the algorithm should be restarted
-    restartflag = RestartCheck(InitializedInputs, ListNodes, Agents);
+    restartflag = RestartCheck(InitializedInputs, Agents);
     
     %If so, reset the veins 
     if (restartflag && j ~= InitializedInputs.Generations) %~= as check whether it works (doesn't reset when last generation is completed)
@@ -64,9 +71,6 @@ for j = 1:InitializedInputs.Generations
 
 %End generation loop
 end
-
-%Retrieve the costs
-%[Solutions.Costs] = RetrieveCosts(Solutions.Nodes,ListNodes);
 
 
 end

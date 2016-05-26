@@ -1,9 +1,8 @@
-function [restartflag] = RestartCheck(Inputs, ListNodes, Agents)
+function [restartflag] = RestartCheck(Inputs, Agents)
 % This function checks the restarting of the Physarum algorithm
 %
 % Inputs:
 % * Inputs   : Structure containing the PhysarumSolver inputs
-% * ListNodes       : Structure containing the graph
 % * Agents      : Structure containing the Agents & their characteristics
 %
 % Outputs: 

@@ -3,13 +3,15 @@ function [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement2(Inputs,
 %
 % Inputs:
 % * Inputs      : Structure containing the PhysarumSolver inputs
-% * ListNodes       : Structure containing the graph
+% * Solutions   : Structure containing the solutions found so far
+% * ListNodes   : Structure containing the graph
 % * Agents      : Structure containing the Agents
 % * agent       : Cell with the current agents' name
 % 
 % Outputs:
-% * ListNodes       : Structure containing the graph
-% * Agents      : The agents with their new positions
+% * Solutions      : Updated structure containing the solutions found so far
+% * ListNodes      : Structure containing the graph
+% * Agents         : The agents with their new positions
 % * agentdeathflag : Flag that shows whether the agent has 'died'
 %
 % Author: Aram Vroom - 2016
@@ -23,6 +25,7 @@ agentdeathflag = 0;
 currentagent = char(agent);
 currentnode = char(Agents.(currentagent).currentNode);
 disp(strcat([datestr(now),' === Moved to',' ',currentnode]));
+
 
 %Sanity check #1
 if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
@@ -56,7 +59,6 @@ for i = 1:length(generatednodenames)
     ramfluxesmod(i) = generatednodes.(generatednodenames{i}).flux^(Inputs.RamificationWeight);
 end
     
-
 %check whether the current node has children & whether the random number
 %falls outside of the probability margin
 if (~isempty(ListNodes.(currentnode).children))
@@ -108,11 +110,6 @@ if chosenindex <=length(generatednodenames)
     chosennodestruct = generatednodes.(chosennode);
     ListNodes = AddNode(ListNodes, chosennodestruct);
     
-    %Move the agent to the chosen node
-    Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
-    Agents.(currentagent).currentNode = chosennode;
-    Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];
-    
 %If the index falls outside of the list of generated nodes, the agent
 %moves to one of the children    
 else
@@ -123,34 +120,29 @@ else
     %Find the child that was chosen. The -length(generatednodenames) is
     %used to find the correct index of the child in the children list of the node 
     chosennode = nodechildren{chosenindex-length(generatednodenames)};
-    
-    %Move the agent to the child that was chosen
-    Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
-    Agents.(currentagent).currentNode = chosennode;
-    Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];    
+
 end
 
-%     problist = childfluxes./(sum(childfluxes));
-%     problist = problist./sum(problist);
-% 
-%     %Choose one of the node's children. Cell structure is used to
-%     %circumvent issues with node selection if only 1 child is present and
-%     %hocsenindex = 1 (it will otherwise only return the first letter)
-%     chosenindex = find(rand<cumsum(problist),1,'first');
-%     nodechildren = cell(ListNodes.(currentnode).children);
-%     chosennode = nodechildren{chosenindex};
-%     
-%     %Move agent to the new node
-%     Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
-%     Agents.(currentagent).currentNode = chosennode;
-%     Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];
+%Find the current target
+temp = strsplit(currentnode,'____');
+temp = strsplit(temp{end},'___');
+currenttarget = temp{1};
+
+%Check if the final target has been reached
+if  ~(sum(ismember(currenttarget, Inputs.EndTarget))==0)
+    %If so, set the agentdeathflag to 1
+    agentdeathflag = 1;
     
-    %If there are no children or if the random number falls within the
-    %probability margin, ramificate towards a new node
-
-
-% problist = 1./(costvec.^Inputs.RamificationWeight);
-% problist = problist./sum(problist);
+    %Save the solution
+    Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.((char(agent))).currentNode}]}];   
+    Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
+    return 
+end
+    
+%Move the agent to the chosen node
+Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
+Agents.(currentagent).currentNode = chosennode;
+Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];
 
 end
    
