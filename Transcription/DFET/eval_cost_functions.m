@@ -1,4 +1,4 @@
-function [vals,gradx,gradu] = eval_cost_functions(g,weights,x,u,x_b,time_interval,structure,compute_grad,dgxf,dguf,dgxi,dgui)
+function [vals,gradx,gradu] = eval_cost_functions(g,weights,x,u,x_b,time_interval,els,structure,compute_grad,dgxf,dguf,dgxi,dgui)
 
 % g is a 2 columns vector containing function handles. left entries are
 % for functions for which we are interested in evaluating them at final
@@ -148,8 +148,8 @@ vals = qq(:,1).*weights(:,1);
 
 % compute integrals elementwise (can be made PARALLEL, although benefits depend widely upon the actual amount of work done by each node)
 
-ee1 = structure.els(:,1);
-ee2 = structure.els(:,2);
+ee1 = els(:,1);%structure.els(:,1);
+ee2 = els(:,2);%structure.els(:,2);
 
 for i = 1:structure.num_elems
     
