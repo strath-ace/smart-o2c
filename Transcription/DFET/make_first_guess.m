@@ -29,7 +29,7 @@ else % number of control variables is correct
     
 end
 
-times = structure.in_nodes_state'*(t_f-t_0);
+times = structure.uniform_in_nodes_state'*(t_f-t_0);
 times = times(:);   % arranges times as a vector
 
 % Clone Initial condition

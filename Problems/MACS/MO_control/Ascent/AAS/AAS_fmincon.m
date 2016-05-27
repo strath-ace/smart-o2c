@@ -12,13 +12,13 @@ t_0 = 0;
 
 x_0 = [2e4 0 500 0 300e3];              % [h=20km, theta=0, v=500m/s, gamma=0, m=300ton]
 
-imposed_final_states = [1 0 0 1 0];     % mask vector with the variables on which a final condition is imposed
+imposed_final_states = [1 0 1 1 0];     % mask vector with the variables on which a final condition is imposed
 x_f = [4e4 0 500 0 0];                  % vector of final conditions
 
 
 %% Discretisation setting
 
-num_elems = 4;
+num_elems = 2;
 state_order = 5;
 control_order = 5;
 DFET = 1;
@@ -66,15 +66,15 @@ structure = impose_final_conditions(structure,imposed_final_states);
 
 %% Optimisation
 
-state_bounds = [0 5e4; -pi pi; 1 10000; -pi/2 pi/2; 50e3 300e3];              % h, theta, v, gamma, m
+state_bounds = [0 5e4; -pi pi; 1 1000; -pi/2 pi/2; 50e3 300e3];              % h, theta, v, gamma, m
 control_bounds = [0 1; -10 50];                                         % delta (throttle) from 0 to 1, alpha (angle of attack) from -10 to 50 (DEGREES, INTERNAL DYNAMICS CONVERTS CONSISTENTLY INTO RADIANS WHEN NEEDED)
 
 [lbv,ubv] = transcribe_bounds(state_bounds,control_bounds,structure);
 
 % initial guess
 t_min = 0.5*60;%(max(state_bounds(5,:))-min(state_bounds(5,:)))/850;    % t_min mission time, considering constant max fuel flow equal to 850kg/s
-t_max = 1*60;                                                  % max mission time, 1hour, maybe better estimate helps
-t_guess = t_min;
+t_max = 10*60;                                                  % max mission time, 1hour, maybe better estimate helps
+t_guess = 4*t_min;
 
 lbv = [t_min;lbv];
 ubv = [t_max;ubv];
@@ -121,7 +121,7 @@ xx = x_sol(2:end);
 
 %% Plot best solution
 
-plot_solution_vs_time(x_best,u_best,x_0,x_b,t_0,t_fbest,structure);
+plot_solution_vs_time(x_best,u_best,x_0,x_b,t_0,t_fbest,structure.uniform_els,structure);
 % tplot = linspace(t_0,t_fbest,t_fbest*10);
 % [xt,ut] = eval_solution_over_time(x_best,u_best,t_0,t_fbest,tplot,structure);
 % 
