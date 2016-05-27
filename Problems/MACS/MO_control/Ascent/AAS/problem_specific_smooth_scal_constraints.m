@@ -1,4 +1,4 @@
-function [c,ceq] = ascent_specific_smooth_scal_constraints(in,lambda,z,zstar,options)
+function [c,ceq] = problem_specific_smooth_scal_constraints(in,lambda,z,zstar,options)
 
 t_0 = 0;
 t_f = in(2);

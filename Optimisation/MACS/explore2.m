@@ -56,7 +56,7 @@ lx = length(params.vlb);                                                    % pr
 n_ids=ceil(sum(params.vars_to_opt)*params.coord_ratio);                                          % n_ids is equal to the number of dimensions which will actually be scanned (not automatically all of them, if params.coord_ratio <1 )
 n_a = size(x,1);
 mfit = size(f,2);
-foptionsNLP=optimset('Display','off','MaxFunEvals',1000*length(params.vlb),'MaxIter',1000*length(params.vlb),'TolFun',1e-6,'Algorithm','sqp');
+foptionsNLP=optimset('Display','off','MaxFunEvals',1000*length(params.vlb),'MaxIter',1000*length(params.vlb),'TolFun',1e-6,'Algorithm','sqp','MaxSQPIter', 10*length(params.vlb));
 loc_opt = zeros(n_a,1);
 
 %% MAIN LOOP
@@ -971,9 +971,7 @@ for i=1:n_a                                                                 % fo
             if any(i==id_pop_act_subpr)&& params.MBHflag>0 && local_only%any(i==id_pop_act_subpr)&& params.MBHflag>0 && (rho(i,2)==params.max_rho_contr || local_only) %&&pigr(act_subpr(id_pop_act_subpr==i))<0.8%<- TO BE REVISED WITH A PROPPER PARAMETER TO BE SET BY THE USER
                 
                 if isempty(MBH_positions)
-                    
-                    MBH_positions = [MBH_positions; x(i,:)];                    %add this position in the list, to avoid repeating it
-                    
+                                        
                     fprintf('Running MBH on agent %d, lambda = (',i);
                     
                     for j =1:length(lambda(act_subpr(id_pop_act_subpr==i),:))-1

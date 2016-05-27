@@ -1,11 +1,9 @@
 function [memory,nfeval,ener]=macs7v16OC(func,memory,vlb,vub,options,filename,fileload,varargin)
 
-%% MACS FOR OPTIMAL CONTROL PROBLEMS
-
-%%  INPUT
-%         func    : function handle to objective functions
-%         memory  : external archive, in case an existing archive is 
-%                   supplied from the beginning 
+%  memory=macs7v16OC(func,vlb,vub,options,filename,fileload,varargin)
+%
+%  INPUT
+%         func    : function handle
 %         vlb,vub : boundaries of the search domain, as vectors
 %         options : structure of optimization parameters
 %                   'maxnfeval' max num of function evaluations albeit
@@ -26,35 +24,19 @@ function [memory,nfeval,ener]=macs7v16OC(func,memory,vlb,vub,options,filename,fi
 %                   'draw_flag' plot flag (default 0)
 %                   'cp'        constraint flag (default 0)
 %                   'MBHflag'   MBH steps flag (default 0)
-%                   'expore_ DE_strategy' Strategy to use for DE in explore
-%                   'social_DE_strategy' Strategy to use for DE in social
-%                                        actions
-%                   'v' flag used for computing velocity from every move or
-%                       not (CHECK, PARTIALLY OBSOLETE)
-%                   'dyn_pat_search' flag used to dynamically compute the
-%                                    max number of pattern search moves 
-%                                    depending on filling ratio of archive
-%                   'upd_subproblems' flag regulating if subproblems are to
-%                                     be updated during optimisation
-%                   'max_rho_contr' max number of contractions for local
-%                                   neighbourhood before restarting takes
-%                                   place
-%                   'pat_search_strategy' pattern search strategy
-%                   'optimal_control' flag specifying if the problem to be
-%                                     solved is an optimal control one
-%                   'vars_to_opt' vector specifying which vars to optimise
-%                                (needed for optimal control problem)
+%                               Currently only for unconstrained
+%                   'DE_strategy' Strategy to use for DE (ie pull towards
+%                               best element or random one, default 'best')
 %
 %  OUTPUT
-%           memory : matrix containing the archived solutions, the
-%                    associated value of the cost functions, max constraint 
-%                    violations and dominance index (memory=[x f c i])
-%           nfeval : number of total function evaluations
-%           ener   : energy associated to the archive
+%           memory :  matrix containing the archived solutions and the
+%                       associated value of the cost function
+%                       memory=[x f]
+%           nfeval   :  number of total function evaluations
 
 % CHANGE LOG
 % Created by: Federico Zuiani 2011
-% Revised, cleaned and optimized by: Lorenzo A. Ricciardi 2015-2016
+% Revised, cleaned and optimized by: Lorenzo A. Ricciardi 2015
 
 %%  MACS PARAMETERS DEFAULT VALUES
 
@@ -851,7 +833,7 @@ while nfeval<options.maxnfeval
     
     if any(z<oldz)
         
-        fprintf('INDIVIDUAL MOVES IMPROVED MINIMAS\n');
+        fprintf('INDIVIDUAL MOVES IMPROVED MINIMA\n');
         
         for i=1:mfit
             
@@ -1069,7 +1051,7 @@ while nfeval<options.maxnfeval
     zstar=max([memory(:,lx+1:lx+mfit); f],[],1);
     if any(z<oldz)
         
-        fprintf('SOCIAL MOVES IMPROVED MINIMAS\n');
+        fprintf('SOCIAL MOVES IMPROVED MINIMA\n');
         
         for i=1:mfit
             
@@ -1150,7 +1132,7 @@ while nfeval<options.maxnfeval
     
     %% GRADIENT BASED LOCAL MOVES AS FINISHING STEP, ONLY FOR OPTIMAL CONTROL
     
-    if mod(iter+99,100)==0 || nfeval>=options.maxnfeval
+    if mod(iter+9,10)==0 || nfeval>=options.maxnfeval
         
         local_only = 1;
         
@@ -1162,7 +1144,7 @@ while nfeval<options.maxnfeval
         
         if any(z<oldz)
             
-            fprintf('INDIVIDUAL MOVES IMPROVED MINIMAS\n');
+            fprintf('GRADIENT MOVES IMPROVED MINIMA\n');
             
             for i=1:mfit
                 
@@ -1684,11 +1666,11 @@ while nfeval<options.maxnfeval
     
     if mfit==1
         
-        fprintf('Total nfeval: %d, Elapsed time: %f, feasible solutions: %d, fun_evals: %d, time/num_fun_evals: %f\n',nfeval,eltime,sum(f~=Inf),nfeval-nfeval_old,eltime/(nfeval-nfeval_old));
+        fprintf('Iter: %d, Total nfeval: %d, Elapsed time: %f, fun_evals: %d, time/num_fun_evals: %f\n',iter, nfeval,eltime,nfeval-nfeval_old,eltime/(nfeval-nfeval_old));
         
     else
         
-        fprintf('Total nfeval: %d, Elapsed time: %f, feasible solutions: %d, fun_evals: %d, time/num_fun_evals: %f\n',nfeval,eltime,sum(all(f~=Inf)),nfeval-nfeval_old,eltime/(nfeval-nfeval_old));
+        fprintf('Iter: %d, Total nfeval: %d, Elapsed time: %f,fun_evals: %d, time/num_fun_evals: %f\n',iter, nfeval,eltime,nfeval-nfeval_old,eltime/(nfeval-nfeval_old));
         
     end
     

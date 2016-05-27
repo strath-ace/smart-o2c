@@ -4,31 +4,35 @@ clc
 
 %% DFET PROBLEM TRANSCRIPTION
 
+% Add correct directory to path!!!
+
+addpath(genpath('MO_control\Ascent\AAS'));
+
 % Dynamics
 
-f = @state_equation;
-dfx = @state_jacobian;
-dfu = @control_jacobian;
+f = @Simple_state_equations;
+dfx = [];%@Simple_state_jacobian;
+dfu = [];%@Simple_control_jacobian;
 dft = [];
 smooth_scal_const = @problem_specific_smooth_scal_constraints; 
 
 % Objective functions and Bolza's problem weights
 
-g = @(x,u,t) [t 0; -x(2) 0];
+g = @(x,u,t) [-x(5) 0; -x(3) 0];
 weights = [1 0; 1 0];
 
 t_0 = 0;
 
-x_0 = [0 0 0 0 1];
+x_0 = [2e4 0 500 0 300e3];              % [h=20km, theta=0, v=500m/s, gamma=0, m=300ton]
 
-imposed_final_states = [0 0 1 1 0];
-x_f = [0 0.1 10 0 0];
+imposed_final_states = [1 0 1 1 0];     % mask vector with the variables on which a final condition is imposed
+x_f = [4e4 0 500 0 0];                  % vector of final conditions
 
 %% Discretisation settings
 
-num_elems = 4;
-state_order = 1;
-control_order = 1;
+num_elems = 1;
+state_order = 5;
+control_order = 5;
 DFET = 1;
 state_distrib = 'Lobatto'; % or Cheby
 control_distrib = 'Legendre';
@@ -36,7 +40,7 @@ control_distrib = 'Legendre';
 integr_order = 2*state_order;%2*state_order-1;
 
 num_eqs = length(x_0);
-num_controls = 1;
+num_controls = 2;
 
 % Make checks
 
@@ -83,23 +87,21 @@ structure.dft = [];
 structure.g = g;
 structure.weights = weights;
 
+state_bounds = [0 5e4; -pi pi; 100 10000; -pi/2 pi/2; 50e3 300e3];              % h, theta, v, gamma, m
+control_bounds = [0 1; -10 50];                                         % delta (throttle) from 0 to 1, alpha (angle of attack) from -10 to 50 (DEGREES, INTERNAL DYNAMICS CONVERTS CONSISTENTLY INTO RADIANS WHEN NEEDED)
 
-state_bounds = [-inf inf;-inf inf; -inf inf;-inf inf; 0 inf];
-control_bounds = [-pi/2 pi/2];
+[vlb,vub,state_vars,control_vars] = transcribe_bounds(state_bounds,control_bounds,structure);
 
-[vlb,vub] = transcribe_bounds(state_bounds,control_bounds,structure);
-
-vlb = [100;vlb]';
-vub = [250;vub]';
+vlb = [0.5*60;vlb]';
+vub = [10*60;vub]';
 
 tol_conv = 1e-6;
 maxits = 10000;
-
-fminconoptions = optimset('Display','off','MaxFunEvals',maxits,'TolCon',tol_conv,'GradConstr','on','Algorithm','sqp');
+fminconoptions = optimset('Display','off','MaxFunEvals',maxits,'MaxIter',maxits,'TolCon',tol_conv,'GradConstr','on','Algorithm','sqp');%,'MaxSQPIter', 10*length(vlb));
 
 %% MACS PARAMETERS
 
-opt.maxnfeval=500000;                                                       % maximum number of f evals 
+opt.maxnfeval=50000;                                                       % maximum number of f evals 
 opt.popsize=10;                                                             % popsize (for each archive)
 opt.rhoini=1;                                                               % initial span of each local hypercube (1=full domain)
 opt.F=0.9;                                                                    % F, the parameter for Differential Evolution
@@ -122,25 +124,22 @@ opt.upd_subproblems = 0;
 opt.max_rho_contr = 5;
 opt.pat_search_strategy = 'standard';
 opt.optimal_control = 1;
-opt.vars_to_opt = ~isinf(vub);
+opt.vars_to_opt = [1;control_vars];
 opt.oc.structure = structure;
 opt.oc.smooth_scal_constr_fun = smooth_scal_const;
-%opt.oc.f = f;
-%opt.oc.dfx = dfx;
-%opt.oc.dfu = dfu;
 opt.oc.init_type = 'copy_ic';
 opt.oc.x_0 = x_0;
 opt.oc.x_f = x_f;
 opt.oc.imposed_final_states = imposed_final_states;
-opt.oc.state_vars = isinf(vub);
-opt.oc.control_vars = ~isinf(vub);
-opt.oc.control_vars(1) = 0;
+opt.oc.state_vars = [0;state_vars];
+opt.oc.control_vars = [0;control_vars];
+%opt.oc.control_vars(1) = 0;
 
 %% OPTIMISATION LOOP
 
 for i=1:1
     
-    mem(i).memory=macs7v16OC(@ascent_drag_mass_MACS_MOO,[],vlb,vub,opt,[],[],vlb,vub,structure,x_0,x_f,fminconoptions);    
+    mem(i).memory=macs7v16OC(@Simple_model_MACS_MOO,[],vlb,vub,opt,[],[],vlb,vub,structure,x_0,x_f,fminconoptions);    
     
 end
 
@@ -155,9 +154,9 @@ for i = 1:size(qq,1)
     [x,u,xb] = extract_solution(qq(i,2:length(vlb)),structure,x_f);
     plot_solution_vs_time(x,u,x_0,xb,t_0,qq(i,1),structure,i+1)
     subplot(2,1,1)
-    axis([0 250 0 120])
+    axis([0 250 -pi/2 pi/2])
     subplot(2,1,2)
-    axis([0 250 -pi pi])
+    axis([0 250 -1 2])
     drawnow
     
 end
