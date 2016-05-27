@@ -24,7 +24,7 @@ tic;
 
 [InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
 
-[output.Solutions, BestSolution, output.options, output.ListNodes, output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
+[output.Solutions, BestSolution, InitializedInputs, output.ListNodes, output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
 
 x = BestSolution.BestChain;
 fval = BestSolution.BestCost;

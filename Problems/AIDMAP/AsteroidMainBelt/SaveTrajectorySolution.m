@@ -39,7 +39,7 @@ fprintf(fid,formatspec,AsteroidsNames,waitingtime,lambertdepdate,lamberttof,lamb
 end
 
 fprintf(fid,'-----------------------------------------------------------------------------------------------\n');
-fprintf(fid,'%12s\t%12.4f\t%12s\t%12.4f\t%12s\t\t\t\t%8.2f\n','Total:',[],[],[],[],dV_tot);
+fprintf(fid,'%12s\t%12.4f\t%12s\t%12.4f\t%12s\t\t\t\t\t\t\t%8.2f\n','Total:',[],[],[],[],dV_tot);
 % fprintf(fid,formatspec,char(AsteroidsNames),lambertdepdate,lamberttof,lamberttof,lambertarrdate,dV)
 
 end

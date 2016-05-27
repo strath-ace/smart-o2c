@@ -14,7 +14,7 @@ addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 2;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 1;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.4;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 20;                                %Maximum ratio between the link's radius & the starting radius
