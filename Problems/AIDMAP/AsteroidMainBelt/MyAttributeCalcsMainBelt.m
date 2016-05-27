@@ -21,7 +21,7 @@ Asteroids = Inputs.AdditionalInputs;
 if ismember(targetname,fieldnames(Asteroids))
     
     %Retrieve the cartesian coordiantes of the target at the arrival epoch
-    Attributes.r_arr = StardustTool.CartesianElementsAt(Asteroids.(targetname),Attributes.t_arr);
+    [Attributes.r_arr, Attributes.v_body] = StardustTool.CartesianElementsAt(Asteroids.(targetname),Attributes.t_arr);
     
     %Find the departure time by subtracting the ToF from the arrival time
     Attributes.t_dep = Attributes.t_arr - Attributes.tof;
