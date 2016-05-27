@@ -9,6 +9,7 @@ classdef MyAttributesMainBelt
         r_dep %departure r
         v_dep %departure velocity
         r_arr %arrival r
+        v_body %velocity of the body 
         v_arr %arrival v
         t_dep %departure time
         t_arr %arrival time
