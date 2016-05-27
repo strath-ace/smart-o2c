@@ -44,7 +44,7 @@ ToF = toNode.attributes.tof;
                                                                                 ... % case of Nrev>0:
                                                                                 ... %   0: small-a option
                                                                                 ... %   1: large-a option
-                                                  2);                   % LambertMR options:
+                                                  0);                   % LambertMR options:
                                                                                     %   optionsLMR(1) = display options:
                                                                                     %     - 0: no display
                                                                                     %     - 1: warnings are displayed only when the algorithm does not converge
