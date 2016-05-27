@@ -33,14 +33,14 @@ lambda_f_best=zeros(n_lambda,mfit);                                         % ob
 
 for i=1:n_lambda                                                            % for every subproblem
        
-    g_tmp = hp_g_fun(memories(:,lx+1:lx+mfit),lambda(i,:),z,maxs);               % high performance evaluation of g_fun for all agents and current value of lambda
+    g_tmp = hp_g_fun(memories(:,lx+1:lx+mfit),lambda(i,:),z);               % high performance evaluation of g_fun for all agents and current value of lambda
     
     [~,tmp_id]=min(g_tmp);                                                  % index of min of gfun, i.e gfun associated to agent which best solves current problem
     pigr_thres=max(g_tmp);                                                  % threshold value for pigr, equal to max gtmp (i.e gfun associated to agent with worth solution of current problem)
     lambda_x_best(i,:)=memories(tmp_id,1:lx);                               % vector of position of agents which best solve each subproblem
     lambda_f_best(i,:)=memories(tmp_id,lx+1:lx+mfit);                       % vector of objective function values of agents which best solve each subproblem
-    old=g_fun(lambda_f_best_old(i,:),lambda(i,:),z,maxs);                        % compute gfun associated to old best values
-    new=g_fun(lambda_f_best(i,:),lambda(i,:),z,maxs);                            % compute gfun associated to new best values
+    old=g_fun(lambda_f_best_old(i,:),lambda(i,:),z);                        % compute gfun associated to old best values
+    new=g_fun(lambda_f_best(i,:),lambda(i,:),z);                            % compute gfun associated to new best values
     Delta=(old-new);                                                        % variation of gfun, positive if improvement (gfun must diminish)
     
     if Delta>pigr_thres                                                     % if new gfun of best agent for this problem is lower than gfun of old best agent for this problem, and their difference is greater then the max gfun of current agents
