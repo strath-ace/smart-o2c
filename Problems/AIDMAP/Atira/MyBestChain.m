@@ -24,7 +24,7 @@ maxasteroidcosts = nodecosts(maxasteroidnumindex);
 %Obtain the index of the minimum cost
 minimumcostindex = find(maxasteroidcosts==min(maxasteroidcosts));
 
-%Find the index of the solution with the moster asteroids and the minimum
+%Find the index of the solution with the most asteroids and the minimum
 %cost
 bestchainindex = maxasteroidnumindex(minimumcostindex);
 
