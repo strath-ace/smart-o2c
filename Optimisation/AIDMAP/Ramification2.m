@@ -34,8 +34,12 @@ end
 %entire graph. 
 possnodes = Inputs.PossibleListNodes;
 
-%Remove the already existing nodes
-possnodes(ismember(possnodes,fieldnames(ListNodes)))=[];
+%%Remove the already existing nodes
+%Find the already existing children
+temp = strsplit(currentNode,'____');
+possids = strcat(temp(end),'____',possnodes);
+
+possnodes(ismember(possids,fieldnames(ListNodes)))=[];
 
 %Split the remaining nodes into their target & characteristic
 temp = regexp(possnodes, '___', 'split');

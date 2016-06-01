@@ -15,13 +15,17 @@ function [Attributes] = MyAttributeCalcsMainBelt(Inputs, Parent, targetname, Att
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-Asteroids = Inputs.AdditionalInputs;
+Asteroids = Inputs.AdditionalInputs{1};
 
 %Check if the target is in the Asteroid class
 if ismember(targetname,fieldnames(Asteroids))
     
+    
     %Retrieve the cartesian coordiantes of the target at the arrival epoch
     [Attributes.r_arr, Attributes.v_body] = StardustTool.CartesianElementsAt(Asteroids.(targetname),Attributes.t_arr);
+    
+    %Save the body's orbital parameters
+    Attributes.kep_body = StardustTool.KeplerianElementsAt2(Asteroids.(targetname), Attributes.t_arr);
     
     %Find the departure time by subtracting the ToF from the arrival time
     Attributes.t_dep = Attributes.t_arr - Attributes.tof;
