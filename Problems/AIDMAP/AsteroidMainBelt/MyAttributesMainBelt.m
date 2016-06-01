@@ -6,6 +6,7 @@ classdef MyAttributesMainBelt
         dV_arr %dV needed at arrival
         dV_tot %total dV
         kep_trans %The keplerian elements describing the s/c orbit (the transfer)
+        kep_body %The keplerian elements of the body's orbit
         r_dep %departure r
         v_dep %departure velocity
         r_arr %arrival r
