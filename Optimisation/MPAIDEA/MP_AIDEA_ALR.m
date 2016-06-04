@@ -1549,38 +1549,38 @@ while nostop
         % -----------------------------------------------------------------
         % Random re-initialisation
         % -----------------------------------------------------------------
-%         if lElTooLow > 0
-%            InterPop(i,ElTooLow) = lb(ElTooLow) + rand(1,lElTooLow).*(ub(ElTooLow) - lb(ElTooLow));
-%         end
-%         
-%         if lElTooHigh > 0
-%            InterPop(i,ElTooHigh) = lb(ElTooHigh) + rand(1,lElTooHigh).*(ub(ElTooHigh) - lb(ElTooHigh));
-%         end
+        if lElTooLow > 0
+           InterPop(i,ElTooLow) = lb(ElTooLow) + rand(1,lElTooLow).*(ub(ElTooLow) - lb(ElTooLow));
+        end
+        
+        if lElTooHigh > 0
+           InterPop(i,ElTooHigh) = lb(ElTooHigh) + rand(1,lElTooHigh).*(ub(ElTooHigh) - lb(ElTooHigh));
+        end
         
         % -----------------------------------------------------------------
         % Bounce back re-initialisation
         % -----------------------------------------------------------------
-        while lElTooLow > 0
-
-            InterPop(i,ElTooLow) = ( popold(ElTooLow) + lb(ElTooLow) ) / 2;
-            
-            dInterPopl = InterPop(i,:) - lb;
-            popold(ElTooLow) = InterPop(i,ElTooLow);
-            ElTooLow  = find(dInterPopl < 0);
-            lElTooLow = length(ElTooLow);
-
-        end
-        
-        while lElTooHigh > 0
-
-            InterPop(i,ElTooHigh) = ( popold(ElTooHigh) + ub(ElTooHigh) ) / 2;
-            
-            dInterPopr = ub - InterPop(i,:);
-            popold(ElTooHigh) = InterPop(i,ElTooHigh);
-            ElTooHigh  = find(dInterPopr < 0);
-            lElTooHigh = length(ElTooHigh);
-
-        end
+%         while lElTooLow > 0
+% 
+%             InterPop(i,ElTooLow) = ( popold(ElTooLow) + lb(ElTooLow) ) / 2;
+%             
+%             dInterPopl = InterPop(i,:) - lb;
+%             popold(ElTooLow) = InterPop(i,ElTooLow);
+%             ElTooLow  = find(dInterPopl < 0);
+%             lElTooLow = length(ElTooLow);
+% 
+%         end
+%         
+%         while lElTooHigh > 0
+% 
+%             InterPop(i,ElTooHigh) = ( popold(ElTooHigh) + ub(ElTooHigh) ) / 2;
+%             
+%             dInterPopr = ub - InterPop(i,:);
+%             popold(ElTooHigh) = InterPop(i,ElTooHigh);
+%             ElTooHigh  = find(dInterPopr < 0);
+%             lElTooHigh = length(ElTooHigh);
+% 
+%         end
  
         
         
