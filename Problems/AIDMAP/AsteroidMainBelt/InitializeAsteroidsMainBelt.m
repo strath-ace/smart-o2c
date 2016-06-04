@@ -1,22 +1,15 @@
-%Find epochs of all asteroids
-close all; clear all; clc
+function [] = InitializeAsteroidsMainBelt(epoch_start,epoch_end,AsteroidsFileName,MatFileName,NameFile,epochsnodename,orbitcharsname)
 addpath(genpath('astro_tool'));
 
-AsteroidsFileName = 'InnerMainBelt.xlsx';
-MatFileName = 'InnerMainBelt.mat';
-NameFile = 'InnerMainBeltNames.txt';
-epochsnodename = 'InnerMainBeltEpochs.mat';
-orbitcharsname = 'InnerMainBeltOrbitChars.mat';
+%AsteroidsFileName = 'DiameterGreater150.xlsx';
+%MatFileName = 'MainBelt60Asteroids.mat';
+%NameFile = 'MainBelt60Names.txt';
+%epochsnodename = 'MainBelt60Epoch.mat';
+%orbitcharsname = 'MainBelt60OrbitChars.mat';
 
 [Asteroids] = EvaluateAsteroidsXLS(AsteroidsFileName,MatFileName,NameFile);
 
-epoch_start = '2030/01/01';
-epoch_end = '2050/01/01';
 decimalplaces = 2;
-
-
-epoch_start = date2mjd2000([datevec(epoch_start,'yyyy/mm/dd')]);
-epoch_end = date2mjd2000([datevec(epoch_end,'yyyy/mm/dd')]);
 
 asteroidnames = fieldnames(Asteroids);
 for i = 2:length(asteroidnames)
@@ -77,5 +70,7 @@ end
 %save('MNodes','Mnode1','Mnode2')
 save(epochsnodename,'epochsnode')
 save(orbitcharsname,'orbitchars')
+end
+
 
 

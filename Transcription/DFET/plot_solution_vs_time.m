@@ -1,4 +1,4 @@
-function plot_solution_vs_time(x,u,x_0,x_b,t_0,t_f,structure,varargin)
+function plot_solution_vs_time(x,u,x_0,x_b,t_0,t_f,els,structure,varargin)
 
 if ~isempty(varargin)
    
@@ -12,7 +12,7 @@ end
 
 t_plot = linspace(-1,1,100);    % points per elements, used just to plot
 
-real_els = t_0+structure.els*(t_f-t_0);
+real_els = t_0+els*(t_f-t_0);%t_0+structure.els*(t_f-t_0);
 
 tns = structure.s_nodes;
 tnc = structure.c_nodes;

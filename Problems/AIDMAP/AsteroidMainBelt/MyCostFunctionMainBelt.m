@@ -1,4 +1,4 @@
-function [toNode] = MyCostFunctionMainBelt(fromNode, toNode)
+function [toNode] = MyCostFunctionMainBelt(Inputs, fromNode, toNode)
 % This function calculates the cost of a certain connection.
 % It can be altered such that it is applicable to the problem at hand.
 %
@@ -25,10 +25,13 @@ mu = AstroConstants.Sun_Planetary_Const;
 
 %Save the departure coordinates
 toNode.attributes.r_dep = departure_r;
+toNode.attributes.v_dep = departure_v;
 
 %Retrieve the arrival coordinates
 arrival_r = toNode.attributes.r_arr;
 ToF = toNode.attributes.tof;
+
+if Inputs.AdditionalInputs{2} == 0
 [~,~,~,err,vel_initial,vel_final,~,~] = lambertMR(departure_r,      ... % Initial Vector Position
                                                   arrival_r,        ... % Final position vector
                                                   ToF*86400, ... % Time of flight [seconds]
@@ -44,12 +47,12 @@ ToF = toNode.attributes.tof;
                                                                                 ... % case of Nrev>0:
                                                                                 ... %   0: small-a option
                                                                                 ... %   1: large-a option
-                                                  2);                   % LambertMR options:
+                                                  0);                   % LambertMR options:
                                                                                     %   optionsLMR(1) = display options:
                                                                                     %     - 0: no display
                                                                                     %     - 1: warnings are displayed only when the algorithm does not converge
                                                                                     %     - 2: full warnings displayed
-if (err==1 || err==3 || err==4)
+if (err~=0)
     toNode.length = Inf;
     return
 end
@@ -119,6 +122,16 @@ curr_departure_orbit = CelestialBody('transfer_orbit',             ... % Name of
 toNode.attributes.kep_trans = curr_departure_orbit;
 
 toNode.length = deltaV_Total;
+else
+    error('The low-thrust functionality is currently not yet available.')
+    DepBody = StardustTool.KeplerianElementsAt2(fromNode.attributes.kep_trans, toNode.attributes.t_dep);
+    ArrBody = StardustTool.KeplerianElementsAt2(toNode.attributes.kep_body, toNode.attributes.t_arr);
+    TOF = toNode.attributes.tof;
+    t_dep = toNode.attributes.t_dep;
+    global mu_S
+    mu_S = mu;
+    
+    [thetaVec,R,Phi,u_mat,DV,isLoopConverged,cont,TPrime1,Ucart,Vcart] = SphericalShapingWithFSolve(DepBody,ArrBody,t_dep,TOF,1,1e-3,2*pi/200,0);
 end
 
 

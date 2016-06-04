@@ -26,6 +26,7 @@ end
 
 %Choose a random decision (node_ID)
 nodeindex = randi([1 length(posschildren)]);
+childID = posschildren{nodeindex};
 newnode_ID = strcat(exchild,'____',childID);
 
 

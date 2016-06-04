@@ -34,8 +34,12 @@ end
 %entire graph. 
 possnodes = Inputs.PossibleListNodes;
 
-%Remove the already existing nodes
-possnodes(ismember(possnodes,fieldnames(ListNodes)))=[];
+%%Remove the already existing nodes
+%Find the already existing children
+temp = strsplit(currentNode,'____');
+possids = strcat(temp(end),'____',possnodes);
+
+possnodes(ismember(possids,fieldnames(ListNodes)))=[];
 
 %Split the remaining nodes into their target & characteristic
 temp = regexp(possnodes, '___', 'split');
@@ -67,8 +71,8 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     %If no more decisions are possible, exit while loop and set
     %agentdeathflag to 1
     if isempty(possnodes)
-        disp(strcat(agent,' died'))
-         agentdeathflag = 1;
+       % disp(strcat(agent,' died'))
+       %  agentdeathflag = 1;
         break
     end
     

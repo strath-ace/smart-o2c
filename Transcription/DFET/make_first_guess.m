@@ -1,13 +1,42 @@
 function x = make_first_guess(f,x_0,t_0,t_f,u,structure)
 
-times = structure.in_nodes_state'*(t_f-t_0);
+% check format of u (changes if using just fmincon or MACS)
+
+if (size(u,1)*size(u,2))~=structure.num_controls*structure.num_elems*(structure.control_order+1)
+   
+    error('wrong number of control variables')
+    
+else % number of control variables is correct
+    
+    if size(u,2)>structure.num_controls % if ordering is not the expected matrix format but row vector
+      
+        % proper reshaping, good even for multi-elements, multi-controls
+      
+        u = reshape(u,structure.num_elems*(structure.control_order+1),structure.num_controls);
+        for i = 1:structure.num_elems
+            
+            for j = 1:structure.num_controls
+            
+                %uu(1+(structure.control_order+1)*(i-1):(structure.control_order+1)*i,j) = u((1+((structure.control_order+1))*(i-1))*j:(structure.control_order+1)*i*j)';
+            
+            end
+            
+        end
+        
+    end
+    
+    %u = uu;
+    
+end
+
+times = structure.uniform_in_nodes_state'*(t_f-t_0);
 times = times(:);   % arranges times as a vector
 
 % Clone Initial condition
-%x_temp = CloneIC(f,x_0,u,structure,times);
+x_temp = CloneIC(x_0,structure,times);
 
 % Explicit Euler
-x_temp = ExpEulContr(f,x_0,u,structure,times);
+%x_temp = ExpEulContr(f,x_0,u,structure,times);
 
 % if max(max(abs(x_temp)))>1e15
 %    
@@ -38,10 +67,7 @@ for i = 1:structure.num_elems
     end_pos = start_pos+structure.num_controls*(structure.control_order+1)-1;
     
     x(start_pos:end_pos) = reshape(u(1+(structure.control_order+1)*(i-1):(structure.control_order+1)*i,:),(structure.control_order+1)*structure.num_controls,1);
-    
-    % BUG!!!! WHEN THERE'S MORE THAN ONE CONTROL THIS IS WRONG
-    %x(start_pos:end_pos) = u(1+(structure.control_order+1)*structure.num_controls*(i-1):(structure.control_order+1)*structure.num_controls*i);
-    
+        
     start_pos = end_pos+1;
     
 end
