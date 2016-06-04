@@ -11,17 +11,35 @@ end
 
 correctnames(1) = txt(1,end);
 
+containsnum = 0;
+%Check if any target names start with a number
+for i = 1:length(txt)
+    firstchar = txt{i}(1);
+    firstcharnum = str2num(firstchar);
+    if (~isempty(firstcharnum))
+        containsnum = 1;
+    end
+end
+
 %Make sure asteroid names have the correct format (letter first, only
 %numbers and letters in the name)
 for i = 2:length(txt)
     currentname = char(txt(i,end));
     if isempty(strfind(currentname,'('))
         splittedname = strsplit(currentname,' ');
-        correctnames{i} = strcat('a',splittedname(end));
+        if containsnum == 1
+            correctnames{i} = strcat('a',splittedname(end));
+        else
+            correctnames{i} = splittedname(end);
+        end
     else
         splittedname = strsplit(currentname,'(');
         splittedname2 = char(splittedname(end));
-        correctnames{i} = strcat('a',strrep(strrep(splittedname2(1:end-1),' ',''),'-',''));        
+        if containsnum == 1
+            correctnames{i} = strcat('a',strrep(strrep(splittedname2(1:end-1),' ',''),'-',''));
+        else
+            correctnames{i} = strrep(strrep(splittedname2(1:end-1),' ',''),'-','');
+        end
     end
 end
 

@@ -1,4 +1,4 @@
-function [F,J] = eval_constraints(f,structure,x,x_0,x_f,t_0,t_f,calc_jac,varargin)
+function [F,J] = eval_constraints(f,structure,x,x_0,x_f,t_0,t_f,els,calc_jac,varargin)
 
 dfx = varargin{1};
 dfu = varargin{2};
@@ -15,8 +15,8 @@ end
 
 F = zeros(size(structure.M,1),1);
 
-ee1 = structure.els(:,1)*(t_f-t_0);
-ee2 = structure.els(:,2)*(t_f-t_0);
+ee1 = els(:,1)*(t_f-t_0);%structure.els(:,1)*(t_f-t_0);
+ee2 = els(:,2)*(t_f-t_0);%structure.els(:,2)*(t_f-t_0);
 
 loc_state = zeros((structure.state_order+1)*structure.num_eqs,structure.num_elems);
 loc_u = zeros((structure.control_order+1)*structure.num_controls,structure.num_elems);
@@ -256,7 +256,17 @@ x_only = loc_state(:);
 
 if structure.DFET==1
     
-    x_only = [x_only;x(end-structure.num_free_states+1:end)];
+    if size(x,1)==1
+       
+        xx = x(end-structure.num_free_states+1:end)';
+        
+    else
+        
+        xx = x(end-structure.num_free_states+1:end);
+        
+    end
+    
+    x_only = [x_only;xx];
     
 end
 
@@ -278,7 +288,7 @@ if calc_jac
             
             x_v = x;
             x_v(i) = x_v(i)+0.000001;
-            F_temp = eval_constraints(f,structure,x_v,x_0,x_f,t_0,t_f,0,dfx,dfu);
+            F_temp = eval_constraints(f,structure,x_v,x_0,x_f,t_0,t_f,els,0,dfx,dfu);
             J(:,i) = (F_temp-F)/0.000001;
             
         end

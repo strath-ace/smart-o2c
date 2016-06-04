@@ -21,7 +21,7 @@ check2 = isempty(strmatch(newnode_ID, fields(generatednodes), 'exact'));
 %attribute
 
 %Extract child node
-temp = strsplit(newnode_ID,'____');
+temp = strsplit(char(newnode_ID),'____');
 childnode = temp{2};
 
 %Find the attributes put in the ID

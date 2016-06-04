@@ -14,7 +14,8 @@ function [] = PhysarumTreePlot(ListNodes)
 nodenames = fieldnames(ListNodes);
 
 if (length(fieldnames(ListNodes))==1)
-    error('No chains have been found');
+    disp('No chains have been found');
+    return
 end
 
 %Loop over all the nodes
