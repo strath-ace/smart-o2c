@@ -6,7 +6,7 @@ clear all; close all; clc
 
 %To do:
 %Check agent previous decisions - 2x start?
-%Change encoding (make __ into _ and ___ to __)
+%FInd alternative for possnodes = [] line
 
 
 %Add the path
@@ -15,11 +15,11 @@ addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
 %Define the files names for the initialisation
-filenames.AsteroidsFileName = 'AsteroidMainBelt/InputFiles/DiameterGreater150.xlsx';
-filenames.MatFileName = 'AsteroidMainBelt/InputFiles/MainBelt60Asteroids.mat';
-filenames.NameFile = 'AsteroidMainBelt/InputFiles/MainBelt60Names.txt';
-filenames.epochsnodename = 'AsteroidMainBelt/InputFiles/MainBelt60Epoch.mat';
-filenames.orbitcharsname = 'AsteroidMainBelt/InputFiles/MainBelt60OrbitChars.mat';
+filenames.AsteroidsFileName = 'AsteroidMainBelt/InputFiles/DiameterGreater10km.xlsx';
+filenames.MatFileName = 'AsteroidMainBelt/InputFiles/MainBelt10Asteroids.mat';
+filenames.NameFile = 'AsteroidMainBelt/InputFiles/MainBelt10Names.txt';
+filenames.epochsnodename = 'AsteroidMainBelt/InputFiles/MainBelt10Epoch.mat';
+filenames.orbitcharsname = 'AsteroidMainBelt/InputFiles/MainBelt10OrbitChars.mat';
 
 %epoch_start = [10957.5,11016.5,11077.5,11138.5,11200.5,11261.5,];
 %epoch_end = [18262.5,18321.5,18382.5,18443.5,18505.5,18566.5];
@@ -42,7 +42,7 @@ clearvars -except startmeananomalies p q startorbit filenames epoch_start epoch_
 
 %Create a diary for this iteration
 %diary on
-diaryfilename = strcat(['AsteroidMainBelt/Results/150km/EllipticalStart/MaxdV5/DiaryMainBelt60_M',num2str(startmeananomalies(q)),'Start',strrep(num2str(epoch_start(p)),'.','_'),'_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+diaryfilename = strcat(['AsteroidMainBelt/Results/10km/EllipticalStart/MaxdV5/DiaryMainBelt60_M',num2str(startmeananomalies(q)),'Start',strrep(num2str(epoch_start(p)),'.','_'),'_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
 diary(diaryfilename)
 
 %Initialize the asteroid main belt problem
@@ -85,7 +85,7 @@ options.MaxConsecutiveRes = 0*ones(1, length(options.Targets)); %The maximum num
 options.MaxVisits = 1*ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 startorbit(7)];                                %Attributes of the root  
-options.NodeCheckBoundaries = [1 0.31 2 2*365 12];                   %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
+options.NodeCheckBoundaries = [1 0.31 2 2*365 5];                   %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
 fitnessfcn = @MyCostFunctionMainBelt;                                   %The function reference to the cost function
 options.NodeAttributes = @MyAttributesMainBelt;                         %The class that contains the node attributes
 options.MyAttributeCalcFile = @MyAttributeCalcsMainBelt;                %The file that does the additonal calculations wrt the attributes
@@ -107,7 +107,7 @@ options.AdditonalInputs{2} = 0;                                 %Set to 1 for LT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 10:30:2*365;             %Set the value of the sets. 
+tofvalues = 100:30:1.7*365;             %Set the value of the sets. 
 sets.tof = mat2cell(ones(length(options.Targets),1)... %Input should be a cell array where each line depicts a target.
    *tofvalues,[ones(length(options.Targets),1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
@@ -155,12 +155,12 @@ end
 %         Save the result          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %for i = 1:length(BestSolution)
-    filename = strcat(['AsteroidMainBelt/Results/150km/EllipticalStart/MaxdV5/MainBelt60_M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+    filename = strcat(['AsteroidMainBelt/Results/10km/EllipticalStart/MaxdV5/MainBelt60_M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
     SaveTrajectorySolution(BestSolution{1},output.ListNodes,strcat(filename));
     %SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 %end
 
-save(strcat('AsteroidMainBelt/Results/150km/EllipticalStart/MaxdV5/MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));
+save(strcat('AsteroidMainBelt/Results/10km/EllipticalStart/MaxdV5/MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));
 diary off
 
 end

@@ -38,7 +38,7 @@ options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum ca
     'neo2015DR215', 'neo2015ME131'}; 
 options.MaxConsecutiveRes = 1*ones(1, length(options.Targets)); %The maximum number of resonance orbits to each target (set to -1 to ignore)
 options.MaxVisits = ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
-options.AttributeIDIndex = [11 10];                             %Index of the attributes that determine the unique ID
+options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 7304.5];                                %Attributes of the root  
 options.NodeCheckBoundaries = [3 0.31 2 2*365];                 %The values used by the MyCreatedNodeCheck file.  In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]
 fitnessfcn = @MyCostFunction;                                   %The function reference to the cost function

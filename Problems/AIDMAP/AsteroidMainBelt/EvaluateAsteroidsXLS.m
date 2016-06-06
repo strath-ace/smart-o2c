@@ -25,21 +25,10 @@ end
 %numbers and letters in the name)
 for i = 2:length(txt)
     currentname = char(txt(i,end));
-    if isempty(strfind(currentname,'('))
-        splittedname = strsplit(currentname,' ');
-        if containsnum == 1
-            correctnames{i} = strcat('a',splittedname(end));
-        else
-            correctnames{i} = splittedname(end);
-        end
+    if containsnum == 1
+        correctnames{i} = strcat('a',strrep(strrep(currentname,' ',''),'-',''));
     else
-        splittedname = strsplit(currentname,'(');
-        splittedname2 = char(splittedname(end));
-        if containsnum == 1
-            correctnames{i} = strcat('a',strrep(strrep(splittedname2(1:end-1),' ',''),'-',''));
-        else
-            correctnames{i} = strrep(strrep(splittedname2(1:end-1),' ',''),'-','');
-        end
+        correctnames{i} = strrep(strrep(currentname(1:end-1),' ',''),'-','');
     end
 end
 
