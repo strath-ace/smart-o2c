@@ -75,7 +75,7 @@ options.Generations = 2;                                       %The number of ge
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
-options.MaxChildFindAttempts = 1e5;
+options.MaxChildFindAttempts = 1e4;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
@@ -85,7 +85,7 @@ options.MaxConsecutiveRes = 0*ones(1, length(options.Targets)); %The maximum num
 options.MaxVisits = 1*ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 startorbit(7)];                                %Attributes of the root  
-options.NodeCheckBoundaries = [1 0.31 2 2*365 5];                   %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
+options.NodeCheckBoundaries = [1 0.31 2 1.5*365 5];                   %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
 fitnessfcn = @MyCostFunctionMainBelt;                                   %The function reference to the cost function
 options.NodeAttributes = @MyAttributesMainBelt;                         %The class that contains the node attributes
 options.MyAttributeCalcFile = @MyAttributeCalcsMainBelt;                %The file that does the additonal calculations wrt the attributes
