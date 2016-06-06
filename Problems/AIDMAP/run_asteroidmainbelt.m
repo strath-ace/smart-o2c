@@ -6,6 +6,7 @@ clear all; close all; clc
 
 %To do:
 %Check agent previous decisions - 2x start?
+%Change encoding (make __ into _ and ___ to __)
 
 
 %Add the path
@@ -41,7 +42,7 @@ clearvars -except startmeananomalies p q startorbit filenames epoch_start epoch_
 
 %Create a diary for this iteration
 %diary on
-diaryfilename = strcat(['AsteroidMainBelt/Results/EllipticalStart/MaxdV5/DiaryMainBelt60_M',num2str(startmeananomalies(q)),'Start',strrep(num2str(epoch_start(p)),'.','_'),'_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+diaryfilename = strcat(['AsteroidMainBelt/Results/150km/EllipticalStart/MaxdV5/DiaryMainBelt60_M',num2str(startmeananomalies(q)),'Start',strrep(num2str(epoch_start(p)),'.','_'),'_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
 diary(diaryfilename)
 
 %Initialize the asteroid main belt problem
@@ -63,14 +64,14 @@ disp(char(strcat('Current Start Date:',{' '},num2str(epoch_start(p)))));
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-1;                                 %Growth factor 'GF'
-options.NumberOfAgents = 20;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 3;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 20;                                %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 1;                                     %The starting radius of the veins
 options.RamificationAmount = 3;                                 %The number of nodes initially generated for the ramification
-options.Generations = 20;                                       %The number of generations
+options.Generations = 2;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
@@ -84,7 +85,7 @@ options.MaxConsecutiveRes = 0*ones(1, length(options.Targets)); %The maximum num
 options.MaxVisits = 1*ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 startorbit(7)];                                %Attributes of the root  
-options.NodeCheckBoundaries = [1 0.31 2 1.5*365 5];                   %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
+options.NodeCheckBoundaries = [1 0.31 2 2*365 12];                   %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
 fitnessfcn = @MyCostFunctionMainBelt;                                   %The function reference to the cost function
 options.NodeAttributes = @MyAttributesMainBelt;                         %The class that contains the node attributes
 options.MyAttributeCalcFile = @MyAttributeCalcsMainBelt;                %The file that does the additonal calculations wrt the attributes
@@ -106,7 +107,7 @@ options.AdditonalInputs{2} = 0;                                 %Set to 1 for LT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 10:30:1.7*365;             %Set the value of the sets. 
+tofvalues = 10:30:2*365;             %Set the value of the sets. 
 sets.tof = mat2cell(ones(length(options.Targets),1)... %Input should be a cell array where each line depicts a target.
    *tofvalues,[ones(length(options.Targets),1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
@@ -154,12 +155,12 @@ end
 %         Save the result          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %for i = 1:length(BestSolution)
-    filename = strcat(['AsteroidMainBelt/Results/EllipticalStart/MaxdV5/MainBelt60_M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+    filename = strcat(['AsteroidMainBelt/Results/150km/EllipticalStart/MaxdV5/MainBelt60_M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
     SaveTrajectorySolution(BestSolution{1},output.ListNodes,strcat(filename));
     %SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 %end
 
-save(strcat('AsteroidMainBelt/Results/EllipticalStart/MaxdV5/MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));
+save(strcat('AsteroidMainBelt/Results/150km/EllipticalStart/MaxdV5/MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));
 diary off
 
 end

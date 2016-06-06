@@ -12,8 +12,8 @@ Asteroids = Sequence';
 dV_tot = 0;
 for i = 2:length(Asteroids)
 %Find asteroid names
-asteroidsplit = strsplit(Asteroids{i},'____');
-asteroidnamesplit = strsplit(char(asteroidsplit(2)),'___');
+asteroidsplit = strsplit(Asteroids{i},'___');
+asteroidnamesplit = strsplit(char(asteroidsplit(2)),'__');
 asteoroidname = asteroidnamesplit{1};
 AsteroidsNames= char(asteoroidname);
 
@@ -41,6 +41,6 @@ end
 fprintf(fid,'-----------------------------------------------------------------------------------------------\n');
 fprintf(fid,'%12s\t%12.4f\t%12s\t%12.4f\t%12s\t\t\t\t\t\t\t%8.2f\n','Total:',[],[],[],[],dV_tot);
 % fprintf(fid,formatspec,char(AsteroidsNames),lambertdepdate,lamberttof,lamberttof,lambertarrdate,dV)
-
+fid = fclose(filename);
 end
 

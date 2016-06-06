@@ -31,8 +31,8 @@ for i = evalnum(1):evalnum(end)
              plot3(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),'ko');
         end
         
-        temp = strsplit(depnode.node_ID,'____');
-        temp = strsplit(char(temp(end)),'___');
+        temp = strsplit(depnode.node_ID,'___');
+        temp = strsplit(char(temp(end)),'__');
         deptarget = temp(1);
         txt{i}(j) = text(depnode.attributes.r_arr(1),depnode.attributes.r_arr(2),depnode.attributes.r_arr(3),deptarget);
         
@@ -50,8 +50,8 @@ for i = evalnum(1):evalnum(end)
             end
              plot3(arrnode.attributes.r_arr(1),arrnode.attributes.r_arr(2),arrnode.attributes.r_arr(3),'rx');
              
-             temp = strsplit(arrnode.node_ID,'____');
-             temp = strsplit(char(temp(end)),'___');
+             temp = strsplit(arrnode.node_ID,'___');
+             temp = strsplit(char(temp(end)),'__');
             arrtarget = temp(1);
              
              txt{i+1}(j+1) = text(arrnode.attributes.r_arr(1),arrnode.attributes.r_arr(2),arrnode.attributes.r_arr(3),arrtarget);

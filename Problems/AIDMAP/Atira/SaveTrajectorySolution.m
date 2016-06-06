@@ -12,8 +12,8 @@ Asteroids = Sequence';
 dV_tot = 0;
 for i = 2:length(Asteroids)
 %Find asteroid names
-asteroidsplit = strsplit(Asteroids{i},'____');
-asteroidnamesplit = strsplit(char(asteroidsplit(2)),'___');
+asteroidsplit = strsplit(Asteroids{i},'___');
+asteroidnamesplit = strsplit(char(asteroidsplit(2)),'__');
 asteoroidname = asteroidnamesplit{1};
 AsteroidsNames= char(asteoroidname);
 

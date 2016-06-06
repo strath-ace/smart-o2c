@@ -13,7 +13,7 @@ function [newnode_ID,nodeindex] = ChooseNode(currentNode,posschildren)
 % Email:  aram.vroom@strath.ac.uk
 
 %Split the ID of the curren node
-temp = strsplit(currentNode,'____');
+temp = strsplit(currentNode,'___');
 
 %Find the current target + ID attributes. If the current node is the root, 
 %the length of the temp vector is 1, and the current node is therefore the root. 
@@ -27,7 +27,7 @@ end
 %Choose a random decision (node_ID)
 nodeindex = randi([1 length(posschildren)]);
 childID = posschildren{nodeindex};
-newnode_ID = strcat(exchild,'____',childID);
+newnode_ID = strcat(exchild,'___',childID);
 
 
 end

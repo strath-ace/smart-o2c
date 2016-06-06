@@ -1,4 +1,4 @@
-function [toNode] = MyCostFunction(fromNode, toNode)
+function [toNode] = MyCostFunction(Inputs, fromNode, toNode)
 % This function calculates the cost of a certain connection.
 % It can be altered such that it is applicable to the problem at hand.
 %

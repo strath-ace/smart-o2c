@@ -46,13 +46,13 @@ possnodes = Inputs.PossibleListNodes;
 
 %Remove the already existing nodes
 %Find the already existing children
-temp = strsplit(currentNode,'____');
-possids = strcat(temp(end),'____',possnodes);
+temp = strsplit(currentNode,'___');
+possids = strcat(temp(end),'___',possnodes);
 
 possnodes(ismember(possids,fieldnames(ListNodes)))=[];
 
 %Split the remaining nodes into their target & characteristic
-temp = regexp(possnodes, '___', 'split');
+temp = regexp(possnodes, '__', 'split');
 [temp]=cat(1, temp{:});
 
 %Next, retrieve the decisions possible in this node
@@ -100,7 +100,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     possnodes(nodeindex) = [];
     
     %Check if the node is valid based on the UID
-    [validflag] = Inputs.NodeIDCheckFile(ListNodes,newnode_ID,currentNode,generatednodes);
+    [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode,generatednodes);
    
     %Confirm that node doesn't already exist
     if (validflag)

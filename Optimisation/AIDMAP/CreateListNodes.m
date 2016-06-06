@@ -22,15 +22,15 @@ function [ListNodes] = CreateListNodes(Inputs)
 rootattribstr = [];
 for i = 1:(length(Inputs.RootAttrib)*2-1)
     if rem(i,2)
-        rootattribstr = strcat(rootattribstr,num2str(Inputs.RootAttrib((i+1)/2)));
+        rootattribstr = strcat(rootattribstr,'0'); %strcat(rootattribstr,num2str(Inputs.RootAttrib((i+1)/2)));
     else
-        rootattribstr = strcat(rootattribstr,'__');
+        rootattribstr = strcat(rootattribstr,'_');
     end
 end
 
-rootattribstr = strrep(rootattribstr,'.','_');
+%rootattribstr = strrep(rootattribstr,'.','_');
 
-rootID = strcat(Inputs.RootName,'___',rootattribstr);
+rootID = strcat(Inputs.RootName,'__',rootattribstr);
 
 %Create the ListNodes structure
 ListNodes = struct(struct(rootID,   ...
@@ -41,7 +41,7 @@ ListNodes = struct(struct(rootID,   ...
                          'radius',            [],... % The radius of each connection
                          'length',           [],... % The length of each connection
                          'flux',            [],... % Matrix containing each connection's flux
-                         'attributes',      [SetNodeAttributes(Inputs,[],Inputs.RootName,Inputs.RootAttrib)],... % Attributes that describe this node (such as orbital elements & ToF .)
+                         'attributes',      [SetNodeAttributes(Inputs,[],Inputs.RootName,zeros(1,length(Inputs.RootAttrib)))],... % Attributes that describe this node (such as orbital elements & ToF .)
                          'previousdecisions', [],... % List of the previous decisions made
                          'possibledecisions', {Inputs.PossibleDecisions}, ... % Targets that can still be visisted by the node
                          'VisitsLeft',        {Inputs.MaxVisits} ... % Vector containing the number of times each target cna still be visisted

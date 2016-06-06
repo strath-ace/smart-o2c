@@ -1,4 +1,4 @@
-function [validflag] = MyNodeCheck(ListNodes,newnode_ID,currentNode,generatednodes)
+function [validflag] = MyNodeCheck(Inputs, ListNodes,newnode_ID,currentNode,generatednodes)
 % This function checks the validity of the node to be created using the unique ID 
 %
 % Inputs:
@@ -21,26 +21,30 @@ check2 = isempty(strmatch(newnode_ID, fields(generatednodes), 'exact'));
 %attribute
 
 %Extract child node
-temp = strsplit(char(newnode_ID),'____');
+temp = strsplit(newnode_ID,'___');
 childnode = temp{2};
 
-%Find the attributes put in the ID
-temp = strsplit(childnode,'___');
+temp = strsplit(childnode,'__');
 attribs = temp{2};
+temp = strsplit(char(attribs),'_');
 
-%Find the chosen ToF & t_arr
-temp = strsplit(char(attribs),'__');
-chosentof = str2double(strrep(temp(1),'_','.'));
-chosent_arr = str2double(strrep(temp(2),'_','.'));
+asteroidindex = sscanf(temp{1},'%i');
+tofindex = sscanf(temp{2},'%i');
+t_arrindex = sscanf(temp{3},'%i');
 
-%Obtain the parent's t_arr
+chosentof = Inputs.Sets.tof{asteroidindex}(tofindex);
+chosent_arr = Inputs.Sets.epochsnode{asteroidindex}(t_arrindex);
+
 parentt_arr = ListNodes.(char(currentNode)).attributes.t_arr;
 
-%Check departure time isn't before the current time
+
 check3 = (chosent_arr - chosentof > parentt_arr);
 
 
+
+
 validflag = check2*check3;            
+       
 
 end
 
