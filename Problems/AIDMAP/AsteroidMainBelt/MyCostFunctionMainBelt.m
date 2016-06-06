@@ -76,7 +76,12 @@ deltaV_Total     = deltaV_Departure;
 
 %Save found dV in node attributes
 toNode.attributes.dV_dep = dv1;
-toNode.attributes.dV_tot = deltaV_Total;
+toNode.attributes.dV_sum = deltaV_Total;
+if isempty(fromNode.attributes.dV_tot)
+    toNode.attributes.dV_tot = deltaV_Total;
+else
+    toNode.attributes.dV_tot = fromNode.attributes.dV_tot + deltaV_Total; 
+end
             
 % ==========================================================================================                                                                        
 % MARILENA
