@@ -96,6 +96,8 @@ if isempty(problist)
     %generated nodes), set the death flag to 1
     agentdeathflag = 1;
     
+    disp('Probability list is empty');
+    
     %Save the solution
     Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.((char(agent))).currentNode}]}];   
     Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
@@ -130,8 +132,8 @@ else
 end
 
 %Find the current target
-temp = strsplit(currentnode,'____');
-temp = strsplit(temp{end},'___');
+temp = strsplit(currentnode,'___');
+temp = strsplit(temp{end},'__');
 currenttarget = temp{1};
 
 % %Check if the final target has been reached

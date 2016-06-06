@@ -48,13 +48,15 @@ options.MyNodeIDCheck = @MyNodeCheck;                           %The function th
 options.MyCreatedNodeCheck = @MyCreatedNodeCheck;               %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
 options.MyBestChainFile = @MyBestChain;
 options.EndTarget = {};
+options.MyEndConditionsFile = @MyEndConditions;
+options.EndConditions = {{}};                                     %For use in the MyEndCondtions file
 options.RootName = 'Earth';
 options.AdditonalInputs = {'a'};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 30:5:365;             %Set the value of the sets. 
+tofvalues = 200:10:365;             %Set the value of the sets. 
 sets.tof = mat2cell(ones(16,1)... %Input should be a cell array where each line depicts a target.
    *tofvalues,[ones(16,1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);

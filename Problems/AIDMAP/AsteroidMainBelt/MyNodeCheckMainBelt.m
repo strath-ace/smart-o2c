@@ -1,4 +1,4 @@
-function [validflag] = MyNodeCheck(ListNodes,newnode_ID,currentNode,generatednodes)
+function [validflag] = MyNodeCheck(Inputs,ListNodes,newnode_ID,currentNode,generatednodes)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -9,14 +9,19 @@ check2 = isempty(strmatch(newnode_ID, fields(generatednodes), 'exact'));
 %attribute
 
 %Extract child node
-temp = strsplit(newnode_ID,'____');
+temp = strsplit(newnode_ID,'___');
 childnode = temp{2};
 
-temp = strsplit(childnode,'___');
+temp = strsplit(childnode,'__');
 attribs = temp{2};
-temp = strsplit(char(attribs),'__');
-chosentof = str2double(strrep(temp(1),'_','.'));
-chosent_arr = str2double(strrep(temp(2),'_','.'));
+temp = strsplit(char(attribs),'_');
+
+asteroidindex = sscanf(temp{1},'%i');
+tofindex = sscanf(temp{2},'%i');
+t_arrindex = sscanf(temp{3},'%i');
+
+chosentof = Inputs.Sets.tof{asteroidindex}(tofindex);
+chosent_arr = Inputs.Sets.epochsnode{asteroidindex}(t_arrindex);
 
 parentt_arr = ListNodes.(char(currentNode)).attributes.t_arr;
 
