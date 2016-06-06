@@ -33,7 +33,7 @@ lambertarrdate2000 = ListNodes.(Sequence{i}).attributes.t_arr;
 lambertarrdate = datestr(mjd20002date(lambertarrdate2000),'yyyy/mm/dd');
 
 %dV [km/s]
-dV = ListNodes.(Sequence{i}).attributes.dV_tot;
+dV = ListNodes.(Sequence{i}).attributes.dV_sum;
 dV_tot = dV_tot+dV;
 fprintf(fid,formatspec,AsteroidsNames,waitingtime,lambertdepdate,lamberttof,lambertarrdate,dV);
 end

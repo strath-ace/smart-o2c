@@ -68,8 +68,7 @@ warning('off','MATLAB:catenate:DimensionMismatch');
 %Start loop to generate the desired number of nodes
 while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     
-    %If no more decisions are possible, exit while loop and set
-    %agentdeathflag to 1
+    %If no more decisions are possible, exit while loop
     if isempty(possnodes)
        % disp(strcat(agent,' died'))
        %  agentdeathflag = 1;
