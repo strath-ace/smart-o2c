@@ -28,8 +28,8 @@ currentnode = char(Agents.(currentagent).currentNode);
 disp(strcat([datestr(now),' === Moved to',' ',currentnode]));
 
 %Find the current target
-temp = strsplit(currentnode,'____');
-temp = strsplit(temp{end},'___');
+temp = strsplit(currentnode,'___');
+temp = strsplit(temp{end},'__');
 currenttarget = temp{1};
 
 %Check if the final target has been reached

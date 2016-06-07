@@ -26,9 +26,13 @@ currentagent = char(agent);
 currentnode = char(Agents.(currentagent).currentNode);
 disp(strcat([datestr(now),' === Moved to',' ',currentnode]));
 
+%Check end conditions
+continueflag = Inputs.EndConditionsFile(Inputs,Agents,agent);
 
-%Sanity check #1
-if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
+%Stop agent if end conditions reached or no more options
+if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0) || continueflag == 0)
+    
+    disp('End Conditions Reached')
     
     %If there are no more possible decisions or visists left, set the death
     %flag to 1
@@ -39,6 +43,8 @@ if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(curr
     Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
     return
 end
+
+
 
 %Generate a random number and retreive the ramification probability
 p = rand;
@@ -90,6 +96,8 @@ if isempty(problist)
     %generated nodes), set the death flag to 1
     agentdeathflag = 1;
     
+    disp('Probability list is empty');
+    
     %Save the solution
     Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.((char(agent))).currentNode}]}];   
     Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
@@ -124,21 +132,21 @@ else
 end
 
 %Find the current target
-temp = strsplit(currentnode,'____');
-temp = strsplit(temp{end},'___');
+temp = strsplit(currentnode,'___');
+temp = strsplit(temp{end},'__');
 currenttarget = temp{1};
 
-%Check if the final target has been reached
-if  ~(sum(ismember(currenttarget, Inputs.EndTarget))==0)
-    %If so, set the agentdeathflag to 1
-    agentdeathflag = 1;
-    
-    %Save the solution
-    Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.((char(agent))).currentNode}]}];   
-    Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
-    return 
-end
-    
+% %Check if the final target has been reached
+% if  ~(sum(ismember(currenttarget, Inputs.EndTarget))==0)
+%     %If so, set the agentdeathflag to 1
+%     agentdeathflag = 1;
+%     
+%     %Save the solution
+%     Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.((char(agent))).currentNode}]}];   
+%     Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
+%     return 
+% end
+%     
 %Move the agent to the chosen node
 Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
 Agents.(currentagent).currentNode = chosennode;
