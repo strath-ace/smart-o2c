@@ -324,7 +324,7 @@ while sum(nFeVal) < nFeValMax
                              nFeValMax,...              % Maximum number of functions evaluations
                              varargin{:});
                 
-%                          
+%                      keyboard    
 %                  if options.text
 %                      disp('---------------------------------------------------------------------------------------')
 %                      disp('END OF DIFFERENTIAL EVOLUTION - CONTRACTION OF POPULATION')
@@ -334,7 +334,8 @@ while sum(nFeVal) < nFeValMax
 %                  end
                       
                 % Save population and other parameters of the population
-                population_evolution{i_pop_number} = [population_evolution{i_pop_number}; pop(:,:,i_pop_number)];         
+                population_evolution{i_pop_number} = [population_evolution{i_pop_number}; pop(:,:,i_pop_number)];  
+%                 keyboard
                 vval_evolution{i_pop_number}       = [vval_evolution{i_pop_number};       vval_DE];
                 
                 % ---------------------------------------------------------
@@ -1169,6 +1170,7 @@ while sum(nFeVal) < nFeValMax
             % and local restart are realized
             % - the population is only one and its number of local restart
             % is below the maximum number
+
             if (pop_number>1 && ~exist('warning_LS','var') ) || (exist('warning_LS','var') && warning_LS(i_pop_number) ~= 1) || ...
                (pop_number == 1 && inite(1,i_pop_number) < options.max_LR)
                 
@@ -1201,7 +1203,7 @@ while sum(nFeVal) < nFeValMax
                 % Global restart is performed also when population is only
                 % 1 and the maximum number of local restart has been
                 % reached for that population
-            elseif (exist('warning_LS','var') && warning_LS == 1) || ...
+            elseif (exist('warning_LS','var') && warning_LS(i_pop_number) == 1) || ...
                    (pop_number == 1  && inite(1,i_pop_number) >= options.max_LR)
                 
                 
