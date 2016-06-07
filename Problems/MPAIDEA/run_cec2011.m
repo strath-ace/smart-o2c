@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Example of run of optimisation problem of CEC 2005 using MP-AIDEA
+% Example of run of optimisation problem of CEC 2011 using MP-AIDEA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all
@@ -10,20 +10,28 @@ clc
 addpath(genpath('..\..\Optimisation'))
 
 % Add path to problem folder
-addpath(genpath('CEC2005'))
+addpath(genpath('CEC2011'))
 
-% Add global variable required by CEC 2005 test functions
-global initial_flag
-initial_flag = 0;
 
-%% Choose the CEC 2014 problem
 
-% Number of the function to optimise. The CEC 2014 competition includes 30
-% test functions. func_num must be betwen 1 and 30
-func_num = 12;
+%% Choose the CEC 2011 problem 
 
-% Dimension of the problem - Choose between 10, 30, 50 and 100 dimensions
-D = 10;
+% Only problem without equality and disequality contraints can be tested using
+% MP-AIDEA. The possible problems are: 1, 2, 3, 5, 6, 7, 10, 12, 13
+
+% Number of the function to optimise. Uncomment one of the following lines:
+% func_num = 1;
+% func_num = 2;
+% func_num = 3;
+% func_num = 5;
+% func_num = 6;
+% func_num = 7;
+func_num = 10;
+% func_num = 12;
+% func_num = 13;
+
+
+
 
 
 %% Set the parameters for MP-AIDEA
@@ -36,7 +44,7 @@ pop_number = 4;
 % -------------------------------------------------------------------------
 % Number of individuals in each population
 % -------------------------------------------------------------------------
-NP = 10;
+NP = 30;
 
 % -------------------------------------------------------------------------
 % Dimension of the bubble for the local restart. If empty, MP-AIDEA will
@@ -106,11 +114,81 @@ options.dd_CRF = 3;
 options.text = 1;
 
 
-%% CEC 2014 guidelines
+%% Lower and upper boundaries and dimension of the problem
 
-% Lower and upper boundaries of the search space
-UB =  100*ones(1,D);
-LB = -100*ones(1,D);
+% Dimension of the problem - The dimension of the problem and the lower and
+% upper boundaries depend on the given problem
+switch func_num
+    
+    case 1
+        D = 6;
+        LB = -6.4 * ones(1,D);
+        UB = 6.35 * ones(1,D);
+        
+    case 2
+        D = 30;
+        UB = [4 4 pi ];
+        LB = [0 0 0];
+        for coord = 4 : D
+            UB(coord) = 4 + 0.25 * (coord - 4)/3;
+            LB(coord) = - 4 - 0.25 * (coord - 4)/3;
+        end
+        
+    case 3
+        D = 1;
+        LB = 0.6 * ones(1,D);
+        UB = 0.9 * ones(1,D);
+        
+    case 5
+        D = 30;
+        UB = [4 4 pi ];
+        LB = [0 0 0];
+        
+        for coord = 4 : D
+            UB(coord) = 4 + 0.25 * (coord - 4)/3;
+            LB(coord) = - 4 - 0.25 * (coord - 4)/3;
+        end
+        
+    case 6
+        D = 30;
+        
+        UB = [4 4 pi ];
+        LB = [0 0 0];
+        
+        for coord = 4 : D
+            UB(coord) = 4 + 0.25 * (coord - 4)/3;
+            LB(coord) = - 4 - 0.25 * (coord - 4)/3;
+        end
+        
+    case 7
+        D = 20;
+        
+        LB = 0 * ones(1,D);
+        UB = 2*pi * ones(1,D);
+        
+    case 10
+        D = 12;
+        
+        LB = [0.2*ones(1,D/2) -180*ones(1,D/2)];
+        UB = [1*ones(1,D/2) 180*ones(1,D/2)];
+                
+    case 12
+        D = 26;
+        
+        LB = [1900 2.5  0 0 100 100 100 100 100 100 0.01 0.01 0.01 0.01 0.01 0.01 ...
+              1.1 1.1 1.05 1.05 1.05 -pi -pi -pi -pi -pi];
+        UB = [2300 4.05 1 1 500 500 500 500 500 600 0.99 0.99 0.99 0.99 0.99 0.99 ...
+              6    6   6     6     6  pi  pi  pi  pi  pi];
+
+        
+    case 13
+        D = 22;
+        
+        LB = [-1000 3 0 0 100 100 30 400 800 0.01 0.01 0.01 0.01 0.01 1.05 1.05 1.15 1.7 -pi -pi -pi -pi];
+        UB = [0 5 1 1 400 500 300 1600 2200 0.9 0.9 0.9 0.9 0.9 6 6 6.5 291 pi pi pi pi];
+
+end
+
 
 % Maximum number of function evaluations
 nFeValMax = 10000 * D;
@@ -140,7 +218,18 @@ options.population = population;
 %% Optimisation
 
 % Function to optimise
-fitnessfcn = @(x)benchmark_func(x,func_num);
+switch func_num
+    case {1, 2, 3, 5, 6, 7}
+        fitnessfcn = @(x)bench_func(x,func_num);
+    case 10
+        fitnessfcn = @(x)antennafunccircular(x,[50,120],180,0.5);
+    case 12 
+        load messengerfull.mat
+        fitnessfcn = @(x)messengerfull(x, MGADSMproblem);
+    case 13
+        load cassini2.mat
+        fitnessfcn = @(x)cassini2(x,MGADSMproblem);
+end
 
 % MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
