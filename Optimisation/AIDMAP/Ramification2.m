@@ -33,16 +33,18 @@ end
 %To do so, get first all the possible nodes that can be made over the
 %entire graph. 
 possnodes = Inputs.PossibleListNodes;
+indextracker = 1:length(possnodes);
 
 %%Remove the already existing nodes
 %Find the already existing children
-temp = strsplit(currentNode,'____');
-possids = strcat(temp(end),'____',possnodes);
+temp = strsplit(currentNode,'___');
+possids = strcat(temp(end),'___',possnodes);
 
-possnodes(ismember(possids,fieldnames(ListNodes)))=[];
+%possnodes(ismember(possids,fieldnames(ListNodes)))=[];
+indextracker(ismember(possids,fieldnames(ListNodes)))=NaN;
 
 %Split the remaining nodes into their target & characteristic
-temp = regexp(possnodes, '___', 'split');
+temp = regexp(possnodes, '__', 'split');
 [temp]=cat(1, temp{:});
 
 %Next, retrieve the decisions possible in this node
@@ -50,7 +52,8 @@ possdecisions = ListNodes.(currentNode).possibledecisions;
 
 %Remove all the nodes that do not have as decision one of possible decisions
 %in this node
-possnodes(ismember(temp(:,1), possdecisions)==0) = [];
+%possnodes(ismember(temp(:,1), possdecisions)==0) = [];
+indextracker(ismember(temp(:,1), possdecisions)==0) = NaN;
 
 %Initialize structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
@@ -67,15 +70,25 @@ warning('off','MATLAB:catenate:DimensionMismatch');
 
 %Start loop to generate the desired number of nodes
 while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
-    
-    %If no more decisions are possible, exit while loop and set
-    %agentdeathflag to 1
-    if isempty(possnodes)
+
+    %If no more decisions are possible, exit while loop
+%     if isempty(possnodes)
+%        % disp(strcat(agent,' died'))
+%        %  agentdeathflag = 1;
+%         break
+%     end
+
+    %Since every attempt another value in indextracker is set to NaN, the
+    %attempt integer can be used to track the number of NaN elements in
+    %indextracker. This checks whether the indextracker only contains NaN
+    %values & thus no more options are available.
+    if (attempt-1) == length(indextracker)
        % disp(strcat(agent,' died'))
        %  agentdeathflag = 1;
         break
     end
     
+
     if (attempt == Inputs.MaxChildFindAttempts)
         break
     end
@@ -84,13 +97,14 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     attempt = attempt +1;
     
     %Choose a node from the list of possible nodes to generate
-    [newnode_ID,nodeindex] = ChooseNode(currentNode,possnodes);
+    [newnode_ID,nodeindex,indextracker] = ChooseNode(currentNode,possnodes,indextracker);
     
     %Remove chosen decision from list of possible decisions
-    possnodes(nodeindex) = [];
+    %possnodes(nodeindex) = NaN;
+    indextracker(nodeindex) = NaN;
     
     %Check if the node is valid based on the UID
-    [validflag] = Inputs.NodeIDCheckFile(ListNodes,newnode_ID,currentNode,generatednodes);
+    [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode,generatednodes);
    
     %Confirm that node doesn't already exist
     if (~validflag)
@@ -123,6 +137,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     
     %Increase the index for the nameslist struct
     i = i+1;
+
 end
 
 %Remove temporary field within the generatednodes stucture
