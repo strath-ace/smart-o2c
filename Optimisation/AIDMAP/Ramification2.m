@@ -64,6 +64,7 @@ nameslist = cell(1,Inputs.RamificationAmount);
 %Initial index for the nameslist variable and the attempt counter
 i = 1;
 attempt = 1;
+nantracker = sum(isnan(indextracker));
 
 %Disable the "Concatenate empty structure" warning
 warning('off','MATLAB:catenate:DimensionMismatch');
@@ -78,12 +79,10 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
 %         break
 %     end
 
-    %Since every attempt another value in indextracker is set to NaN, the
-    %attempt integer can be used to track the number of NaN elements in
-    %indextracker. This checks whether the indextracker only contains NaN
-    %values & thus no more options are available.
-    if (attempt-1) == length(indextracker)
-       % disp(strcat(agent,' died'))
+    %If all values in indextracker are NaN (meaning no more possible
+    %children to choose from), exit while loop
+    if (nantracker == length(indextracker))
+        disp(strcat(agent,' died'))        
        %  agentdeathflag = 1;
         break
     end
@@ -91,18 +90,18 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
 
     if (attempt == Inputs.MaxChildFindAttempts)
         break
-    end
+    end    
+        
+    
+    %Choose a node from the list of possible nodes to generate
+    [newnode_ID,nodeindex] = ChooseNode(currentNode,possnodes,indextracker,attempt);
     
     %Increase the attempt counter by 1
     attempt = attempt +1;
-    
-    %Choose a node from the list of possible nodes to generate
-    [newnode_ID,nodeindex,indextracker] = ChooseNode(currentNode,possnodes,indextracker);
-    
+    nantracker = nantracker+1;
+
     %Remove chosen decision from list of possible decisions
-    %possnodes(nodeindex) = NaN;
     indextracker(nodeindex) = NaN;
-    
     %Check if the node is valid based on the UID
     [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode,generatednodes);
    
