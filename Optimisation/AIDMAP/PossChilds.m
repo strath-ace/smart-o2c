@@ -17,6 +17,7 @@ function [posschildren] = PossChilds(targets,sets)
 %Loop over all the targets
 
 attribvalues = struct2cell(sets);
+posschildren =[];
 
 for i = 1:length(targets)
     
@@ -66,23 +67,15 @@ for i = 1:length(targets)
         possattribstr = strrep(possattribstr,'__','_');
     end
         
-    %Combine the target name and the attributes into the UID by
-    %looping over this target's possible characteristics and concatenating
-    %the two strings.
-    for j = 1:length(possattribstr)
-        possdecattribvec(i,j) = strcat(targetname,'__',possattribstr{j});
-        
-    end
+    %Combine the target name and the attributes into the UID and add them
+    %to a vector that will contain all the possible children
+    posschildren = [posschildren strcat(targetname,'__',possattribstr)];
     clear possattribstr
 end
 
 
-%Reshape the possdecattribvec variable such that it becomes a cell array 
-%with a single row.
-posschildrenvec = reshape(possdecattribvec, [1, numel(possdecattribvec)]);
-
 %Remove empty cells that are the result of more possible characteristics
 %for certain targets
-posschildren = posschildrenvec(~cellfun('isempty',posschildrenvec));
+%posschildren = posschildrenvec(~cellfun('isempty',posschildrenvec));
 end
 

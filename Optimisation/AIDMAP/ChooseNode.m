@@ -1,4 +1,4 @@
-function [newnode_ID,nodeindex,indextracker] = ChooseNode(currentNode,posschildren,indextracker)
+function [newnode_ID,nodeindex] = ChooseNode(currentNode,posschildren,indextracker,attempt)
 % This function is used to choose a new node for ramification
 %
 % Inputs:
@@ -8,6 +8,7 @@ function [newnode_ID,nodeindex,indextracker] = ChooseNode(currentNode,posschildr
 % Outputs:
 % * newnode_ID     : The node_ID chosen
 % * nodeindex      : The index of the node in the posschildren array
+% * indextracker   : The 
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
@@ -25,11 +26,11 @@ else
 end
 
 %Find index of non-NaN values
-indextracker = sort(indextracker);
-maxrand = length(indextracker(~isnan(indextracker)));
+nonanindices = indextracker(~isnan(indextracker));
+maxrand = length(indextracker);
 
 %Choose a random decision (node_ID)
-nodeindex = indextracker(randi([1 maxrand]));
+nodeindex = nonanindices(randi([1 length(nonanindices)]));
 childID = posschildren{nodeindex};
 newnode_ID = strcat(exchild,'___',childID);
 
