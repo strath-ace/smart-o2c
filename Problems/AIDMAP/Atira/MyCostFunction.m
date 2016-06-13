@@ -1,4 +1,4 @@
-function [toNode] = MyCostFunction(fromNode, toNode)
+function [toNode] = MyCostFunction(Inputs, fromNode, toNode)
 % This function calculates the cost of a certain connection.
 % It can be altered such that it is applicable to the problem at hand.
 %
@@ -76,7 +76,12 @@ deltaV_Total     = deltaV_Departure;
 
 %Save found dV in node attributes
 toNode.attributes.dV_dep = dv1;
-toNode.attributes.dV_tot = deltaV_Total;
+toNode.attributes.dV_sum = deltaV_Total;
+if isempty(fromNode.attributes.dV_tot)
+    toNode.attributes.dV_tot = deltaV_Total;
+else
+    toNode.attributes.dV_tot = fromNode.attributes.dV_tot + deltaV_Total; 
+end
             
 % ==========================================================================================                                                                        
 % MARILENA

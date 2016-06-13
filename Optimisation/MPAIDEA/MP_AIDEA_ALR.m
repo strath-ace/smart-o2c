@@ -1,12 +1,13 @@
-function [memories_out, memories, archivebest, population_evolution, vval_evolution, B_mean, delta_local, options, exitflag] = ...
+function [memories_out, memories, archivebest, population_evolution, vval_evolution, B_mean, delta_local, inite, iglob, options, exitflag] = ...
          MP_AIDEA_ALR(fname, vlb, vub, pop, options, varargin)
 
 % =========================================================================
-% - Multipopulation AIDEA
+% MP-AIDEA-ALR: Multi-Population Adaptive Inflationary Differential
+% Evolution Algorithm with Adaptive Local Restart.
 % - Adaptation of CR and F inside the single populations
 % - Adaptation of the dimension of the bubble for the local restart
 % - Adaptive local/global restart
-% References: M. Di Carlo, M. Vasile, E. Minisci, "Multi-Population
+% Reference: M. Di Carlo, M. Vasile, E. Minisci, "Multi-Population
 % Adaptive Inflationary Differential Evolution Algorithm with Adaptive
 % Local Restart", IEEE Congress on Evolutionary Computation, CEC 2015,
 % Sendai, Japan
@@ -17,10 +18,8 @@ function [memories_out, memories, archivebest, population_evolution, vval_evolut
 %           vlb     = lower boundaries
 %           vub     = upper boundaries
 %           pop     = initial population matrix
-%                     if pop is an empty or partial matrix then aidea
-%                     will generate the missing elements
-%                     pop is a 3D matrix where the third dimension identify
-%                     the numbers of populations
+%                     pop is a 3D matrix where the third dimension
+%                     identifies the numbers of populations
 %           options = structure containing options for the problem
 %
 %   OUTPUT
@@ -38,18 +37,27 @@ function [memories_out, memories, archivebest, population_evolution, vval_evolut
 %          B_mean   = mean value of the matrix for the adaptation of delta
 %                     local
 %          delta_local = value of delta_local for each population
+%          inite    = number of local restart for each population
+%          iglob    = number of global restart for each population
 %          options
 %          exitflag = exitflag from fmincon
 % =========================================================================
-
+% AIDEA:
 % (c) Edmondo Minisci and Massimiliano Vasile 2013
-%     Marilena Di Carlo 2015
-%
+% MP-AIDEA:
+% (c)  Marilena Di Carlo 2015
+% email: marilena.di-carlo@strath.ac.uk
 % =========================================================================
 
 
+%% Input check on algorithm parameters
+% Check if the user defined all the required options for MP-AIDEA. Options
+% not defined are assigner default parameters
 
-%% Default parameters
+% Check if number of population is compatible with defined input
+if size(pop,3) == 1 && isempty(options.delta_local)
+    error('Adaptation of delta_local is not possible using one population. Increase number of populations or define value for delta_local')
+end
 
 % Check if delta_global was provided by the user
 if ~isfield(options,'delta_global')    
@@ -65,8 +73,8 @@ end
 
 % Chek if user choose DE strategy
 if ~isfield(options,'DE_strategy')    
-    warning('DE strategy (options.prob_DE_strategy) not defined by the user - Default value is used');
-    options.prob_DE_strategy = 0.5;
+    warning('DE strategy (options.DE_strategy) not defined by the user - Default value is used');
+    options.DE_strategy = 1;
 
 end
 
@@ -89,16 +97,10 @@ if ~isfield(options,'nFeValMax')
     options.nFeValMax = 100000;
 end
 
-% check on plot flag
-if ~isfield(options,'plot_flag')
-        warning('Flag for plots (options.plot_flag) not defined by the user - Default value is used');
-    options.plot_flag = 0;
-
-end
 
 % check on plot flag
 if ~isfield(options,'text')
-        warning('Flag for text (options.text) not defined by the user - Default value is used');
+        warning('Flag for text display (options.text) not defined by the user - Default value is used');
     options.text = 0;
 end
 
@@ -109,9 +111,6 @@ NP         = size(pop, 1);
 
 % Neighborhood limit for GLOBAL restart
 expstepglo = options.delta_global;
-
-% Convergence threshold
-mmdist     = options.rho;
 
 % Probability of using strategy best
 P6         = options.prob_DE_strategy;
@@ -142,8 +141,6 @@ distrmin   = sqrt(D*(expstepglo)^2);
 fmin       = 1e15;
 
 
-flag_test = options.text;
-
 %% Initialization - clear here
 
 % Number of local restart performed by each population
@@ -152,19 +149,18 @@ inite      = zeros(1,pop_number);
 % Number of global restart performed by each population
 iglob      = zeros(1,pop_number);
 
-% Initialize archivebest (matrix for the collection of all the local minima
-% found using fmincon) and memories (matrix for the collection of all
-% population elements and local minima)
-% archivebest=[];
-% memories   =[];
-
+% Initialize matrix containing all the local minima found by all the
+% populations
 archiveALL = [];
 
+% Initialize matrix containing the mean value of the matrix B (adaptation
+% of delta_local)
 B_mean = [];
 
 % Initialize matrices for the collection of the best members of the
 % populaiton and the corresponding local minima and for the collection of
-% the dimension of the region of attraction of each local minimum
+% the dimension of the region of attraction of each local minimum (used to
+% perform adaptive local search and local/global restart)
 ArchiveBM_LM = [];
 d_region_attraction = [];
 
@@ -175,38 +171,25 @@ d_region_attraction = [];
 Val     = zeros(NP, pop_number);
 
 % Best value of the function
-BestVal = zeros(1,pop_number);
-
-% Number of function evaluation for each population
-nFeVal  = zeros(1,pop_number);
+BestVal = zeros(1, pop_number);
 
 % Best member of the population
-BestMem  = zeros(pop_number,D);
+BestMem  = zeros(pop_number, D);
 
-% Maximum distance between population elements (for contraction
-% definition)
-mmdistm = -1.e10*ones(1,pop_number);
-
-%
-vval = zeros(2,6,pop_number);
-vval_new = zeros(2,6,pop_number);
+% Number of function evaluation for each population
+nFeVal  = zeros(1, pop_number);
 
 % Variable for the definition of contraction of each population. Contracted
-% population are characterized by 1 while non-contracted population are 0.
-contraction = zeros(1,pop_number);
+% population are identified by 1 while non-contracted population are 0.
+contraction = zeros(1, pop_number);
 
 % Number of DE step performed by each population - re-initialized when
 % contraction conditions are reached by all the population
-pop_step = zeros(1,pop_number);
+pop_step = zeros(1, pop_number);
 
 % Number of not-NaN elements in the matrix archivebest for each population.
 % Values are summed also after population re-initialization.
 archivebest_elements = zeros(1,pop_number);
-
-% Parameter for the identification of the number of the rows in the matrix
-% archivebest related to each new series of local optimizer (see code
-% below)
-row_number=0;
 
 % Vector for the identification of the populations that are waiting for the
 % others population to be contracted. Each column is 1 when the
@@ -215,27 +198,63 @@ waiting = zeros(1,pop_number);
 
 
 % Index for the creation of the matrix for the adaptation of the bubble
-% dimension for the local restart
+% dimension for the local restart.
+% Initialize matrix_bubble_local to zero so that after the first local
+% seach of each population, the matrix for the adaptation of delta_local
+% can be defined
 matrix_bubble_local  = 0;
+% Initialize matrix_bubble_global to zero so that after the first global
+% restart of each population, the matrix for the adaptation of delta_local
+% can be defined
 matrix_bubble_global = 0;
-minima = [];
 
+% ??
 var1 = zeros(1,pop_number);
 var2 = zeros(1,pop_number);
 var3 = zeros(1,pop_number);
 
-%%% OK da Qui
 
 % Initialise vector
 for i_pop_number = 1 : pop_number
+    
+    % Variable with number of cells equal to the number of the populations.
+    % Each cells saves the individual of the population (but not their
+    % function values) for each population, before and after each DE_step
+    % (a DE step is until contraction of the population). The saved individual
+    % will be therefore those at the begin of the DE and those at the end
+    % of the process, at contraction
     population_evolution{i_pop_number} = [];
+    
+    % For each population, vval_evolution stores information during the DE
+    % process. Information are not saved only after contraction of the
+    % population, but all along the DE evolution (for each parents and
+    % offspring generation). Each row of vval_evolution saves:
+    % 1st column: 
+    % 2nd column: minimum value of objective function for the current
+    % individual of the current generation of the considered population
+    % 3rd column: mean value of the objective function 
+    % 4th column: maximum value of the objective function
+    % 5th column:
+    % 6th column:
     vval_evolution{i_pop_number}       = [];
+    
+    % For each population, saves the individuals and the objective function
+    % value of each individual. Differ from population_evolution for the
+    % presence of the objective function value and because it includes also
+    % the local minima (not only the individuals of the DE population).
+    % Moreover its values are sorted from the minimum to the maximum
+    % objective function value (losing therefore the sequentiality of the
+    % individuals)
     memories{i_pop_number}             = [];
+    
+    % Archive of local minima found by local search 
     archivebest{i_pop_number}          = [];
+    
+    % Value of delta_local for each population
     delta_local{i_pop_number}          = [];
 end
 
-% Solutions will be saved when fraction of the number evaluations will be
+% Solutions will be saved when fraction of the maximum number of function evaluations will be
 % reached. This fractions are defined in input.record. An example could be:
 % record = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 record = options.record;
@@ -246,7 +265,7 @@ step = 1;
 
 
 %% Main loop
-% Exit when the maximum number of function evaluations has been reached
+% Exit when the maximum number of function evaluations has been reached:
 while sum(nFeVal) < nFeValMax
     
     %% DE loop for all the populations 
@@ -260,9 +279,8 @@ while sum(nFeVal) < nFeValMax
             % =================================================================
             % If one of the population has already performed a global restart,
             % it will wait for all the other population to perform it before
-            % being allowed to enter the following cycle and therefore advance
-            % in the DE algorith.
-            % This condition is expressed through the following line.
+            % being allowed to enter the following cycle.
+            % This condition is expressed through the following "if" condition.
             % iglob is a variable with a number of columns equal to the number
             % of populations which gives, for each population, the number of
             % time that that population has performed a global restart.
@@ -281,7 +299,7 @@ while sum(nFeVal) < nFeValMax
                     disp('---------------------------------------------------------------------------------------')
                 end
 
-                % Save population and other parameters of the population
+                % Save current population 
                 population_evolution{i_pop_number} = [population_evolution{i_pop_number}; pop(:,:,i_pop_number)]; 
                 
                 % ---------------------------------------------------------
@@ -294,27 +312,40 @@ while sum(nFeVal) < nFeValMax
                  Val(:,i_pop_number),...     % Function value for the individual of the current population
                  ~,...                       % number of generations for contraction (not used)
                  vval_DE,...                 % Vector with useful quantities for the evolution of the population
-                 new_elements ...            %
+                 new_elements ...            % Number of individuals considered for the current population before DE stopped because nFeValMax was reached
+                 exitflag ...                % Flag for fmincon - used if cycle exit before fmincon               
                  ] = DE_step(fname, ...                 % Handle to function to optimise
                              vlb,...                    % Lower boundaries
                              vub,...                    % Upper boundaries
                              pop(:,:,i_pop_number),...  % Current population
                              nFeVal,...                 % Vector with number of function evaluations for each population
                              i_pop_number,...           % index of current population
-                             mmdist,...                 % Contraction threshold
-                             P6,...                     % Probability of using the two selected DE strategies
-                             dd_limit,...               % dd limit for adaptation of CRF
-                             DE_strategy,...            % Selected DE strategy 
+                             options,...                 % options (containing: rho, P6, dd, DE_strategy)
                              nFeValMax,...              % Maximum number of functions evaluations
                              varargin{:});
                 
+%                      keyboard    
+%                  if options.text
+%                      disp('---------------------------------------------------------------------------------------')
+%                      disp('END OF DIFFERENTIAL EVOLUTION - CONTRACTION OF POPULATION')
+%                      disp(['Population number: ' num2str(i_pop_number)]);
+%                      disp(['Best objective function value: ' num2str(BestVal(1,i_pop_number))]);
+%                      disp('---------------------------------------------------------------------------------------')
+%                  end
+                      
                 % Save population and other parameters of the population
-                population_evolution{i_pop_number} = [population_evolution{i_pop_number}; pop(:,:,i_pop_number)];         
+                population_evolution{i_pop_number} = [population_evolution{i_pop_number}; pop(:,:,i_pop_number)];  
+%                 keyboard
                 vval_evolution{i_pop_number}       = [vval_evolution{i_pop_number};       vval_DE];
                 
-                % ---------------------------------------------------------------------
-                % Check condition related to maximum number of function evaluations
-                % ---------------------------------------------------------------------
+                % ---------------------------------------------------------
+                % Check condition related to maximum number of function
+                % evaluations. 
+                % Is it necessary to exit the cycle?
+                % ---------------------------------------------------------
+                % If number of function evaluation is greater than number
+                % of function evaluation for which it is necessary to save
+                % results:
                 if sum(nFeVal) >= record(step) * nFeValMax
                     
                     % If the total maximum number of function evaluations
@@ -324,41 +355,72 @@ while sum(nFeVal) < nFeValMax
                         % For cycle over all the populations
                         for i_population = 1 : pop_number
                             
-                            % Update populations before i_pop_number with
-                            % all the elements (NP)
+                            % Update populations with index lower than "i_pop_number" 
+                            % (current population) with all the elements (NP)
                             if i_population < i_pop_number
                                 
+                                % Add all the individuals of the population
                                 memories_update = [pop(:,:,i_population) Val(:,i_population)];
+                                
+                                % Add memories_update
                                 memories{i_population} = [memories{i_population}; memories_update];
+                                
+                                % Sort individuals based on their objective
+                                % function value
                                 memories{i_population} = sortrows(memories{i_population}, D+1);
+                                
+                                % For the current step of the record
+                                % process, and for the current population,
+                                % take the best individual of the current
+                                % population (1st row, individuals were
+                                % sorted)
                                 memories_out(step, :, i_population) = memories{i_population}(1,:);
                                 
                                 % Update the population i_pop_number with a number of
-                                % elements equal to new_elements (and no more)
+                                % elements equal to new_elements (and no more than that)
                             elseif i_population == i_pop_number
                                 
-                                memories_update = [pop(1:new_elements,:,i_population) Val(1:new_elements,i_population)];
+                                % What is "new_elements"? If the function
+                                % DE_step was interrupted because the
+                                % maximum number of function ev was
+                                % reached, not all the individuals of the
+                                % population could have been evaluated.
+                                % "new_elements" is the number of evaluated
+                                % individual before DE_step was interrupted
+                                memories_update = [pop(1 : new_elements, : ,i_population) Val(1:new_elements,i_population)];
+                                
+                                % Update memories
                                 memories{i_population} = [memories{i_population}; memories_update];
+                                
+                                % Sort row based on objective function
+                                % value
                                 memories{i_population} = sortrows(memories{i_population}, D+1);
+                                
                                 memories_out(step, :, i_population) = memories{i_population}(1,:);
                                 
-                                % The remaininf population did not had the opportunity to do a DE
+                                % The remaining population did not have the opportunity to do a DE
                             elseif i_population > i_pop_number
                                 
                                 if ~isempty( memories{i_population} )
                                     
-                                    % Take best element
                                     memories{i_population} = sortrows(memories{i_population}, D+1);
                                     memories_out(step, :, i_population) = memories{i_population}(1,:);
                                     
                                 end
                                 
                             end
+                            
+                            % end of for cycle over number of population
                         end
                         
+                        % Since this is the case in which the total maximum
+                        % number of function evaluation is reached, exit
+                        % the function:
                         return
                         
-                        % else, if total maximum number of function evaluations has not been reached
+                        % else, if total maximum number of function 
+                        % evaluations has not been reached, but it is only
+                        % necessary to save results for record:
                     else
 
                         for i_population = 1 : i_pop_number
@@ -378,7 +440,7 @@ while sum(nFeVal) < nFeValMax
                             end
                         end
                         
-                        % Increase step by one
+                        % Increase step of record by one
                         step = step + 1;
                     end
                 end
@@ -387,7 +449,10 @@ while sum(nFeVal) < nFeValMax
                 % ---------------------------------------------------------------------
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
                 
-             %%% DA QUI   
+             
+                % The current population has finished the DE cycle above
+                % and has therefore reached contraction. Put to 1 the flag
+                % to show that this has happened
                 contraction(1,i_pop_number ) = 1;
                 % =================================================================
                 % end of -----if iglob(1,i_pop_number) == min(iglob)
@@ -407,29 +472,20 @@ while sum(nFeVal) < nFeValMax
         % global restarted (and are waiting for the other to be globally
         % restared too) we do not have to have 1 in each element of the vector
         % contraction because we will have 0 in correspondence of the
-        % population already globally contracted - this could be made in a
-        % better way, for example not updating contraction to zero when exiting
-        % from this cycle and going to the local-global restart cycle
-        % and bringing it back to zero only if the local restart is performed.
-        % NOOOOOO perche il DE step si realizza solo se contraction e` uguale a
-        % zero, quindi lasciarlo cosi com'e` e spiegare che non si puo fare
-        % altrimenti perche se no contraction non e` zero
-        % =====================================================================
-        % the following part can be realized in a better way - maybe without
-        % distinguishing between 1st and 2nd case... there should be a way to
-        % merge the two cases into one
-        
+        % population already globally restarted 
+        % =====================================================================     
         
         % 1st case - all the population have had the same number of global
         % restart
-        if rem(sum(iglob),pop_number) == 0
+        if rem(sum(iglob), pop_number) == 0
             
             if sum(contraction) == length(contraction)
                 % all population are contracted
+                
                 % Bring the contraction values back to zero for the next cycle
                 % and exit this cycle (go to local-global restart phase)
                 contraction = zeros(1,pop_number);
-                pop_step = zeros(1,pop_number);
+                pop_step    = zeros(1,pop_number);
                 break
             end
             
@@ -439,7 +495,7 @@ while sum(nFeVal) < nFeValMax
             
             % Compute how many population have been globally restarted up to
             % now
-            number_global_pop = rem(sum(iglob),pop_number);
+            number_global_pop = rem(sum(iglob), pop_number);
             
             % Exit the cycle if the number of contracted population is equal to
             % the number of population we are still considering in this cycle
@@ -450,473 +506,633 @@ while sum(nFeVal) < nFeValMax
                 % Bring the contraction values back to zero for the next cycle
                 % and exit this cycle (go to local-global restart phase)
                 contraction = zeros(1,pop_number);
-                pop_step = zeros(1,pop_number);
+                pop_step    = zeros(1,pop_number);
                 break
             end
         end
         
     end
     
-    % Once all the population are contracted, vval is redefined in order to be
-    % ready for a new session of DE step after the restart of all the
-    % populations.
-    % The values used of vval are to be related only to a single series of DE
-    % steps, and the values are not to be kept to avoid problems at the next
-    % series of DE step.
-    vval = zeros(2,6,pop_number);
     
     
     %% Local search and local restart / Global restart
     
     % =========================================================================
-    % Runs local search and re-initialize population
-    % Aggiungere condizione che dopo un certo numero di local restart fa il
-    % global
+    % Runs local search and re-initialize population (locally or globally)
     % =========================================================================
     
-    % A line to the archivebest matrix has to be added for each local restart
-    % optimizer procedure in order to allow the storage of the new results.
-    % However, this line has to be added only one time for each major step
-    % (parallel local restart of all the population) in such a way as to have a
-    % new line in each 3D matrix for each population.
-    % The initial values are set to NaN so that if the considered population is
-    % globally restarted and is waiting for the other population to globally
-    % restart too, it will have a NaN value on the corresponding line and when
-    % the sortrows is computed, all this values will go to the last rows of the
-    % matrix
-    
-    for i_pop_number = 1 : pop_number
-        
-%         if iglob(1,i_pop_number) == min(iglob)
-%             archivebest(end+1,1:D+2,1:pop_number) = NaN*ones(1,D+2,pop_number);
-%             memories(end+1:end+1+NP,:,1:pop_number)= NaN*ones(NP+1,D+1,pop_number);
-%             break
-%         end
-        
-    end
-    
+    % Number of function evaluations available for the local search
+    % algorithm    
     nFeValLS = round((nFeValMax - sum(nFeVal)) /pop_number);
-    
-    for i_pop_number = 1 : pop_number
-        
-        
-        
-        % Do not try to search for local minimum if the population has
-        % been already globally restarted and is waiting for the other
-        % populations to be globally restarted too
-        if iglob(1,i_pop_number) == min(iglob)
-            
-            
-            % Create a matrix that collects all best members BM and local minima LM
-            % ArchiveBM_LM = [BM f(BM); LM f(LM)]
-            if isempty(ArchiveBM_LM)
-                ArchiveBM_LM(1,:,1) = [BestMem(i_pop_number,:) BestVal(1,i_pop_number)];
-                ArchiveBM_LM(2,:,1) = zeros(1, D+1);
-            else
-                ArchiveBM_LM = cat(3, ArchiveBM_LM, NaN*ones(size(ArchiveBM_LM,1), size(ArchiveBM_LM,2)) );
-                ArchiveBM_LM(1,:,end) = [BestMem(i_pop_number,:) BestVal(1,i_pop_number)];
-            end
-            
-            d_region_attraction = cat(2,d_region_attraction,[NaN; NaN]);
-            
-            
-            case1 = ~exist('first_local_restart','var');
-            case2 = exist('first_local_restart','var') && var1(1,i_pop_number) == 0;
-            case3 = rem(sum(iglob),pop_number) == 0 && var2(1,i_pop_number) == 0 && any(iglob);
-            case4 = rem(sum(iglob),pop_number) == 0 && var3(1,i_pop_number) == 0 && any(iglob);
-            
-            
-            if case1
-                local_search = 1;
-                inside_region_attraction = 0;
-            elseif case2
-                local_search = 1;
-                inside_region_attraction = 0;
-                var1(1,i_pop_number) = 1;
-            elseif case3
-                local_search = 1;
-                inside_region_attraction = 0;
-                var2(1,i_pop_number) = 1;
-            elseif case4
-                local_search = 1;
-                inside_region_attraction = 0;
-                var3(1,i_pop_number) = 1;
-            else
-                
-                
-                distance_BM_wrt_LM = 10^(34);
-                
-                % Compute minimum distance between current best member and previous
-                % local minima
-                for i = 1 : size(ArchiveBM_LM,3)-1
-                    
-                    distance_BM_wrt_LM = min(distance_BM_wrt_LM, norm(ArchiveBM_LM(1,1:D,end) - ArchiveBM_LM(2,1:D,i)));
-                    
-                    % As soon as the best member is within the region of attraction
-                    % of some local minimum (d_region of attraction computed with
-                    % two best members! not only one)
-                    % The 3rd condition of the following line means that the
-                    % current BM has to be higher than the considered LM
-                    if distance_BM_wrt_LM <= d_region_attraction(1,i)  && d_region_attraction(2,i) >= 4   && ArchiveBM_LM(1,D+1,end) >= ArchiveBM_LM(2,D+1,i)
-                        
-                        inside_region_attraction = 1;
-                        index_region = i;
-                        break
-                    else
-                        inside_region_attraction = 0;
-                    end
-                    
-                end
-                
-            end
-            
-            
-            % Two things can happen if inside a region of attraction of a
-            % previous detected local minimum: either I have already tried
-            % escaping that region of attraction using the local restart or
-            % I have not
-            
-            if inside_region_attraction
-                
-                % No local search
-                warning_LS(i_pop_number) = 1;
-                
-                
-                
-            elseif ~inside_region_attraction || local_search == 1
-                
-                
-                % ==================================================================
-                % Local Optimizer
-                % ==================================================================
-                
-                nfev(1,i_pop_number) =round( max([min([300*D  nFeValLS]) D]));
-                
-                % fmincon finds a constrained minimum of a function of several
-                % variables.
-                % The start point is the minimum function value defined through BestMem.
-                % The solution is searched in the interval lb to ub.
-                % The otuputs are:
-                % - xgrad      location of the minimum
-                % - fvalgrad   value of the function at the minimum point
-                % - exitflag   describes the exit condition of fmincon (integer
-                %              identifying the reason the algorithm terminated)
-                % - output     structure with information about the optimization
-                %              (output.funcCount = number of function evaluations)
-                foptionsNLP = optimset('Display','off','MaxFunEvals',nfev(1,i_pop_number),'LargeScale','off','FinDiffType','central','Algorithm','sqp');
-                [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:),[],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
-                
-                nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
-                
-                if fvalgrad < BestVal(1,i_pop_number)
-                    BestVal(1,i_pop_number) = fvalgrad;
-                    BestMem(i_pop_number,:) = xgrad;
-                end
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                %             disp('---------------------------------------------------------------------------------------')
-                %             disp('LOCAL SEARCH')
-                %             disp(['Population number: ' num2str(i_pop_number)]);
-                %             disp('---------------------------------------------------------------------------------------')
-                %             pause(5)
-                %             disp(['Minimum: ' num2str(BestVal(1,i_pop_number))]);
-                %             disp('------------------------------------------------')
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                % ==================================================================
-                % Archiving of solutions
-                % ==================================================================
-                % Add local minimum to the archive
-                ArchiveBM_LM(2,:,end) = [xgrad fvalgrad];
-                
-                
-                % isnan is true for Not-A-Number
-                if isnan(BestVal(1,i_pop_number))
-                    disp('NAN')
-                    pop
-                    BestMem
-                    [isave nFeVal]
-                    pause
-                else
-                    % archivebest is updated at each local minimum search with the new
-                    % bestvalue and the number of function evaluation (only if the
-                    % minimum thus found gives a value of the function lower than
-                    % the one given by the best element of the population)
-                    
-                    archivebest_update = [BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
-
-%                     archivebest(end,:,i_pop_number) = archivebest_update;
-                     archivebest{i_pop_number} = [archivebest{i_pop_number}; archivebest_update];
-                    
-                    archiveALL = [archiveALL; BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
-                    
-                    % We have added a new element to the archivebest matrix for the
-                    % i_pop_number population
-                    archivebest_elements(1,i_pop_number) = archivebest_elements(1,i_pop_number) + 1;
-                    
-                    % The population used until this point is going to be
-                    % re-initialized. Before this happens, save the population into
-                    % the matrix memories - therefore memories contains the
-                    % population at the moment of the contraction of the population
-                    memories_update = [pop(:,:,i_pop_number) Val(:,i_pop_number);...
-                        xgrad fvalgrad];
-%                     memories(end-NP:end,:,i_pop_number)=memories_update;
-                    
-                    memories{i_pop_number} = [memories{i_pop_number}; memories_update];
-                end
-                
-                
-                % ==================================================================
-                % Update Best
-                % ==================================================================
-                
-                % If the new BestVal value found for the current contracted
-                % population is not better than the previous ones (fmin) the
-                % population keeps being re-initialized aroung the previous xmin
-                % value
-                
-                if BestVal(1,i_pop_number) < fmin
-                    
-                    dd = abs((BestVal(1,i_pop_number)-fmin)/fmin);
-                    fmin = BestVal(1,i_pop_number);
-                    xmin = BestMem(i_pop_number,:);
-                    inite(1,i_pop_number) = 0;
-                    %disp(['Best: ',num2str(fmin)])
-                else
-                    inite(1,i_pop_number) = inite(1,i_pop_number) + 1;
-                end
-                
-                % What happens to the following line is BestVal is not below the fmin
-                % value and therefore xmin is not defined? This does not happen - see
-                % the value of fmin!!!
-                xref(i_pop_number,:) = xmin;
-                
-                
-                d_region_attraction(:,end) = [norm(ArchiveBM_LM(1,1:D,end)-ArchiveBM_LM(2,1:D,end)); 1];
-                warning_LS(i_pop_number) = 0;
-                
-                % Check if this minimum has already been detected
-                for i = 1 : size(ArchiveBM_LM,3)-1
-                    
-                    distance_LM_wrt_LM   = norm(ArchiveBM_LM(2,1:D,end)-ArchiveBM_LM(2,1:D,i));
-                    difference_LM_wrt_LM = norm(ArchiveBM_LM(2,D+1,end)-ArchiveBM_LM(2,D+1,i));
-                    
-                    if (  distance_LM_wrt_LM <= norm(DELTA) * 0.001 ) && (difference_LM_wrt_LM <= norm(ArchiveBM_LM(1,D+1,end)-ArchiveBM_LM(1,D+1,i)))
-                        
-                        % Update dimension of the region of attraction
-                        d_region_attraction(1,end) = min(d_region_attraction(1,end), d_region_attraction(1,i));
-                        
-                        d_region_attraction(1,i) = d_region_attraction(1,end);
-                        d_region_attraction(2,i) = d_region_attraction(2,i)+1;
-                        d_region_attraction(2,end) = d_region_attraction(2,end)+1;
-                        
-                    end
-                    
-                end
-                
-                % Define dimension of the bubble for the local restart based on
-                % d_region_attraction
-                % 2nd row:             % Increase the following factor by 1 every time the
-                % corresponding value of exsteploc is updated (we can know how
-                % precise is a bubble dimension)
-                % 3rd row:             % The following factor will go to 1 when a local restart with
-                % this bubble dimension will be realized
-                
-                
-                
-            end
-            
-        end
-        
-        
-        % ---------------------------------------------------------------------
-        % Check condition related to maximum number of function evaluations
-        % ---------------------------------------------------------------------
-        if sum(nFeVal) >= record(step)*nFeValMax
-            for i_pop_number = 1 : pop_number
-%                 keyboard
-                if ~isempty(memories{i_pop_number})
-                    memories{i_pop_number}    = sortrows(memories{i_pop_number},D+1);
-                    memories_out(step,:,i_pop_number) = memories{i_pop_number}(1,:);
-                    
-%                     memories
-                end
-            end
-            if sum(nFeVal)>= nFeValMax
-                sum(nFeVal)
-                return
-            else
-                step = step + 1;
-            end
-        end
-        
-        
-    end
-    
-    
-    
-    % =========================================================================
-    % Creation of a matrix for the adaptation of the dimension of the bubble
-    % =========================================================================
-    % This matrix has to be created considering the local minima found by the
-    % population in two occasion:
-    % - at the first local optimizer, before the first local restart
-    % - after each global restart of all the populations
-    % The code for now separates these two events but the aim is to merge the
-    % two while and for loop that follows in a single one.
-    
-    while matrix_bubble_local == 0
-        
-        
-        % DISTANCE BETWEEN POPULATIONS LOCAL MINIMA
-        min_minima_distance = 10^60;
-        max_minima_distance = 0;
-        
-        for i = 1 : pop_number-1
-            
-            for k = i+1 : pop_number
-                
-                minima_distance = norm(BestMem(i,:) - BestMem(k,:));
-                min_minima_distance = min(min_minima_distance, minima_distance);
-                max_minima_distance = max(max_minima_distance, minima_distance);
-                
-                
-            end
-            
-        end
-        max_minima_distance = max_minima_distance + norm(DELTA)*0.1;
-        
-        % INITIALIZATION OF THE MATRIX FOR THE ADAPTATION OF THE DIMENSION OF
-        % THE BUBBLE
-        % The dimension of the bubble for the local restart is defined in the
-        % interval min_minima_distance to max_minima_distance
-        
-        % If D = 3 (dimension of the problem) B will be (D+1)x3 where the second
-        % and third coulmns correspond to the parameter p for the adaptation of the
-        % dimension of the bubble and to the iteration number
-        delta     = (max_minima_distance - min_minima_distance)/(D/2);
-        B_1st     = (min_minima_distance : delta : max_minima_distance)';
-        B         = [B_1st zeros(size(B_1st)) zeros(size(B_1st))];
-        
-        % The matrix for the dimension of the bubble for the first local
-        % restart has been created. This cycle will not be entered anymore.
-        matrix_bubble_local = 1;
-        
-        % Shall we adapt the matrix right now after this cycle? No, if we are
-        % going to have the first local restart.
-        first_local_restart = 1;
-        
-    end
-    
-    % This matrix has to be created also (using different condition) after each
-    % global restart of ALL POPULATIONS, considering all the elements in archivebest.
-    % The follwing lines and the previous one should be appropriately joined in
-    % a single group - PENSARE A COME FARLO
-    
-    if rem(sum(iglob), pop_number) == 0  && any(iglob)  && matrix_bubble_global == 0
-        
-        for i = 1 : i_pop_number
-            
-            % Create a matrix composed of all the known minima up to now
-%             minima_populations(:,:,i) = sortrows(archivebest(:,:,i),D+1);
-            minima_populations(:,:,i) = sortrows(archivebest{i},D+1);
-            minima = [minima; minima_populations(1:archivebest_elements(1,i),1:D,i)];
-            clear minima_populations
-        end
-        
-        for i = 1 : size(minima,1)
-            
-            for k = i+1 : size(minima,1)
-                
-                minima_distance = norm(minima(i,:) - minima(k,:));
-                min_minima_distance = min(min_minima_distance, minima_distance);
-                max_minima_distance = max(max_minima_distance, minima_distance);
-                
-            end
-            
-        end
-        max_minima_distance = max_minima_distance + norm(DELTA)*0.1;
-        
-        
-        % INITIALIZATION OF THE MATRIX FOR THE ADAPTATION OF THE DIMENSION OF
-        % THE BUBBLE
-        % The dimension of the bubble for the local restart is defined in the
-        % interval min_minima_distance to max_minima_distance
-        
-        % If D = 3 (dimension of the problem) B will be (D+1)x3 where the second
-        % and third coulmns correspond to the parameter p for the adaptation of the
-        % dimension of the bubble and to the iteration number
-        delta     = (max_minima_distance - min_minima_distance)/(D/2);
-        B_1st     = (min_minima_distance : delta : max_minima_distance)';
-        B         = [B_1st zeros(size(B_1st)) zeros(size(B_1st))];
-        
-        % We need to perform this matrix generation only once. Therefore bring
-        % the following value to 1 after the matrix has been generated.
-        matrix_bubble_global = 1;
-        
-        % Shall we adapt the matrix right now after this cycle? No, if we are
-        % going to have the first local restart.
-        first_local_restart = 1;
-        
-        
-        
-    end
-    
-    
-    % =========================================================================
-    % Adaptation of the dimension of the bubble
-    % =========================================================================
-    % The adaptation is performed before each local restart but not AT the
-    % first local restart, when we have still no values for the comparison. At
-    % the same time, after the global restart, the matrix is not adapted but
-    % we wait for the subsequent local restart to adapt it
-    
-    % No matrix adaptation if we are going to have the first local restart
-    if first_local_restart == 0
+   
+    % If there are more than 1 population, use mechanism to adapt
+    % delta_local and local/global restart
+    if pop_number > 1
         
         for i_pop_number = 1 : pop_number
             
-            % The adaptation is performed only for the population which are not
-            % already globally restarted and are waiting for other populations
-            % to globally restart too
+            % Do not try to search for local minimum if the population has
+            % been already globally restarted and is waiting for the other
+            % populations to be globally restarted too
             if iglob(1,i_pop_number) == min(iglob)
                 
-                % Difference between previous local minimum and current local
-                % minimum - this has to be different from zero for a bubble to
-                % be sufficiently big
-%                 p = norm(archivebest(end,1:D,i_pop_number) - archivebest(end-1,1:D,i_pop_number));
-                p = norm(archivebest{i_pop_number}(end,1:D) - archivebest{i_pop_number}(end-1,1:D) );
                 
-                for ic = 1 : size(B,1)
+                % Create a 3D matrix that collects all best members BM and local minima LM
+                % ArchiveBM_LM = [BM f(BM); LM f(LM)]
+                % for each best member from which a local seach is started and
+                % its corresponding local minimum. Collect all of them in 3d
+                % arrray
+                if isempty(ArchiveBM_LM)
+                    ArchiveBM_LM(1,:,1) = [BestMem(i_pop_number,:) BestVal(1,i_pop_number)];
+                    ArchiveBM_LM(2,:,1) = zeros(1, D+1);
+                else
+                    ArchiveBM_LM = cat(3, ArchiveBM_LM, NaN*ones(size(ArchiveBM_LM,1), size(ArchiveBM_LM,2)) );
+                    ArchiveBM_LM(1,:,end) = [BestMem(i_pop_number,:) BestVal(1,i_pop_number)];
+                end
+                
+                % Dimension of the region of attraction of a local minimum
+                d_region_attraction = cat(2,d_region_attraction,[NaN; NaN]);
+                
+                % Particular cases for local/global restart. See below
+                case1 = ~exist('first_local_restart','var');
+                case2 = exist('first_local_restart','var') && var1(1,i_pop_number) == 0;
+                case3 = rem(sum(iglob),pop_number) == 0 && var2(1,i_pop_number) == 0 && any(iglob);
+                case4 = rem(sum(iglob),pop_number) == 0 && var3(1,i_pop_number) == 0 && any(iglob);
+                
+                % CASE 1
+                % If this is the first possibility to run a local search i.e.
+                % no local search was ever conducted before: perform local
+                % search and assume that the found local minimum is not inside
+                % any region of attraction of already detected local minimum
+                % (there are no stored local minimum). Do this for all the
+                % populations
+                % CASE 2
+                % The local restart has been performed once for all the
+                % populations and this is the second local search for the
+                % considered population: realise local search, assume that we
+                % are not in the basin of attraction and put var1 to 1
+                % for the current population so that we can not enter this
+                % case2 never again. The reason for this is that
+                % CASE 3
+                % All the populations have had the same number of global
+                % restart (different from zero)
+                % CASE 4
+                % All the populations have had the same number of global
+                % restart (different from zero)
+                if case1
+                    local_search = 1;
+                    inside_region_attraction = 0;
+                elseif case2
+                    local_search = 1;
+                    inside_region_attraction = 0;
+                    var1(1,i_pop_number) = 1;
+                elseif case3
+                    local_search = 1;
+                    inside_region_attraction = 0;
+                    var2(1,i_pop_number) = 1;
+                elseif case4
+                    local_search = 1;
+                    inside_region_attraction = 0;
+                    var3(1,i_pop_number) = 1;
+                else
                     
-                    % If the previous difference between minima is smaller than
-                    % the new one
-                    if B(ic,2) < p
+                    % If we are in none of the cases above, we can proceed as
+                    % usual, by checking if the best member is inside the
+                    % region of attraction of already detected local minima
+                    
+                    
+                    % Very high distance from best member to local minimum (we
+                    % are going to compute a minimum value below)
+                    distance_BM_wrt_LM = 10^(34);
+                    
+                    % Compute minimum distance between current best member and previous
+                    % local minima.
+                    % The current best member is ArchiveBM_LM(1,1:D,end) while
+                    % the previous local minimum is ArchiveBM_LM(2,1:3,i)
+                    for i = 1 : size(ArchiveBM_LM,3) - 1
                         
-                        % Substitue the previous value of the bubble with the one used
-                        % for the considered population
-                        B(ic,1) = bubble_dimension(1,i_pop_number);
+                        % Minimum distance
+                        distance_BM_wrt_LM = min(distance_BM_wrt_LM, norm(ArchiveBM_LM(1,1:D,end) - ArchiveBM_LM(2,1:D,i)));
                         
-                        % Associate the corresponding p and iter value
-                        B(ic,2) = p;
-                        B(ic,3) = pop_step(1,i_pop_number);
+                        % As soon as the best member is within the region of attraction
+                        % of some local minimum (d_region of attraction computed with
+                        % 4 best members! not only one)
+                        % The 3rd condition of the following line means that the
+                        % current f(BM) has to be higher than the considered
+                        % f(LM)
+                        if distance_BM_wrt_LM <= d_region_attraction(1,i)  && ...
+                                d_region_attraction(2,i) >= 4   && ...
+                                ArchiveBM_LM(1,D+1,end) >= ArchiveBM_LM(2,D+1,i)
+                            
+                            % We are inside the region of attraction of a local
+                            % minimum! Break the for cycle because there is no need to
+                            % Check all the other minima
+                            inside_region_attraction = 1;
+                            
+                            % Index to identify the minimum in whom basin of
+                            % attraction we are
+                            index_region = i;
+                            break
+                        else
+                            inside_region_attraction = 0;
+                        end
                         
-                        break
                     end
                     
                 end
                 
+                
+                % If best member BM is inside the region of attraction of an
+                % already detected local minimum:
+                if inside_region_attraction
+                    
+                    % No local search:
+                    warning_LS(i_pop_number) = 1;
+                    
+                    
+                    % if the best member BM is NOT inside the region of attraction of an already
+                    % detected local minimum or if for any of the cases it is
+                    % necessary to perform a local search:
+                elseif ~inside_region_attraction || local_search == 1
+                    
+                    
+                    % ==================================================================
+                    % Local Search
+                    % ==================================================================
+                    
+                    % Number of function evaluations for the local search for
+                    % the current population
+                    nfev(1,i_pop_number) =round( max([min([300*D  nFeValLS]) D]));
+                    
+                    % fmincon finds a constrained minimum of a function of several
+                    % variables.
+                    % The start point is the minimum function value defined through BestMem.
+                    % The solution is searched in the interval lb to ub.
+                    % The otuputs are:
+                    % - xgrad      location of the minimum
+                    % - fvalgrad   value of the function at the minimum point
+                    % - exitflag   describes the exit condition of fmincon (integer
+                    %              identifying the reason the algorithm terminated)
+                    % - output     structure with information about the optimization
+                    %              (output.funcCount = number of function evaluations)
+                    foptionsNLP = optimset('Display','off','MaxFunEvals',nfev(1,i_pop_number),'LargeScale','off','FinDiffType','central','Algorithm','sqp');
+                    
+                    % Local search with fmincon
+                    [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:),[],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
+                    
+                    % Update number of function evaluations
+                    nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
+                    
+                    % If value of minimum find by the local search is lower
+                    % than current best value:
+                    if fvalgrad < BestVal(1,i_pop_number)
+                        % substitute best value with function value of minimum
+                        % found by fmincon
+                        BestVal(1,i_pop_number) = fvalgrad;
+                        % Substitute best member components with minimum found
+                        % by fmincon
+                        BestMem(i_pop_number,:) = xgrad;
+                    end
+                    if options.text
+                        disp('---------------------------------------------------------------------------------------')
+                        disp('LOCAL SEARCH')
+                        disp(['Population number: ' num2str(i_pop_number)]);
+                        disp('---------------------------------------------------------------------------------------')
+                        disp(['Minimum: ' num2str(BestVal(1,i_pop_number))]);
+                        disp(['Number of function evaluations (so far): ' num2str(sum(nFeVal))]);
+                        disp('------------------------------------------------')
+                    end
+                    
+                    % ==================================================================
+                    % Archiving of solutions
+                    % ==================================================================
+                    % Add local minimum to the archive
+                    ArchiveBM_LM(2,:,end) = [xgrad fvalgrad];
+                    
+                    % isnan is true for Not-A-Number
+                    if isnan(BestVal(1,i_pop_number))
+                        disp('NAN')
+                        pop
+                        BestMem
+                        [isave nFeVal]
+                        pause
+                    else
+                        % archivebest is updated at each local minimum search with the new
+                        % bestvalue and the number of function evaluation (only if the
+                        % minimum thus found gives a value of the function lower than
+                        % the one given by the best element of the population)
+                        
+                        archivebest_update = [BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
+                        
+                        archivebest{i_pop_number} = [archivebest{i_pop_number}; archivebest_update];
+                        
+                        % Archivebest collects values separately for each
+                        % population. ArchiveALL collects all the minimum
+                        % together (used by clustering mean shift for
+                        % clustering of local minima and global restart of the
+                        % population)
+                        archiveALL = [archiveALL; BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
+                        
+                        % We have added a new element to the archivebest matrix for the
+                        % i_pop_number population
+                        archivebest_elements(1,i_pop_number) = archivebest_elements(1,i_pop_number) + 1;
+                        
+                        % The population used until this point is going to be
+                        % re-initialized. Before this happens, save the population into
+                        % the matrix memories - therefore memories contains the
+                        % population at the moment of the contraction of the population
+                        memories_update = [pop(:,:,i_pop_number) Val(:,i_pop_number);...
+                            xgrad                 fvalgrad];
+                        
+                        memories{i_pop_number} = [memories{i_pop_number}; memories_update];
+                        
+                    end
+                    
+                    
+                    % ==================================================================
+                    % Update Best
+                    % ==================================================================
+                    
+                    % If the new BestVal value found for the current contracted
+                    % population is not better than the previous ones (fmin) the
+                    % population keeps being re-initialized around the previous xmin
+                    % value
+                    
+                    if BestVal(1,i_pop_number) < fmin
+                        
+                        fmin = BestVal(1,i_pop_number);
+                        xmin = BestMem(i_pop_number,:);
+                        
+                    end
+                    
+                    % What happens to the following line if BestVal is not below the fmin
+                    % value and therefore xmin is not defined? This does not happen - see
+                    % the value of fmin!!!
+                    % Reference point for the re-initialization of the
+                    % population
+                    xref(i_pop_number,:) = xmin;
+                    
+                    % Dimension of the region of attraction: distance between
+                    % best member (ArchiveBM_LM(1,1:D,end)) and local minimum
+                    % (ArchiveBM_LM(2,1:D,end)) for the current best member and
+                    % local minimum (identified by "end")
+                    d_region_attraction(:,end) = [norm(ArchiveBM_LM(1,1:D,end)-ArchiveBM_LM(2,1:D,end)); 1];
+                    
+                    %
+                    warning_LS(i_pop_number) = 0;
+                    
+                    % Check if the detected minimum was already detected by
+                    % looking in the archive of minima
+                    for i = 1 : size(ArchiveBM_LM,3)-1
+                        
+                        % Compute distance of current minimum from all the
+                        % minima in the archive of minima detected by the local
+                        % search
+                        distance_LM_wrt_LM   = norm( ArchiveBM_LM(2,1:D,end) - ArchiveBM_LM(2,1:D,i) );
+                        
+                        % Compute the distance in objective function between
+                        % the current minimum and all the minima in the archive
+                        difference_LM_wrt_LM = norm( ArchiveBM_LM(2,D+1,end) - ArchiveBM_LM(2,D+1,i) );
+                        
+                        % If the distance between local minimum is lower than a
+                        % certain value and if the difference in objective
+                        % function is lower than the difference in objective
+                        % function between current  best member and best member
+                        % of the considered local minimum, the local minimum
+                        % was already detected!
+                        if (  distance_LM_wrt_LM   <= norm(DELTA) * 0.001 ) && ...
+                                ( difference_LM_wrt_LM <= norm(ArchiveBM_LM(1,D+1,end)-ArchiveBM_LM(1,D+1,i)))
+                            
+                            % Update dimension of the region of attraction of
+                            % current minimum
+                            d_region_attraction(1,end) = min(d_region_attraction(1,end), d_region_attraction(1,i));
+                            
+                            % Update dimension of the region of attraction of
+                            % minimum "i"
+                            d_region_attraction(1,i) = d_region_attraction(1,end);
+                            
+                            % Update number of times that minimum was detected
+                            % both for minimum in "i" and current minimum "end"
+                            d_region_attraction(2,i)   = d_region_attraction(2,i)  + 1;
+                            d_region_attraction(2,end) = d_region_attraction(2,end) + 1;
+                            
+                        end
+                        
+                        % end for cycle over best members and local minimum in archive
+                    end
+                    
+                    % end of condition "inside region of attraction"
+                end
+                
+                % end of if to check if population is waiting for global
+                % restart
             end
             
-            B = sortrows(B, [2 3]);
-            B_mean = [B_mean; mean(B(:,1))/norm(DELTA)];
+            
+            % ---------------------------------------------------------------------
+            % Check condition related to maximum number of function evaluations
+            % ---------------------------------------------------------------------
+            if sum(nFeVal) >= record(step) * nFeValMax
+                
+                for i_pop_number = 1 : pop_number
+                    
+                    if ~isempty(memories{i_pop_number})
+                        memories{i_pop_number}    = sortrows(memories{i_pop_number},D+1);
+                        memories_out(step,:,i_pop_number) = memories{i_pop_number}(1,:);
+                    end
+                end
+                
+                if sum(nFeVal)>= nFeValMax
+                    return
+                else
+                    step = step + 1;
+                end
+            end
+            
+            % End of cycle for number of populations
         end
         
+        % If the dimension for the local restart is not defined by the user,
+        % create matrix to adapt it and adapt it when required:
+        if isempty(options.delta_local)
+            
+            % =========================================================================
+            % Creation of a matrix for the adaptation of the dimension of the bubble
+            % =========================================================================
+            % This matrix has to be created considering the local minima found by the
+            % population in two occasion:
+            % - at the first local search, before the first local restart
+            % - after each global restart of all the populations
+            % The code for now separates these two events but the aim is to merge the
+            % two while and for loop that follows in a single one.
+            
+            while matrix_bubble_local == 0
+                
+                
+                % Distance between local minima
+                min_minima_distance = 10^60;
+                max_minima_distance = 0;
+                
+                % After the first local search of each population, the number of
+                % local minima will be equal to the number of populations
+                for i = 1 : pop_number-1
+                    
+                    for k = i+1 : pop_number
+                        
+                        % Distance between local minima
+                        minima_distance = norm(BestMem(i,:) - BestMem(k,:));
+                        
+                        % Minimum distance between local minima
+                        min_minima_distance = min(min_minima_distance, minima_distance);
+                        
+                        % Maximum distance between local minima
+                        max_minima_distance = max(max_minima_distance, minima_distance);
+                        
+                    end
+                    
+                end
+                
+                %
+                max_minima_distance = max_minima_distance + norm(DELTA)*0.1;
+                
+                % INITIALIZATION OF THE MATRIX FOR THE ADAPTATION OF THE DIMENSION OF
+                % THE BUBBLE
+                % The dimension of the bubble for the local restart is defined in the
+                % interval min_minima_distance to max_minima_distance
+                
+                % If D = 3 (dimension of the problem) B will be (D+1)x3 where the second
+                % and third coulmns correspond to the parameter p for the adaptation of the
+                % dimension of the bubble and to the iteration number
+                delta     = (max_minima_distance - min_minima_distance)/(D/2);
+                B_1st     = (min_minima_distance : delta : max_minima_distance)';
+                B         = [B_1st zeros(size(B_1st)) zeros(size(B_1st))];
+                
+                % The matrix for the dimension of the bubble for the first local
+                % restart has been created. This cycle will not be entered anymore.
+                matrix_bubble_local = 1;
+                
+                % Shall we adapt the matrix right now after this cycle? No, if we are
+                % going to have the first local restart.
+                first_local_restart = 1;
+                
+            end
+            
+            % This matrix has to be created also (using different condition) after each
+            % global restart of ALL POPULATIONS, considering all the elements in archivebest.
+            
+            % If all the population have had the same number of global restart
+            % (that is different from zero)
+            if rem(sum(iglob), pop_number) == 0  && any(iglob)  && matrix_bubble_global == 0
+                
+                % Distance between all the local minima
+                for i = 1 : size(archiveALL,1)
+                    
+                    for k = i+1 : size(archiveALL,1)
+                        
+                        % Distance between local minima
+                        minima_distance = norm(archiveALL(i,:) - archiveALL(k,:));
+                        
+                        % Minimum and maximum distance between local minima
+                        min_minima_distance = min(min_minima_distance, minima_distance);
+                        max_minima_distance = max(max_minima_distance, minima_distance);
+                        
+                    end
+                    
+                end
+                max_minima_distance = max_minima_distance + norm(DELTA)*0.1;
+                
+                
+                % INITIALIZATION OF THE MATRIX FOR THE ADAPTATION OF THE DIMENSION OF
+                % THE BUBBLE
+                %         % The dimension of the bubble for the local restart is defined in the
+                % interval min_minima_distance to max_minima_distance
+                
+                % If D = 3 (dimension of the problem) B will be (D+1)x3 where the second
+                % and third coulmns correspond to the parameter p for the adaptation of the
+                % dimension of the bubble and to the iteration number
+                delta     = (max_minima_distance - min_minima_distance)/(D/2);
+                B_1st     = (min_minima_distance : delta : max_minima_distance)';
+                B         = [B_1st zeros(size(B_1st)) zeros(size(B_1st))];
+                
+                % We need to perform this matrix generation only once. Therefore bring
+                % the following value to 1 after the matrix has been generated.
+                matrix_bubble_global = 1;
+                
+                % Shall we adapt the matrix right now after this cycle? No, if we are
+                % going to have the first local restart.
+                first_local_restart = 1;
+                
+                
+                
+            end
+            
+            
+            % =========================================================================
+            % Adaptation of the dimension of the bubble
+            % =========================================================================
+            % The adaptation is performed before each local restart but not AT the
+            % first local restart, when we have still no values for the comparison. At
+            % the same time, after the global restart, the matrix is not adapted but
+            % we wait for the subsequent local restart to adapt it
+            
+            % No matrix adaptation if we are going to have the first local restart
+            if first_local_restart == 0
+                
+                for i_pop_number = 1 : pop_number
+                    
+                    % The adaptation is performed only for the population which are not
+                    % already globally restarted and are waiting for other populations
+                    % to globally restart too
+                    if iglob(1,i_pop_number) == min(iglob)
+                        
+                        % Difference between previous local minimum and current local
+                        % minimum - this has to be different from zero for a bubble to
+                        % be sufficiently big
+                        p = norm(archivebest{i_pop_number}(end,1:D) - archivebest{i_pop_number}(end-1,1:D) );
+                        
+                        for ic = 1 : size(B,1)
+                            
+                            % If the previous difference between minima is smaller than
+                            % the new one
+                            if B(ic,2) < p
+                                
+                                % Substitue the previous value of the bubble with the one used
+                                % for the considered population
+                                B(ic,1) = bubble_dimension(1,i_pop_number);
+                                
+                                % Associate the corresponding p and iter value
+                                B(ic,2) = p;
+                                B(ic,3) = pop_step(1,i_pop_number);
+                                
+                                break
+                            end
+                            
+                        end
+                        
+                    end
+                    
+                    B = sortrows(B, [2 3]);
+                    
+                    % Save value of B mean for output
+                    B_mean = [B_mean; mean(B(:,1))/norm(DELTA)];
+                end
+                
+            end
+            
+            % BUBBLE DIMENSIONS SAMPLED FROM PARZEN DISTRIBUTION
+            % Bv is a pop_number*1 matrix which, for each population elements (row)
+            % contains the bubble dimension value
+            Bv = parzenself_k([], B(:,1), ones(size(B(:,1))), pop_number, 'norm', 0);
+            % Avoid Bv outside some boundaries?!?!
+            
+            % End of condition if isempty(options.delta_local)
+        end
+        
+        
+        
+    else
+       
+        % IF the population is only one, run local search before going into
+        % local/gobal restart
+
+        % Number of function evaluations for the local search for
+        % the current population
+        nfev(1,i_pop_number) =round( max([min([300*D  nFeValLS]) D]));
+        
+        foptionsNLP = optimset('Display','off','MaxFunEvals',nfev(1,i_pop_number),'LargeScale','off','FinDiffType','central','Algorithm','sqp');
+        
+        % Local search with fmincon
+        [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:),[],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
+        
+        % Update number of function evaluations
+        nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
+        
+        % If value of minimum find by the local search is lower
+        % than current best value:
+        if fvalgrad < BestVal(1,i_pop_number)
+            % substitute best value with function value of minimum
+            % found by fmincon
+            BestVal(1,i_pop_number) = fvalgrad;
+            % Substitute best member components with minimum found
+            % by fmincon
+            BestMem(i_pop_number,:) = xgrad;
+        end
+        if options.text
+            disp('---------------------------------------------------------------------------------------')
+            disp('LOCAL SEARCH')
+            disp(['Population number: ' num2str(i_pop_number)]);
+            disp('---------------------------------------------------------------------------------------')
+            disp(['Minimum: ' num2str(BestVal(1,i_pop_number))]);
+            disp(['Number of function evaluations (so far): ' num2str(sum(nFeVal))]);
+            disp('------------------------------------------------')
+        end
+        
+        % ==================================================================
+        % Archiving of solutions
+        % ==================================================================
+        % Add local minimum to the archive
+        ArchiveBM_LM(2,:,end) = [xgrad fvalgrad];
+        
+        % isnan is true for Not-A-Number
+        if isnan(BestVal(1,i_pop_number))
+            disp('NAN')
+            pop
+            BestMem
+            [isave nFeVal]
+            pause
+        else
+            % archivebest is updated at each local minimum search with the new
+            % bestvalue and the number of function evaluation (only if the
+            % minimum thus found gives a value of the function lower than
+            % the one given by the best element of the population)
+            
+            archivebest_update = [BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
+            
+            archivebest{i_pop_number} = [archivebest{i_pop_number}; archivebest_update];
+            
+            % Archivebest collects values separately for each
+            % population. ArchiveALL collects all the minimum
+            % together (used by clustering mean shift for
+            % clustering of local minima and global restart of the
+            % population)
+            archiveALL = [archiveALL; BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
+            
+            % The population used until this point is going to be
+            % re-initialized. Before this happens, save the population into
+            % the matrix memories - therefore memories contains the
+            % population at the moment of the contraction of the population
+            memories_update = [pop(:,:,i_pop_number) Val(:,i_pop_number);...
+                xgrad                 fvalgrad];
+            
+            memories{i_pop_number} = [memories{i_pop_number}; memories_update];
+            
+        end
+        
+        
+        % ==================================================================
+        % Update Best
+        % ==================================================================
+        
+        % If the new BestVal value found for the current contracted
+        % population is not better than the previous ones (fmin) the
+        % population keeps being re-initialized around the previous xmin
+        % value
+        
+        if BestVal(1,i_pop_number) < fmin
+            
+            fmin = BestVal(1,i_pop_number);
+            xmin = BestMem(i_pop_number,:);
+            
+        end
+        
+        % What happens to the following line if BestVal is not below the fmin
+        % value and therefore xmin is not defined? This does not happen - see
+        % the value of fmin!!!
+        % Reference point for the re-initialization of the
+        % population
+        xref(i_pop_number,:) = xmin;
+        
     end
-    
-    % BUBBLE DIMENSIONS SAMPLED FROM PARZEN DISTRIBUTION
-    % Bv is a pop_number*1 matrix which, for each population elements (row)
-    % contains the bubble dimension value
-    Bv = parzenself_k([], B(:,1), ones(size(B(:,1))), pop_number, 'norm', 0);
-    % Avoid Bv outside some boundaries?!?!
     
     
     
@@ -926,28 +1142,37 @@ while sum(nFeVal) < nFeValMax
     
     for i_pop_number = 1 : pop_number
         
+        % If value of delta_local is not provided by the user:
+        if isempty(options.delta_local)
+            % Link each bubble dimension value to a population
+            bubble_dimension(1, i_pop_number) = Bv(i_pop_number,1);
+        else
+            % If the dimension of the bubble is an input of the user:
+            bubble_dimension(1, i_pop_number) = options.delta_local * norm(DELTA);
+        end
         
-        % Link each bubble dimension value to a population
-        bubble_dimension(1, i_pop_number) = Bv(i_pop_number,1);
-        
-%         if i_pop_number == 1
-%             bubble.pop1 = [bubble.pop1 bubble_dimension(1,i_pop_number)];
-%         elseif i_pop_number == 2
-%             bubble.pop2 = [bubble.pop2 bubble_dimension(1,i_pop_number)];
-%         elseif i_pop_number == 3
-%             bubble.pop3 = [bubble.pop3 bubble_dimension(1,i_pop_number)];
-%         elseif i_pop_number == 4
-%             bubble.pop4 = [bubble.pop4 bubble_dimension(1,i_pop_number)];
-%         end
-        
+        % save dimension of the bubble for the local restart for each
+        % population
         delta_local{i_pop_number} = [delta_local{i_pop_number}; bubble_dimension(1,i_pop_number)/norm(DELTA)];
+
         
         % Do not try to perform local or global restart if the population has
         % been already globally restarted and is waiting for the other
         % populations to be globally restarted too
         if iglob(1,i_pop_number) == min(iglob)
             
-            if ~exist('warning_LS','var') || (exist('warning_LS','var') && warning_LS(i_pop_number) ~= 1)
+            % Perform local restart when:
+            % - after 1st local search of all the populations (warning_LS
+            % is not defined)
+            % - at any point, when warning_LS ~= 1, meaning that the best
+            % member of the population is not inside the basin of
+            % attraction of any local minimum, and therefore local search
+            % and local restart are realized
+            % - the population is only one and its number of local restart
+            % is below the maximum number
+
+            if (pop_number>1 && ~exist('warning_LS','var') ) || (exist('warning_LS','var') && warning_LS(i_pop_number) ~= 1) || ...
+               (pop_number == 1 && inite(1,i_pop_number) < options.max_LR)
                 
                 
                 % --------- LOCAL RESTART
@@ -961,8 +1186,25 @@ while sum(nFeVal) < nFeValMax
                 % Population re-initialized in the bubble
                 pop(:,:,i_pop_number) = lhsdesign(NP,D,'criterion','maximin').*repmat(XVmaxl-XVminl,NP,1)+repmat(XVminl,NP,1);
                 
+                % Increase number of local restart for current population
+                % by 1
+                inite(1,i_pop_number) = inite(1,i_pop_number) + 1;
                 
-            elseif warning_LS == 1
+                if options.text
+                    disp('---------------------------------------------------------------------------------------')
+                    disp('LOCAL RESTART')
+                    disp(['Population number: ' num2str(i_pop_number)]);
+                    disp(['Number of local restart for current population: ' num2str(inite(1,i_pop_number))]);
+                    disp('---------------------------------------------------------------------------------------')
+                end
+                
+                % if warning_LS=1, no local search and local restart is
+                % performed, but rather population is globally restarted
+                % Global restart is performed also when population is only
+                % 1 and the maximum number of local restart has been
+                % reached for that population
+            elseif (exist('warning_LS','var') && warning_LS(i_pop_number) == 1) || ...
+                   (pop_number == 1  && inite(1,i_pop_number) >= options.max_LR)
                 
                 
                 % --------- GLOBAL RESTART
@@ -970,6 +1212,7 @@ while sum(nFeVal) < nFeValMax
                 % Count the number of global restart for each population
                 iglob(1,i_pop_number) = iglob(1,i_pop_number) + 1;
                 
+                % 
                 if rem(sum(iglob),pop_number) == 0
                     var2 = zeros(1,pop_number);
                     var3 = zeros(1,pop_number);
@@ -983,11 +1226,8 @@ while sum(nFeVal) < nFeValMax
                 waiting(1,i_pop_number) = 1;
                 
                 % Clustering of the archived local minima
-                % For the definition of row_number and explanation regarding
-                % the elements of archive_best considered, refer to the
-                % comments below for row_number.
-                %             [ClusterCenters,DataClusters,DatainClusters] = Clustering_MeanShift(archivebest(row_number+1:max(archivebest_elements),1:D,i_pop_number)',distrmin);
                 [ClusterCenters,DataClusters,DatainClusters] = Clustering_MeanShift(archiveALL(:,1:D)',distrmin);
+               
                 % Number of clusters
                 usc = size(ClusterCenters,2);
                 
@@ -1037,104 +1277,36 @@ while sum(nFeVal) < nFeValMax
                 
                 pop(:,:,i_pop_number) = pop0;
                 
-                % The number of local restart is brought back to zero
-                inite(1,i_pop_number) = 0;
                 
-                % PEnso che la seguente riga non serva. Vedere se e meglio
-                % sostituirla per avere un codice piu elegante nella parte
-                % superiore - a quanto pare no. se contraction non e` zero non
-                % faccio il DE step
+                % Current population contraction status is back to zero
                 contraction(1,i_pop_number) = 0;
                 
                 % Before starting with the next series of local restart bring
                 % the fmin values back to their original values
                 fmin=1e15 * ones(1,pop_number);
+                
+                if pop_number == 1
+                   % If one population is considered, put inite to 0 after
+                   % global restart, in order to be able to compare the
+                   % number of local restart to options.max_LR
+                    inite(1,i_pop_number) = 0;
+                    
+                end
+                
+                
+                if options.text
+                    disp('---------------------------------------------------------------------------------------')
+                    disp('GLOBAL RESTART')
+                    disp(['Population number: ' num2str(i_pop_number)]);
+                    disp(['Number of global restart for current population: ' num2str(iglob(1,i_pop_number))]);
+                    disp('---------------------------------------------------------------------------------------')
+                end
             end
             
         end
         % ---------------------------------------------------------------------
         
-        
-        
-        
-        %
-        %    % Display information
-        %    if pop_number>1 && refresh == 1
-        %            if rem(sum(iglob), pop_number) ~= 0  && iglob(1,i_pop_number) > 0
-        %                str_pop = int2str(i_pop_number);
-        %                str = strcat('- Population',str_pop,'globally restarted and now waiting for global restart of other populations');
-        %                disp(str)
-        %              else
-        %                str_pop = int2str(i_pop_number);
-        %                str = strcat('- Local restart realized for population ',str_pop);
-        %                disp(str)
-        %            end
-        %     end
-        
-        % archivebest now is a 3D matrix for each population. It collect all the
-        % BestMem and BestVal values for each population, for each local or
-        % global restart.
-        % Since global restart are not likely to happens together for all the
-        % populations, we will find ourselves in a situation in which population A
-        % has already been globally restarted, but is waiting for population B to
-        % be globally restarted too. While population B keeps going through local
-        % optimization, it has to collect the new generated BestMem and BestVal
-        % values, while population A has not such a value to collect. However,
-        % since the 3D matrix does not allow to have different matrix with
-        % different number of rows, we generate new rows for archivebest for
-        % population A (even if they are not necessary) and fill them with NaN
-        % values.
-        % When both A and B will be globally restarted we will find this situation
-        % for archivebest:
-        % archivebest(:,:,1) = [BestMem1 BestVal1 nFeVal1;...
-        %                       BestMem2 BestVal2 nFeVal2;...
-        %                       BestMem3 BestVal3 nFeVal3;...
-        %                       NaN      NaN      NaN;...
-        %                       NaN      NaN      NaN];
-        
-        % archivebest(:,:,2) = [BestMem1 BestVal1 nFeVal1;...
-        %                       BestMem2 BestVal2 nFeVal2;...
-        %                       BestMem3 BestVal3 nFeVal3;...
-        %                       BestMem4 BestVal4 nFeVal4;...
-        %                       BestMem5 BestVal5 nFeVal5];
-        
-        % Now therefore both population have been globally restarted, and they
-        % start collecting new BestMem, BestVal and nFeVal parameters in new rows
-        % for each local optimization.
-        % Suppose that once more population A globally restart before population B.
-        % We will have the following situation for population :
-        % archivebest(:,:,1) = [BestMem1 BestVal1 nFeVal1;...
-        %                       BestMem2 BestVal2 nFeVal2;...
-        %                       BestMem3 BestVal3 nFeVal3;...
-        %                       NaN      NaN      NaN;...
-        %                       NaN      NaN      NaN;...
-        %                       BestMem1 BestVal1 nFeVal1;...
-        %                       BestMem2 BestVal2 nFeVal2];
-        % Population 1 has to perform a global restarting using cluster centers
-        % that are defined using ONLY the last two rows of archivebest!!!
-        % Therefore we need a number identifying the first row that we need to
-        % consider for the definition of the cluster centers. This row number is
-        % identified by the following parameter row_number.
-        % In the previous example row_number would be 6.
-        %
-        % Now let us analyze how the definition of row_number is evaluated.
-        % First of all we compute it only when ALL population have been globally
-        % re-initialized (condition defined by the sum of the waiting vector) and
-        % only if we have had a globally restart for all the population (row_number
-        % is zero when the populations have not been already globally restarted at
-        % least once).
-        % It is computed as maximum value of archivebest_elements, which is the
-        % vector which, for each population, counts how many significant (non NaN)
-        % elements each population count in the archivebest matrix.
-        % For the previous case it would have been
-        % archivebest_elements = [3 5];
-        
-        if  sum(waiting) == pop_number  && iglob(i_pop_number)>0
-            row_number_old = row_number;
-            row_number = row_number + max(archivebest_elements);
-        end
-        
-        
+
         % We need to exit the part of the code that performs local and global
         % restart when all population are globally restarted.
         % We cannot use the parameter iglob for this check.
@@ -1153,27 +1325,12 @@ while sum(nFeVal) < nFeValMax
         % end of -------- for i_pop_number = 1 ; pop_number
     end
     % =========================================================================
-    
-    % PLOT FOR LOCAL MINIMA AND BUBBLE DIMENSION
-    if options.plot_flag == 1
-        h = figure;
-        S = int2str(n_figure);
-        filename = S;
-        aidea_movie2(archivebest,archivebest_elements,1,bubble_dimension, D, iglob, row_number_old);
-        print(h, '-djpeg', filename);
-        n_figure = n_figure + 1;
-    end
-    
+        
     
     % We have had the first local restart, so at the next cycle we can adapt
     % the matrix for the dimension of the bubble
     first_local_restart = 0;
-    
-    % PLOT FOR POPULATION ADVANCEMENT - UNCOMMENT TO SEE IT
-    % if options(37)==1 && i_pop_number == pop_number
-    %     n_figure = aidea_movie(options,pop,n_figure);
-    % end
-    
+   
     
     % ========================================================================
     % end of -------- while 1
@@ -1182,9 +1339,6 @@ while sum(nFeVal) < nFeValMax
 end
 % =========================================================================
 
-for i_pop_number = 1 : pop_number
-    memories{i_pop_number} = sortrows(memories{i_pop_number},D+1);
-end
 
 % =========================================================================
 % end of the function
@@ -1198,8 +1352,8 @@ end
 
 %% Differential Evolution with adaptive F and CR 
 
-function [BestMem, BestVal, nFeVal, pop, Val, iter, vval, new_elements] = DE_step(fname, ...
-         lb, ub, pop, nFeVal, i_pop_number, mmdist, P6, dd_limit, DE_strategy, nFeValMax, varargin)
+function [BestMem, BestVal, nFeVal, pop, Val, iter, vval, new_elements, exitflag] = DE_step(fname, ...
+         lb, ub, pop, nFeVal, i_pop_number, options, nFeValMax, varargin)
 
 %    INPUT
 %           fname        : function handle to cost function
@@ -1208,10 +1362,13 @@ function [BestMem, BestVal, nFeVal, pop, Val, iter, vval, new_elements] = DE_ste
 %           nFeVal       : vector with the number of functions evaluations for
 %                          each population
 %           i_pop_number : number of the current population
-%           mmdist       : convergence threshold (for population contraction)
-%           P6           : probability of running selected DE strategies
-%           dd_limit     : limit value of dd for adaptation of CR and F
-%           DE_strategy  : integer to identify selected DE strategies
+%           options      : structure containing:
+%                          mmdist       : convergence threshold (for population contraction)
+%                          P6           : probability of running selected DE strategies
+%                          dd_limit     : limit value of dd for adaptation of CR and F
+%                          DE_strategy  : integer to identify selected DE strategies    
+%                          CR           : CR for non-adaptive run
+%                          F            : F for non-adaptive run
 %           nFeValMax    : maximum number of function evaluations allowed
 %           varargin     : additional inputs
 %
@@ -1235,8 +1392,27 @@ function [BestMem, BestVal, nFeVal, pop, Val, iter, vval, new_elements] = DE_ste
 % =========================================================================
 % Initialization
 % =========================================================================
+% Contraction threshold
+mmdist = options.rho;
+
+% Probability of using strategy best
+P6         = options.prob_DE_strategy;
+
+% Limit on delta f for CR update (3)
+dd_limit   = options.dd_CRF;
+
+% DE strategy
+DE_strategy = options.DE_strategy;
+
+% CR and F for the DE defined by the user. If empty, they will be adapted
+CR_user = options.CR;
+F_user  = options.F;
+
 % ?
 new_elements = 0;
+
+% 
+exitflag = 0;
 
 % The population is composed by NP elements with dimension D
 [NP,D]    = size(pop);
@@ -1285,7 +1461,7 @@ if sum(nFeVal) >= nFeValMax
     
     BestMem = pop(ibest,:);
     BestVal = Val(1);
-    
+
     return
 end
 
@@ -1304,7 +1480,7 @@ for i = 2 : NP                        % check the remaining members
         iter = 0;
         
         BestMem = pop(ibest,:);
-    
+
         return
     end
     
@@ -1327,94 +1503,110 @@ nostop = 1;
 
 %% Initialization of CRF to uniform distribution
 
-% Crossover probability CR is defined in the interval 0.1 to 0.99
-% CRa is a matrix with ((D/2)+1) rows and 3 columns
-% If D = 3 CRa will be
-% CRa = [0.1  0  0;...
-%        CR2  0  0;...
-%        CR3  0  0;...
-%        0.99 0  0];
-delta = (.99-.1)/(D/2);
-CRa_1st   = (0.1:delta:0.99)';          % 1st column of matrix CRa
-% CRa_1st = linspace(0.1, 0.99, fix(sqrt(D + 1)))';
-CRa       = [CRa_1st zeros(size(CRa_1st)) zeros(size(CRa_1st))];
-
-% Differential weight F is defined in the interval -1 to 1
-% Fa is a (D/2+1)*3 matrix
-delta     = (1-(-1))/(D/2);
-Fa_1st    = (-1:delta:1)';             % 1st column of matrix Fa
-% Fa_1st = linspace(-1, 1, fix(sqrt(D + 1)))';
-Fa        = [Fa_1st zeros(size(Fa_1st)) zeros(size(Fa_1st))];
-
-CRFa = [];
-
-% Construnction of a regular mesh in the space with CR between 0.1 and 0.99
-% and F between -1 and 1. The third and foruth coulmns correspond to the
-% parameter dd and to the iteration number
-% At the end of the following for cycle the matrix CRFa will be (if D=3)
-% CRFa = [CR1 F1 0 0;...
-%         CR1 F2 0 0;...
-%         CR1 F3 0 0;...
-%         CR1 F4 0 0;...
-%         CR2 F1 0 0;...
-%         CR2 F2 0 0:...
-%         ......
-%         CR3 F1 0 0;...
-%         .....
-%         CR4 F4 0 0];
-% and therefore its dimensions will be [(D/2+1)x(D/2+1)]*4
-for im = 1 : size(CRa(:,1))
-    for in = 1 : size(Fa(:,1))
-        CRFa=[CRFa; CRa(im,1) Fa(in,1) 0 0];
+% Initialize CRF only if CR and F are to be adapted (that is, if they are
+% not defined)
+if isempty(CR_user) && isempty(F_user)
+    
+    % Crossover probability CR is defined in the interval 0.1 to 0.99
+    % CRa is a matrix with ((D/2)+1) rows and 3 columns
+    % If D = 3 CRa will be
+    % CRa = [0.1  0  0;...
+    %        CR2  0  0;...
+    %        CR3  0  0;...
+    %        0.99 0  0];
+    delta = (.99-.1)/(D/2);
+    CRa_1st   = (0.1:delta:0.99)';          % 1st column of matrix CRa
+    % CRa_1st = linspace(0.1, 0.99, fix(sqrt(D + 1)))';
+    CRa       = [CRa_1st zeros(size(CRa_1st)) zeros(size(CRa_1st))];
+    
+    % Differential weight F is defined in the interval -1 to 1
+    % Fa is a (D/2+1)*3 matrix
+    delta     = (1-(-1))/(D/2);
+    Fa_1st    = (-1:delta:1)';             % 1st column of matrix Fa
+    % Fa_1st = linspace(-1, 1, fix(sqrt(D + 1)))';
+    Fa        = [Fa_1st zeros(size(Fa_1st)) zeros(size(Fa_1st))];
+    
+    CRFa = [];
+    
+    % Construnction of a regular mesh in the space with CR between 0.1 and 0.99
+    % and F between -1 and 1. The third and foruth coulmns correspond to the
+    % parameter dd and to the iteration number
+    % At the end of the following for cycle the matrix CRFa will be (if D=3)
+    % CRFa = [CR1 F1 0 0;...
+    %         CR1 F2 0 0;...
+    %         CR1 F3 0 0;...
+    %         CR1 F4 0 0;...
+    %         CR2 F1 0 0;...
+    %         CR2 F2 0 0:...
+    %         ......
+    %         CR3 F1 0 0;...
+    %         .....
+    %         CR4 F4 0 0];
+    % and therefore its dimensions will be [(D/2+1)x(D/2+1)]*4
+    for im = 1 : size(CRa(:,1))
+        for in = 1 : size(Fa(:,1))
+            CRFa=[CRFa; CRa(im,1) Fa(in,1) 0 0];
+        end
     end
+    
+    
 end
-
-
-
 
 %% Main DE loop
 while nostop
     
-    % =====================================================================
-    % CR and F are sampled from the Parzen distribution
-    % =====================================================================
-    % CRFv is a NP*2 matrix which, for each population elements (row)
-    % contains the CR (1st column) and F (2nd column) values
-    CRFv = parzenself_k([], CRFa(:,1:2), ones(size(CRFa(:,1))), NP, 'norm', 0);
-    
-    % Separate CR from F values
-    % At the end of the following lines:
-    % CRv -> NP*1 
-    % Fv  -> NP*1 
-    CRv = CRFv(:,1);    
-    Fv  = CRFv(:,2);
-    
-    % --------------------------------------------------------------------- 
-    % Avoid CR outside the boundaries 0.1 to 0.99
-    % ---------------------------------------------------------------------
-    % If some of the obtained CRv associated to a population element is
-    % lower than 0.1, its values is brought back to 0.1
-    % At the same time, is some element have a value bigger than 0.99, it
-    % is brought back to 0.99
-    % The matrix CRv as defined in the following lines is indeed
-    % CRv = [CR1 CR2 CR3 ..... CRn;...
-    %        0.1 0.1 0.1       0.1]
-    % where CR1, CR2 etc represent the CR values associated to the 1st, 2nd
-    % and so on individual of the population.
-    % The max function returns a row vector containing the maximum value in
-    % each column
-    % The same holds for the min comparison
-    % At the end of the following two lines CRv will be a NP column vector
-    % (it is transposed back at the end of the lines!)
-    CRv = (max ( [CRv'; 0.1  * ones(size(CRv')) ] ) )';
-    CRv = (min ( [CRv'; 0.99 * ones(size(CRv')) ] ) )';
-    % CR is of size [D,NP]
-    CR  = repmat(CRv, 1, D);
-    
-    Fv  = (max ( [Fv'; -1*ones(size(Fv')) ] ) )';
-    Fv  = (min ( [Fv';  1*ones(size(Fv')) ] ) )';
-    % F is of size [D, NP]
-    F   = repmat(Fv, 1, D);
+    % If CR and F are not defined by the user
+    if isempty(CR_user) && isempty(F_user)
+        
+        % =====================================================================
+        % CR and F are sampled from the Parzen distribution
+        % =====================================================================
+        % CRFv is a NP*2 matrix which, for each population elements (row)
+        % contains the CR (1st column) and F (2nd column) values
+        CRFv = parzenself_k([], CRFa(:,1:2), ones(size(CRFa(:,1))), NP, 'norm', 0);
+        
+        % Separate CR from F values
+        % At the end of the following lines:
+        % CRv -> NP*1
+        % Fv  -> NP*1
+        CRv = CRFv(:,1);
+        Fv  = CRFv(:,2);
+        
+        % ---------------------------------------------------------------------
+        % Avoid CR outside the boundaries 0.1 to 0.99
+        % ---------------------------------------------------------------------
+        % If some of the obtained CRv associated to a population element is
+        % lower than 0.1, its values is brought back to 0.1
+        % At the same time, is some element have a value bigger than 0.99, it
+        % is brought back to 0.99
+        % The matrix CRv as defined in the following lines is indeed
+        % CRv = [CR1 CR2 CR3 ..... CRn;...
+        %        0.1 0.1 0.1       0.1]
+        % where CR1, CR2 etc represent the CR values associated to the 1st, 2nd
+        % and so on individual of the population.
+        % The max function returns a row vector containing the maximum value in
+        % each column
+        % The same holds for the min comparison
+        % At the end of the following two lines CRv will be a NP column vector
+        % (it is transposed back at the end of the lines!)
+        CRv = (max ( [CRv'; 0.1  * ones(size(CRv')) ] ) )';
+        CRv = (min ( [CRv'; 0.99 * ones(size(CRv')) ] ) )';
+        % CR is of size [D,NP]
+        CR  = repmat(CRv, 1, D);
+        
+        Fv  = (max ( [Fv'; -1*ones(size(Fv')) ] ) )';
+        Fv  = (min ( [Fv';  1*ones(size(Fv')) ] ) )';
+        % F is of size [D, NP]
+        F   = repmat(Fv, 1, D);
+        
+        
+        % If CR and F are defined by the user
+    else
+        
+        
+        CR = repmat(CR_user, NP, D);
+        F  = repmat(F_user, NP, D);
+    end
     
     
     
@@ -1506,7 +1698,9 @@ while nostop
     % =====================================================================
     % Select which vectors are allowed to enter the new population
     %======================================================================
-    CRFa = sortrows(CRFa, [3 4]);
+    if isempty(CR_user) && isempty(F_user)
+        CRFa = sortrows(CRFa, [3 4]);
+    end
     
     % When I exit this function I want to return the maximum dd value for
     % all the elements of the population. Therefore the part of the code
@@ -1560,28 +1754,15 @@ while nostop
         % -----------------------------------------------------------------
         % Bounce back re-initialisation
         % -----------------------------------------------------------------
-        while lElTooLow > 0
-
-            InterPop(i,ElTooLow) = ( popold(ElTooLow) + lb(ElTooLow) ) / 2;
-            
-            dInterPopl = InterPop(i,:) - lb;
-            popold(ElTooLow) = InterPop(i,ElTooLow);
-            ElTooLow  = find(dInterPopl < 0);
-            lElTooLow = length(ElTooLow);
-
+        if lElTooLow > 0
+            InterPop(i,ElTooLow) = ( popold(i,ElTooLow) + lb(ElTooLow) ) / 2;
         end
         
-        while lElTooHigh > 0
-
-            InterPop(i,ElTooHigh) = ( popold(ElTooHigh) + ub(ElTooHigh) ) / 2;
-            
-            dInterPopr = ub - InterPop(i,:);
-            popold(ElTooHigh) = InterPop(i,ElTooHigh);
-            ElTooHigh  = find(dInterPopr < 0);
-            lElTooHigh = length(ElTooHigh);
-
+        
+        
+        if lElTooHigh > 0
+            InterPop(i,ElTooHigh) = ( popold(i,ElTooHigh) + ub(ElTooHigh) ) / 2;
         end
- 
         
         
         % =================================================================
@@ -1604,35 +1785,38 @@ while nostop
             % Save value
             Val(i) = TempVal;
             
-            % -------------------------------------------------------------
-            % Adaptation of CR and F
-            % -------------------------------------------------------------
-            for ic = 1 : size(CRFa,1)
-                
-                % If the previous difference between parent and offspring
-                % function value is smaller than the new one (under the
-                % condition that the offspring perform better than the
-                % parent - we are already in an if condition, that is if
-                % TempVal <= Val(i) )
-                if CRFa(ic,3) < dd
+            if isempty(CR_user) && isempty(F_user)
+                % -------------------------------------------------------------
+                % Adaptation of CR and F
+                % -------------------------------------------------------------
+                for ic = 1 : size(CRFa,1)
                     
-                    % The substitution of CR is subject to another
-                    % limitation
-                    if abs(dd) > dd_limit
+                    % If the previous difference between parent and offspring
+                    % function value is smaller than the new one (under the
+                    % condition that the offspring perform better than the
+                    % parent - we are already in an if condition, that is if
+                    % TempVal <= Val(i) )
+                    if CRFa(ic,3) < dd
                         
-                        % Substitution of CR
-                        CRFa(ic,1) = CRv(i);
+                        % The substitution of CR is subject to another
+                        % limitation
+                        if abs(dd) > dd_limit
+                            
+                            % Substitution of CR
+                            CRFa(ic,1) = CRv(i);
+                        end
+                        
+                        % Substitue the previous value of F with the one used
+                        % for the considered offspring
+                        CRFa(ic,2) = Fv(i);
+                        
+                        % Associate the corresponding dd and iter value
+                        CRFa(ic,3) = dd;
+                        CRFa(ic,4) = iter;
+                        break
                     end
-                    
-                    % Substitue the previous value of F with the one used
-                    % for the considered offspring
-                    CRFa(ic,2) = Fv(i);
-                    
-                    % Associate the corresponding dd and iter value
-                    CRFa(ic,3) = dd;
-                    CRFa(ic,4) = iter;
-                    break
                 end
+                
             end
             
             % If the value of the function for the considered child
@@ -1692,13 +1876,16 @@ while nostop
     nostop = mmdistm/max(vval(:,5))>mmdist  && sum(nFeVal)<nFeValMax && iter < (D/10)*100 ;
 
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %     disp(['DE generation: ' num2str(step_DE)]);
-    % %     disp(strcat('\rho for DE convergence: ', num2str(mmdistm/max(vval(:,5)) - mmdist)))
-    %     disp(['Minimum: ' num2str(BestVal)]);
-    %     disp('------------------------------------------------')
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if options.text
+    disp(['Contraction at DE generation: ' num2str(iter)]);
+    disp(['Minimum: ' num2str(BestVal)]);
+    disp('------------------------------------------------')
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end
 

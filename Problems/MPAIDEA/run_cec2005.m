@@ -39,6 +39,13 @@ pop_number = 4;
 NP = 10;
 
 % -------------------------------------------------------------------------
+% Dimension of the bubble for the local restart. If empty, MP-AIDEA will
+% adapt it
+% -------------------------------------------------------------------------
+options.delta_local = [];
+% options.delta_local = 0.1;
+
+% -------------------------------------------------------------------------
 % Distance from cluster of global minima for global restart of the
 % population
 % -------------------------------------------------------------------------
@@ -48,6 +55,13 @@ options.delta_global = 0.1;
 % Threshold for contraction of the population
 % -------------------------------------------------------------------------
 options.rho = 0.2;
+
+% -------------------------------------------------------------------------
+% Maximum number of local restart before global restart (for cases when 1
+% population is considered and no adaptation of delta_local and
+% local/global restart is performed)
+% -------------------------------------------------------------------------
+options.max_LR = 5;
 
 % -------------------------------------------------------------------------
 % Choose the DE strategies. 
@@ -71,15 +85,25 @@ options.prob_DE_strategy = 0.5;
 
 
 % -------------------------------------------------------------------------
-% Parameter for the adaptation of CRF
+% Parameter for the adaptation of CR and F
 % -------------------------------------------------------------------------
+% Value of CR (if empty, MP-AIDEA-ALR adapt will adapt it during the process)
+options.CR = 0.5;
+% options.CR = [];
+
+% Value of F (if empty, MP-AIDEA will adapt it during the process)
+options.F = 0.5;
+% options.F = [];
+
+% If options.CR and options.F are empty, define CRF for adaptation of CR
+% and F:
 options.dd_CRF = 3;
 
-% 
-options.plot_flag = 0;
 
-% 
-options.text = 0;
+% -------------------------------------------------------------------------
+% Display text during run?
+% -------------------------------------------------------------------------
+options.text = 1;
 
 
 %% CEC 2014 guidelines

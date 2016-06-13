@@ -38,7 +38,7 @@ options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum ca
     'neo2015DR215', 'neo2015ME131'}; 
 options.MaxConsecutiveRes = 1*ones(1, length(options.Targets)); %The maximum number of resonance orbits to each target (set to -1 to ignore)
 options.MaxVisits = ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
-options.AttributeIDIndex = [11 10];                             %Index of the attributes that determine the unique ID
+options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 7304.5];                                %Attributes of the root  
 options.NodeCheckBoundaries = [3 0.31 2 2*365];                 %The values used by the MyCreatedNodeCheck file.  In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]
 fitnessfcn = @MyCostFunction;                                   %The function reference to the cost function
@@ -48,13 +48,15 @@ options.MyNodeIDCheck = @MyNodeCheck;                           %The function th
 options.MyCreatedNodeCheck = @MyCreatedNodeCheck;               %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
 options.MyBestChainFile = @MyBestChain;
 options.EndTarget = {};
+options.MyEndConditionsFile = @MyEndConditions;
+options.EndConditions = {{}};                                     %For use in the MyEndCondtions file
 options.RootName = 'Earth';
 options.AdditonalInputs = {'a'};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 30:5:365;             %Set the value of the sets. 
+tofvalues = 200:10:365;             %Set the value of the sets. 
 sets.tof = mat2cell(ones(16,1)... %Input should be a cell array where each line depicts a target.
    *tofvalues,[ones(16,1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);

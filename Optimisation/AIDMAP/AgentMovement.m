@@ -25,15 +25,17 @@ agentdeathflag = 0;
 currentagent = char(agent);
 currentnode = char(Agents.(currentagent).currentNode);
 
+%Show node agent is moving to in command window
 disp(strcat([datestr(now),' === Moved to',' ',currentnode]));
 
 %Find the current target
-temp = strsplit(currentnode,'____');
-temp = strsplit(temp{end},'___');
+temp = strsplit(currentnode,'___');
+temp = strsplit(temp{end},'__');
 currenttarget = temp{1};
 
 %Check if the final target has been reached
-if  ~(sum(ismember(currenttarget, Inputs.EndTarget))==0)
+if  (~(sum(ismember(currenttarget, Inputs.EndTarget))==0) || (isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
+    
     %If so, set the agentdeathflag to 1
     agentdeathflag = 1;
     
@@ -43,19 +45,6 @@ if  ~(sum(ismember(currenttarget, Inputs.EndTarget))==0)
     return 
 end
 
-
-if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
-    
-    %If there are no more possible decisions or visists left, set the death
-    %flag to 1
-    agentdeathflag = 1;
-    
-    %Save the solution
-    Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';   
-    Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
-    return
-end
-
 %Generate a random number
 p = rand;
 
@@ -63,23 +52,25 @@ p = rand;
 %falls outside of the probability margin
 if (p>Inputs.RamificationProbability && ~isempty(ListNodes.(currentnode).children))
     
-    %Pre-allocate and calculate the probabilities to transverse to each node. The smaller
-    %the cost (higher flux), the higher the probability
+    %Pre-allocation
     childfluxes = zeros(1,length(ListNodes.(currentnode).children));
+    
+    %Find the fluxes of the node's children
     for i = 1:length(ListNodes.(currentnode).children)
         childfluxes(i) = ListNodes.(char(ListNodes.(currentnode).children(i))).flux;
     end
+    
+    %Calculate the probabilities
     problist = childfluxes./(sum(childfluxes));
     problist = problist./sum(problist);
 
     %Choose one of the node's children. Cell structure is used to
     %circumvent issues with node selection if only 1 child is present and
-    %hocsenindex = 1 (it will otherwise only return the first letter)
+    %chosenindex = 1 (it will otherwise only return the first letter)
     chosenindex = find(rand<cumsum(problist),1,'first');
     nodechildren = cell(ListNodes.(currentnode).children);
     chosennode = nodechildren{chosenindex};
-    
-       
+      
     %Move agent to the new node
     Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
     Agents.(currentagent).currentNode = chosennode;

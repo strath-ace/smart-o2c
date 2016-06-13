@@ -20,11 +20,11 @@ ListNodes.(newnode_ID) = newNode;
 %Retrieve the node_ID of the node's parent
 parent = ListNodes.(newnode_ID).parent;
 
-%Check if the noe has a parent
+%Check if the node has a parent
 if ~isempty(parent)
     
-    %Add the node to the children list of the parent node in the the ListNodes 
-    %structure
+    %If node has a parent, add it to the children list of the parent node 
+    %in the the ListNodes structure
     ListNodes.(parent).children = [ListNodes.(parent).children {newnode_ID}];  
 
 end

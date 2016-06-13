@@ -20,7 +20,10 @@ check3 = (newNode.attributes.tof*86400*1e-7 >= CheckBounds(3)*(norm(newNode.attr
 %Waiting time check
 check4 = newNode.attributes.t_dep-ListNodes.(newNode.parent).attributes.t_arr < CheckBounds(4);
 
-checktot = check1*check2*check3*check4;
+%dV so far check
+check5 = newNode.attributes.dV_tot < CheckBounds(5);
+
+checktot = check1*check2*check3*check4*check5;
 
 if checktot ==1
     newNode.length = newNode.length;

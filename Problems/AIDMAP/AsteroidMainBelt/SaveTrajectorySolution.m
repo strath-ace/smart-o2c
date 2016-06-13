@@ -10,13 +10,23 @@ formatspec = '%12s\t%12.4f\t%12s\t%12.4f\t%12s\t%8.2f\n';
 %formatspec = '%s';
 Asteroids = Sequence';
 dV_tot = 0;
+
 for i = 2:length(Asteroids)
 %Find asteroid names
-asteroidsplit = strsplit(Asteroids{i},'____');
-asteroidnamesplit = strsplit(char(asteroidsplit(2)),'___');
+asteroidsplit = strsplit(Asteroids{i},'___');
+asteroidnamesplit = strsplit(char(asteroidsplit(2)),'__');
 asteoroidname = asteroidnamesplit{1};
-AsteroidsNames= char(asteoroidname);
+AsteroidsNames{i-1}= char(asteoroidname);
+firstchar(i-1) = asteoroidname(1);
+end
 
+if sum(firstchar=='a')==length(firstchar)
+    for i = 1:length(AsteroidsNames)
+        AsteroidsNames{i} = AsteroidsNames{i}(2:end);
+    end
+end
+    
+for i = 2:length(Asteroids)
 %Waiting time
 asteroidparent = ListNodes.(Sequence{i}).parent;
 waitingtime = ListNodes.(Sequence{i}).attributes.t_dep - ListNodes.(asteroidparent).attributes.t_arr;
@@ -33,14 +43,14 @@ lambertarrdate2000 = ListNodes.(Sequence{i}).attributes.t_arr;
 lambertarrdate = datestr(mjd20002date(lambertarrdate2000),'yyyy/mm/dd');
 
 %dV [km/s]
-dV = ListNodes.(Sequence{i}).attributes.dV_tot;
+dV = ListNodes.(Sequence{i}).attributes.dV_sum;
 dV_tot = dV_tot+dV;
-fprintf(fid,formatspec,AsteroidsNames,waitingtime,lambertdepdate,lamberttof,lambertarrdate,dV);
+fprintf(fid,formatspec,AsteroidsNames{i-1},waitingtime,lambertdepdate,lamberttof,lambertarrdate,dV);
 end
 
 fprintf(fid,'-----------------------------------------------------------------------------------------------\n');
 fprintf(fid,'%12s\t%12.4f\t%12s\t%12.4f\t%12s\t\t\t\t\t\t\t%8.2f\n','Total:',[],[],[],[],dV_tot);
 % fprintf(fid,formatspec,char(AsteroidsNames),lambertdepdate,lamberttof,lamberttof,lambertarrdate,dV)
-
+fid = fclose('all');
 end
 

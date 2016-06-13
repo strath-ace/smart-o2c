@@ -19,7 +19,7 @@ function [x, fval, exitflag, output] = optimise_mpaidea(fitnessfcn, LB, UB, opti
 
 % Run MP-AIDEA
 [memories_record, memories, archivebest, population_evolution, vval_evolution,...
-    B_mean, delta_local, options, exitflag] = MP_AIDEA_ALR(fitnessfcn, LB, UB, options.population, options);
+    B_mean, delta_local, inite, iglob, options, exitflag] = MP_AIDEA_ALR(fitnessfcn, LB, UB, options.population, options);
 
 % Output
 x    = zeros(size(memories_record,3), numel(LB));
@@ -36,5 +36,7 @@ output.population_evolution = population_evolution;
 output.vval_evolution       = vval_evolution;
 output.B_mean               = B_mean;
 output.delta_local          = delta_local;
+output.number_LR            = inite;
+output.number_GR            = iglob;
 
 end
