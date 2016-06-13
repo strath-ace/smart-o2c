@@ -17,12 +17,14 @@ function [posschildren] = PossChilds(targets,sets)
 %Loop over all the targets
 
 attribvalues = struct2cell(sets);
+posschildren =[];
 
 for i = 1:length(targets)
     
     %Set for convenience the current target name as a variable
     targetname = targets(i);
     
+    possibleattributes{i,1} = i;
     %Loop over all the attributes
     for j = 1:length(attribvalues)
         
@@ -32,7 +34,7 @@ for i = 1:length(targets)
         onevalueflag = (length(attribvalues{j}(1,:))==1);
         cellflag = iscell(attribvalues{j});
         
-        possibleattributes{i,j} = cell2mat(attribvalues{j}(i));
+        possibleattributes{i,j+1} = 1:1:length(cell2mat(attribvalues{j}(i)));
     end
            
     %Determine all possible combinations of the possible characteristics
@@ -64,31 +66,16 @@ for i = 1:length(targets)
     while ~isempty(cell2mat(strfind(possattribstr,'__')))
         possattribstr = strrep(possattribstr,'__','_');
     end
-    
-    %Once all the attributes are separated by exactly 1 underscore, 
-    %replace them all by 2 underscores to reach the final result.
-    possattribstr = strrep(possattribstr,'_','__');
-    
-    %Combine the target name and the attributes into the UID by
-    %looping over this target's possible characteristics and concatenating
-    %the two strings.
-    for j = 1:length(possattribstr)
-        possdecattribvec(i,j) = strcat(targetname,'___',possattribstr{j});
         
-        %As dots are not possible in field names, use 1 underscore to
-        %denote the location of the decimal point
-        possdecattribvec(i,j) = strrep(possdecattribvec(i,j),'.','_');
-    end
+    %Combine the target name and the attributes into the UID and add them
+    %to a vector that will contain all the possible children
+    posschildren = [posschildren strcat(targetname,'__',possattribstr)];
     clear possattribstr
 end
 
 
-%Reshape the possdecattribvec variable such that it becomes a cell array 
-%with a single row.
-posschildrenvec = reshape(possdecattribvec, [1, numel(possdecattribvec)]);
-
 %Remove empty cells that are the result of more possible characteristics
 %for certain targets
-posschildren = posschildrenvec(~cellfun('isempty',posschildrenvec));
+%posschildren = posschildrenvec(~cellfun('isempty',posschildrenvec));
 end
 

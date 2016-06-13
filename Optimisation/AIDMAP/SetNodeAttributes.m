@@ -15,19 +15,34 @@ function [Attributes] = SetNodeAttributes(Inputs, Parent,targetname,attributes)
     
 %Retrieve the node attributes defined by the user
 Attributes = Inputs.NodeAttributes();
+SetNames = fieldnames(Inputs.Sets);
 
 %Obtain their names
 attributenames = fieldnames(Attributes);
 
+if strcmp(targetname,Inputs.RootName)
 %Loop over the attributes
-for i = 1:length(attributes)
-    
-    %Find the index of the attributes set by the user
-    attributeindex = Inputs.AttributeIDIndex(i);
-    
-    %Set the value of these attributes as defined
-    Attributes.(char(attributenames(attributeindex))) = attributes(i);
+    for i = 1:length(attributes)
+
+        %Find the index of the attributes set by the user
+        attributeindex = Inputs.AttributeIDIndex(i);
+
+        %Set the value of these attributes as defined
+        Attributes.(char(attributenames(attributeindex))) = Inputs.RootAttrib(i);
+    end
+else
+    for i = 2:length(attributes)
+        
+        %Find the index of the attributes set by the user
+        attributeindex = Inputs.AttributeIDIndex(i-1);
+        
+        %Set the value of these attributes as defined
+        Attributes.(char(attributenames(attributeindex))) = Inputs.Sets.(char(SetNames(i-1))){attributes(1)}(attributes(i));
+        
+    end
 end
+        
+        
 
 Attributes = Inputs.MyAttributeCalcFile(Inputs, Parent, targetname, Attributes);
 

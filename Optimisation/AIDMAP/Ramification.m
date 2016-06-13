@@ -45,10 +45,14 @@ end
 possnodes = Inputs.PossibleListNodes;
 
 %Remove the already existing nodes
-possnodes(ismember(possnodes,fieldnames(ListNodes)))=[];
+%Find the already existing children
+temp = strsplit(currentNode,'___');
+possids = strcat(temp(end),'___',possnodes);
+
+possnodes(ismember(possids,fieldnames(ListNodes)))=[];
 
 %Split the remaining nodes into their target & characteristic
-temp = regexp(possnodes, '___', 'split');
+temp = regexp(possnodes, '__', 'split');
 [temp]=cat(1, temp{:});
 
 %Next, retrieve the decisions possible in this node
@@ -96,7 +100,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     possnodes(nodeindex) = [];
     
     %Check if the node is valid based on the UID
-    [validflag] = MyNodeCheck(ListNodes,newnode_ID,currentNode,generatednodes);
+    [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode,generatednodes);
    
     %Confirm that node doesn't already exist
     if (validflag)
@@ -105,7 +109,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
         %Generate the new node & save its cost in a vector
         [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
         if newNode.length ~= Inf
-            [newNode] = MyCreatedNodeCheck(Inputs, newNode, ListNodes);
+            [newNode] = Inputs.CreatedNodeCheckFile(Inputs, newNode, ListNodes);
         end
         if newNode.length ~= Inf
             costvec = [costvec newNode.length];
