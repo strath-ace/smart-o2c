@@ -4,24 +4,31 @@ clc
 
 %% DFET PROBLEM TRANSCRIPTION
 
-% Equations, initial conditions and time span
-a=4e-3;
-f = @(x,u,t) [x(2); a*cos(u(1)); x(4); -0.0016+a*sin(u(1))];
-dfx = [];%@(x,u,t) [0 1 0 0; 0 0 0 0; 0 0 0 1; 0 0 0 0];
-dfu = [];%@(x,u,t) [0 ; -a*sin(u(1)); 0; a*cos(u(1))];
+% Dynamics
+
+f = @ascent_state_equation;
+dfx = [];%@ascent_drag_mass_state_jacobian;
+dfu = [];%@ascent_drag_mass_control_jacobian;
+dft = [];
+smooth_scal_const = @ascent_specific_smooth_scal_constraints; 
+
+% Objective functions and Bolza's problem weights
+
+g = @(x,u,t) [t 0; -x(2) 0];
+weights = [1 0; 1 0];
 
 t_0 = 0;
 
 x_0 = [0 0 0 0];
 
-imposed_final_states = [0 1 1 1];   % mask vector with the variables on which a final condition is imposed
-x_f = [0 0.1 10 0];                % vector of final conditions (size???)
+imposed_final_states = [0 0 1 1];
+x_f = [0 0.1 10 0];
 
-% Discretisation settings
+%% Discretisation settings
 
 num_elems = 4;
-state_order = 1;
-control_order = 1;
+state_order = 6;
+control_order = 6;
 DFET = 1;
 state_distrib = 'Lobatto'; % or Cheby
 control_distrib = 'Legendre';
@@ -65,59 +72,92 @@ structure = prepare_transcription(num_eqs,num_controls,num_elems,state_order,con
 
 structure = impose_final_conditions(structure,imposed_final_states);
 
+% include function handles, derivatives, objective functions and weights
+% for Bolza's problem in the structure. Will have to do it with a proper
+% function
+
+structure.f = f;
+structure.dfx = dfx;
+structure.dfu = dfu;
+structure.dft = [];
+structure.g = g;
+structure.weights = weights;
+
+
 state_bounds = [-inf inf;-inf inf; -inf inf;-inf inf];
 control_bounds = [-pi/2 pi/2];
 
 [vlb,vub] = transcribe_bounds(state_bounds,control_bounds,structure);
 
 vlb = [100;vlb]';
-vub = [220;vub]';
+vub = [250;vub]';
 
 tol_conv = 1e-6;
-maxits = 5000;
+maxits = 10000;
 
-fminconoptions = optimset('Display','off','MaxFunEvals',maxits,'Tolcon',tol_conv,'GradCon','off','Algorithm','sqp');
+fminconoptions = optimset('Display','off','MaxFunEvals',maxits,'TolCon',tol_conv,'GradConstr','on','Algorithm','sqp');
 
 %% MACS PARAMETERS
 
-opt.maxnfeval=5000;                                                       % maximum number of f evals 
-opt.popsize=20;                                                             % popsize (for each archive)
+opt.maxnfeval=500000;                                                       % maximum number of f evals 
+opt.popsize=10;                                                             % popsize (for each archive)
 opt.rhoini=1;                                                               % initial span of each local hypercube (1=full domain)
 opt.F=0.9;                                                                    % F, the parameter for Differential Evolution
 opt.CR=0.9;                                                                   % CR, crossover probability
 opt.p_social=1;                                                           % popratio
-opt.max_arch=100;                                                            % archive size
-opt.coord_ratio=1/(sum(~isinf(vlb)));                                               
+opt.max_arch=10;                                                            % archive size
+opt.coord_ratio=1;%/(sum(~isinf(vlb)));                                               
 opt.contr_ratio=0.5;                                                        % contraction ratio
 opt.draw_flag=0;                                                            % draw flag
 opt.cp=0;                                                                   % constraints yes/no 
-opt.MBHflag=0;                                                              % number of MBH steps
+opt.MBHflag=1;                                                              % number of MBH steps
 opt.cpat=0;                                                                 % pattern to DE
 opt.explore_DE_strategy = 'rand';                                           % DE for exploring agents should pull towards the element with the best objective function value
 opt.social_DE_strategy ='DE/current-to-rand/1';                             % DE for social agents
 opt.explore_all = 1;                                                        % all agents should perform local search
-opt.v = 1;
+opt.v = 0;
 opt.int_arch_mult=1;
-opt.dyn_pat_search = 0;
-opt.upd_subproblems = 1;
+opt.dyn_pat_search = 1;
+opt.upd_subproblems = 0;
 opt.max_rho_contr = 5;
 opt.pat_search_strategy = 'standard';
 opt.optimal_control = 1;
-opt.vars_to_opt = ~isinf(vlb);
+opt.vars_to_opt = ~isinf(vub);
 opt.oc.structure = structure;
-opt.oc.f = f;
-opt.oc.dfx = dfx;
-opt.oc.dfu = dfu;
+opt.oc.smooth_scal_constr_fun = smooth_scal_const;
+%opt.oc.f = f;
+%opt.oc.dfx = dfx;
+%opt.oc.dfu = dfu;
+opt.oc.init_type = 'copy_ic';
+opt.oc.x_0 = x_0;
+opt.oc.x_f = x_f;
+opt.oc.imposed_final_states = imposed_final_states;
+opt.oc.state_vars = isinf(vub);
+opt.oc.control_vars = ~isinf(vub);
+opt.oc.control_vars(1) = 0;
 
 %% OPTIMISATION LOOP
 
-for i=1:1
+for i=1:10
     
-    [memory, nfeval,ener]=macs7v16OC(@fastest_climb_MACS_fmincon2,[],vlb,vub,opt,[],[],vlb,vub,f,structure,x_0,x_f,dfx,dfu,fminconoptions);    
+    mem(i).memory=macs7v16OC(@ascent_drag_mass_MACS_MOO,[],vlb,vub,opt,[],[],vlb,vub,structure,x_0,x_f,fminconoptions);    
     
 end
 
 %% plot 
 
-% [x,u,xb] = extract_solution(memory(2:length(vlb)),structure,x_f);
-% plot_solution_vs_time(x,u,x_0,xb,t_0,memory(1),structure)
+% [~,b] = sort(mem(1).memory(:,length(vlb)+1));
+%  
+% qq = mem(1).memory(b,:);    %sort wrt t_f
+% 
+% for i = 1:size(qq,1)
+%     
+%     [x,u,xb] = extract_solution(qq(i,2:length(vlb)),structure,x_f);
+%     plot_solution_vs_time(x,u,x_0,xb,t_0,qq(i,1),structure.uniform_els,structure,i+1)
+%     subplot(2,1,1)
+%     axis([0 250 0 120])
+%     subplot(2,1,2)
+%     axis([0 250 -pi pi])
+%     drawnow
+%     
+%end

@@ -391,7 +391,7 @@ ener = [];
 ener2 = [];
 
 %%  MEMORY INITIALIZATION, ONLY IF MEMORY IS EMPTY
-
+fprintf('Initialising...\n')
 if isempty(memory)                                                          % if memory is already populated, no initialization is needed!
     
     %% CHOOSE RANDOM PARAMETERS AND SET UP PROBLEM DIMENSIONALITY AND CONSTRAINTS
@@ -406,8 +406,11 @@ if isempty(memory)                                                          % if
         % is saved, convergence should be much easier
         
         for i = 1:options.popsize
+
             x(i,options.oc.transcription_vars) = make_first_guess(options.oc.structure.f,options.oc.x_0,0,x(i,1),x(i,options.oc.control_vars),options.oc.structure)';
+        
         end
+        
     else
         
         x=lhsu(vlb,vub,options.popsize,options.id_vars_to_opt);                                        % latin hypercube sampling over the whole domain
@@ -735,6 +738,8 @@ if options.draw_flag>=1                     %if draw_flag
 end
 
 %%  MAIN LOOP
+
+fprintf('Initialisation finished, starting optimisation loop...\n');
 
 MBH_positions = [];
 MADS_dirs = [];
