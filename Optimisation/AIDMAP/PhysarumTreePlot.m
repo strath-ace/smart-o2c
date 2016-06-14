@@ -13,6 +13,7 @@ function [] = PhysarumTreePlot(ListNodes)
 %Retireve the node names
 nodenames = fieldnames(ListNodes);
 
+%Sanity check
 if (length(fieldnames(ListNodes))==1)
     disp('No chains have been found');
     return
@@ -20,6 +21,7 @@ end
 
 %Loop over all the nodes
 for i = 2:length(nodenames)
+    
     %Find each node's parent
     treeplotnodes(i) = strmatch(char(ListNodes.(char(nodenames(i))).parent), nodenames, 'exact');
 end
@@ -44,7 +46,6 @@ set(gca, 'XTick', [])
 set(gca, 'YTick', [])
 xlabel('')
 ylabel('')
-
 
 h = zoom; % get handle to zoom utility
 set(h,'ActionPostCallback',@zoomCallBack);

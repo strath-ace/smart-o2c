@@ -8,7 +8,7 @@ function [x,fval,exitflag,output] = optimisation_aidmap(fitnessfcn,sets,options)
 %% Inputs:
 %
 % * fitnessfcn : The function reference to the fitness function
-% * sets       : The sets of the possible attributes
+% * sets       : The sets of the possible attributes incorporated in the ID
 % * options    : Structure containing the options sets by the user
 %
 %
@@ -20,15 +20,20 @@ function [x,fval,exitflag,output] = optimisation_aidmap(fitnessfcn,sets,options)
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
+%Start clock
 tic;
 
+%Initialize the AIDMAP algorithm
 [InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
 
+%Run the algorithm
 [output.Solutions, BestSolution, InitializedInputs, output.ListNodes, output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
 
+%Retrieve the best solution
 x = BestSolution.BestChain;
 fval = BestSolution.BestCost;
 
+%End clock
 output.CompTime = toc;
 
 exitflag = 0;
