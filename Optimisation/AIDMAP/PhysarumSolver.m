@@ -8,6 +8,7 @@ function [Solutions, BestSolution, InitializedInputs, ListNodes, Agents] = Physa
 %
 % Outputs: 
 % * Solutions          : The structure containing the solutions found
+% * BestSolution       : The best solution found
 % * InitializedInputs  : The structure containing the options set by the
 %                        user
 % * ListNodes          : Structure containing the final structure with the
@@ -22,6 +23,7 @@ function [Solutions, BestSolution, InitializedInputs, ListNodes, Agents] = Physa
 Solutions.Nodes = [];
 Solutions.Costs = [];
 
+%Initialize the structure that will contain the best solution
 BestSolution.BestChain = [];
 BestSolution.BestCost = [];
 
@@ -49,7 +51,6 @@ for j = 1:InitializedInputs.Generations
         %Continue moving the agent until the death flag becomes 1
         while ~agentdeathflag
             [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement2(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i));
-            
         end
         
         %Update veins with the dilation and evaporation mechanics
@@ -65,7 +66,7 @@ for j = 1:InitializedInputs.Generations
     restartflag = RestartCheck(InitializedInputs, Agents);
     
     %If so, reset the veins 
-    if (restartflag && j ~= InitializedInputs.Generations) %~= as check whether it works (doesn't reset when last generation is completed)
+    if (restartflag)
         ListNodes = RadiusFluxReset(InitializedInputs, ListNodes);
     end
 

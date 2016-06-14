@@ -37,8 +37,7 @@ if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(curr
     %Display that the final conditions were reached
     disp('End Conditions Reached')
     
-    %If there are no more possible decisions or visists left, set the death
-    %flag to 1
+    %Set the agent deathflag to 1
     agentdeathflag = 1;
     
     %Save the solution

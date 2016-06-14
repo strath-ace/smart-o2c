@@ -18,7 +18,7 @@ function [Attributes] = MyAttributeCalcsMainBelt(Inputs, Parent, targetname, Att
 Asteroids = Inputs.AdditionalInputs{1};
 
 %Check if the target is in the Asteroid class
-if ismember(targetname,fieldnames(Asteroids))
+%if any(strcmp(targetname,fieldnames(Asteroids))==1)
     
     
     %Retrieve the cartesian coordiantes of the target at the arrival epoch
@@ -46,14 +46,14 @@ if ismember(targetname,fieldnames(Asteroids))
         Attributes.kep_trans = CelestialBody('Transfer Orbit',kep.a, kep.e, kep.i, kep.OM, kep.W, kep.M0, kep.t0);
     end 
     
-else
-    
-    %If the target is not in the Asteroids list, set the r_arr, tof_tot and
-    %t_dep to default values.
-    Attributes.r_arr = zeros(1,3);
-    Attributes.tof_tot = 0;
-    Attributes.t_dep = 0;
-end
+% else
+%     
+%     %If the target is not in the Asteroids list, set the r_arr, tof_tot and
+%     %t_dep to default values.
+%     Attributes.r_arr = zeros(1,3);
+%     Attributes.tof_tot = 0;
+%     Attributes.t_dep = 0;
+% end
 
 
 end

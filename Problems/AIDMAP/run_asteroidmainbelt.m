@@ -6,7 +6,8 @@ clear all; close all; clc
 
 %To do:
 %Check agent previous decisions - 2x start?
-
+%Update ramification & agentmovement 1
+%Check agent died
 
 %Add the path
 addpath(genpath(strcat(pwd,'/AsteroidMainBelt')));
@@ -34,7 +35,7 @@ epoch_start = 10957.5;
 epoch_end = 18262.5;
 
 %Define the mean anomalies
-startmeananomalies = 0;% :90:270; %Best for 150km
+startmeananomalies = 0;% :90:270; %270 Best for 150km
 
 %Loop over all the input starting epochs and mean anomalies
 for p = 1:length(epoch_start) 
@@ -68,18 +69,19 @@ disp(char(strcat('Current Start Date:',{' '},num2str(epoch_start(p)))));
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-1;                                 %Growth factor 'GF'
-options.NumberOfAgents = 5;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 1;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 20;                                %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 1;                                     %The starting radius of the veins
 options.RamificationAmount = 3;                                 %The number of nodes initially generated for the ramification
-options.Generations = 10;                                       %The number of generations
+options.Generations = 1;                                        %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
-options.MaxChildFindAttempts = 1e4;
+options.MaxChildFindAttempts = 1e5;
+options.MinPickProbability = 0.1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
@@ -89,7 +91,7 @@ options.MaxConsecutiveRes = 0*ones(1, length(options.Targets)); %The maximum num
 options.MaxVisits = 1*ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 startorbit(7)];                                %Attributes of the root  
-options.NodeCheckBoundaries = [0.5 0.31 2 2*365 5];                   %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
+options.NodeCheckBoundaries = [0.5 0.31 2 0.5*365 5];                   %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
 fitnessfcn = @MyCostFunctionMainBelt;                                   %The function reference to the cost function
 options.NodeAttributes = @MyAttributesMainBelt;                         %The class that contains the node attributes
 options.MyAttributeCalcFile = @MyAttributeCalcsMainBelt;                %The file that does the additonal calculations wrt the attributes
@@ -111,7 +113,7 @@ options.AdditonalInputs{2} = 0;                                 %Set to 1 for LT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 100:40:2*365;             %Set the value of the sets. 
+tofvalues = 0:40:0.5*365;             %Set the value of the sets. 
 sets.tof = mat2cell(ones(length(options.Targets),1)... %Input should be a cell array where each line depicts a target.
    *tofvalues,[ones(length(options.Targets),1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
@@ -134,7 +136,7 @@ set(gca,'xcolor','w','ycolor','w','xtick',[],'ytick',[]);
 %If no additional nodes have been found, skip to the next starting mean
 %anomaly or quit if only one defined
 if(length(fieldnames(output.ListNodes))==1)
-    continue
+    %continue
 end
 
 %Find solutions with the most asteroids
