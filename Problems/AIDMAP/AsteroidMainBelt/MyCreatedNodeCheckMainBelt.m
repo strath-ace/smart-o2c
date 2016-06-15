@@ -1,4 +1,4 @@
-function [newNode] = MyCreatedNodeCheckMainBelt(Inputs, newNode, ListNodes)
+function [checktot] = MyCreatedNodeCheckMainBelt(Inputs, Attributes, ListNodes, parent)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -9,27 +9,27 @@ CheckBounds = Inputs.NodeCheckBoundaries;
 %0 = check fail (boundary exceeded)
 
 %Max dV_dep check
-check1 = (norm(newNode.attributes.dV_dep) <= CheckBounds(1));
+check1 = (norm(Attributes.dV_dep) <= CheckBounds(1));
 
 %Minimum perihelion check
-check2 = ((newNode.attributes.kep_trans.a*(1-newNode.attributes.kep_trans.e)) >= CheckBounds(2));
+check2 = ((Attributes.kep_trans.a*(1-Attributes.kep_trans.e)) >= CheckBounds(2));
 
 %Low-Thrust Check
-check3 = (newNode.attributes.tof*86400*1e-7 >= CheckBounds(3)*(norm(newNode.attributes.dV_dep)));
+check3 = (Attributes.tof*86400*1e-7 >= CheckBounds(3)*(norm(Attributes.dV_dep)));
 
 %Waiting time check
-check4 = newNode.attributes.t_dep-ListNodes.(newNode.parent).attributes.t_arr < CheckBounds(4);
+check4 = Attributes.t_dep-ListNodes.(parent).attributes.t_arr < CheckBounds(4);
 
 %dV so far check
-check5 = newNode.attributes.dV_tot < CheckBounds(5);
+check5 = Attributes.dV_tot < CheckBounds(5);
 
 checktot = check1*check2*check3*check4*check5;
 
-if checktot ==1
-    newNode.length = newNode.length;
-else
-    newNode.length = inf;
-end
+% if checktot ==1
+%     length = length;
+% else
+%     length = inf;
+% end
 
 end
 

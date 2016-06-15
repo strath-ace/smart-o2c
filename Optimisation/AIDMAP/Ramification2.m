@@ -73,12 +73,7 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
 
     %If all values in indextracker are NaN (meaning no more possible
     %children to choose from) or max number of attempts has been reached, exit while loop
-    if (nantracker == length(indextracker))
-        disp(strcat(agent,' died'))        
-        break
-    end
-    
-    if (attempt == Inputs.MaxChildFindAttempts)
+    if ((nantracker == length(indextracker)) || (attempt == Inputs.MaxChildFindAttempts))      
         break
     end
     
@@ -103,19 +98,8 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     %Generate the new node & save its cost in a vector
     [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
     
-    %Sanity check after initial node generation. Skip to next attempt if
-    %check fails
-    if newNode.length == Inf
-        continue
-    end
     
-    %If the node is valid according to the first check, use the created
-    %node structure to further determine the validity
-    [newNode] = Inputs.CreatedNodeCheckFile(Inputs, newNode, ListNodes);
-    
-    %Sanity Check after more detailed check. Skip to next attempt if
-    %check fails
-    if newNode.length == Inf
+    if isempty(newNode)
         continue
     end
 
