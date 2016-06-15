@@ -1,4 +1,4 @@
-function [toNode] = MyCostFunctionMainBelt(Inputs, fromNode, toNode)
+function [toNodeAttributes, veinlength] = MyCostFunctionMainBelt(Inputs, fromNode, toNodeAttributes)
 % This function calculates the cost of a certain connection.
 % It can be altered such that it is applicable to the problem at hand.
 %
@@ -12,24 +12,24 @@ function [toNode] = MyCostFunctionMainBelt(Inputs, fromNode, toNode)
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-attributenames = fieldnames(toNode.attributes);
+%attributenames = fieldnames(Attributes);
 
 %Calculate cost to change orbital elements with orbit characterstics such
 %as ToF set. Currently simple formula to test functionality.
-%toNode.length = ((toNode.attributes.t_arr - toNode.attributes.tof) - fromNode.attributes.t_arr)^5;
+%toNode.length = ((Attributes.t_arr - Attributes.tof) - fromNode.attributes.t_arr)^5;
 
 curr_orbit = fromNode.attributes.kep_trans;
 mu = AstroConstants.Sun_Planetary_Const;
 
-[departure_r, departure_v] = StardustTool.CartesianElementsAt(curr_orbit,toNode.attributes.t_dep);
+[departure_r, departure_v] = StardustTool.CartesianElementsAt(curr_orbit,toNodeAttributes.t_dep);
 
 %Save the departure coordinates
-toNode.attributes.r_dep = departure_r;
-toNode.attributes.v_dep = departure_v;
+toNodeAttributes.r_dep = departure_r;
+toNodeAttributes.v_dep = departure_v;
 
 %Retrieve the arrival coordinates
-arrival_r = toNode.attributes.r_arr;
-ToF = toNode.attributes.tof;
+arrival_r = toNodeAttributes.r_arr;
+ToF = toNodeAttributes.tof;
 
 if Inputs.AdditionalInputs{2} == 0
 [~,~,~,err,vel_initial,vel_final,~,~] = lambertMR(departure_r,      ... % Initial Vector Position
@@ -53,12 +53,12 @@ if Inputs.AdditionalInputs{2} == 0
                                                                                     %     - 1: warnings are displayed only when the algorithm does not converge
                                                                                     %     - 2: full warnings displayed
 if (err~=0)
-    toNode.length = Inf;
+    veinlength = Inf;
     return
 end
 %Save initial & final lambert velocity
-toNode.attributes.lambertV_ini = vel_initial;
-toNode.attributes.lambertV_final = vel_final;
+toNodeAttributes.lambertV_ini = vel_initial;
+toNodeAttributes.lambertV_final = vel_final;
                                                                                     
 % Compute the Total DeltaV - ignore arrival dV due to flyby
 dv1(1) = vel_initial(1) - departure_v(1);
@@ -75,12 +75,12 @@ deltaV_Departure =  abs(norm(dv1));
 deltaV_Total     = deltaV_Departure;
 
 %Save found dV in node attributes
-toNode.attributes.dV_dep = dv1;
-toNode.attributes.dV_sum = deltaV_Total;
+toNodeAttributes.dV_dep = dv1;
+toNodeAttributes.dV_sum = deltaV_Total;
 if isempty(fromNode.attributes.dV_tot)
-    toNode.attributes.dV_tot = deltaV_Total;
+    toNodeAttributes.dV_tot = deltaV_Total;
 else
-    toNode.attributes.dV_tot = fromNode.attributes.dV_tot + deltaV_Total; 
+    toNodeAttributes.dV_tot = fromNode.attributes.dV_tot + deltaV_Total; 
 end
             
 % ==========================================================================================                                                                        
@@ -92,7 +92,7 @@ kep_transfer_orbit = cart2kep([departure_r, vel_initial],mu);
 ecc = kep_transfer_orbit(2);
  
 if ecc >= 1
-    toNode.length = Inf;
+    veinlength = Inf;
     return
 end
 
@@ -122,17 +122,17 @@ curr_departure_orbit = CelestialBody('transfer_orbit',             ... % Name of
                                      kep_transfer_orbit(4)*180/pi, ... % Asc. Node/Raan [deg]
                                      kep_transfer_orbit(5)*180/pi, ... % Arg. Perigee [deg]
                                      M,                            ... % Mean anomoly, M at time given t0 [deg]
-                                     toNode.attributes.t_dep); % Time at which Mo is given [MJD2000]  
+                                     toNodeAttributes.t_dep); % Time at which Mo is given [MJD2000]  
 
-toNode.attributes.kep_trans = curr_departure_orbit;
+toNodeAttributes.kep_trans = curr_departure_orbit;
 
-toNode.length = deltaV_Total;
+veinlength = deltaV_Total;
 else
     error('The low-thrust functionality is currently not yet available.')
-    DepBody = StardustTool.KeplerianElementsAt2(fromNode.attributes.kep_trans, toNode.attributes.t_dep);
-    ArrBody = StardustTool.KeplerianElementsAt2(toNode.attributes.kep_body, toNode.attributes.t_arr);
-    TOF = toNode.attributes.tof;
-    t_dep = toNode.attributes.t_dep;
+    DepBody = StardustTool.KeplerianElementsAt2(fromNode.attributes.kep_trans, toNodeAttributes.t_dep);
+    ArrBody = StardustTool.KeplerianElementsAt2(toNodeAttributes.kep_body, toNodeAttributes.t_arr);
+    TOF = toNodeAttributes.tof;
+    t_dep = toNodeAttributes.t_dep;
     global mu_S
     mu_S = mu;
     
