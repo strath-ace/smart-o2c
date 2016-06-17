@@ -27,15 +27,18 @@ tic;
 [InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
 
 %Run the algorithm
-[output.Solutions, BestSolution, InitializedInputs, output.ListNodes, output.Agents] = PhysarumSolver(InitializedInputs, ListNodes);
+[output.Solutions, BestSolution, InitializedInputs, output.ListNodes, output.Agents, output.History] = PhysarumSolver(InitializedInputs, ListNodes);
 
 %Retrieve the best solution
-x = BestSolution.BestChain;
-fval = BestSolution.BestCost;
+x = BestSolution.BestChain(1);
+fval = BestSolution.BestCost(1);
 
 %End clock
 output.CompTime = toc;
 
-exitflag = 0;
+exitflag = 1;
+if (length(x{1})==1)
+    exitflag = 0; %Exitflag = 0 denotes no solution found
+end
 
 end
