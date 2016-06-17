@@ -51,7 +51,9 @@ InitializedInputs = struct(...
                 'AdditionalInputs',                   {options.AdditonalInputs}, ...            %Made into cell in case multiple additional outpu
                 'Sets',                               {sets}, ...                               %The sets of the possible attributes incorporated in the ID
                 'RootName',                           options.RootName, ...                     %The name of the root
-                'MinPickProbability',                 options.MinPickProbability ...            %The minimum probability for a feasible node to be picked before the algorithm changes its method of choosing a child
+                'MinPickProbability',                 options.MinPickProbability, ...            %The minimum probability for a feasible node to be picked before the algorithm changes its method of choosing a child
+                'GenerateGraphPlot',                  options.GenerateGraphPlot, ...
+                'SaveHistory',                        options.SaveHistory ...
             );
         
       

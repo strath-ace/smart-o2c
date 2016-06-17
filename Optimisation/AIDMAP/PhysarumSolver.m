@@ -1,4 +1,4 @@
-function [Solutions, BestSolution, InitializedInputs, ListNodes, Agents] = PhysarumSolver(InitializedInputs, ListNodes)
+function [Solutions, BestSolution, InitializedInputs, ListNodes, Agents, History] = PhysarumSolver(InitializedInputs, ListNodes)
 % This script contains the main logic of AIDMAP solver. 
 %
 % Inputs:
@@ -26,6 +26,9 @@ Solutions.Costs = [];
 %Initialize the structure that will contain the best solution
 BestSolution.BestChain = [];
 BestSolution.BestCost = [];
+History.radius = {};
+History.BestSolution = {};
+History.BestCost = {};
 
 %Loop over the generations
 for j = 1:InitializedInputs.Generations
@@ -51,16 +54,32 @@ for j = 1:InitializedInputs.Generations
         %Continue moving the agent until the death flag becomes 1
         while ~agentdeathflag
             [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement2(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i));
+                  
+            
+        end
+        if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
+        nodenames = fieldnames(ListNodes);     
+        for p = 2:length(nodenames)
+                radii(p) = ListNodes.(char(nodenames(p))).radius;
+        end
+        History.radius(end+1) = {radii};
         end
         
         %Update veins with the dilation and evaporation mechanics
-        [ListNodes] = DilationEvaporation(InitializedInputs, ListNodes, Agents, agentnames(i));
-        
+        [ListNodes] = Dilation(InitializedInputs, ListNodes, Agents, agentnames(i));
+    
+                       
     %End agent loop
     end
     
+   
     %Update the veins with the growth factor mechanic
-    [ListNodes, BestSolution] = GrowthFactor(InitializedInputs, ListNodes, Solutions, BestSolution);
+    [ListNodes, BestSolution] = GrowthEvaporation(InitializedInputs, ListNodes, Solutions, BestSolution);
+    
+    if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
+        History.BestSolution(end+1) = BestSolution.BestChain;
+        History.BestCost(end+1) = BestSolution.BestCost;
+    end
     
     %Check whether the algorithm should be restarted
     restartflag = RestartCheck(InitializedInputs, Agents);
