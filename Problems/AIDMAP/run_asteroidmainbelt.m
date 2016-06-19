@@ -72,7 +72,7 @@ disp(char(strcat('Current Start Date:',{' '},num2str(epoch_start(p)))));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-3;                          %Evaporation coefficient 'rho'
-options.GrowthFactorVal = 5e-2;                                 %Growth factor 'GF'
+options.GrowthFactorVal = 1.1e-1;                                 %Growth factor 'GF'
 options.NumberOfAgents = 5;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
@@ -80,7 +80,7 @@ options.MaximumRadiusRatio = 20;                                %Maximum ratio b
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 1;                                     %The starting radius of the veins
 options.RamificationAmount = 3;                                 %The number of nodes initially generated for the ramification
-options.Generations = 5;                                        %The number of generations
+options.Generations = 20;                                        %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 9;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
