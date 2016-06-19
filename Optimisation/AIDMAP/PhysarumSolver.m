@@ -29,6 +29,7 @@ BestSolution.BestCost = [];
 History.radius = {};
 History.BestSolution = {};
 History.BestCost = {};
+History.AgentMovement = {};
 
 %Loop over the generations
 for j = 1:InitializedInputs.Generations
@@ -63,6 +64,7 @@ for j = 1:InitializedInputs.Generations
                 radii(p) = ListNodes.(char(nodenames(p))).radius;
         end
         History.radius(end+1) = {radii};
+        History.AgentMovement{j,i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
         end
         
         %Update veins with the dilation and evaporation mechanics
@@ -77,8 +79,8 @@ for j = 1:InitializedInputs.Generations
     [ListNodes, BestSolution] = GrowthEvaporation(InitializedInputs, ListNodes, Solutions, BestSolution);
     
     if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
-        History.BestSolution(end+1) = BestSolution.BestChain;
-        History.BestCost(end+1) = BestSolution.BestCost;
+        History.BestSolution(end+1) = BestSolution.BestChain(1);
+        History.BestCost(end+1) = BestSolution.BestCost(1);
     end
     
     %Check whether the algorithm should be restarted

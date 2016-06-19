@@ -9,6 +9,9 @@ clear all; close all; clc
 %Update Atira to change new check & node creation order
 %Double-check new dilation, evaporation & growthfactor
 %Redo ALL solutions (due to bugs)
+%Fix if multiple best solutions found in 1 generation
+%Fix graph plot (a.o. skipping frames)
+%Check radius increase. Sudden jump in MainBelt10Agents10GenerationsM170Startdate10957_520160618_015715
 
 %Add the path
 addpath(genpath(strcat(pwd,'/AsteroidMainBelt')));
@@ -79,11 +82,11 @@ options.StartingRadius = 1;                                     %The starting ra
 options.RamificationAmount = 3;                                 %The number of nodes initially generated for the ramification
 options.Generations = 10;                                        %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
-options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
+options.MinCommonNodesThres = 9;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
 options.MaxChildFindAttempts = 1e4;
 options.MinPickProbability = 0.1;
-options.GenerateGraphPlot = 1;
+options.GenerateGraphPlot = 0;
 options.SaveHistory = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,7 +138,7 @@ sets.epochsnode = epochsnode(2:end);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if (exitflag~=0)
     if (options.GenerateGraphPlot ~= 0)
-        PhysarumGraphPlot(options, output.ListNodes, output.History,'Test4');
+        PhysarumGraphPlotv2(options, output.ListNodes, output.History,'Test5');
     end
     
 %If no additional nodes have been found, skip to the next starting mean
