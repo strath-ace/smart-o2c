@@ -57,7 +57,11 @@ for j = 1:InitializedInputs.Generations
             [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement2(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i));
                   
             
-        end
+        end        
+        
+        %Update veins with the dilation and evaporation mechanics
+        [ListNodes] = Dilation(InitializedInputs, ListNodes, Agents, agentnames(i));
+        
         if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
         nodenames = fieldnames(ListNodes);     
         for p = 2:length(nodenames)
@@ -66,9 +70,6 @@ for j = 1:InitializedInputs.Generations
         History.radius(end+1) = {radii};
         History.AgentMovement{j,i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
         end
-        
-        %Update veins with the dilation and evaporation mechanics
-        [ListNodes] = Dilation(InitializedInputs, ListNodes, Agents, agentnames(i));
     
                        
     %End agent loop
@@ -89,6 +90,15 @@ for j = 1:InitializedInputs.Generations
     %If so, reset the veins 
     if (restartflag)
         ListNodes = RadiusFluxReset(InitializedInputs, ListNodes);
+        
+        if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
+        nodenames = fieldnames(ListNodes);     
+        for p = 2:length(nodenames)
+                radii(p) = ListNodes.(char(nodenames(p))).radius;
+        end
+        History.radius(end) = {radii};
+        History.AgentMovement{j,i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
+        end
     end
 
 %End generation loop
