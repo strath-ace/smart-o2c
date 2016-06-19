@@ -32,6 +32,7 @@ G = graph(s,t);
 nodeclr = ones(height(G.Edges)+1,3);
 edgeclr = ones(height(G.Edges),3);
 h = plot(G,'Layout','force','EdgeColor',edgeclr,'NodeColor',nodeclr);
+set(h,'NodeLabel',[])
 
 %Prepare radiushistory for plotting
 RadiusHistoryPad = History.radius;
@@ -51,7 +52,6 @@ for i = 1:length(BestSolutionHist);
     for j = 1:length(BestSolutionHist{i})
     [temp, bestindextrack{i}(j)] = ismember(BestSolutionHist{i}(j),nodenames);
     end
-    lastnode(i) = bestindextrack{i}(end);
 end
 
 
@@ -61,7 +61,7 @@ if (length(fieldnames(ListNodes))==1)
     return
 end
 
-vidObj = VideoWriter(strcat(outputfile,'.avi'),'Uncompressed Avi');
+vidObj = VideoWriter(strcat(outputfile,'.mp4'),'MPEG-4');
 %vidObj.Quality = 100;
 vidObj.FrameRate = 5;
 open(vidObj);
@@ -101,6 +101,8 @@ h = plot(G,'Layout','force','EdgeColor',edgeclr,'NodeColor',nodeclr);
 set(h,'NodeLabel',[])
 ylim=get(gca,'ylim');
 xlim=get(gca,'xlim')
+txt3 = text(xlim(2),ylim(2),{char(strcat('Generation',{' '},num2str(1))),char(strcat('Agent',{' '},num2str(1)))},'HorizontalAlignment','right','VerticalAlignment','top','FontSize',16);                   
+
 
 for i = 1:length(movementindex)
 %Plotting code here. Loop over agent movement -> set color etc.
@@ -112,25 +114,33 @@ tracker = 1;
        hold on
 for i = 1:Inputs.Generations
     for j = 1:Inputs.NumberOfAgents
-        for k = 1:length(dep{i,j})-1
+            highlight(h,dep{i,j}(1),'NodeColor','r','EdgeColor','r','MarkerSize',3);      
+            delete(txt3)
+            txt3 = text(xlim(2),ylim(2),{char(strcat('Generation',{' '},num2str(i))),char(strcat('Agent',{' '},num2str(j)))},'HorizontalAlignment','right','VerticalAlignment','top','FontSize',16);        
+             pause(0.2)
+        writeVideo(vidObj,getframe);
+        set(h,'MarkerSize',2)
+        for k = 1:length(dep{i,j})            
+            delete(txt3);    
+            txt3 = text(xlim(2),ylim(2),{char(strcat('Generation',{' '},num2str(i))),char(strcat('Agent',{' '},num2str(j)))},'HorizontalAlignment','right','VerticalAlignment','top','FontSize',16);        
+            
             index = agentmovementindex{i,j}(k);
             edgeclr(index,:) = zeros(1,3);
             nodeclr(dep{i,j}(k),:) = zeros(1,3);        
             nodeclr(arr{i,j}(k),:) = zeros(1,3);
             set(h,'EdgeColor',edgeclr,'NodeColor',nodeclr);            
             highlight(h,arr{i,j}(k),'NodeColor','r','EdgeColor','r','MarkerSize',3);
-            txt3 = text(xlim(2),ylim(2),{char(strcat('Generation',{' '},num2str(i))),char(strcat('Agent',{' '},num2str(j)))},'HorizontalAlignment','right','VerticalAlignment','top','FontSize',16);
-        %drawnow update
+            %drawnow update
         pause(0.2)
         writeVideo(vidObj,getframe);
-        delete(txt3);    
         set(h,'MarkerSize',2,'NodeColor',nodeclr,'EdgeColor',edgeclr)
             %Show movement -> plot
         end
+        delete(txt3)
          txt3 = text(xlim(2),ylim(2),{char(strcat('Generation',{' '},num2str(i))),char(strcat('Agent',{' '},num2str(j)))},'HorizontalAlignment','right','VerticalAlignment','top','FontSize',16);
        
            G = graph(s,t,RadiusHistoryPad{tracker});   
-            G.Edges.LWidths = 6*G.Edges.Weight/max(maxradius);
+            G.Edges.LWidths = 1*G.Edges.Weight/max(maxradius);
             h.LineWidth = G.Edges.LWidths;
             tracker = tracker+1;
             %drawnow update     
@@ -139,6 +149,14 @@ for i = 1:Inputs.Generations
             delete(txt3)
         %Show dilation -> plot
     end
+    delete(txt3)
+    txt3 = text(xlim(2),ylim(2),{char(strcat('Generation',{' '},num2str(i))),char(strcat('Agent',{' '},num2str(j)))},'HorizontalAlignment','right','VerticalAlignment','top','FontSize',16);
+    
+    highlight(h,bestindextrack{i},'NodeColor','g','EdgeColor','g')
+    pause(0.2)
+       
+            writeVideo(vidObj,getframe);
+            delete(txt3)
     %Show GF & evaporation -> plot
 end
 
