@@ -54,7 +54,6 @@ for i = 2:length(treeplotnodes);
     t(i-1) = i;
 end
 
-
 figure('units','normalized','outerposition',[0 0 1 1])
 G = graph(s,t,radius);
 vidObj = VideoWriter(strcat(outputfile,'.mp4'),'MPEG-4');
@@ -73,18 +72,18 @@ for i = 1:length(G.Edges.EndNodes);
      nodeclr(s(i),:) = zeros(1,3);        
      nodeclr(t(i),:) = zeros(1,3);
     
-    [indexcheck, indexloc] = ismember(i,arrlength);
-    [bestindexcheck, bestindexloc] = ismember(i,arrlength(Inputs.NumberOfAgents:Inputs.NumberOfAgents:end));
-    if indexcheck
-        G = graph(s,t,RadiusHistoryPad{indexloc});   
-        G.Edges.LWidths = 6*G.Edges.Weight/max(maxradius);
-        h.LineWidth = G.Edges.LWidths;
-    end
+%     indexloc = find(arrlength==i, 1, 'last' );
+%     [bestindexcheck, bestindexloc] = ismember(i,arrlength(Inputs.NumberOfAgents:Inputs.NumberOfAgents:end));
+%     if ~isempty(indexloc)
+%         G = graph(s,t,RadiusHistoryPad{indexloc});   
+%         G.Edges.LWidths = 6*G.Edges.Weight/max(maxradius);
+%         h.LineWidth = G.Edges.LWidths;
+%     end
     
     set(h,'EdgeColor',edgeclr,'NodeColor',nodeclr);
-    if bestindexcheck
-        highlight(h,bestindextrack{bestindexloc},'NodeColor','g','EdgeColor','g')
-    end
+%     if bestindexcheck
+%         highlight(h,bestindextrack{bestindexloc},'NodeColor','g','EdgeColor','g')
+%     end
         
     drawnow
     writeVideo(vidObj,getframe);
