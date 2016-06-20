@@ -139,7 +139,7 @@ for i = 1:Inputs.Generations
          txt3 = text(xlim(1),ylim(2),{char(strcat({' '},'Generation',{' '},num2str(i),{' '})),char(strcat({' '},'Agent',{' '},num2str(j),{' '}))},'HorizontalAlignment','left','VerticalAlignment','top','FontSize',16);
        
            G = graph(s,t,RadiusHistoryPad{tracker});   
-            G.Edges.LWidths = 8*G.Edges.Weight/max(maxradius);
+            G.Edges.LWidths = G.Edges.Weight/max(maxradius);
             h.LineWidth = G.Edges.LWidths;
             tracker = tracker+1;
             %drawnow update     
