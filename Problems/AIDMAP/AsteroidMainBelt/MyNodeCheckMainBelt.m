@@ -1,4 +1,4 @@
-function [validflag] = MyNodeCheck(Inputs,ListNodes,newnode_ID,currentNode,generatednodes)
+function [validflag] = MyNodeCheckMainBelt(Inputs,ListNodes,newnode_ID,currentNode,generatednodes)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 

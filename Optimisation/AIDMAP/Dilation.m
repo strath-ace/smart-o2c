@@ -42,6 +42,7 @@ for i = 1:length(visistednodes)
         ListNodes.(evaluatednode).radius(ListNodes.(evaluatednode).radius./Inputs.StartingRadius > Inputs.MaximumRadiusRatio) = Inputs.MaximumRadiusRatio*Inputs.StartingRadius;
         ListNodes.(evaluatednode).radius(ListNodes.(evaluatednode).radius./Inputs.StartingRadius < Inputs.MinimumRadiusRatio) = Inputs.MinimumRadiusRatio*Inputs.StartingRadius;
         
+        %Update flux
         ListNodes.(evaluatednode).flux = CalculateFlux(Inputs,ListNodes.(evaluatednode));
     end
 
