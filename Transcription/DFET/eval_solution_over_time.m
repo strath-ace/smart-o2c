@@ -1,10 +1,10 @@
-function [xt,ut] = eval_solution_over_time(x,u,t_0,t_f,t_plot,structure)
+function [xt,ut] = eval_solution_over_time(x,u,t_0,t_f,t_plot,els,structure)
 
 ntimes = length(t_plot);
 xt = zeros(ntimes,structure.num_eqs);
 ut = zeros(ntimes,structure.num_controls);
 
-real_els = t_0+structure.els*(t_f-t_0);
+real_els = t_0+els*(t_f-t_0);
 
 for i = 1:ntimes
     
