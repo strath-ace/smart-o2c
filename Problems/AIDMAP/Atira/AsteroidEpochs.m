@@ -4,12 +4,11 @@ addpath('astro_tool')
 
 epoch_start = 7304.5;
 epoch_end = 10957.5;
-decimalplaces = 2;
 
 Asteroids = Asteroids();
 
 asteroidnames = fieldnames(Asteroids);
-for i = 2:length(asteroidnames)
+for i = 1:length(asteroidnames)
 asteroid = char(asteroidnames(i));
 
 mu = AstroConstants.Sun_Planetary_Const;
@@ -58,11 +57,6 @@ orbitchars(i,:) = [asteroidorbit.a asteroidorbit.e asteroidorbit.i asteroidorbit
 
 end
 
-for i = 1:length(epochsnode)
-    for j = 1:length(epochsnode{i})
-        epochsnode{i,:} = round(epochsnode{i,:},decimalplaces);
-    end
-end
 
 save('epochsnode','epochsnode')
 save('asteroidorbitchars','orbitchars')
