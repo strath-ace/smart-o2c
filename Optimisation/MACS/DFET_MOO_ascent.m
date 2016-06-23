@@ -99,7 +99,7 @@ fminconoptions = optimset('Display','off','MaxFunEvals',maxits,'TolCon',tol_conv
 
 %% MACS PARAMETERS
 
-opt.maxnfeval=500000;                                                       % maximum number of f evals 
+opt.maxnfeval=50000;                                                       % maximum number of f evals 
 opt.popsize=10;                                                             % popsize (for each archive)
 opt.rhoini=1;                                                               % initial span of each local hypercube (1=full domain)
 opt.F=0.9;                                                                    % F, the parameter for Differential Evolution
@@ -138,7 +138,7 @@ opt.oc.control_vars(1) = 0;
 
 %% OPTIMISATION LOOP
 
-for i=1:10
+for i=1:1
     
     mem(i).memory=macs7v16OC(@ascent_drag_mass_MACS_MOO,[],vlb,vub,opt,[],[],vlb,vub,structure,x_0,x_f,fminconoptions);    
     
