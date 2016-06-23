@@ -6,7 +6,7 @@ function [r] = PlotTrajectories(Solutions,Costs,ListNodes)
 %addpath(genpath(fileparts(fileparts(fileparts(pwd)))));
 
 dt = 1;
-vvecsize = 3e7;
+vvecsize = 8e7;
 for i = 1:length(Solutions)
     r{i} = [];
     figure('Color',[1 1 1])

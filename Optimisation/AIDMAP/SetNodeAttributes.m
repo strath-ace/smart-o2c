@@ -1,4 +1,4 @@
-function [Attributes] = SetNodeAttributes(Inputs, Parent,targetname,attributes)
+function [Attributes] = SetNodeAttributes(Inputs, Parent, targetname, attributes)
 % This function creates an object using the function specified in the
 % options and sets attributes that identify the node using the
 % characteristics
@@ -20,8 +20,9 @@ SetNames = fieldnames(Inputs.Sets);
 %Obtain their names
 attributenames = fieldnames(Attributes);
 
+%Check if the current node is the root
 if strcmp(targetname,Inputs.RootName)
-%Loop over the attributes
+    %Loop over the attributes
     for i = 1:length(attributes)
 
         %Find the index of the attributes set by the user
@@ -31,6 +32,8 @@ if strcmp(targetname,Inputs.RootName)
         Attributes.(char(attributenames(attributeindex))) = Inputs.RootAttrib(i);
     end
 else
+    %If the current node is not the root, start from i = 2, as i = 1 is the
+    %target's index (which is not the case for the root)
     for i = 2:length(attributes)
         
         %Find the index of the attributes set by the user

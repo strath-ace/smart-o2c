@@ -18,13 +18,14 @@ nodenames = fieldnames(ListNodes);
 %Loop over all the nodes
 for i = 1:length(nodenames)
     
-    if ~isempty(ListNodes.(char(nodenames(i))).parent)  %Ignore root
+    %Check if node has a parent (ignores the root)
+    if ~isempty(ListNodes.(char(nodenames(i))).parent)  
     
-    %Set the vein radii to their default value
-    ListNodes.(char(nodenames(i))).radius = Inputs.StartingRadius*ones(1, length(ListNodes.(char(nodenames(i))).radius));
+        %Set the vein radii to their default value
+        ListNodes.(char(nodenames(i))).radius = Inputs.StartingRadius*ones(1, length(ListNodes.(char(nodenames(i))).radius));
     
-    %Recalculate the fluxes using the previously updated radius
-    ListNodes.(char(nodenames(i))).flux = CalculateFlux(Inputs, ListNodes.(char(nodenames(i))));
+        %Recalculate the fluxes using the previously updated radius
+        ListNodes.(char(nodenames(i))).flux = CalculateFlux(Inputs, ListNodes.(char(nodenames(i))));
     
     end
 
