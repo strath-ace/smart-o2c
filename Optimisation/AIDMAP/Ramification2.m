@@ -17,12 +17,11 @@ function [generatednodes, agentdeathflag] = Ramification2(Inputs, Solutions, Lis
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%If there are no possible decisions, exit function
-
 %For easy of reading, save the agent's current node in a variable
 currentNode = char(Agents.(agent).currentNode);
 agentdeathflag = 0;
 
+%If there are no possible decisions, exit function
 if (isempty(ListNodes.(currentNode).possibledecisions))
     agentdeathflag = 1;
     return
@@ -30,17 +29,17 @@ end
 
 %Find all the nodes that can be chosen:
 
-%To do so, get first all the possible nodes that can be made over the
-%entire graph. 
-possnodes = Inputs.PossibleListNodes;
-indextracker = 1:length(possnodes);
-
-%%Remove the already existing nodes
-%Find the already existing children
+%To do so, get first all the IDs that can be in the tree
 temp = strsplit(currentNode,'___');
+possnodes = Inputs.PossibleListNodes;
 possids = strcat(temp(end),'___',possnodes);
 
-%possnodes(ismember(possids,fieldnames(ListNodes)))=[];
+%Create a vector that tracks the index of the possible nodes and their
+%feasibility. If a node is not feasible, its corresponding index in this
+%vector will be set to NaN
+indextracker = 1:length(possnodes);
+
+%Set the index of the already existing nodes to NaN
 indextracker(ismember(possids,fieldnames(ListNodes)))=NaN;
 
 %Split the remaining nodes into their target & characteristic
@@ -50,9 +49,8 @@ temp = regexp(possnodes, '__', 'split');
 %Next, retrieve the decisions possible in this node
 possdecisions = ListNodes.(currentNode).possibledecisions;
 
-%Remove all the nodes that do not have as decision one of possible decisions
-%in this node
-%possnodes(ismember(temp(:,1), possdecisions)==0) = [];
+%Set the indices to NaN of the nodes that do not have as decision one of 
+%possible decisions in this node
 indextracker(ismember(temp(:,1), possdecisions)==0) = NaN;
 
 %Initialize structures to save the generated nodes in. The generatednodes
@@ -61,7 +59,8 @@ indextracker(ismember(temp(:,1), possdecisions)==0) = NaN;
 generatednodes = struct('temp',0);
 nameslist = cell(1,Inputs.RamificationAmount);
 
-%Initial index for the nameslist variable and the attempt counter
+%Initial index for the nameslist variable, the attempt counter and a
+%tracker for the number of NaNs in the indextracker vector
 i = 1;
 attempt = 1;
 nantracker = sum(isnan(indextracker));
@@ -72,36 +71,22 @@ warning('off','MATLAB:catenate:DimensionMismatch');
 %Start loop to generate the desired number of nodes
 while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
 
-    %If no more decisions are possible, exit while loop
-%     if isempty(possnodes)
-%        % disp(strcat(agent,' died'))
-%        %  agentdeathflag = 1;
-%         break
-%     end
-
     %If all values in indextracker are NaN (meaning no more possible
-    %children to choose from), exit while loop
-    if (nantracker == length(indextracker))
-        disp(strcat(agent,' died'))        
-       %  agentdeathflag = 1;
+    %children to choose from) or max number of attempts has been reached, exit while loop
+    if ((nantracker == length(indextracker)) || (attempt == Inputs.MaxChildFindAttempts))      
         break
     end
     
-
-    if (attempt == Inputs.MaxChildFindAttempts)
-        break
-    end    
-        
-    
     %Choose a node from the list of possible nodes to generate
-    [newnode_ID,nodeindex] = ChooseNode(currentNode,possnodes,indextracker,attempt);
+    [newnode_ID,nodeindex] = ChooseNode(Inputs,currentNode,possnodes,indextracker,nantracker);
     
-    %Increase the attempt counter by 1
+    %Increase the attempt & NaN counter by 1
     attempt = attempt +1;
     nantracker = nantracker+1;
 
     %Remove chosen decision from list of possible decisions
     indextracker(nodeindex) = NaN;
+    
     %Check if the node is valid based on the UID
     [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode,generatednodes);
    
@@ -109,22 +94,12 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     if (~validflag)
         continue
     end
-
         
     %Generate the new node & save its cost in a vector
     [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
     
-    %Sanity Check
-    if newNode.length == Inf
-        continue
-    end
     
-    %If the node is valid according to the first check, use the created
-    %node structure to further determine the validity
-    [newNode] = Inputs.CreatedNodeCheckFile(Inputs, newNode, ListNodes);
-    
-    %Sanity Check
-    if newNode.length == Inf
+    if isempty(newNode)
         continue
     end
 

@@ -3,6 +3,10 @@ addpath(genpath(strcat(pwd,'/Atira')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
+diaryfilename = strcat(['Atira/Results/DiaryAtira60','_',datestr(now,'yyyymmdd_HHMMSS')]);
+diary(diaryfilename)
+
+
 % This is the main file for the Atira problem
 %
 % Author: Aram Vroom - 2016
@@ -14,18 +18,21 @@ addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 1;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 20;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.4;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 20;                                %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 1;                                     %The starting radius of the veins
 options.RamificationAmount = 3;                                 %The number of nodes initially generated for the ramification
-options.Generations = 1;                                       %The number of generations
+options.Generations = 40;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
-options.MaxChildFindAttempts = Inf;
+options.MaxChildFindAttempts = 1e5;
+options.MinPickProbability = 0.1;
+options.GenerateGraphPlot = 0;
+options.SaveHistory = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
@@ -51,12 +58,12 @@ options.EndTarget = {};
 options.MyEndConditionsFile = @MyEndConditions;
 options.EndConditions = {{}};                                     %For use in the MyEndCondtions file
 options.RootName = 'Earth';
-options.AdditonalInputs = {'a'};
+options.AdditonalInputs = {{}};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 200:10:365;             %Set the value of the sets. 
+tofvalues = 30:10:365;             %Set the value of the sets. 
 sets.tof = mat2cell(ones(16,1)... %Input should be a cell array where each line depicts a target.
    *tofvalues,[ones(16,1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
@@ -100,9 +107,13 @@ end
 
 %Save all the solutions
 for i = 1:length(AllBestSolutions)
-    filename = strcat([num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+    filename = strcat(['Atira/Results/Atira',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')]);
+ 
     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 end
+
+save(strcat('Atira/Results/Atira',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')));
+diary off
 
 %Notes:
 %20160510 - GrowthFactor has been changed

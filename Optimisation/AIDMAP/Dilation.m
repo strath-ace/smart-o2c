@@ -1,4 +1,4 @@
-function [ListNodes] = DilationEvaporation(Inputs, ListNodes, Agents, agent)
+function [ListNodes] = Dilation(Inputs, ListNodes, Agents, agent)
 %This function handles the dilation and evaporation of the paths taken by
 %an agent
 %
@@ -37,14 +37,17 @@ for i = 1:length(visistednodes)
         %Dilate the respective link in the parent's node structure
         ListNodes.(evaluatednode).radius = ListNodes.(evaluatednode).radius + Inputs.LinearDilationCoefficient*ListNodes.(evaluatednode).radius/totalcost;
         
-        %Simulate evaporation in this link
-        ListNodes.(evaluatednode).radius = ListNodes.(evaluatednode).radius - Inputs.EvaporationCoefficient*ListNodes.(evaluatednode).radius;
-
-        %Check if the link's radius is not too large or small. Correct if
+         %Check if the link's radius is not too large or small. Correct if
         %so, set to max/min radius
         ListNodes.(evaluatednode).radius(ListNodes.(evaluatednode).radius./Inputs.StartingRadius > Inputs.MaximumRadiusRatio) = Inputs.MaximumRadiusRatio*Inputs.StartingRadius;
         ListNodes.(evaluatednode).radius(ListNodes.(evaluatednode).radius./Inputs.StartingRadius < Inputs.MinimumRadiusRatio) = Inputs.MinimumRadiusRatio*Inputs.StartingRadius;
+        
+        %Update flux
+        ListNodes.(evaluatednode).flux = CalculateFlux(Inputs,ListNodes.(evaluatednode));
     end
 
 end
 
+end
+
+       

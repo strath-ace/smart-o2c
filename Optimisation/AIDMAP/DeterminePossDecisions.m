@@ -1,4 +1,4 @@
-function [possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNodes,parent,previousdecisions,decisionname)
+function [possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNodes, parent, previousdecisions, decisionname, decisionindex)
 %This function creates the structure for a new node.
 %
 % Inputs:
@@ -21,13 +21,11 @@ function [possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNo
 %Create a concatenated list of the previous decisions, including the newly generated node 
 previousdecisions = strcat(previousdecisions{:}, decisionname);
 
-%Get the decision's (target's) maximum consecutive resonant orbits
-decisionindex = strmatch(decisionname,Inputs.PossibleDecisions);
-
 %In case the user accidentally has same target multiple times in the list of
 %poss decisions, only keep the index of the first 
-decisionindex = decisionindex(1);
+%decisionindex = decisionindex(1);
 
+%Retrieve the maximum number of consecutive resonance orbits
 maxconsecutive = Inputs.MaxConsecutiveRes(decisionindex);
 
 %Copy the number of visits left of the parent
