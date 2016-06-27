@@ -1,4 +1,4 @@
-function [vals,grad] = eval_cost_functions2(g,weights,x_in,x_f,time_interval,els,structure,compute_grad,dgx,dgu)
+function [vals,grad] = eval_cost_functions2(g,weights,x,x_f,time_interval,els,structure,compute_grad,dgx,dgu)
 
 % g is a 2 columns vector containing function handles. left entries are
 % for functions for which we are interested in evaluating them at final
@@ -42,12 +42,6 @@ if size(weights,2)~=2
     
 end
 
-if any(all(weights==0,2))
-   
-    error('At least one row of the weights vector is identically 0')
-    
-end
-
 if length(time_interval)~=2
     
     error('interval must be a vector containing t_0 and t_f only');
@@ -72,17 +66,17 @@ if compute_grad==1
         
         error('Not implemented, yet..')
         
-%         if size(dgx(zeros(structure.num_eqs,1),zeros(structure.num_controls,1),0),1)~=num_cost_funcs
-%             
-%             error('dgx must have same number of rows as g')
-%             
-%         end
-%         
-%         if size(dgu(zeros(structure.num_eqs,1),zeros(structure.num_controls,1),0),1)~=num_cost_funcs
-%             
-%             error('dgu must have same number of rows as g')
-%             
-%         end
+        if size(dgx(zeros(structure.num_eqs,1),zeros(structure.num_controls,1),0),1)~=num_cost_funcs
+            
+            error('dgx must have same number of rows as g')
+            
+        end
+        
+        if size(dgu(zeros(structure.num_eqs,1),zeros(structure.num_controls,1),0),1)~=num_cost_funcs
+            
+            error('dgu must have same number of rows as g')
+            
+        end
         
     end
     
@@ -99,52 +93,43 @@ end
 
 %% Extract x,u,xb
 
-[x,u,x_b] = extract_solution(x_in,structure,x_f);
+[x,u,x_b] = extract_solution(x,structure,x_f);
 
 %% Compute values
+% evaluate "final state functions", and multiply them by their weights
 
-vals = [];
-
-if any(weights(:,1)>0)
-
-    % evaluate "final state functions", and multiply them by their weights
+if weights(1)>0
     
-    if structure.DFET==0
-        
-        qq = g(structure.state_basis{end}(1)*x(:,end),structure.control_basis{end}(1)*u(:,end),t_f);
-        
-    else
-        
-        qq = g(x_b,structure.control_basis{end}(1)*u(:,end),t_f);
-        
-    end
+if structure.DFET==0
     
-    vals = qq(:,1).*weights(:,1);
+    qq = g(structure.state_basis{end}(1)*x(:,end),structure.control_basis{end}(1)*u(:,end),t_f);
+    
+else
+    
+    qq = g(x_b,structure.control_basis{end}(1)*u(:,end),t_f);
     
 end
 
-if any(weights(:,2)>0)
+vals = qq(:,1).*weights(:,1);
 
-    % compute integrals elementwise (can be made PARALLEL, although benefits depend widely upon the actual amount of work done by each node)
+% compute integrals elementwise (can be made PARALLEL, although benefits depend widely upon the actual amount of work done by each node)
+
+ee1 = els(:,1);
+ee2 = els(:,2);
+
+for i = 1:structure.num_elems
     
-    ee1 = els(:,1);
-    ee2 = els(:,2);
+    e1 = ee1(i);
+    e2 = ee2(i);
     
-    for i = 1:structure.num_elems
+    % maybe it's better to avoid reshape, saves a for loop afterwards for
+    % the reconstruction of complete f
+    
+    for j = 1:length(structure.integr_nodes)
         
-        e1 = ee1(i);
-        e2 = ee2(i);
+        qq = structure.integr_weights(j)*g(structure.state_eval{i,j}*x(:,i),structure.control_eval{i,j}*u(:,i),(e2+e1)/2+(e2-e1)/2*structure.integr_nodes(j)).*(e2-e1)/2;
         
-        % maybe it's better to avoid reshape, saves a for loop afterwards for
-        % the reconstruction of complete f
-        
-        for j = 1:length(structure.integr_nodes)
-            
-            qq = structure.integr_weights(j)*g(structure.state_eval{i,j}*x(:,i),structure.control_eval{i,j}*u(:,i),(e2+e1)/2+(e2-e1)/2*structure.integr_nodes(j)).*(e2-e1)/2;
-            
-            vals = vals + qq(:,2).*weights(:,2);
-            
-        end
+        vals = vals + qq(:,2).*weights(:,2);
         
     end
     
@@ -152,24 +137,22 @@ end
 
 %% Compute gradients
 
-grad = [];
-
 if compute_grad==1
     
     if isempty(dgx)
+
+       % FINITE DIFFERENCES
         
-        % FINITE DIFFERENCES
-        
-        grad = zeros(num_cost_funcs,length(x_in));
+        grad = zeros(length(x),2);        
         
         % first order "forward" finite difference approach with fixed step of 0.001
         
         for i = 1:length(x)
             
-            x_v = x_in;
+            x_v = x;
             x_v(i) = x_v(i)+0.000001;
-            g_temp = eval_cost_functions2(g,weights,x_v,x_f,time_interval,els,structure,0,dgx,dgu);
-            grad(:,i) = (g_temp-vals)/0.000001;
+            g_temp = eval_cost_functions2(g,weights,x,x_f,time_interval,els,structure,compute_grad,dgx,dgu);
+            grad(:,i) = (g_temp-val)/0.000001;
             
         end
         

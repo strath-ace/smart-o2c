@@ -281,9 +281,14 @@ if calc_jac
     if isempty(dfx)
         
         %% FINITE DIFFERENCES
-        
-        % first order "forward" finite difference approach with fixed step of 0.001
-        
+                
+        % first order "forward" finite difference approach with fixed step
+        % of 1e-6. Would like to use backwards differences when variable is
+        % at upper bound, but would require to know the bounds here. Second
+        % order accurate finite differences could also be appealing,
+        % requiring to average forward and backward differences and
+        % eventually using ad adapted stencil for the boundaries, but
+        % probably the additional computational cost does not pay off.        
         for i = 1:length(x)
             
             x_v = x;
