@@ -11,6 +11,8 @@ diary(diaryfilename)
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
+
+%To do: clean up MyAttributeCalcs
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Physarum Options         %
@@ -19,13 +21,13 @@ options.LinearDilationCoefficient = 5e-3;                       %Linear dilation
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
 options.NumberOfAgents = 20;                                    %Number of virtual agents 'N_agents'
-options.RamificationProbability = 0.4;                          %Probability of ramification 'p_ram'
+options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
-options.MaximumRadiusRatio = 20;                                %Maximum ratio between the link's radius & the starting radius
+options.MaximumRadiusRatio = 2.5;                                %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
-options.StartingRadius = 1;                                     %The starting radius of the veins
-options.RamificationAmount = 3;                                 %The number of nodes initially generated for the ramification
-options.Generations = 40;                                       %The number of generations
+options.StartingRadius = 2;                                     %The starting radius of the veins
+options.RamificationAmount = 10;                                 %The number of nodes initially generated for the ramification
+options.Generations = 20;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
@@ -37,12 +39,17 @@ options.SaveHistory = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum can choose from
+options.Targets = {'neo2003CP20', 'neo2004XZ130', ...        %Targets the Physarum can choose from
     'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
     'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
     'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
-    'neo2013JX28','neo2013TQ5', 'neo2014FO47', ...
-    'neo2015DR215', 'neo2015ME131'}; 
+    'neo2013JX28'}; 
+%options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum can choose from
+%     'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
+%     'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
+%     'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
+%     'neo2013JX28','neo2013TQ5', 'neo2014FO47', ...
+%     'neo2015DR215', 'neo2015ME131'}; 
 options.MaxConsecutiveRes = 1*ones(1, length(options.Targets)); %The maximum number of resonance orbits to each target (set to -1 to ignore)
 options.MaxVisits = ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
@@ -57,18 +64,18 @@ options.MyBestChainFile = @MyBestChain;
 options.EndTarget = {};
 options.MyEndConditionsFile = @MyEndConditions;
 options.EndConditions = {{}};                                     %For use in the MyEndCondtions file
-options.RootName = 'Earth';
+options.RootName = 'EARTH';
 options.AdditonalInputs = {{}};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 30:10:365;             %Set the value of the sets. 
-sets.tof = mat2cell(ones(16,1)... %Input should be a cell array where each line depicts a target.
-   *tofvalues,[ones(16,1)],...    %For this mission, the ToF and the arrival epochs have been used
+tofvalues = 35:10:365;             %Set the value of the sets. 
+sets.tof = mat2cell(ones(length(options.Targets),1)... %Input should be a cell array where each line depicts a target.
+   *tofvalues,[ones(length(options.Targets),1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
 load('epochsnode.mat')
-sets.epochsnode = epochsnode(2:end);
+sets.epochsnode = epochsnode(1:end);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
