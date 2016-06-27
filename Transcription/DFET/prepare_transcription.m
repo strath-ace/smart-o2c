@@ -49,6 +49,8 @@ t_n = linspace(0,1,num_elems+1);    % this are the "external" nodes of each elem
 
 [PC,DPC,state_basis,state_eval] = make_basis2(state_order,num_elems,num_eqs,s_nodes,integr_nodes);
 [PCU,~,control_basis,control_eval] = make_basis2(control_order,num_elems,num_controls,c_nodes,integr_nodes);
+[state_eval_nodes,control_eval_nodes,col_nodes] = eval_poly_on_nodes(num_elems,state_basis,s_nodes,control_basis,c_nodes);
+
 
 if (DFET==1)
     % Basis for test function!!!! (in DGFET is one order higher than nonDGFET)
@@ -100,4 +102,8 @@ out.c_nodes = c_nodes;
 out.test_basis = test_basis;
 out.test_eval = test_eval;
 out.test_order = test_order;
+out.state_eval_nodes = state_eval_nodes;
+out.control_eval_nodes = control_eval_nodes;
+out.col_nodes = col_nodes;
+
 end
