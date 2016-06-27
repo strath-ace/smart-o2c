@@ -12,10 +12,14 @@ a = 4e-3;
 
 f = @(x,u,t) [x(2); a*cos((u(1))); x(4); -0.0016+a*sin((u(1)))];
 
-dfx = @(x,u,t) [0 1 0 0; 0 0 0 0; 0 0 0 1; 0 0 0 0];
-dfu = @(x,u,t) [0; -a*sin(u(1)); 0; a*cos(u(1))];
+dfx = [];%@(x,u,t) [0 1 0 0; 0 0 0 0; 0 0 0 1; 0 0 0 0];
+dfu = [];%@(x,u,t) [0; -a*sin(u(1)); 0; a*cos(u(1))];
 %dfx = [];
 %dfu = [];
+
+lim = 3.5e-3;
+
+c = @(x,u,t) [((a*cos(u(1)))^2+(a*sin(u(1))-0.0016).^2).^0.5-lim; abs(u(1))-pi/2];    % max acceleration, path constraint
 
 t_0 = 0;
 
@@ -27,8 +31,8 @@ x_f = [0 0.1 10 0];                % vector of final conditions (size???)
 %% Discretisation settings
 
 num_elems = 4;
-state_order = 3;
-control_order = 2;
+state_order = 6;
+control_order = 6;
 DFET = 1;
 state_distrib = 'Lobatto'; % or Cheby
 control_distrib = 'Legendre';
@@ -92,11 +96,11 @@ x_guess = make_first_guess(f,x_0,t_0,120,u_nodes,structure);
 x_guess = [120;x_guess];
 
 lbv = [100;lbv];
-ubv = [150;ubv];
+ubv = [1000;ubv];
  
 %options = optimset('Display','iter','GradConstr','on','MaxFunEvals',100000);
-options = optimset('Display','iter','MaxFunEvals',500000,'Tolcon',1e-6,'GradConstr','on','TolX',1e-9);
-x_sol = fmincon(@(x) climb_objectives(x,t_0,x_f,structure),x_guess,[],[],[],[],lbv,ubv,@(x) climb_dynamics(f,structure,x,x_0,x_f,t_0,dfx,dfu),options);
+options = optimset('Display','iter','MaxFunEvals',500000,'MaxIter',500000,'Tolcon',1e-6,'GradConstr','on','TolX',1e-9);
+x_sol = fmincon(@(x) climb_objectives(x,t_0,x_f,structure),x_guess,[],[],[],[],lbv,ubv,@(x) climb_dynamics_constr(f,c,structure,x,x_0,x_f,t_0,dfx,dfu),options);
 t_fbest = x_sol(1);
 xx = x_sol(2:end);
 [x_best,u_best,x_b] = extract_solution(xx,structure,x_f);
@@ -172,16 +176,20 @@ xx = x_sol(2:end);
 % end
 
 
-plot_solution_vs_time(x_best,u_best,x_0,x_b,t_0,t_fbest,structure);
+plot_solution_vs_time(x_best,u_best,x_0,x_b,t_0,t_fbest,structure.uniform_els,structure);
 tplot = linspace(t_0,t_fbest,100);
  %tplot = structure.in_nodes_state';
  %tplot = tplot(:);
  %tplot = tplot'*t_fbest;
-[xt,ut] = eval_solution_over_time(x_best,u_best,t_0,t_fbest,tplot,structure);
+[xt,ut] = eval_solution_over_time(x_best,u_best,t_0,t_fbest,tplot,structure.uniform_els,structure);
 figure()
 plot(tplot,cos(ut),'b.')
 figure()
 plot(tplot,sin(ut),'b.')
+figure()
+plot(tplot,((a*cos(ut)).^2+(a*sin(ut)-0.0016).^2).^0.5,'b.')
+hold on
+plot(tplot,ones(length(tplot))*lim,'r')
 
 % if DFET==1
 %    
