@@ -1,4 +1,4 @@
-function [F,J] = eval_constraints(f,structure,x,x_0,x_f,t_0,t_f,els,calc_jac,varargin)
+function [F,J] = eval_path_constraints(f,structure,x,x_0,x_f,t_0,t_f,els,colloc,calc_jac,varargin)
 
 dfx = varargin{1};
 dfu = varargin{2};
@@ -11,23 +11,22 @@ end
 
 %% Computation of the RHS
 
-%F = zeros(structure.num_elems*structure.num_eqs*(structure.test_order+1)+sum(structure.imposed_final_states)+structure.num_free_states*(structure.DFET==1),1);
-
-F = zeros(size(structure.M,1),1);
-
 ee1 = els(:,1)*(t_f-t_0);%structure.els(:,1)*(t_f-t_0);
 ee2 = els(:,2)*(t_f-t_0);%structure.els(:,2)*(t_f-t_0);
 
-loc_state = zeros((structure.state_order+1)*structure.num_eqs,structure.num_elems);
-loc_u = zeros((structure.control_order+1)*structure.num_controls,structure.num_elems);
+loc_state = zeros((structure.state_order+1)*structure.num_eqs,structure.num_elems); % preallocation, will be needed to more easily map between the input vector (mixed states and controls) and the states
+loc_u = zeros((structure.control_order+1)*structure.num_controls,structure.num_elems); % preallocation, will be needed to more easily map between the input vector (mixed states and controls) and the controls
 
 tmpp = cell(structure.num_elems,1);
 
 startx = 1;
 
+% mapping mixed states and controls of input x vector into more easily
+% managed states and controls
+
 for i=1:structure.num_elems
     
-    tmpp{i} = 0;%zeros(structure.state_order+1,structure.num_eqs);
+    tmpp{i} = 0;    % this cell array will contain integrals
     
     endx = startx+(structure.state_order+1)*structure.num_eqs-1;
     loc_state(:,i) = x(startx:endx);
@@ -40,75 +39,42 @@ for i=1:structure.num_elems
     startx = endx+1;
 end
 
-% compute integrals elementwise (can be made PARALLEL, although benefits depend widely upon the actual amount of work done by each node)
+num_con = length(f(structure.state_eval_nodes{1,1}*loc_state(:,1),structure.control_eval_nodes{1,1}*loc_u(:,1),(ee1(1)+ee2(1))/2+(ee2(1)-ee1(1))/2*structure.col_nodes(1)));
 
-for i = 1:structure.num_elems
+if colloc==1
     
-    e1 = ee1(i);
-    e2 = ee2(i);
+    % path constraints will be evaluated at the (all the)nodes, so they
+    % will be imposed strongly in the collocation points. NOTE: if the
+    % order or type of polynomials is different between states and
+    % controls, some of the state nodes and control nodes will be
+    % mismatched. I'm evaluating inequalities in ALL these points,so the
+    % number of inequalities depends on the number of elements and the
+    % number of unique nodes.
     
-    % maybe it's better to avoid reshape, saves a for loop afterwards for
-    % the reconstruction of complete f
+    F = zeros(size(structure.state_eval_nodes,1)*size(structure.state_eval_nodes,2)*num_con,1);
     
-    for j = 1:length(structure.integr_nodes)
-        
-        tmpp{i} = tmpp{i} + reshape(structure.integr_weights(j)*structure.test_eval{i,j}'*f(structure.state_eval{i,j}*loc_state(:,i),structure.control_eval{i,j}*loc_u(:,i),(e2+e1)/2+(e2-e1)/2*structure.integr_nodes(j)).*(e2-e1)/2,structure.test_order+1,structure.num_eqs);
-        
-    end
+else
+    
+    % path constraints will be imposed WEAKLY (experimental)
+    error('Not implemented, yet')
     
 end
 
-% reordering of the solution, considering initial, matching and final conditions
-
-if structure.num_elems == 1
+if colloc==0
     
-    if structure.DFET==0
+    % compute integrals elementwise (can be made PARALLEL, although benefits depend widely upon the actual amount of work done by each node)
+    
+    for i = 1:structure.num_elems
         
-        ystart_aug = 1;
+        e1 = ee1(i);
+        e2 = ee2(i);
         
-        for q = 1:structure.num_eqs
-            
-            F_temp = tmpp{end}(:,q);
-            F_temp(1) = x_0(q);      % matching condition
-            
-            if (structure.imposed_final_states(q)==1)
-                
-                F_temp = [F_temp;x_f(q)];
-                
-            end
-            
-            yend_aug = ystart_aug + length(F_temp)-1;
-            
-            F(ystart_aug:yend_aug) = F_temp;
-            
-            ystart_aug = yend_aug+1;
-            
-        end
+        % maybe it's better to avoid reshape, saves a for loop afterwards for
+        % the reconstruction of complete f
         
-    else
-        
-        ystart_aug = 1;
-        
-        %evaluation of test basis on -1, to introduce initial conditions
-        valsl = structure.test_basis{end}(-1)';
-        %evaluation of test basis on 1, to introduce known final conditions
-        valsr = structure.test_basis{end}(1)';
-        
-        for q = 1:structure.num_eqs
+        for j = 1:length(structure.integr_nodes)
             
-            F_temp = -tmpp{end}(:,q)-valsl(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_0(q);
-            
-            if (structure.imposed_final_states(q)==1)
-                
-                F_temp = F_temp+valsr(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_f(q);
-                
-            end
-            
-            yend_aug = ystart_aug + length(F_temp)-1;
-            
-            F(ystart_aug:yend_aug) = F_temp;
-            
-            ystart_aug = yend_aug+1;
+            tmpp{i} = tmpp{i} + reshape(structure.integr_weights(j)*structure.test_eval{i,j}'*f(structure.state_eval{i,j}*loc_state(:,i),structure.control_eval{i,j}*loc_u(:,i),(e2+e1)/2+(e2-e1)/2*structure.integr_nodes(j)).*(e2-e1)/2,structure.test_order+1,structure.num_eqs);
             
         end
         
@@ -116,161 +82,248 @@ if structure.num_elems == 1
     
 else
     
-    if structure.DFET==0 % sarebbe piu' sano diversificare le eval_constraints, tanto DFET non puo' mai cambiare ma questo if viene valutato ogni volta...
+    % collocation
+    
+    start =1;
+    
+    for i = 1:structure.num_elems
         
-        % copy solutions, up to the last element, where modifications of
-        % ordering occour
+        e1 = ee1(i);
+        e2 = ee2(i);
         
-        for i=1:structure.num_elems-1
+        % maybe it's better to avoid reshape, saves a for loop afterwards for
+        % the reconstruction of complete f
+        
+        for j = 1:length(structure.col_nodes)
             
-            F(1+(structure.test_order+1)*structure.num_eqs*(i-1):(structure.test_order+1)*structure.num_eqs*(i)) = reshape(tmpp{i},(structure.test_order+1)*structure.num_eqs,1);
+            endd = start+num_con-1;
+            
+            F(start:endd) = f(structure.state_eval_nodes{i,j}*loc_state(:,i),structure.control_eval_nodes{i,j}*loc_u(:,i),(e2+e1)/2+(e2-e1)/2*structure.col_nodes(j));
+            
+            start = endd+1;
             
         end
         
+    end
+    
+end
+% reordering of the solution, considering initial, matching and final conditions
+
+if colloc==0
+    
+    if structure.num_elems == 1
         
-        % first element, impose initial conditions
-        
-        for q = 1:structure.num_eqs
+        if structure.DFET==0
             
-            F(1+(structure.state_order+1)*(q-1)) = x_0(q);
-            
-        end
-        
-        % intermediate elements, impose matching
-        
-        for i = 2:structure.num_elems-1
+            ystart_aug = 1;
             
             for q = 1:structure.num_eqs
                 
-                F(1+(q-1)*(structure.state_order+1)+(structure.state_order+1)*structure.num_eqs*(i-1)) = 0;
+                F_temp = tmpp{end}(:,q);
+                F_temp(1) = x_0(q);      % matching condition
+                
+                if (structure.imposed_final_states(q)==1)
+                    
+                    F_temp = [F_temp;x_f(q)];
+                    
+                end
+                
+                yend_aug = ystart_aug + length(F_temp)-1;
+                
+                F(ystart_aug:yend_aug) = F_temp;
+                
+                ystart_aug = yend_aug+1;
                 
             end
             
-        end
-        
-        % last element, impose matching, reorder equations and impose final
-        % state
-        
-        ystart_aug = (structure.state_order+1)*structure.num_eqs*(structure.num_elems-1)+1;
-        
-        for q = 1:structure.num_eqs
+        else
             
-            F_temp = tmpp{end}(:,q);
-            F_temp(1) = 0;      % matching condition
+            ystart_aug = 1;
             
-            if (structure.imposed_final_states(q)==1)
+            %evaluation of test basis on -1, to introduce initial conditions
+            valsl = structure.test_basis{end}(-1)';
+            %evaluation of test basis on 1, to introduce known final conditions
+            valsr = structure.test_basis{end}(1)';
+            
+            for q = 1:structure.num_eqs
                 
-                F_temp = [F_temp;x_f(q)];
+                F_temp = -tmpp{end}(:,q)-valsl(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_0(q);
+                
+                if (structure.imposed_final_states(q)==1)
+                    
+                    F_temp = F_temp+valsr(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_f(q);
+                    
+                end
+                
+                yend_aug = ystart_aug + length(F_temp)-1;
+                
+                F(ystart_aug:yend_aug) = F_temp;
+                
+                ystart_aug = yend_aug+1;
                 
             end
-            
-            yend_aug = ystart_aug + length(F_temp)-1;
-            
-            F(ystart_aug:yend_aug) = F_temp;
-            
-            ystart_aug = yend_aug+1;
             
         end
         
     else
         
-        % first element, contains initial conditions
-        
-        ystart_aug = 1;
-        
-        %evaluation of test basis on -1, to introduce initial conditions
-        valsl = structure.test_basis{1}(-1)';
-        
-        for q = 1:structure.num_eqs
+        if structure.DFET==0 % sarebbe piu' sano diversificare le eval_constraints, tanto DFET non puo' mai cambiare ma questo if viene valutato ogni volta...
             
-            F_temp = -tmpp{1}(:,q)-valsl(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_0(q);
+            % copy solutions, up to the last element, where modifications of
+            % ordering occour
             
-            yend_aug = ystart_aug + length(F_temp)-1;
+            for i=1:structure.num_elems-1
+                
+                F(1+(structure.test_order+1)*structure.num_eqs*(i-1):(structure.test_order+1)*structure.num_eqs*(i)) = reshape(tmpp{i},(structure.test_order+1)*structure.num_eqs,1);
+                
+            end
             
-            F(ystart_aug:yend_aug) = F_temp;
             
-            ystart_aug = yend_aug+1;
+            % first element, impose initial conditions
             
-        end
-        
-        % central elements, copy all integrals except for the first one,
-        % that has to be added to the corresponding of the previous element
-        % (messy)
-        
-        start2 = 0;
-        
-        if structure.num_elems>2
+            for q = 1:structure.num_eqs
+                
+                F(1+(structure.state_order+1)*(q-1)) = x_0(q);
+                
+            end
+            
+            % intermediate elements, impose matching
             
             for i = 2:structure.num_elems-1
                 
                 for q = 1:structure.num_eqs
                     
-                    start2 = start2+structure.test_order+1*(i==2);
-                    
-                    F_temp = -tmpp{i}(:,q);
-                    
-                    yend_aug = ystart_aug + length(F_temp)-2;
-                    
-                    F(ystart_aug:yend_aug) = F_temp(2:end);
-                    F(start2) = F(start2)+F_temp(1);
-                    
-                    ystart_aug = yend_aug+1;
+                    F(1+(q-1)*(structure.state_order+1)+(structure.state_order+1)*structure.num_eqs*(i-1)) = 0;
                     
                 end
                 
             end
             
-        end
-        
-        % final element
-        
-        valsr = structure.test_basis{end}(1)';
-        
-        start2 = start2+structure.test_order+1*(structure.num_elems==2);
-        
-        for q = 1:structure.num_eqs
+            % last element, impose matching, reorder equations and impose final
+            % state
             
-            F_temp = -tmpp{end}(:,q);
+            ystart_aug = (structure.state_order+1)*structure.num_eqs*(structure.num_elems-1)+1;
             
-            if (structure.imposed_final_states(q)==1)
+            for q = 1:structure.num_eqs
                 
-                F_temp = F_temp+valsr(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_f(q);
+                F_temp = tmpp{end}(:,q);
+                F_temp(1) = 0;      % matching condition
+                
+                if (structure.imposed_final_states(q)==1)
+                    
+                    F_temp = [F_temp;x_f(q)];
+                    
+                end
+                
+                yend_aug = ystart_aug + length(F_temp)-1;
+                
+                F(ystart_aug:yend_aug) = F_temp;
+                
+                ystart_aug = yend_aug+1;
                 
             end
             
-            yend_aug = ystart_aug + length(F_temp)-2;
+        else
             
-            F(ystart_aug:yend_aug) = F_temp(2:end);
-            F(start2) = F(start2)+F_temp(1);
+            % first element, contains initial conditions
             
-            ystart_aug = yend_aug+1;
-            start2 = start2+structure.test_order;
+            ystart_aug = 1;
+            
+            %evaluation of test basis on -1, to introduce initial conditions
+            valsl = structure.test_basis{1}(-1)';
+            
+            for q = 1:structure.num_eqs
+                
+                F_temp = -tmpp{1}(:,q)-valsl(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_0(q);
+                
+                yend_aug = ystart_aug + length(F_temp)-1;
+                
+                F(ystart_aug:yend_aug) = F_temp;
+                
+                ystart_aug = yend_aug+1;
+                
+            end
+            
+            % central elements, copy all integrals except for the first one,
+            % that has to be added to the corresponding of the previous element
+            % (messy)
+            
+            start2 = 0;
+            
+            if structure.num_elems>2
+                
+                for i = 2:structure.num_elems-1
+                    
+                    for q = 1:structure.num_eqs
+                        
+                        start2 = start2+structure.test_order+1*(i==2);
+                        
+                        F_temp = -tmpp{i}(:,q);
+                        
+                        yend_aug = ystart_aug + length(F_temp)-2;
+                        
+                        F(ystart_aug:yend_aug) = F_temp(2:end);
+                        F(start2) = F(start2)+F_temp(1);
+                        
+                        ystart_aug = yend_aug+1;
+                        
+                    end
+                    
+                end
+                
+            end
+            
+            % final element
+            
+            valsr = structure.test_basis{end}(1)';
+            
+            start2 = start2+structure.test_order+1*(structure.num_elems==2);
+            
+            for q = 1:structure.num_eqs
+                
+                F_temp = -tmpp{end}(:,q);
+                
+                if (structure.imposed_final_states(q)==1)
+                    
+                    F_temp = F_temp+valsr(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_f(q);
+                    
+                end
+                
+                yend_aug = ystart_aug + length(F_temp)-2;
+                
+                F(ystart_aug:yend_aug) = F_temp(2:end);
+                F(start2) = F(start2)+F_temp(1);
+                
+                ystart_aug = yend_aug+1;
+                start2 = start2+structure.test_order;
+                
+            end
             
         end
         
     end
     
-end
-
-x_only = loc_state(:);
-
-if structure.DFET==1
+    x_only = loc_state(:);
     
-    if size(x,1)==1
-       
-        xx = x(end-structure.num_free_states+1:end)';
+    if structure.DFET==1
         
-    else
+        if size(x,1)==1
+            
+            xx = x(end-structure.num_free_states+1:end)';
+            
+        else
+            
+            xx = x(end-structure.num_free_states+1:end);
+            
+        end
         
-        xx = x(end-structure.num_free_states+1:end);
+        x_only = [x_only;xx];
         
     end
     
-    x_only = [x_only;xx];
+    F = structure.M*x_only-F;
     
 end
-
-F = structure.M*x_only-F;
 
 %% Computation of the Jacobian in the projected state space
 
@@ -281,19 +334,20 @@ if calc_jac
     if isempty(dfx)
         
         %% FINITE DIFFERENCES
-                
+        
         % first order "forward" finite difference approach with fixed step
         % of 1e-6. Would like to use backwards differences when variable is
         % at upper bound, but would require to know the bounds here. Second
         % order accurate finite differences could also be appealing,
         % requiring to average forward and backward differences and
         % eventually using ad adapted stencil for the boundaries, but
-        % probably the additional computational cost does not pay off.        
+        % probably the additional computational cost does not pay off.
+        
         for i = 1:length(x)
             
             x_v = x;
             x_v(i) = x_v(i)+0.000001;
-            F_temp = eval_constraints(f,structure,x_v,x_0,x_f,t_0,t_f,els,0,dfx,dfu);
+            F_temp = eval_path_constraints(f,structure,x_v,x_0,x_f,t_0,t_f,els,colloc,0,dfx,dfu);
             J(:,i) = (F_temp-F)/0.000001;
             
         end

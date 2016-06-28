@@ -17,6 +17,10 @@ smooth_scal_const = @ascent_specific_smooth_scal_constraints;
 g = @(x,u,t) [t 0; -x(2) 0];
 weights = [1 0; 1 0];
 
+% path constraints
+c = @(c,u,t) []
+
+% initial and final conditions
 t_0 = 0;
 
 x_0 = [0 0 0 0];
@@ -26,9 +30,9 @@ x_f = [0 0.1 10 0];
 
 %% Discretisation settings
 
-num_elems = 4;
-state_order = 6;
-control_order = 6;
+num_elems = 1;
+state_order = 4;
+control_order = 4;
 DFET = 1;
 state_distrib = 'Lobatto'; % or Cheby
 control_distrib = 'Legendre';
@@ -95,11 +99,11 @@ vub = [250;vub]';
 tol_conv = 1e-6;
 maxits = 10000;
 
-fminconoptions = optimset('Display','off','MaxFunEvals',maxits,'TolCon',tol_conv,'GradConstr','on','Algorithm','sqp');
+fminconoptions = optimoptions('fmincon','Display','off','MaxFunEvals',maxits,'TolCon',tol_conv,'GradConstr','on','Algorithm','interior-point','AlwaysHonorConstraints','none');
 
 %% MACS PARAMETERS
 
-opt.maxnfeval=50000;                                                       % maximum number of f evals 
+opt.maxnfeval=10000;                                                       % maximum number of f evals 
 opt.popsize=10;                                                             % popsize (for each archive)
 opt.rhoini=1;                                                               % initial span of each local hypercube (1=full domain)
 opt.F=0.9;                                                                    % F, the parameter for Differential Evolution
@@ -146,18 +150,18 @@ end
 
 %% plot 
 
-% [~,b] = sort(mem(1).memory(:,length(vlb)+1));
-%  
-% qq = mem(1).memory(b,:);    %sort wrt t_f
-% 
-% for i = 1:size(qq,1)
-%     
-%     [x,u,xb] = extract_solution(qq(i,2:length(vlb)),structure,x_f);
-%     plot_solution_vs_time(x,u,x_0,xb,t_0,qq(i,1),structure.uniform_els,structure,i+1)
-%     subplot(2,1,1)
-%     axis([0 250 0 120])
-%     subplot(2,1,2)
-%     axis([0 250 -pi pi])
-%     drawnow
-%     
-%end
+[~,b] = sort(mem(1).memory(:,length(vlb)+1));
+ 
+qq = mem(1).memory(b,:);    %sort wrt t_f
+
+for i = 1:size(qq,1)
+    
+    [x,u,xb] = extract_solution(qq(i,2:length(vlb)),structure,x_f);
+    plot_solution_vs_time(x,u,x_0,xb,t_0,qq(i,1),structure.uniform_els,structure,i+1)
+    subplot(2,1,1)
+    axis([0 250 0 120])
+    subplot(2,1,2)
+    axis([0 250 -pi pi])
+    drawnow
+    
+end
