@@ -124,6 +124,12 @@ if any(weights(:,1)>0)
 end
 
 if any(weights(:,2)>0)
+    
+    if isempty(vals)
+       
+        vals = 0;
+        
+    end
 
     % compute integrals elementwise (can be made PARALLEL, although benefits depend widely upon the actual amount of work done by each node)
     
@@ -164,7 +170,7 @@ if compute_grad==1
         
         % first order "forward" finite difference approach with fixed step of 0.001
         
-        for i = 1:length(x)
+        for i = 1:length(x_in)
             
             x_v = x_in;
             x_v(i) = x_v(i)+0.000001;
