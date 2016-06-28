@@ -3,10 +3,10 @@ function [r] = PlotTrajectories(Solutions,Costs,ListNodes)
 %   Detailed explanation goes here
 
 %Addpath in case this file is ran seperately
-addpath(genpath(fileparts(fileparts(fileparts(pwd)))));
+%addpath(genpath(fileparts(fileparts(fileparts(pwd)))));
 
 dt = 1;
-vvecsize = 3e7;
+vvecsize = 8e7;
 for i = 1:length(Solutions)
     r{i} = [];
     figure('Color',[1 1 1])
