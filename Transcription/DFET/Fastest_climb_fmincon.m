@@ -19,7 +19,10 @@ dfu = [];%@(x,u,t) [0; -a*sin(u(1)); 0; a*cos(u(1))];
 
 lim = 50e-3;
 
-c = @(x,u,t) [((a*cos(u(1)))^2+(a*sin(u(1))-0.0016).^2).^0.5-lim; abs(u(1))-pi/2];    % max acceleration, path constraint
+c = [];%@(x,u,t) [((a*cos(u(1)))^2+(a*sin(u(1))-0.0016).^2).^0.5-lim; abs(u(1))-pi/2];    % max acceleration, path constraints
+
+wcis = [0 1];  % weights for integral and final states path constraints
+cis = [];%@(x,u,t) [0 abs(u(1))-pi/2*0.8]; %final states constraint and integral path constraints
 
 t_0 = 0;
 
@@ -99,9 +102,9 @@ lbv = [100;lbv];
 ubv = [1000;ubv];
  
 %options = optimset('Display','iter','GradConstr','on','MaxFunEvals',100000);
-options = optimset('Display','iter','MaxFunEvals',500000,'MaxIter',500000,'Tolcon',1e-6,'GradConstr','on','GradObj','on','TolX',1e-9);
+options = optimset('Display','iter','MaxFunEvals',500000,'MaxIter',500000,'Tolcon',1e-6,'GradConstr','on','GradObj','on','TolX',1e-15);
 tic
-x_sol = fmincon(@(x) climb_objectives(x,t_0,x_f,structure),x_guess,[],[],[],[],lbv,ubv,@(x) climb_dynamics_constr(f,c,structure,x,x_0,x_f,t_0,dfx,dfu),options);
+x_sol = fmincon(@(x) climb_objectives(x,t_0,x_f,structure),x_guess,[],[],[],[],lbv,ubv,@(x) climb_dynamics_constr(f,c,cis,wcis,structure,x,x_0,x_f,t_0,dfx,dfu),options);
 toc
 t_fbest = x_sol(1);
 xx = x_sol(2:end);
