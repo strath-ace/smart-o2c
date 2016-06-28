@@ -1,4 +1,4 @@
-function [val] = climb_objectives (x_in,t_0,x_f,structure)
+function [val,grad] = climb_objectives (x_in,t_0,x_f,structure)
 
 % min time formulation
 t_f = x_in(1);
@@ -12,10 +12,13 @@ g = @(x,u,t) [t 0];
 
 weights = [1 0];
 
-[x,u,x_b] = extract_solution(x_sol,structure,x_f);
+%[x,u,x_b] = extract_solution(x_sol,structure,x_f);
 
-val = eval_cost_functions(g,weights,x,u,x_b,[t_0 t_f],structure,0,[],[]);
-%dval = zeros(size(x_in,1),1);
-%dval(1) = 1;
+[val,grad] = eval_cost_functions2(g,weights,x_sol,x_f,[t_0 t_f],structure.uniform_els,structure,1,[],[]);
+
+val2 = eval_cost_functions2(g,weights,x_sol,x_f,[t_0 t_f+1e-6],structure.uniform_els,structure,0,[],[]);
+dgdt = (val2-val)/1e-6;
+grad = [dgdt grad];
+
 
 end

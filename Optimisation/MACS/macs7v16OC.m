@@ -761,53 +761,13 @@ local_only = 0;
 while nfeval<options.maxnfeval
     
     fold = f;
-    
-    %     if size(oldmem,1)==size(memory,1)
-    %
-    %         if isempty(setdiff(oldmem,memory,'rows','stable'))
-    %
-    %             nequal = nequal+1;
-    %
-    %         else
-    %
-    %             nequal = 0;
-    %
-    %         end
-    %
-    %     else
-    %
-    %         nequal = 0;
-    %
-    %     end
-    %
-    %     oldmem = memory;
+
     nfeval_old = nfeval;
     
     tic
     
     newmins = (min(memory(:,lx+1:lx+mfit))<oldmin);
     
-    %     if any(newmins)
-    %
-    %         for i=1:mfit
-    %
-    %             if newmins(i)
-    %
-    %                 fprintf('Min of objective %d has changed! Old value = %g, new value = %g \n',i,oldmin(i),min(memory(:,lx+i)));
-    %
-    %             end
-    %
-    %         end
-    %
-    %         oldmin = min(memory(:,lx+1:lx+mfit),[],1);
-    %
-    %     end
-    
-    %     if any(min(memory(:,lx+1:lx+mfit))<oldmin)
-    %
-    %         oldmin = min(memory(:,lx+1:lx+mfit),[],1)
-    %
-    %     end
     
     % Pattern search coord_ratio dynamically adapted, depending on filling
     % ratio of archive
@@ -861,11 +821,11 @@ while nfeval<options.maxnfeval
                 v(i,:) = vtrial(i,:);                                       % given velocity
                 
                 % nornalisation of v, to avoid friction
-                if norm(v(i,:))>0
-                    
-                    v(i,:) = v(i,:)/norm(v(i,:));
-                    
-                end
+%                 if norm(v(i,:))>0
+%                     
+%                     v(i,:) = v(i,:)/norm(v(i,:));
+%                     
+%                 end
                 
                 x(i,:)=xtrial(i,:);                                         % position
                 f(i,:)=ftrial(i,:);                                         % objective function value
@@ -937,13 +897,6 @@ while nfeval<options.maxnfeval
         
     end
         
-    %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
-    %
-    %         keyboard
-    %
-    %     end
-    %
-    
     %% SOCIAL MOVES, SELECTION AND ARCHIVING
     
     xsoc = zeros(n_social,lx);
@@ -1376,12 +1329,6 @@ while nfeval<options.maxnfeval
         %else
         
     end
-    
-    %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
-    %
-    %         keyboard
-    %
-    %     end
     
     %% REDISTRIBUTE AND ADAPT SUBPROBLEMS
     
