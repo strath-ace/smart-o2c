@@ -23,9 +23,9 @@ check2 = isempty(find(strcmp(newnode_ID, fields(generatednodes)), 1));
 %Obtain attribute indices
 temp = strsplit(newnode_ID,'_');
 
-asteroidindex = str2double(temp{end-2});
-tofindex = str2double(temp{end-1});
-t_arrindex = str2double(temp{end});
+asteroidindex = sscanf(temp{end-2}, '%f');
+tofindex = sscanf(temp{end-1}, '%f');
+t_arrindex = sscanf(temp{end}, '%f');
 
 chosentof = Inputs.Sets.tof{asteroidindex}(tofindex);
 chosent_arr = Inputs.Sets.epochsnode{asteroidindex}(t_arrindex);

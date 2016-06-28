@@ -33,6 +33,9 @@ tic;
 x = BestSolution.BestChain(1);
 fval = BestSolution.BestCost(1);
 
+%Save the options
+output.options = InitializedInputs;
+
 %End clock
 output.CompTime = toc;
 

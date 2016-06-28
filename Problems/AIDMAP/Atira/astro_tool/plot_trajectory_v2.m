@@ -1,4 +1,4 @@
-function yend = plot_trajectory(r0,v0,tof,mu,s)
+function yend = plot_trajectory(r0,v0,tof,mu,s, label, marker_flag)
 % Plots a keplerian orbit of a body around a cental mass, given the initial
 % position and velocity in cartesian coordinates, and the final time.
 %
@@ -46,7 +46,20 @@ ode45options = odeset('abstol',1e-11,'reltol',1e-9);
 [t,y]=ode45(@two_body_dynamics,[0, tof],[r0,v0],ode45options,mu);
 yend = y(end,:);
 
+% Text 
+text(y(1,1),y(1,2),y(1,3),label,...
+     'HorizontalAlignment','right',...
+     'FontSize',12)
+
+% Trajectory
 line(y(:,1),y(:,2),y(:,3),'Color',s);
-% line(y(1,1),y(1,2),y(1,3),'Marker','o','Color',s) % Marker at departure point
-% line(yend(1),yend(2),yend(3),'Marker','o','Color',s) % Marker at arrival point
+
+% Markers
+if marker_flag
+    line(y(1,1),y(1,2),y(1,3),'Marker','o','Color',s) % Marker at departure point
+    line(yend(1),yend(2),yend(3),'Marker','x','Color',s) % Marker at arrival point
+end
+
+
+
 %plot3(y(:,1),y(:,2),y(:,3),s)

@@ -1,9 +1,10 @@
-clear all; close all; clc
+for i = 1:10
+clearvars -except i; close all; clc
 addpath(genpath(strcat(pwd,'/Atira')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
-diaryfilename = strcat(['Atira/Results/DiaryAtira60','_',datestr(now,'yyyymmdd_HHMMSS')]);
+diaryfilename = strcat(['DiaryAtira60','_',datestr(now,'yyyymmdd_HHMMSS')]);
 diary(diaryfilename)
 
 
@@ -12,7 +13,10 @@ diary(diaryfilename)
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%To do: clean up MyAttributeCalcs
+%To do: 
+%clean up MyAttributeCalcs
+%Check why different epoch
+
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Physarum Options         %
@@ -20,7 +24,7 @@ diary(diaryfilename)
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 20;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 10;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 2.5;                                %Maximum ratio between the link's radius & the starting radius
@@ -34,7 +38,7 @@ options.IfZeroLength = 1e-15;                                   %Value assigned 
 options.MaxChildFindAttempts = 1e5;
 options.MinPickProbability = 0.1;
 options.GenerateGraphPlot = 0;
-options.SaveHistory = 1;
+options.SaveHistory = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
@@ -54,7 +58,7 @@ options.MaxConsecutiveRes = 1*ones(1, length(options.Targets)); %The maximum num
 options.MaxVisits = ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 7304.5];                                %Attributes of the root  
-options.NodeCheckBoundaries = [3 0.31 2 2*365];                 %The values used by the MyCreatedNodeCheck file.  In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]
+options.NodeCheckBoundaries = [3 1.5 0.31 2 2*365 4];           %The values used by the MyCreatedNodeCheck file.  In this case, it denotes [max dV_dep root, max dV_dep child, min a_per, C for the LT check, max waiting time]
 fitnessfcn = @MyCostFunction;                                   %The function reference to the cost function
 options.NodeAttributes = @MyAttributes;                         %The class that contains the node attributes
 options.MyAttributeCalcFile = @MyAttributeCalcs;                %The file that does the additonal calculations wrt the attributes
@@ -110,18 +114,19 @@ for i = 1:length(BestSolution)
     end
 end
 
-[r] = PlotTrajectories(BestSolution,bestnodecosts,output.ListNodes);
+%[r] = PlotTrajectories(BestSolution,bestnodecosts,output.ListNodes);
 
 %Save all the solutions
 for i = 1:length(AllBestSolutions)
-    filename = strcat(['Atira/Results/Atira',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')]);
+    filename = strcat(['Atira',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')]);
  
     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 end
 
-save(strcat('Atira/Results/Atira',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')));
+save(strcat('Atira',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')));
 diary off
 
+end
 %Notes:
 %20160510 - GrowthFactor has been changed
 
