@@ -1,4 +1,4 @@
-for k = 1:10
+for k = 1:2
 clearvars -except k; close all; clc
 addpath(genpath(strcat(pwd,'/Atira')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
