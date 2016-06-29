@@ -14,25 +14,23 @@ function [posschildren] = PossChilds(targets,sets)
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%Loop over all the targets
-
+%Retrieve the possible attribute values & create the posschildren vector
 attribvalues = struct2cell(sets);
+posschildren =[];
 
+%Loop over all the targets
 for i = 1:length(targets)
     
     %Set for convenience the current target name as a variable
     targetname = targets(i);
     
+    %Set the first column as the target's index
     possibleattributes{i,1} = i;
+    
     %Loop over all the attributes
     for j = 1:length(attribvalues)
-        
-        %Determine whether the currently evaluated attribute has a
-        %matrix or vector as input
-        vectorflag = isvector(attribvalues{j});
-        onevalueflag = (length(attribvalues{j}(1,:))==1);
-        cellflag = iscell(attribvalues{j});
-        
+       
+        %Add the attribute values to the posssibleattributes array       
         possibleattributes{i,j+1} = 1:1:length(cell2mat(attribvalues{j}(i)));
     end
            
@@ -43,21 +41,17 @@ for i = 1:length(targets)
     
     %%%Create UID%%%
     %As only underscores can be used in field names, the UID is made up as follows:
-    %3 underscores define the difference between the target and the
-    %  attributes
-    %2 underscores define the difference between two attributes
-    %1 underscore denotes the location of the decimal point within an
-    %  attribute
-    
-    %First, combine all attributes into 1 string, where the different
-    %attributes are initially seperated by 1 underscore. The goal is
-    %to have each attribute separated by two, but this is a neccessary
-    %the initial step to do so.
+    %3 underscores seperate the parent's section of the ID and the child's
+    %2 underscores define the difference between the target and the attributes
+    %1 underscores define the difference between two attributes
+
+    %First, combine all attributes into 1 string, where the space between
+    %the attributes is filled with underscores. The goal is to separate
+    %them by exactly 1 underscore, but this is a necessary step to do so
     for j = 1:length(possiblecombinations)
         temp = possiblecombinations(j,:);
         possattribstr{j} = strrep(num2str(temp(:)'),' ','_');
-    end
-    
+    end    
     
     %As MATLAB sometimes sometimes replaces multiple spaces by underscores,
     %a while loop is needed to correct the strings such that they only
@@ -66,23 +60,11 @@ for i = 1:length(targets)
         possattribstr = strrep(possattribstr,'__','_');
     end
         
-    %Combine the target name and the attributes into the UID by
-    %looping over this target's possible characteristics and concatenating
-    %the two strings.
-    for j = 1:length(possattribstr)
-        possdecattribvec(i,j) = strcat(targetname,'__',possattribstr{j});
-        
-    end
+    %Combine the target name and the attributes into the UID and add them
+    %to a vector that will contain all the possible children
+    posschildren = [posschildren strcat(targetname,'__',possattribstr)];
     clear possattribstr
 end
 
-
-%Reshape the possdecattribvec variable such that it becomes a cell array 
-%with a single row.
-posschildrenvec = reshape(possdecattribvec, [1, numel(possdecattribvec)]);
-
-%Remove empty cells that are the result of more possible characteristics
-%for certain targets
-posschildren = posschildrenvec(~cellfun('isempty',posschildrenvec));
 end
 

@@ -1,24 +1,19 @@
-function [validflag] = MyNodeCheck(Inputs,ListNodes,newnode_ID,currentNode,generatednodes)
+function [validflag] = MyNodeCheckMainBelt(Inputs,ListNodes,newnode_ID,currentNode,generatednodes)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
 %Check 2
-check2 = isempty(strmatch(newnode_ID, fields(generatednodes), 'exact'));
+check2 = isempty(find(strcmp(newnode_ID, fields(generatednodes)), 1));
 
 %Check 3 - ToF check, assuming ToF = 1st attribute in ID & Ta = 2nd
 %attribute
 
-%Extract child node
-temp = strsplit(newnode_ID,'___');
-childnode = temp{2};
+%Obtain attribute indices
+temp = strsplit(newnode_ID,'_');
 
-temp = strsplit(childnode,'__');
-attribs = temp{2};
-temp = strsplit(char(attribs),'_');
-
-asteroidindex = sscanf(temp{1},'%i');
-tofindex = sscanf(temp{2},'%i');
-t_arrindex = sscanf(temp{3},'%i');
+asteroidindex = sscanf(temp{end-2}, '%f');
+tofindex = sscanf(temp{end-1}, '%f');
+t_arrindex = sscanf(temp{end}, '%f');
 
 chosentof = Inputs.Sets.tof{asteroidindex}(tofindex);
 chosent_arr = Inputs.Sets.epochsnode{asteroidindex}(t_arrindex);

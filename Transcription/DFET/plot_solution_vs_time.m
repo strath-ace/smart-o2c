@@ -124,8 +124,21 @@ else
                     p = coeffs_to_handle(structure.PC(:,1+(i-1)*(structure.state_order+1):(structure.state_order+1)+(i-1)*(structure.state_order+1),q)');
                     
                     plot(xx,p(t_plot)'*x(1+(structure.state_order+1)*(q-1):(structure.state_order+1)*q,i),'Color', ColorSet(q,:));
-                    
+
                     % extremal nodal values
+                    if i>1
+                    
+                        plot(xx(1),p(t_plot(1))'*x(1+(structure.state_order+1)*(q-1):(structure.state_order+1)*q,i),'o','Color', ColorSet(q,:));
+                    
+                    end
+                    
+                    if i<structure.num_elems
+                        
+                        plot(xx(end),p(t_plot(end))'*x(1+(structure.state_order+1)*(q-1):(structure.state_order+1)*q,i),'o','Color', ColorSet(q,:));
+                    
+                    end
+                    
+                    % boundary values
                     if structure.DFET==0
                         
                         plot(xx(1),p(t_plot(1))'*x(1+(structure.state_order+1)*(q-1):(structure.state_order+1)*q,i),'o','Color', ColorSet(q,:));

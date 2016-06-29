@@ -7,9 +7,9 @@ currentnode = Agents.(char(agent)).currentNode;
 endconditions = Inputs.EndConditions;
 
 %Check if final target reached
-temp = strsplit(currentnode,'___');
-temp = strsplit(temp{end},'__');
-currenttarget = temp{1};
+temp = strsplit(currentnode,'_');
+
+currenttarget = temp{end-3};
 
 check1 = ~(sum(ismember(currenttarget, endconditions{1}))==length(currenttarget));
 

@@ -48,20 +48,20 @@ function  [E,ksun] = uplanet(mjd2000, IBODY)
 %
 %---------------------------------------------------------------------
 
-PI2=2*pi;
-RAD=pi/180;
+PI2 = 2*pi;
+RAD = pi/180;
 
-G=6.67259e-20;
-msun=1.988919445342813e+030;
-ksun=msun*G;
+G    = 6.67259e-20;
+msun = 1.988919445342813e+030;
+ksun = msun*G;
 
 KM  = 149597870.66;
 
 %  T = JULIAN CENTURIES SINCE 31/12/1899 at 12:00
-T   = (mjd2000 + 36525)/36525.00;
-TT  = T*T;
-TTT = T*TT;
-E(1)=T*0;
+T    = (mjd2000 + 36525)/36525.00;
+TT   = T*T;
+TTT  = T*TT;
+E(1) = T*0;
 
 %
 %  CLASSICAL PLANETARY ELEMENTS ESTIMATION IN MEAN ECLIPTIC OF DATE

@@ -18,7 +18,7 @@ smooth_scal_const = @problem_specific_smooth_scal_constraints;
 
 % Objective functions and Bolza's problem weights
 
-g = @(x,u,t) [-x(5) 0; -x(3) 0];
+g = @(x,u,t) [-x(5) 0; t 0];
 weights = [1 0; 1 0];
 
 t_0 = 0;
@@ -34,7 +34,7 @@ num_elems = 1;
 state_order = 5;
 control_order = 5;
 DFET = 1;
-state_distrib = 'Lobatto'; % or Cheby
+state_distrib = 'Legendre'; % or Cheby
 control_distrib = 'Legendre';
 
 integr_order = 2*state_order;%2*state_order-1;
@@ -81,27 +81,49 @@ structure = impose_final_conditions(structure,imposed_final_states);
 % function
 
 structure.f = f;
-structure.dfx = dfx;
-structure.dfu = dfu;
+structure.dfx = [];
+structure.dfu = [];
 structure.dft = [];
 structure.g = g;
 structure.weights = weights;
 
-state_bounds = [0 5e4; -pi pi; 100 10000; -pi/2 pi/2; 50e3 300e3];              % h, theta, v, gamma, m
+state_bounds = [0 5e4; -pi pi; 100 1000; -pi/2 pi/2; 50e3 350e3];              % h, theta, v, gamma, m
 control_bounds = [0 1; -10 50];                                         % delta (throttle) from 0 to 1, alpha (angle of attack) from -10 to 50 (DEGREES, INTERNAL DYNAMICS CONVERTS CONSISTENTLY INTO RADIANS WHEN NEEDED)
 
 [vlb,vub,state_vars,control_vars] = transcribe_bounds(state_bounds,control_bounds,structure);
 
-vlb = [0.5*60;vlb]';
-vub = [10*60;vub]';
+t_min = 0.5*60; 
+t_max = 10*60; 
 
-tol_conv = 1e-6;
-maxits = 10000;
-fminconoptions = optimset('Display','off','MaxFunEvals',maxits,'MaxIter',maxits,'TolCon',tol_conv,'GradConstr','on','Algorithm','sqp');%,'MaxSQPIter', 10*length(vlb));
+vlb = [t_min;vlb]';
+vub = [t_max;vub]';
+
+% normalisation stuff
+
+structure.scale_primal_states = (state_bounds(:,2)-state_bounds(:,1))';
+structure.offset_primal_states = state_bounds(:,1)';
+structure.scale_primal_controls = (control_bounds(:,2)-control_bounds(:,1))';
+structure.offset_primal_controls = control_bounds(:,1)';
+structure.scale_optimisation_vars = vub-vlb;
+structure.offset_optimisation_vars = vlb;
+structure.scale_transcription_vars = structure.scale_optimisation_vars(2:end);
+structure.offset_transcription_vars = structure.offset_optimisation_vars(2:end);
+structure.scale_tf = structure.scale_optimisation_vars(1);
+structure.offset_tf = t_min;
+
+structure.scale_objectives = structure.scale_primal_states(5);%[structure.scale_primal_states(5) structure.scale_tf];
+structure.offset_objectives = structure.offset_primal_states(5);%[structure.offset_primal_states(5) 0];
+
+norm_x_0 = (x_0-structure.offset_primal_states)./structure.scale_primal_states;
+norm_x_f = (x_f-structure.offset_primal_states)./structure.scale_primal_states;
+
+structure.norm_vlb = zeros(1,length(structure.scale_optimisation_vars));
+structure.norm_vlb(1) = t_min/t_max;
+structure.norm_vub = ones(1,length(structure.scale_optimisation_vars));
 
 %% MACS PARAMETERS
 
-opt.maxnfeval=50000;                                                       % maximum number of f evals 
+opt.maxnfeval=10000;                                                       % maximum number of f evals 
 opt.popsize=10;                                                             % popsize (for each archive)
 opt.rhoini=1;                                                               % initial span of each local hypercube (1=full domain)
 opt.F=0.9;                                                                    % F, the parameter for Differential Evolution
@@ -135,6 +157,12 @@ opt.oc.state_vars = [0;state_vars];
 opt.oc.control_vars = [0;control_vars];
 %opt.oc.control_vars(1) = 0;
 
+
+tol_conv = 1e-6;
+maxits = 10000;
+fminconoptions = optimset('Display','off','MaxFunEvals',maxits,'MaxIter',maxits,'TolCon',tol_conv,'TolX',1e-15,'GradConstr','off','Algorithm','sqp','MaxSQPIter', 10*length(vlb));
+
+
 %% OPTIMISATION LOOP
 
 for i=1:1
@@ -142,6 +170,8 @@ for i=1:1
     mem(i).memory=macs7v16OC(@Simple_model_MACS_MOO,[],vlb,vub,opt,[],[],vlb,vub,structure,x_0,x_f,fminconoptions);    
     
 end
+
+%denormalise
 
 %% plot 
 
@@ -151,12 +181,14 @@ qq = mem(1).memory(b,:);    %sort wrt t_f
 
 for i = 1:size(qq,1)
     
-    [x,u,xb] = extract_solution(qq(i,2:length(vlb)),structure,x_f);
-    plot_solution_vs_time(x,u,x_0,xb,t_0,qq(i,1),structure,i+1)
-    subplot(2,1,1)
-    axis([0 250 -pi/2 pi/2])
-    subplot(2,1,2)
-    axis([0 250 -1 2])
+    xx = qq(i,1:length(vlb));
+    %xx = xx.*structure.scale_optimisation_vars+structure.offset_optimisation_vars;
+    [x,u,xb] = extract_solution(xx(2:end),structure,x_f);
+    plot_solution_vs_time(x,u,x_0,xb,t_0,xx(1),structure.uniform_els,structure,i+1)
+    %subplot(2,1,1)
+    %axis([0 250 -pi/2 pi/2])
+    %subplot(2,1,2)
+    %axis([0 250 -1 2])
     drawnow
     
 end
