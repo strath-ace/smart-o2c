@@ -1,4 +1,4 @@
-for k = 1:12
+for k = 1:10
 clearvars -except k; close all; clc
 addpath(genpath(strcat(pwd,'/Atira')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
@@ -24,14 +24,14 @@ diary(diaryfilename)
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 20;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 10;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 2.5;                                %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 2;                                     %The starting radius of the veins
 options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification
-options.Generations = 20;                                       %The number of generations
+options.Generations = 40;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
