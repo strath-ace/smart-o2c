@@ -7,8 +7,8 @@ clc
 % Equations, initial conditions and time span
 a=4e-3;
 f = @(x,u,t) [x(2); a*cos(u(1)); x(4); -0.0016+a*sin(u(1))];
-dfx = @(x,u,t) [0 1 0 0; 0 0 0 0; 0 0 0 1; 0 0 0 0];
-dfu = @(x,u,t) [0 ; -a*sin(u(1)); 0; a*cos(u(1))];
+dfx = [];%@(x,u,t) [0 1 0 0; 0 0 0 0; 0 0 0 1; 0 0 0 0];
+dfu = [];%@(x,u,t) [0 ; -a*sin(u(1)); 0; a*cos(u(1))];
 
 t_0 = 0;
 
@@ -20,8 +20,8 @@ x_f = [0 0.1 10 0];                % vector of final conditions (size???)
 % Discretisation settings
 
 num_elems = 4;
-state_order = 8;
-control_order = 8;
+state_order = 1;
+control_order = 1;
 DFET = 1;
 state_distrib = 'Lobatto'; % or Cheby
 control_distrib = 'Legendre';
@@ -76,7 +76,7 @@ vub = [220;vub]';
 tol_conv = 1e-6;
 maxits = 5000;
 
-fminconoptions = optimset('Display','off','MaxFunEvals',maxits,'Tolcon',tol_conv,'GradCon','on');
+fminconoptions = optimset('Display','off','MaxFunEvals',maxits,'Tolcon',tol_conv,'GradCon','off','Algorithm','sqp');
 
 %% MACS PARAMETERS
 

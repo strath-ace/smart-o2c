@@ -30,7 +30,7 @@ for i = 1:length(agents)
     
 end
 
-%Loop over all the rows
+%Loop over all the visisted nodes
 for i = 1:length(visistednodes)
     for j = 1:length(visistednodes)
         

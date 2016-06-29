@@ -20,7 +20,7 @@ function [ListNodes] = CreateListNodes(Inputs)
 %  attribute
 
 rootattribstr = [];
-for i = 1:(length(Inputs.RootAttrib)*2-1)
+for i = 1:(length(Inputs.RootAttrib)*2+1)
     if rem(i,2)
         rootattribstr = strcat(rootattribstr,'0'); %strcat(rootattribstr,num2str(Inputs.RootAttrib((i+1)/2)));
     else

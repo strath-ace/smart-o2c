@@ -51,14 +51,12 @@ else
 end
 i=acos(h(3)/nh); % Inclination
 
-% keyboard
-
 % Line of nodes vector
 if i~=0 && i~=pi % Inclined orbit
     n=[-h(2),h(1),0]/sqrt(h(1)^2+h(2)^2); % n=cross([0 0 1],h); n=n/norm(n);
     %n=n/sqrt(n(1)^2+n(2)^2+n(3)^2); % Normalisation to 1 of nv
 else % Zero-inclination orbit: n is not defined
-    n=[1,0,0]; % Arbitrary choic
+    n=[1,0,0]; % Arbitrary choice
 end
 
 % Argument of the ascending node
@@ -67,17 +65,15 @@ if n(2)<0
     Om=2*pi-Om;
 end
 
-
 if ne~=0 % Non circular orbit
     % Argument of the pericentre
-
     om=acos((n(1)*e(1)+n(2)*e(2)+n(3)*e(3))/ne); % acos(dot(n,e)/ne)
-
-%         if e(3)<0         % 06-11-2007 version 
+        
+    %     if e(3)<0         % 06-11-2007 version 
     if e(3)<-10^(-9)        % 16-07-2014 version (evaluate if it is close to the value)
         om=2*pi-om;
     end
-%     
+    
     % Check for equatorial orbit (16-07-2014):
     % Ref. Vallado 3rd ed., pag. 121 (Elliptical equatorial orbits)
     if i == 0 
@@ -86,8 +82,7 @@ if ne~=0 % Non circular orbit
              om=2*pi-om;
         end
     end
-%     
-
+    
 
     % True anomaly
     th=acos(min(max((e(1)*r(1)+e(2)*r(2)+e(3)*r(3))/ne/nr,-1),1)); % acos(dot(e,r)/ne/nr);

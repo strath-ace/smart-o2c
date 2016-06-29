@@ -1,4 +1,4 @@
-function [toNode] = MyCostFunction(Inputs, fromNode, toNode)
+function [toNodeAttributes, veinlength] = MyCostFunction(Inputs, fromNode, toNodeAttributes)
 % This function calculates the cost of a certain connection.
 % It can be altered such that it is applicable to the problem at hand.
 %
@@ -13,21 +13,22 @@ function [toNode] = MyCostFunction(Inputs, fromNode, toNode)
 % Email:  aram.vroom@strath.ac.uk
 
 %Retrieve the names of the atttributes
-attributenames = fieldnames(toNode.attributes);
+%attributenames = fieldnames(toNodeAttributes);
 
 %Obtain the current orbit & mu
 curr_orbit = fromNode.attributes.kep_trans;
 mu = AstroConstants.Sun_Planetary_Const;
 
 %Find the departure date and the departure velocity
-[departure_r, departure_v] = StardustTool.CartesianElementsAt(curr_orbit,toNode.attributes.t_dep);
+[departure_r, departure_v] = StardustTool.CartesianElementsAt(curr_orbit,toNodeAttributes.t_dep);
 
 %Save the departure coordinates
-toNode.attributes.r_dep = departure_r;
+toNodeAttributes.r_dep = departure_r;
+toNodeAttributes.v_dep = departure_v;
 
 %Retrieve the arrival coordinates
-arrival_r = toNode.attributes.r_arr;
-ToF = toNode.attributes.tof;
+arrival_r = toNodeAttributes.r_arr;
+ToF = toNodeAttributes.tof;
 [~,~,~,err,vel_initial,vel_final,~,~] = lambertMR(departure_r,      ... % Initial Vector Position
                                                   arrival_r,        ... % Final position vector
                                                   ToF*86400, ... % Time of flight [seconds]
@@ -43,7 +44,7 @@ ToF = toNode.attributes.tof;
                                                                                 ... % case of Nrev>0:
                                                                                 ... %   0: small-a option
                                                                                 ... %   1: large-a option
-                                                  2);                   % LambertMR options:
+                                                  0);                   % LambertMR options:
                                                                                     %   optionsLMR(1) = display options:
                                                                                     %     - 0: no display
                                                                                     %     - 1: warnings are displayed only when the algorithm does not converge
@@ -52,13 +53,13 @@ ToF = toNode.attributes.tof;
 
 %If there's an error, set the cost to infinity
 if (err==1 || err==3 || err==4)
-    toNode.length = Inf;
+    veinlength = Inf;
     return
 end
 
 %Save initial & final lambert velocity
-toNode.attributes.lambertV_ini = vel_initial;
-toNode.attributes.lambertV_final = vel_final;
+toNodeAttributes.lambertV_ini = vel_initial;
+toNodeAttributes.lambertV_final = vel_final;
                                                                                     
 % Compute the Total DeltaV - ignore arrival dV due to flyby
 dv1(1) = vel_initial(1) - departure_v(1);
@@ -75,12 +76,12 @@ deltaV_Departure =  abs(norm(dv1));
 deltaV_Total     = deltaV_Departure;
 
 %Save found dV in node attributes
-toNode.attributes.dV_dep = dv1;
-toNode.attributes.dV_sum = deltaV_Total;
+toNodeAttributes.dV_dep = dv1;
+toNodeAttributes.dV_sum = deltaV_Total;
 if isempty(fromNode.attributes.dV_tot)
-    toNode.attributes.dV_tot = deltaV_Total;
+    toNodeAttributes.dV_tot = deltaV_Total;
 else
-    toNode.attributes.dV_tot = fromNode.attributes.dV_tot + deltaV_Total; 
+    toNodeAttributes.dV_tot = fromNode.attributes.dV_tot + deltaV_Total; 
 end
             
 % ==========================================================================================                                                                        
@@ -92,7 +93,7 @@ kep_transfer_orbit = cart2kep([departure_r, vel_initial],mu);
 ecc = kep_transfer_orbit(2);
  
 if ecc >= 1
-    toNode.length = Inf;
+    veinlength = Inf;
     return
 end
 
@@ -122,11 +123,11 @@ curr_departure_orbit = CelestialBody('transfer_orbit',             ... % Name of
                                      kep_transfer_orbit(4)*180/pi, ... % Asc. Node/Raan [deg]
                                      kep_transfer_orbit(5)*180/pi, ... % Arg. Perigee [deg]
                                      M,                            ... % Mean anomoly, M at time given t0 [deg]
-                                     toNode.attributes.t_dep); % Time at which Mo is given [MJD2000]  
+                                     toNodeAttributes.t_dep); % Time at which Mo is given [MJD2000]  
 
-toNode.attributes.kep_trans = curr_departure_orbit;
+toNodeAttributes.kep_trans = curr_departure_orbit;
 
-toNode.length = deltaV_Total;
+veinlength = deltaV_Total;
 end
 
 

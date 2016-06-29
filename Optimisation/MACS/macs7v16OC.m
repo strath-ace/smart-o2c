@@ -391,7 +391,7 @@ ener = [];
 ener2 = [];
 
 %%  MEMORY INITIALIZATION, ONLY IF MEMORY IS EMPTY
-
+fprintf('Initialising...\n')
 if isempty(memory)                                                          % if memory is already populated, no initialization is needed!
     
     %% CHOOSE RANDOM PARAMETERS AND SET UP PROBLEM DIMENSIONALITY AND CONSTRAINTS
@@ -406,8 +406,11 @@ if isempty(memory)                                                          % if
         % is saved, convergence should be much easier
         
         for i = 1:options.popsize
+
             x(i,options.oc.transcription_vars) = make_first_guess(options.oc.structure.f,options.oc.x_0,0,x(i,1),x(i,options.oc.control_vars),options.oc.structure)';
+        
         end
+        
     else
         
         x=lhsu(vlb,vub,options.popsize,options.id_vars_to_opt);                                        % latin hypercube sampling over the whole domain
@@ -736,6 +739,8 @@ end
 
 %%  MAIN LOOP
 
+fprintf('Initialisation finished, starting optimisation loop...\n');
+
 MBH_positions = [];
 MADS_dirs = [];
 loc_opt = zeros(options.popsize,1);
@@ -756,53 +761,13 @@ local_only = 0;
 while nfeval<options.maxnfeval
     
     fold = f;
-    
-    %     if size(oldmem,1)==size(memory,1)
-    %
-    %         if isempty(setdiff(oldmem,memory,'rows','stable'))
-    %
-    %             nequal = nequal+1;
-    %
-    %         else
-    %
-    %             nequal = 0;
-    %
-    %         end
-    %
-    %     else
-    %
-    %         nequal = 0;
-    %
-    %     end
-    %
-    %     oldmem = memory;
+
     nfeval_old = nfeval;
     
     tic
     
     newmins = (min(memory(:,lx+1:lx+mfit))<oldmin);
     
-    %     if any(newmins)
-    %
-    %         for i=1:mfit
-    %
-    %             if newmins(i)
-    %
-    %                 fprintf('Min of objective %d has changed! Old value = %g, new value = %g \n',i,oldmin(i),min(memory(:,lx+i)));
-    %
-    %             end
-    %
-    %         end
-    %
-    %         oldmin = min(memory(:,lx+1:lx+mfit),[],1);
-    %
-    %     end
-    
-    %     if any(min(memory(:,lx+1:lx+mfit))<oldmin)
-    %
-    %         oldmin = min(memory(:,lx+1:lx+mfit),[],1)
-    %
-    %     end
     
     % Pattern search coord_ratio dynamically adapted, depending on filling
     % ratio of archive
@@ -856,11 +821,11 @@ while nfeval<options.maxnfeval
                 v(i,:) = vtrial(i,:);                                       % given velocity
                 
                 % nornalisation of v, to avoid friction
-                if norm(v(i,:))>0
-                    
-                    v(i,:) = v(i,:)/norm(v(i,:));
-                    
-                end
+%                 if norm(v(i,:))>0
+%                     
+%                     v(i,:) = v(i,:)/norm(v(i,:));
+%                     
+%                 end
                 
                 x(i,:)=xtrial(i,:);                                         % position
                 f(i,:)=ftrial(i,:);                                         % objective function value
@@ -932,13 +897,6 @@ while nfeval<options.maxnfeval
         
     end
         
-    %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
-    %
-    %         keyboard
-    %
-    %     end
-    %
-    
     %% SOCIAL MOVES, SELECTION AND ARCHIVING
     
     xsoc = zeros(n_social,lx);
@@ -1132,124 +1090,124 @@ while nfeval<options.maxnfeval
     
     %% GRADIENT BASED LOCAL MOVES AS FINISHING STEP, ONLY FOR OPTIMAL CONTROL
     
-    if mod(iter+9,10)==0 || nfeval>=options.maxnfeval
-        
-        local_only = 1;
-        
-        [xtrial,vtrial,ftrial,maxC,nfeval,discarded,rho,patdirs,MBH_positions,MADS_dirs,int_loc_opt]=explore2(memory,x,v,f,cid,nfeval,lambda,act_subpr,id_pop_act_subpr,z,zstar,rho,patdirs,pigr,MBH_positions,MADS_dirs,local_only,explore_params);
-        
-        oldz = z;
-        z=min([z;ftrial;discarded.f],[],1);            % update the min of each function (i.e, the columnwise min).
-        zstar=max([memory(:,lx+1:lx+mfit);ftrial],[],1);
-        
-        if any(z<oldz)
-            
-            fprintf('GRADIENT MOVES IMPROVED MINIMA\n');
-            
-            for i=1:mfit
-                
-                if z(i)<oldz(i)
-                    
-                    fprintf('Min of objective %d has changed! Old value = %g, new value = %g \n',i,oldz(i),z(i));
-                    
-                end
-                
-            end
-            
-        end
-        
-        for i=1:options.popsize                                             % for all agents performing local search
-            
-            if (maxC(i)<=0)                                                     % if current agent is in feasible region
-                
-                if (all(ftrial(i,:)<=f(i,:))&&(norm(xtrial(i,:)-x(i,:))>0))||(any(i==id_pop_act_subpr)&&g_fun(ftrial(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)) % if agent performing local search has moved and it's objective function value has improved OR if this agent was selected to solve a sub-problem and it's partial objective function value is better than previous one
-                    
-                    v(i,:) = vtrial(i,:);                                       % given velocity
-                    
-                    % nornalisation of v, to avoid friction
-                    if norm(v(i,:))>0
-                        
-                        v(i,:) = v(i,:)/norm(v(i,:));
-                        
-                    end
-                    
-                    x(i,:)=xtrial(i,:);                                         % position
-                    f(i,:)=ftrial(i,:);                                         % objective function value
-                    cid(i)=maxC(i);                                             % and max constraint violation
-                    loc_opt(i)=int_loc_opt(i);
-                    patdirs(i).avail = 1:lx;
-                    
-                end
-                
-            elseif (maxC(i)>0)&&(maxC(i)<cid(i))                                % if current agent is not in feasible region but it's position improves previous constraint violation
-                
-                v(i,:)=xtrial(i,:)-x(i);                                             % store it's velocity
-                x(i,:)=xtrial(i,:);                                             % position
-                f(i,:)=ftrial(i,:);                                             % objective function values
-                cid(i)=maxC(i);                                                 % and max constraint violation
-                
-            end
-            
-        end
-        
-        % splitting feasible and non feasible solutions
-        ffeas = discarded.f(discarded.c<=0,:);
-        xfeas = discarded.x(discarded.c<=0,:);
-        cfeas = discarded.c(discarded.c<=0,:);
-        
-        fnfeas = discarded.f(discarded.c>0,:);
-        xnfeas = discarded.x(discarded.c>0,:);
-        cnfeas = discarded.c(discarded.c>0,:);
-        
-        if ~isempty(ffeas)
-            
-            domtmp=dominance(ffeas,0);                                          % compute dominance on ffeas
-            x_tmp=xfeas(domtmp==0,:);                                           % and resize x_tmp keeping only non-dominated elements of domtmp
-            f_tmp=ffeas(domtmp==0,:);                                           % idem with f
-            c_tmp=cfeas(domtmp==0,:);                                           % and c
-            
-            [domA,domB]=dominant(memory(memory(:,end)<=0,lx+1:lx+mfit),f_tmp);  % compute dominance of memory wrt f_tmp, and viceversa
-            
-            [memory,dd,energy,ener2]=arch_rem(memory,dd,memory(domA~=0,:));
-            
-            if sum(domB==0)>0                                                   % if there are non-dominated elements in f wrt to memory
-                
-                qq = [x_tmp(domB==0,:) f_tmp(domB==0,:) domB(domB==0) c_tmp(domB==0)];
-                
-                [memory,dd,energy,ener2,mins,maxs]=arch_shrk6(memory,dd,qq,energy,ener2,mins,maxs,lx,mfit,options.max_arch);
-                
-            end
-            
-        end
-        
-        if ~isempty(fnfeas)
-            
-            domtmp=dominance(cnfeas,0);                                         % compute dominance on ftrial
-            x_tmp=xnfeas(domtmp==0,:);                                          % and resize x_tmp keeping only non-dominated elements of domtmp
-            f_tmp=fnfeas(domtmp==0,:);                                          % idem with f
-            c_tmp=cnfeas(domtmp==0,:);                                          % and c
-            
-            [domA,domB]=dominant(memory(:,end),c_tmp);                               % compute dominance of memory wrt cf_tmp, and viceversa
-            [memory,dd,energy,ener2]=arch_rem(memory,dd,memory(domA~=0,:));
-            
-            if sum(domB==0)>0                                                       % if there are non-dominated elements in f wrt to memory
-                
-                qq = [x_tmp(domB==0,:) f_tmp(domB==0,:) domB(domB==0) c_tmp(domB==0)];
-                
-                [memory,dd,energy,ener2,mins,maxs]=arch_shrk6(memory,dd,qq,energy,ener2,mins,maxs,lx,mfit,options.max_arch);
-                
-            end
-            
-        end
-        
-        %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
-        %
-        %         keyboard
-        %
-        %     end
-        %
-        
-    end
+%     if mod(iter+9,10)==0 || nfeval>=options.maxnfeval
+%         
+%         local_only = 1;
+%         
+%         [xtrial,vtrial,ftrial,maxC,nfeval,discarded,rho,patdirs,MBH_positions,MADS_dirs,int_loc_opt]=explore2(memory,x,v,f,cid,nfeval,lambda,act_subpr,id_pop_act_subpr,z,zstar,rho,patdirs,pigr,MBH_positions,MADS_dirs,local_only,explore_params);
+%         
+%         oldz = z;
+%         z=min([z;ftrial;discarded.f],[],1);            % update the min of each function (i.e, the columnwise min).
+%         zstar=max([memory(:,lx+1:lx+mfit);ftrial],[],1);
+%         
+%         if any(z<oldz)
+%             
+%             fprintf('GRADIENT MOVES IMPROVED MINIMA\n');
+%             
+%             for i=1:mfit
+%                 
+%                 if z(i)<oldz(i)
+%                     
+%                     fprintf('Min of objective %d has changed! Old value = %g, new value = %g \n',i,oldz(i),z(i));
+%                     
+%                 end
+%                 
+%             end
+%             
+%         end
+%         
+%         for i=1:options.popsize                                             % for all agents performing local search
+%             
+%             if (maxC(i)<=0)                                                     % if current agent is in feasible region
+%                 
+%                 if (all(ftrial(i,:)<=f(i,:))&&(norm(xtrial(i,:)-x(i,:))>0))||(any(i==id_pop_act_subpr)&&g_fun(ftrial(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)) % if agent performing local search has moved and it's objective function value has improved OR if this agent was selected to solve a sub-problem and it's partial objective function value is better than previous one
+%                     
+%                     v(i,:) = vtrial(i,:);                                       % given velocity
+%                     
+%                     % nornalisation of v, to avoid friction
+%                     if norm(v(i,:))>0
+%                         
+%                         v(i,:) = v(i,:)/norm(v(i,:));
+%                         
+%                     end
+%                     
+%                     x(i,:)=xtrial(i,:);                                         % position
+%                     f(i,:)=ftrial(i,:);                                         % objective function value
+%                     cid(i)=maxC(i);                                             % and max constraint violation
+%                     loc_opt(i)=int_loc_opt(i);
+%                     patdirs(i).avail = 1:lx;
+%                     
+%                 end
+%                 
+%             elseif (maxC(i)>0)&&(maxC(i)<cid(i))                                % if current agent is not in feasible region but it's position improves previous constraint violation
+%                 
+%                 v(i,:)=xtrial(i,:)-x(i);                                             % store it's velocity
+%                 x(i,:)=xtrial(i,:);                                             % position
+%                 f(i,:)=ftrial(i,:);                                             % objective function values
+%                 cid(i)=maxC(i);                                                 % and max constraint violation
+%                 
+%             end
+%             
+%         end
+%         
+%         % splitting feasible and non feasible solutions
+%         ffeas = discarded.f(discarded.c<=0,:);
+%         xfeas = discarded.x(discarded.c<=0,:);
+%         cfeas = discarded.c(discarded.c<=0,:);
+%         
+%         fnfeas = discarded.f(discarded.c>0,:);
+%         xnfeas = discarded.x(discarded.c>0,:);
+%         cnfeas = discarded.c(discarded.c>0,:);
+%         
+%         if ~isempty(ffeas)
+%             
+%             domtmp=dominance(ffeas,0);                                          % compute dominance on ffeas
+%             x_tmp=xfeas(domtmp==0,:);                                           % and resize x_tmp keeping only non-dominated elements of domtmp
+%             f_tmp=ffeas(domtmp==0,:);                                           % idem with f
+%             c_tmp=cfeas(domtmp==0,:);                                           % and c
+%             
+%             [domA,domB]=dominant(memory(memory(:,end)<=0,lx+1:lx+mfit),f_tmp);  % compute dominance of memory wrt f_tmp, and viceversa
+%             
+%             [memory,dd,energy,ener2]=arch_rem(memory,dd,memory(domA~=0,:));
+%             
+%             if sum(domB==0)>0                                                   % if there are non-dominated elements in f wrt to memory
+%                 
+%                 qq = [x_tmp(domB==0,:) f_tmp(domB==0,:) domB(domB==0) c_tmp(domB==0)];
+%                 
+%                 [memory,dd,energy,ener2,mins,maxs]=arch_shrk6(memory,dd,qq,energy,ener2,mins,maxs,lx,mfit,options.max_arch);
+%                 
+%             end
+%             
+%         end
+%         
+%         if ~isempty(fnfeas)
+%             
+%             domtmp=dominance(cnfeas,0);                                         % compute dominance on ftrial
+%             x_tmp=xnfeas(domtmp==0,:);                                          % and resize x_tmp keeping only non-dominated elements of domtmp
+%             f_tmp=fnfeas(domtmp==0,:);                                          % idem with f
+%             c_tmp=cnfeas(domtmp==0,:);                                          % and c
+%             
+%             [domA,domB]=dominant(memory(:,end),c_tmp);                               % compute dominance of memory wrt cf_tmp, and viceversa
+%             [memory,dd,energy,ener2]=arch_rem(memory,dd,memory(domA~=0,:));
+%             
+%             if sum(domB==0)>0                                                       % if there are non-dominated elements in f wrt to memory
+%                 
+%                 qq = [x_tmp(domB==0,:) f_tmp(domB==0,:) domB(domB==0) c_tmp(domB==0)];
+%                 
+%                 [memory,dd,energy,ener2,mins,maxs]=arch_shrk6(memory,dd,qq,energy,ener2,mins,maxs,lx,mfit,options.max_arch);
+%                 
+%             end
+%             
+%         end
+%         
+%         %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
+%         %
+%         %         keyboard
+%         %
+%         %     end
+%         %
+%         
+%     end
     
     %% REDISTRIBUTE
     
@@ -1371,12 +1329,6 @@ while nfeval<options.maxnfeval
         %else
         
     end
-    
-    %     if length(unique(f(id_pop_act_subpr,:),'rows','stable'))<n_social
-    %
-    %         keyboard
-    %
-    %     end
     
     %% REDISTRIBUTE AND ADAPT SUBPROBLEMS
     

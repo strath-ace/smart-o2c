@@ -1009,6 +1009,9 @@ for i=1:n_a                                                                 % fo
                             
                         end
                         
+                        zz = 2*z-zstar;
+                        zzstar = ftrial(i,:);                        
+                        
                         if act_subpr(id_pop_act_subpr==i)<=mfit
                             
                             % In this case we follow the original
@@ -1017,8 +1020,8 @@ for i=1:n_a                                                                 % fo
                             % same direction
                             
                             ll = lambda(act_subpr(id_pop_act_subpr==i),:);
-                            zz = 2*z-zstar;
-                            zzstar = ftrial(i,:);
+                            %zz = 2*z-zstar;
+                            %zzstar = ftrial(i,:);
                             
                         else
                             
@@ -1035,11 +1038,11 @@ for i=1:n_a                                                                 % fo
                             % (1,1,1,..1) direction will be used in the
                             % gradient optimiser
                             
-                            ll = ones(1,mfit)./norm(ones(1,mfit)).*(zstar-z);
-                            ll = ll/norm(ll);
-                            ztemp = 2*z-zstar;
-                            zz = ftrial(i,:)-ll*(ftrial(i,1)-ztemp(1))/ll(1);
-                            zzstar = ftrial(i,:);
+                            %ll = ones(1,mfit)./norm(ones(1,mfit)).*(zstar-z);
+                            %ll = ll/norm(ll);
+                            %ztemp = 2*z-zstar;
+                            %zz = ftrial(i,:)-ll*(ftrial(i,1)-ztemp(1))/ll(1);
+                            %zzstar = ftrial(i,:);
                             ll = ones(1,mfit)./norm(ones(1,mfit));
                             
                         end
