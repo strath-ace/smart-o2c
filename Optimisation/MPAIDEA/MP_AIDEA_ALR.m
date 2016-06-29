@@ -1455,7 +1455,7 @@ BestVal = Val(1);                 % best objective function value so far
 nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
 
 if sum(nFeVal) >= nFeValMax
-    vval = 0;
+    
     iter = 0;
     new_elements = 1;
     
@@ -1476,7 +1476,7 @@ for i = 2 : NP                        % check the remaining members
     
     if sum(nFeVal) >= nFeValMax
         new_elements = i;
-        vval = 0;
+%         vval = 0;
         iter = 0;
         
         BestMem = pop(ibest,:);
