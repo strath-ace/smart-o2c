@@ -15,10 +15,10 @@ check1 = (norm(Attributes.dV_dep) <= CheckBounds(1));
 check2 = ((Attributes.kep_trans.a*(1-Attributes.kep_trans.e)) >= CheckBounds(2));
 
 %Low-Thrust Check
-check3 = (Attributes.tof*86400*1e-7 >= CheckBounds(3)*(norm(Attributes.dV_dep)));
+check3 = ((Attributes.t_arr-ListNodes.(parent).attributes.t_arr -20)*86400*1e-7 >= CheckBounds(3)*(norm(Attributes.dV_dep)));
 
 %Low-Thrust Max dV check
-check4 = (Attributes.tof*86400*1e-7<= CheckBounds(5));
+%check4 = (Attributes.tof*86400*1e-7<= CheckBounds(5));
 
 %Waiting time check
 check5 = Attributes.t_dep-ListNodes.(parent).attributes.t_arr < CheckBounds(4);
@@ -26,13 +26,8 @@ check5 = Attributes.t_dep-ListNodes.(parent).attributes.t_arr < CheckBounds(4);
 %dV so far check
 check6 = Attributes.dV_tot < CheckBounds(5);
 
-checktot = check1*check2*check3*check4*check5*check6;
+checktot = check1*check2*check3*check5*check6;
 
-% if checktot ==1
-%     length = length;
-% else
-%     length = inf;
-% end
 
 end
 
