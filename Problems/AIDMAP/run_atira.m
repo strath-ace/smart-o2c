@@ -1,10 +1,10 @@
-for i = 1:10
-clearvars -except i; close all; clc
+for k = 1:12
+clearvars -except k; close all; clc
 addpath(genpath(strcat(pwd,'/Atira')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
-diaryfilename = strcat(['DiaryAtira60','_',datestr(now,'yyyymmdd_HHMMSS')]);
+diaryfilename = strcat(['DiaryAtira','_',datestr(now,'yyyymmdd_HHMMSS')]);
 diary(diaryfilename)
 
 
@@ -24,13 +24,13 @@ diary(diaryfilename)
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 10;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 20;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 2.5;                                %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 2;                                     %The starting radius of the veins
-options.RamificationAmount = 10;                                 %The number of nodes initially generated for the ramification
+options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification
 options.Generations = 20;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
@@ -91,8 +91,8 @@ sets.epochsnode = epochsnode(1:end);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Display the result         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-PhysarumTreePlot(output.ListNodes)
-set(gca,'xcolor','w','ycolor','w','xtick',[],'ytick',[]);
+%PhysarumTreePlot(output.ListNodes)
+%set(gca,'xcolor','w','ycolor','w','xtick',[],'ytick',[]);
 
 
 %Find solutions with the most asteroids
@@ -126,8 +126,9 @@ end
 save(strcat('Atira',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')));
 diary off
 
-end
 %Notes:
 %20160510 - GrowthFactor has been changed
+end
+
 
 
