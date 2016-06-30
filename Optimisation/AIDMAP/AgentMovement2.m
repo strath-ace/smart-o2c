@@ -1,4 +1,4 @@
-function [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement2(Inputs, Solutions, ListNodes, Agents, agent)
+function [Solutions, ListNodes, Agents, agentdeathflag, funccalls] = AgentMovement2(Inputs, Solutions, ListNodes, Agents, agent, funccalls)
 % This function is used to move agents through the graph/tree
 %
 % Inputs:
@@ -51,7 +51,7 @@ p = rand;
 pram = Inputs.RamificationProbability;
 
 %Generate a set of potential nodes to ramificate to
-[generatednodes, agentdeathflag] = Ramification2(Inputs, Solutions, ListNodes, Agents, currentagent);
+[generatednodes, agentdeathflag, funccalls] = Ramification2(Inputs, Solutions, ListNodes, Agents, currentagent, funccalls);
 
 %Retrieve the node IDs of the generated nodes and initialize a matrix to
 %retrieve the fluxes

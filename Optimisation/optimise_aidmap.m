@@ -27,7 +27,7 @@ tic;
 [InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
 
 %Run the algorithm
-[output.Solutions, BestSolution, InitializedInputs, output.ListNodes, output.Agents, output.History] = PhysarumSolver(InitializedInputs, ListNodes);
+[output.Solutions, BestSolution, InitializedInputs, output.ListNodes, output.Agents, output.History, output.funccalls] = PhysarumSolver(InitializedInputs, ListNodes);
 
 %Retrieve the best solution
 x = BestSolution.BestChain(1);

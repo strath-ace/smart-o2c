@@ -1,4 +1,4 @@
-function [Solutions, BestSolution, InitializedInputs, ListNodes, Agents, History] = PhysarumSolver(InitializedInputs, ListNodes)
+function [Solutions, BestSolution, InitializedInputs, ListNodes, Agents, History, funccalls] = PhysarumSolver(InitializedInputs, ListNodes)
 % This script contains the main logic of AIDMAP solver. 
 %
 % Inputs:
@@ -22,6 +22,8 @@ function [Solutions, BestSolution, InitializedInputs, ListNodes, Agents, History
 %Initialize the Solutions structure
 Solutions.Nodes = [];
 Solutions.Costs = [];
+
+funccalls = 0;
 
 %Initialize the structure that will contain the best solution
 BestSolution.BestChain = [];
@@ -54,7 +56,7 @@ for j = 1:InitializedInputs.Generations
         
         %Continue moving the agent until the death flag becomes 1
         while ~agentdeathflag
-            [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement2(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i));
+            [Solutions, ListNodes, Agents, agentdeathflag, funccalls] = AgentMovement2(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i), funccalls);
                   
             
         end        
