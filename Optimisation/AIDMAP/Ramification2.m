@@ -1,4 +1,4 @@
-function [generatednodes, agentdeathflag] = Ramification2(Inputs, Solutions, ListNodes, Agents, agent)
+function [generatednodes, agentdeathflag, funccalls] = Ramification2(Inputs, Solutions, ListNodes, Agents, agent, funccalls)
 % This function handles the ramification to new nodes. It does so by
 % generating a preset number of random nodes and making a probabilistic
 % selection based on the cost function.
@@ -94,7 +94,9 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     if (~validflag)
         continue
     end
-        
+    
+    funccalls = funccalls+1;
+    
     %Generate the new node & save its cost in a vector
     [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
     
@@ -116,6 +118,7 @@ end
 
 %Remove temporary field within the generatednodes stucture
 generatednodes = rmfield(generatednodes, 'temp');
+
 
 end
 
