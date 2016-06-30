@@ -1,3 +1,4 @@
+rng('shuffle')
 for k = 1:2
 clearvars -except k; close all; clc
 addpath(genpath(strcat(pwd,'/Atira')));
