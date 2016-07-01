@@ -51,7 +51,7 @@ p = rand;
 pram = Inputs.RamificationProbability;
 
 %Generate a set of potential nodes to ramificate to
-[generatednodes, agentdeathflag, funccalls] = Ramification2(Inputs, Solutions, ListNodes, Agents, currentagent, funccalls);
+[ListNodes, generatednodes, agentdeathflag, funccalls] = Ramification2(Inputs, Solutions, ListNodes, Agents, currentagent, funccalls);
 
 %Retrieve the node IDs of the generated nodes and initialize a matrix to
 %retrieve the fluxes
