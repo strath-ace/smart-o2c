@@ -1,4 +1,4 @@
-function [generatednodes, agentdeathflag, funccalls] = Ramification2(Inputs, Solutions, ListNodes, Agents, agent, funccalls)
+function [ListNodes, generatednodes, agentdeathflag, funccalls] = Ramification2(Inputs, Solutions, ListNodes, Agents, agent, funccalls)
 % This function handles the ramification to new nodes. It does so by
 % generating a preset number of random nodes and making a probabilistic
 % selection based on the cost function.
@@ -37,10 +37,10 @@ possids = strcat(temp(end),'___',possnodes);
 %Create a vector that tracks the index of the possible nodes and their
 %feasibility. If a node is not feasible, its corresponding index in this
 %vector will be set to NaN
-indextracker = 1:length(possnodes);
+%indextracker = 1:length(possnodes);
 
 %Set the index of the already existing nodes to NaN
-indextracker(ismember(possids,fieldnames(ListNodes)))=NaN;
+ListNodes.(currentNode).ChildValidityTracker(ismember(possids,fieldnames(ListNodes)))=NaN;
 
 %Split the remaining nodes into their target & characteristic
 temp = regexp(possnodes, '__', 'split');
@@ -51,7 +51,7 @@ possdecisions = ListNodes.(currentNode).possibledecisions;
 
 %Set the indices to NaN of the nodes that do not have as decision one of 
 %possible decisions in this node
-indextracker(ismember(temp(:,1), possdecisions)==0) = NaN;
+ListNodes.(currentNode).ChildValidityTracker(ismember(temp(:,1), possdecisions)==0) = NaN;
 
 %Initialize structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
@@ -60,10 +60,10 @@ generatednodes = struct('temp',0);
 nameslist = cell(1,Inputs.RamificationAmount);
 
 %Initial index for the nameslist variable, the attempt counter and a
-%tracker for the number of NaNs in the indextracker vector
+%tracker for the number of NaNs in the ListNodes.(currentNode).ChildValidityTracker vector
 i = 1;
 attempt = 1;
-nantracker = sum(isnan(indextracker));
+nantracker = sum(isnan(ListNodes.(currentNode).ChildValidityTracker));
 
 %Disable the "Concatenate empty structure" warning
 warning('off','MATLAB:catenate:DimensionMismatch');
@@ -71,27 +71,38 @@ warning('off','MATLAB:catenate:DimensionMismatch');
 %Start loop to generate the desired number of nodes
 while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
 
-    %If all values in indextracker are NaN (meaning no more possible
-    %children to choose from) or max number of attempts has been reached, exit while loop
-    if ((nantracker == length(indextracker)) || (attempt == Inputs.MaxChildFindAttempts))      
+    %If all values in ListNodes.(currentNode).ChildValidityTracker are NaN (meaning no more possible
+    %children to choose from), a max number of attempts has been reached or
+    %all the possible nodes have been generated, exit while loop. The -1 in
+    %the last check is due to the temporary field in the generatednodes
+    %structure
+    if ((nantracker == length(ListNodes.(currentNode).ChildValidityTracker)) || (attempt == Inputs.MaxChildFindAttempts) || (length(fieldnames(generatednodes))-1) == (length(ListNodes.(currentNode).ChildValidityTracker)-nantracker))      
         break
     end
     
     %Choose a node from the list of possible nodes to generate
-    [newnode_ID,nodeindex] = ChooseNode(Inputs,currentNode,possnodes,indextracker,nantracker);
+    [newnode_ID,nodeindex] = ChooseNode(Inputs,currentNode,possnodes,ListNodes.(currentNode).ChildValidityTracker,nantracker);
     
-    %Increase the attempt & NaN counter by 1
+    
+    %Increase the attempt counter by 1
     attempt = attempt +1;
-    nantracker = nantracker+1;
-
-    %Remove chosen decision from list of possible decisions
-    indextracker(nodeindex) = NaN;
+    
+    %If the chosen node is already part of the generatednodes structure,
+    %continue to another attempt
+    if any(strcmp(fieldnames(generatednodes),newnode_ID))
+        continue
+    end   
+       
     
     %Check if the node is valid based on the UID
     [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode,generatednodes);
    
     %Confirm that node doesn't already exist
     if (~validflag)
+        %Remove chosen decision from list of possible decisions & increment
+        %nantracker
+        ListNodes.(currentNode).ChildValidityTracker(nodeindex) = NaN;
+        nantracker = nantracker+1;
         continue
     end
     
@@ -100,8 +111,12 @@ while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
     %Generate the new node & save its cost in a vector
     [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
     
-    
+        
     if isempty(newNode)
+        %Remove chosen decision from list of possible decisions & increment
+        %nantracker
+        ListNodes.(currentNode).ChildValidityTracker(nodeindex) = NaN;
+        nantracker = nantracker+1;
         continue
     end
 

@@ -44,7 +44,8 @@ ListNodes = struct(struct(rootID,   ...
                          'attributes',      [SetNodeAttributes(Inputs,[],Inputs.RootName,zeros(1,length(Inputs.RootAttrib)))],... % Attributes that describe this node (such as orbital elements & ToF .)
                          'previousdecisions', [],... % List of the previous decisions made
                          'possibledecisions', {Inputs.PossibleDecisions}, ... % Targets that can still be visisted by the node
-                         'VisitsLeft',        {Inputs.MaxVisits} ... % Vector containing the number of times each target cna still be visisted
+                         'VisitsLeft',        {Inputs.MaxVisits}, ... % Vector containing the number of times each target cna still be visisted
+                         'ChildValidityTracker', 1:length(Inputs.PossibleListNodes) ... % This will track the validity of attempted children      
                      )));
            
 end 
