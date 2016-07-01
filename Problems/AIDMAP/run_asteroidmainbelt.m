@@ -48,9 +48,11 @@ for q = 1:length(startmeananomalies)
 %Clear the variables obtained during the loop to prevent issues
 clearvars -except startmeananomalies p q startorbit filenames epoch_start epoch_end
 
+SaveDir = 'AsteroidMainBelt/Results/37Asteroids/MaxdV5/MaxdV075/';
+
 %Create a diary for this iteration
 %diary on
-diaryfilename = strcat(['AsteroidMainBelt/Results/37Asteroids/MaxdV5/MaxdV05/DiaryMainBelt_M',num2str(startmeananomalies(q)),'Start',strrep(num2str(epoch_start(p)),'.','_'),'_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+diaryfilename = strcat([SaveDir,num2str(startmeananomalies(q)),'Start',strrep(num2str(epoch_start(p)),'.','_'),'_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
 diary(diaryfilename)
 
 %Initialize the asteroid main belt problem - comment for all asteroid
@@ -172,7 +174,7 @@ end
 %         Save the result          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %Save only the solution with the most asteroids and the least dV
- filename = strcat(['AsteroidMainBelt/Results/37Asteroids/MaxdV5/MaxdV05/MainBelt_M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+ filename = strcat([SaveDir,'MainBelt_M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
  SaveTrajectorySolution(BestSolution{1},output.ListNodes,strcat(filename));
 
 %Alternative: save all solutions with the max number of asteroids
@@ -183,7 +185,7 @@ end
 end
 
 %Save the workspace
-save(strcat('AsteroidMainBelt/Results/37Asteroids/MaxdV5/MaxdV05/MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));
+save(strcat(SaveDir,'MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));
 diary off
 
 end
