@@ -1,4 +1,6 @@
-clear all; close all; clc
+rng('shuffle')
+for k = 1:2
+clearvars -except k; close all; clc
 % This is the main file for the Atira problem
 %
 % Author: Aram Vroom - 2016
@@ -188,5 +190,6 @@ end
 save(strcat(SaveDir,'MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));
 diary off
 
+end
 end
 end
