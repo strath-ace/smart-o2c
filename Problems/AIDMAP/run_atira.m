@@ -5,7 +5,9 @@ addpath(genpath(strcat(pwd,'/Atira')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
-diaryfilename = strcat(['DiaryAtira','_',datestr(now,'yyyymmdd_HHMMSS')]);
+SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\10 agents 40 generations\Aram PC\';
+
+diaryfilename = strcat([SaveDir,'DiaryAtira','_',datestr(now,'yyyymmdd_HHMMSS')]);
 diary(diaryfilename)
 
 
@@ -119,7 +121,7 @@ end
 
 %Save all the solutions
 for i = 1:length(AllBestSolutions)
-    filename = strcat(['Atira',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')]);
+    filename = strcat([SaveDir,'Atira',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')]);
  
     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 end
