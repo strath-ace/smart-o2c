@@ -31,8 +31,9 @@ end
 %Minimum perihelion check
 check3 = ((Attributes.kep_trans.a*(1-Attributes.kep_trans.e)) >= CheckBounds(3));
 
-%Low-Thrust Check (Edelbaum)
+%Low-Thrust Check
 check4 = (Attributes.tof*86400*1e-7 >= CheckBounds(4)*(norm(Attributes.dV_dep)));
+
 
 %Waiting time check
 check5 = Attributes.t_dep-ListNodes.(parent).attributes.t_arr < CheckBounds(5);
@@ -40,7 +41,11 @@ check5 = Attributes.t_dep-ListNodes.(parent).attributes.t_arr < CheckBounds(5);
 %dV so far check
 check6 = Attributes.dV_tot < CheckBounds(6);
 
-checktot = check1*check3*check4*check5*check6;
+%Edelbaum check
+deltaV_edelbaum = sqrt( norm3(Attributes.v_dep)^2 + norm3(Attributes.lambertV_final)^2 - 2*norm3(Attributes.v_dep)*norm3(Attributes.lambertV_final));
+check7 = Attributes.tof*86400*1e-7>=deltaV_edelbaum;
+
+checktot = check1*check3*check4*check5*check6*check7;
 
 
 % 
