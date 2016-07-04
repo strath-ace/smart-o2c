@@ -1,11 +1,11 @@
 rng('shuffle')
-for k = 1:2
+for k = 1:15
 clearvars -except k; close all; clc
 addpath(genpath(strcat(pwd,'/Atira')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
-SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\10 agents 40 generations\Aram PC\';
+SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\WithEdelBaumdV5\20 agents 100 generations\Aram PC\';
 
 diaryfilename = strcat([SaveDir,'DiaryAtira','_',datestr(now,'yyyymmdd_HHMMSS')]);
 diary(diaryfilename)
@@ -27,14 +27,14 @@ diary(diaryfilename)
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 10;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 20;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 2.5;                                %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 2;                                     %The starting radius of the veins
 options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification
-options.Generations = 40;                                       %The number of generations
+options.Generations = 100;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
@@ -61,7 +61,7 @@ options.MaxConsecutiveRes = 1*ones(1, length(options.Targets)); %The maximum num
 options.MaxVisits = ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 7304.5];                                %Attributes of the root  
-options.NodeCheckBoundaries = [3 1.5 0.31 2 2*365 4];           %The values used by the MyCreatedNodeCheck file.  In this case, it denotes [max dV_dep root, max dV_dep child, min a_per, C for the LT check, max waiting time]
+options.NodeCheckBoundaries = [3 1.5 0.31 2 2*365 5];           %The values used by the MyCreatedNodeCheck file.  In this case, it denotes [max dV_dep root, max dV_dep child, min a_per, C for the LT check, max waiting time]
 fitnessfcn = @MyCostFunction;                                   %The function reference to the cost function
 options.NodeAttributes = @MyAttributes;                         %The class that contains the node attributes
 options.MyAttributeCalcFile = @MyAttributeCalcs;                %The file that does the additonal calculations wrt the attributes
@@ -126,7 +126,7 @@ for i = 1:length(AllBestSolutions)
     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 end
 
-save(strcat('Atira',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')));
+save(strcat(SaveDir,'Atira',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')));
 diary off
 
 %Notes:
