@@ -1,11 +1,11 @@
 rng('shuffle')
-for k = 1:15
+for k = 1:8
 clearvars -except k; close all; clc
 addpath(genpath(strcat(pwd,'/Atira')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
-SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\WithEdelBaumdV5\20 agents 100 generations\Aram PC\';
+SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\WithEdelBaumdV5\Test\';
 
 diaryfilename = strcat([SaveDir,'DiaryAtira','_',datestr(now,'yyyymmdd_HHMMSS')]);
 diary(diaryfilename)
@@ -24,7 +24,7 @@ diary(diaryfilename)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Physarum Options         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
+options.LinearDilationCoefficient = 1e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
 options.NumberOfAgents = 20;                                    %Number of virtual agents 'N_agents'
@@ -36,7 +36,7 @@ options.StartingRadius = 2;                                     %The starting ra
 options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification
 options.Generations = 100;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
-options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
+options.MinCommonNodesThres = 4;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
 options.MaxChildFindAttempts = 1e5;
 options.MinPickProbability = 0.1;
