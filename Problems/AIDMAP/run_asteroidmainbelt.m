@@ -50,7 +50,7 @@ for q = 1:length(startmeananomalies)
 %Clear the variables obtained during the loop to prevent issues
 clearvars -except startmeananomalies p q startorbit filenames epoch_start epoch_end
 
-SaveDir = 'AsteroidMainBelt/Results/10km/NewStartDate/EdelBaum/';
+SaveDir = 'AsteroidMainBelt/Results/10km/NewStartDate/EdelBaum/'; %NOT USED
 
 %Create a diary for this iteration
 %diary on
@@ -191,4 +191,5 @@ diary off
 
 end
 end
+
 end
