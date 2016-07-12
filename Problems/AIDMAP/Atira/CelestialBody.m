@@ -1,6 +1,4 @@
 classdef CelestialBody 
-    % CELESTIALBODY Summary of this class goes here
-    %   Detailed explanation goes here
     
     properties 
         name % Name of the Celestial Body
