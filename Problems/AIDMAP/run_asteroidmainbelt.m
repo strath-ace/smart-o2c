@@ -176,7 +176,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %Save only the solution with the most asteroids and the least dV
  filename = strcat([SaveDir,'MainBelt_M',strrep(num2str(startmeananomalies(q)),'.','_'),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
- SaveTrajectorySolution(BestSolution{1},output.ListNodes,strcat(filename));
+ SaveTrajectorySolution(BestSolution{1},output.ListNodes,filename);
 
 %Alternative: save all solutions with the max number of asteroids
 % for i = 1:length(AllBestSolutions)
@@ -184,6 +184,19 @@ end
 %     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
 % end
 end
+
+
+%Remove unnecessary outputs
+nodenames = fieldnames(output.ListNodes);
+for i = 1:length(nodenames)
+    output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))),'ChildValidityTracker');
+end  
+
+nodenames = fieldnames(output.ListNodes);
+for i = 1:length(nodenames)
+    output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))),'ChildValidityTracker');
+end
+    
 
 %Save the workspace
 save(strcat(SaveDir,'MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',strrep(num2str(startmeananomalies(q)),'.','_'),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));

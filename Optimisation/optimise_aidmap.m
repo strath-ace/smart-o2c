@@ -1,5 +1,4 @@
 function [x,fval,exitflag,output] = optimisation_aidmap(fitnessfcn,sets,options)
-%function [output] = optimisation_aidmap(fitnessfcn,sets,options)
 
 %% optimisation_aidmap: This function handles the optimisation using the AIDMAP algorithm
 % Extensive function description

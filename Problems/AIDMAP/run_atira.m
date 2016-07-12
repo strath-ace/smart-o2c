@@ -1,11 +1,11 @@
 rng('shuffle')
-for k = 1:8
+for k = 1:5
 clearvars -except k; close all; clc
 addpath(genpath(strcat(pwd,'/Atira')));
 addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
 addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
-SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\WithEdelBaumdV5\Test\';
+SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\WithEdelBaumdV5\newinputs\withfunccalls\Extra Atira 20 agents 200 generations\Aram PC\';
 
 diaryfilename = strcat([SaveDir,'DiaryAtira','_',datestr(now,'yyyymmdd_HHMMSS')]);
 diary(diaryfilename)
@@ -34,11 +34,11 @@ options.MaximumRadiusRatio = 2.5;                                %Maximum ratio 
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 2;                                     %The starting radius of the veins
 options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification
-options.Generations = 100;                                       %The number of generations
+options.Generations = 200;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 4;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
-options.MaxChildFindAttempts = 1e5;
+options.MaxChildFindAttempts = 1e4;
 options.MinPickProbability = 0.1;
 options.GenerateGraphPlot = 0;
 options.SaveHistory = 0;
@@ -46,17 +46,17 @@ options.SaveHistory = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% options.Targets = {'neo2003CP20', 'neo2004XZ130', ...        %Targets the Physarum can choose from
+%     'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
+%     'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
+%     'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
+%     'neo2013JX28'}; 
 options.Targets = {'neo2003CP20', 'neo2004XZ130', ...        %Targets the Physarum can choose from
     'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
     'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
     'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
-    'neo2013JX28'}; 
-%options.Targets = {'neo163693', 'neo164294', ...        %Targets the Physarum can choose from
-%     'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
-%     'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
-%     'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
-%     'neo2013JX28','neo2013TQ5', 'neo2014FO47', ...
-%     'neo2015DR215', 'neo2015ME131'}; 
+    'neo2013JX28','neo2013TQ5', 'neo2014FO47', ...
+    'neo2015DR215', 'neo2015ME131'}; 
 options.MaxConsecutiveRes = 1*ones(1, length(options.Targets)); %The maximum number of resonance orbits to each target (set to -1 to ignore)
 options.MaxVisits = ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
 options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID

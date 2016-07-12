@@ -1,5 +1,5 @@
 function [bestchainindex, bestcost] = MyBestChain(numberofnodes,nodecosts)
-% This function fnd the best chain to be used in the growth factor
+% This function find the best chain to be used in the growth factor
 % functionality
 
 % Inputs:

@@ -1,6 +1,21 @@
 function [] = SaveTrajectorySolution(Sequence,ListNodes,filename)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+% This function handles the ramification to new nodes. It does so by
+% generating a preset number of random nodes and making a probabilistic
+% selection based on the cost function.
+%
+% Inputs:
+% * Sequence    : Structure containing the graph
+% * Inputs      : Structure containing the PhysarumSolver inputs
+% * Agents      : The structure containing the agents
+% * agent       : A string containing the name of the current agent
+%
+% Outputs: 
+% * ListNodes       : ListNodes structure where the radii have been updated with
+%                 the dilation and evaporation
+% * Agents      : The updated structure containing the agents
+%
+% Author: Aram Vroom - 2016
+% Email:  aram.vroom@strath.ac.uk
 
 fid = fopen(filename,'w');
 fprintf(fid,'-----------------------------------------------------------------------------------------------\n');
