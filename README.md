@@ -22,7 +22,7 @@ To install this project, please ensure that you have installed the following (in
 
 Note to developers
 ------------
-Each function should include the standard header for documentation 
+Each new method should include the standard header for documentation 
 ```
 %% myfunction: brief function description
 % Extensive function description
