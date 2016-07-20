@@ -1,11 +1,18 @@
 rng('shuffle')
 for k = 1:5
 clearvars -except k; close all; clc
-addpath(genpath(strcat(pwd,'/Atira')));
-addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
-addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
 
-SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\WithEdelBaumdV5\newinputs\withfunccalls\Extra Atira 20 agents 200 generations\Aram PC\';
+if isunix
+    addpath(genpath(strcat(pwd,'/Atira')));
+    addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
+    addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
+    SaveDir = 'C:/Users/ckb16114/Desktop/CCDS Run/WithEdelBaumdV5/newinputs/withfunccalls/Extra Atira 20 agents 200 generations/Aram PC/';
+else
+    addpath(genpath(strcat(pwd,'\Atira')));
+    addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
+    addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
+    SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\WithEdelBaumdV5\newinputs\withfunccalls\Extra Atira 20 agents 200 generations\Aram PC\';
+end
 
 diaryfilename = strcat([SaveDir,'DiaryAtira','_',datestr(now,'yyyymmdd_HHMMSS')]);
 diary(diaryfilename)

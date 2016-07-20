@@ -8,7 +8,7 @@
   f = cec14_func(x,func_num); 
   Here x is a D*pop_size matrix.
 */
-#include <WINDOWS.H>      
+//#include <WINDOWS.H>      
 #include <stdio.h>
 #include <math.h>
 #include <malloc.h>
@@ -17,7 +17,7 @@
 double *OShift,*M,*y,*z,*x_bound;
 int ini_flag=0,n_flag,func_flag,*SS;
 
-#include <WINDOWS.H>      
+//#include <WINDOWS.H>      
 #include <stdio.h>
 #include <math.h>
 #include <malloc.h>
@@ -42,7 +42,7 @@ void schwefel_func (double *, double *, int , double *,double *, int, int); /* S
 void katsuura_func (double *, double *, int , double *,double *, int, int); /* Katsuura */
 void bi_rastrigin_func (double *, double *, int , double *,double *, int, int); /* Lunacek Bi_rastrigin */
 void grie_rosen_func (double *, double *, int , double *,double *, int, int); /* Griewank-Rosenbrock  */
-void escaffer6_func (double *, double *, int , double *,double *, int, int); /* Expanded Scaffer¡¯s F6  */
+void escaffer6_func (double *, double *, int , double *,double *, int, int); /* Expanded Scafferï¿½ï¿½s F6  */
 void step_rastrigin_func (double *, double *, int , double *,double *, int, int); /* Noncontinuous Rastrigin's  */
 void happycat_func (double *, double *, int , double *,double *, int, int); /* HappyCat */
 void hgbat_func (double *, double *, int , double *,double *, int, int); /* HGBat  */
@@ -725,7 +725,7 @@ void grie_rosen_func (double *x, double *f, int nx, double *Os,double *Mr,int s_
 }
 
 
-void escaffer6_func (double *x, double *f, int nx, double *Os,double *Mr,int s_flag, int r_flag) /* Expanded Scaffer¡¯s F6  */
+void escaffer6_func (double *x, double *f, int nx, double *Os,double *Mr,int s_flag, int r_flag) /* Expanded Scafferï¿½ï¿½s F6  */
 {
     int i;
     double temp1, temp2;
