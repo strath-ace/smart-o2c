@@ -1,23 +1,19 @@
-rng('shuffle')
-for k = 1:5
 clearvars -except k; close all; clc
+rng('shuffle')
 
 if isunix
     addpath(genpath(strcat(pwd,'/Atira')));
     addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
     addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
+    
     SaveDir = 'C:/Users/ckb16114/Desktop/CCDS Run/WithEdelBaumdV5/newinputs/withfunccalls/Extra Atira 20 agents 200 generations/Aram PC/';
 else
     addpath(genpath(strcat(pwd,'\Atira')));
     addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
     addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
+    
     SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\WithEdelBaumdV5\newinputs\withfunccalls\Extra Atira 20 agents 200 generations\Aram PC\';
 end
-
-diaryfilename = strcat([SaveDir,'DiaryAtira','_',datestr(now,'yyyymmdd_HHMMSS')]);
-diary(diaryfilename)
-
-
 % This is the main file for the Atira problem
 %
 % Author: Aram Vroom - 2016
@@ -25,8 +21,6 @@ diary(diaryfilename)
 
 %To do: 
 %clean up MyAttributeCalcs
-%Check why different epoch
-
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Physarum Options         %
@@ -34,14 +28,14 @@ diary(diaryfilename)
 options.LinearDilationCoefficient = 1e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 20;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 2;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 2.5;                                %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 2;                                     %The starting radius of the veins
 options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification
-options.Generations = 200;                                       %The number of generations
+options.Generations = 1;                                       %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 4;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
@@ -53,11 +47,6 @@ options.SaveHistory = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% options.Targets = {'neo2003CP20', 'neo2004XZ130', ...        %Targets the Physarum can choose from
-%     'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
-%     'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
-%     'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
-%     'neo2013JX28'}; 
 options.Targets = {'neo2003CP20', 'neo2004XZ130', ...        %Targets the Physarum can choose from
     'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
     'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
@@ -96,14 +85,11 @@ sets.epochsnode = epochsnode(1:end);
 %         Run the optimiser        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn,sets,options);    
-%[output] = optimise_aidmap(fitnessfcn,sets,options);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Display the result         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%PhysarumTreePlot(output.ListNodes)
-%set(gca,'xcolor','w','ycolor','w','xtick',[],'ytick',[]);
-
+PhysarumTreePlot(output.ListNodes)
 
 %Find solutions with the most asteroids
 for i = 1:length(output.Solutions.Nodes);
@@ -114,31 +100,18 @@ maxasteroidnumindex = find(asteroidnum==max(asteroidnum));
 %Plot the solutions with the most asteroids
 for i = 1:length(maxasteroidnumindex)
     AllBestSolutions{i,1} = output.Solutions.Nodes{maxasteroidnumindex(i)};
-    %AllBestCosts{i,1} = output.Solutions.Costs{maxasteroidnumindex(i)};
 end
 
-%Find the individual costs corresponding to the best solution
-for i = 1:length(BestSolution)
-    for j = 2:length(BestSolution{i})
-      bestnodecosts{i}(j-1) = output.ListNodes.(char(BestSolution{i}(j))).length;
-    end
-end
-
-%[r] = PlotTrajectories(BestSolution,bestnodecosts,output.ListNodes);
+[r] = PlotTrajectories(AllBestSolutions,output.ListNodes);
 
 %Save all the solutions
 for i = 1:length(AllBestSolutions)
     filename = strcat([SaveDir,'Atira',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')]);
- 
-    SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
+    SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,filename);
 end
 
 save(strcat(SaveDir,'Atira',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')));
-diary off
 
-%Notes:
-%20160510 - GrowthFactor has been changed
-end
 
 
 
