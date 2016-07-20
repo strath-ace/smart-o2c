@@ -31,7 +31,6 @@ toNodeAttributes.v_dep = departure_v;
 arrival_r = toNodeAttributes.r_arr;
 ToF = toNodeAttributes.tof;
 
-if Inputs.AdditionalInputs{2} == 0
 [~,~,~,err,vel_initial,vel_final,~,~] = lambertMR(departure_r,      ... % Initial Vector Position
                                                   arrival_r,        ... % Final position vector
                                                   ToF*86400, ... % Time of flight [seconds]
@@ -127,16 +126,6 @@ curr_departure_orbit = CelestialBody('transfer_orbit',             ... % Name of
 toNodeAttributes.kep_trans = curr_departure_orbit;
 
 veinlength = deltaV_Total;
-else
-    error('The low-thrust functionality is currently not yet available.')
-    DepBody = StardustTool.KeplerianElementsAt2(fromNode.attributes.kep_trans, toNodeAttributes.t_dep);
-    ArrBody = StardustTool.KeplerianElementsAt2(toNodeAttributes.kep_body, toNodeAttributes.t_arr);
-    TOF = toNodeAttributes.tof;
-    t_dep = toNodeAttributes.t_dep;
-    global mu_S
-    mu_S = mu;
-    
-    [thetaVec,R,Phi,u_mat,DV,isLoopConverged,cont,TPrime1,Ucart,Vcart] = SphericalShapingWithFSolve(DepBody,ArrBody,t_dep,TOF,1,1e-3,2*pi/200,0);
 end
 
 

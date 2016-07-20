@@ -1,8 +1,5 @@
 classdef AstroConstants
     
-    % ASTROCONSTANTS Summary of this class goes here
-    %   Detailed explanation goes here
-    
     properties (Constant = true)  
         
         % Conversion Factor from DEG to RAD

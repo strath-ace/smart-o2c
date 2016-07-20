@@ -44,6 +44,7 @@ txt = text(x(:,1), y(:,1), nodenames, 'FontSize', 5/(ax(4)-ax(3)), 'VerticalAlig
 %Remove labels & axis ticks
 set(gca, 'XTick', [])
 set(gca, 'YTick', [])
+set(gca,'xcolor','w','ycolor','w','xtick',[],'ytick',[]);
 xlabel('')
 ylabel('')
 

@@ -7,7 +7,11 @@ close all
 clc
 
 % Add path to optimiser folder
-addpath(genpath('..\..\Optimisation'))
+if isunix
+    addpath(genpath('../../Optimisation'))
+else
+    addpath(genpath('..\..\Optimisation'))
+end
 
 % Add path to % Add path to problem folder
 addpath(genpath('CEC2009'))

@@ -26,6 +26,9 @@ function [epochs, error_flag] = computeNodalPassesEpochs( keporb, M, epoch_start
 %  epochs        -
 %  error_flag    - 
 %
+% AUTHORS:
+%     Juan Manuel Romero Martin
+%
 %  Equation used to compute the Epoch at given position:
 %
 %  M = n * (t - t0) + M0
