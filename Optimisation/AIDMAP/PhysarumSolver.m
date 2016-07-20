@@ -64,13 +64,22 @@ for j = 1:InitializedInputs.Generations
         %Update veins with the dilation and evaporation mechanics
         [ListNodes] = Dilation(InitializedInputs, ListNodes, Agents, agentnames(i));
         
+        %If the user has specified the request to save the history or to
+        %generate the graph plot, save the current radii of the veins and
+        %the path that each agent has moved
         if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
-        nodenames = fieldnames(ListNodes);     
-        for p = 2:length(nodenames)
-                radii(p) = ListNodes.(char(nodenames(p))).radius;
-        end
-        History.radius(end+1) = {radii};
-        History.AgentMovement{j,i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
+        
+            %Obtain the names of the currently existing nodes
+            nodenames = fieldnames(ListNodes); 
+            
+            %Check if additional nodes apart from the root have been found
+            if length(nodenames)> 1   
+                for p = 2:length(nodenames)
+                        radii(p) = ListNodes.(char(nodenames(p))).radius;
+                end
+                History.radius(end+1) = {radii};
+                History.AgentMovement{j,i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
+            end
         end
     
                        
@@ -93,13 +102,29 @@ for j = 1:InitializedInputs.Generations
     if (restartflag)
         ListNodes = RadiusFluxReset(InitializedInputs, ListNodes);
         
+        %If the user has specified the request to save the history or to
+        %generate the graph plot, save the current radii of the veins and
+        %the path that each agent has moved
         if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
-        nodenames = fieldnames(ListNodes);     
-        for p = 2:length(nodenames)
-                radii(p) = ListNodes.(char(nodenames(p))).radius;
-        end
-        History.radius(end) = {radii};
-        History.AgentMovement{j,i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
+            
+            %Obtain the names of the currently existing nodes
+            nodenames = fieldnames(ListNodes); 
+            
+            %Check if additional nodes apart from the root have been found
+            if length(nodenames)> 1
+                
+                %Loop over all the nodes
+                for p = 2:length(nodenames)
+                    
+                    %Save the radius
+                    radii(p) = ListNodes.(char(nodenames(p))).radius;
+                end
+                
+                %Add the radii and the agent movement to their respective
+                %cells
+                History.radius(end) = {radii};
+                History.AgentMovement{j,i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
+            end
         end
     end
 
