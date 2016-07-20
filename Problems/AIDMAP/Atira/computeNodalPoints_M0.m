@@ -4,16 +4,18 @@ function [Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalP
 % nodal points between two orbits
 %
 % INPUTS:
-%     
+%   keporb          - Keplerian Elements of the orbits. The keporb has
+%                     to be a KeplerianElements Object
+%   mu              - Standard gravitational parameter of the main body
 %
 % OUTPUTS:
-%
-%
-% CREATED DATE:
-%
+%   Mnode           - Mean anomaly of the nodal points
+%   error_status    - Error indication  
+%   theta           - True anomaly of the nodal points
+%   E               - Eccentric anomaly of the nodal points
 %
 % AUTHORS:
-%
+%     Juan Manuel Romero Martin
 %
 % REFERENCE
 %

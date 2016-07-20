@@ -1,63 +1,82 @@
-%Find epochs of all asteroids
+% This script calculates the passing epochs of all the asteroids through
+% their nodal points, given a time-frame
+%
+% Inputs:
+% * epoch_start : The epoch from which the nodal points are to be
+%                 calculated
+% * epoch_end   : The epoch up to which the nodal points should be
+%                 calculated
+% * Asteroids   : File containing the characteristics of the asteroids
+%
+% Outputs: 
+% * epochsnode  : Epochs at which the asteroid passes its nodal points
+%
+% Author: Aram Vroom - 2016
+% Email:  aram.vroom@strath.ac.uk
+
+%Initialize
 close all; clear all; clc
 addpath(genpath('astro_tool'));
 
+SaveDir = 'IO_Dir/';
+addpath(SaveDir);
+
+%Input start and end epochs
 epoch_start = 7304.5;
 epoch_end = 10957.5;
+
+%Load the file containing the asteroids
 Asteroids = Asteroids();
 
-asteroidnames = fieldnames(Asteroids);
-for i = 1:length(asteroidnames)
-asteroid = char(asteroidnames(i));
-
+%Retrieve the Sun's standard gravitational parameter
 mu = AstroConstants.Sun_Planetary_Const;
 
+%Obtain the asteroid names
+asteroidnames = fieldnames(Asteroids);
 
-satorbit = struct('a',1,...
+%Generate a virtual orbit that the asteroid's orbit will be intersected with
+virtualorbit = struct('a',1,...
                   'e',0.035999947927132,...
                   'i',0,...
                   'OM',-11.26064,...
                   'W',102.94719,...
-                  'M',0,... %Current mean anomaly
-                  't',0); %Current  time
+                  'M',0,... 
+                  't',0);
+
+%Save the virtual orbit as a CelestialBody object         
+virtorbit = CelestialBody('virtualorbit',...
+        virtualorbit.a,...
+        virtualorbit.e,...
+        virtualorbit.i,...
+        virtualorbit.OM,...
+        virtualorbit.W,...
+        virtualorbit.M,...
+        virtualorbit.t);
+
+%Loop over all the asteroids
+for i = 1:length(asteroidnames)
     
-              
-satellite = CelestialBody('satellite',...
-        satorbit.a,...
-        satorbit.e,...
-        satorbit.i,...
-        satorbit.OM,...
-        satorbit.W,...
-        satorbit.M,...
-        satorbit.t);
+%Convert the name of the asteorid currently being evaluated to characters
+asteroid = char(asteroidnames(i));
 
 
+%Retrieve the Keplerian elements
 asteroidorbit = Asteroids.(asteroid).getKeplerianElements();
-satelliteorbit = satellite.getKeplerianElements();
 
-%Compute Nodal points
-[Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalPoints_M0(satellite,Asteroids.(asteroid),mu);
+%Compute the location of Nodal points (the intersection between the two
+%orbits)
+[Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalPoints_M0(virtorbit,Asteroids.(asteroid),mu);
 
+%Find the passing epochs
 epochsnode1 = computeNodalPassesEpochs(asteroidorbit,Mnode1,epoch_start, epoch_end, mu);
-%idnode1 = ones(1,length(epochsnode1));
 epochsnode2 = computeNodalPassesEpochs(asteroidorbit,Mnode2,epoch_start, epoch_end, mu);
-%idnode2 = 2*ones(1,length(epochsnode2));
 
+%Save the passing epochs into a single array
 epochsnode{i,1} = sort([epochsnode1 epochsnode2]);
-%identifiers{i,1} = [idnode1 idnode2];
-for j = 1:length(epochsnode{i,1})
-    cartnode{i,1}(j,:) = StardustTool.CartesianElementsAt(Asteroids.(asteroid),epochsnode{i,1}(j));
-    xnode{i,1}(j) = cartnode{i,1}(j,1);
-    ynode{i,1}(j) = cartnode{i,1}(j,2);
-    znode{i,1}(j) = cartnode{i,1}(j,3);
-    
-end
-orbitchars(i,:) = [asteroidorbit.a asteroidorbit.e asteroidorbit.i asteroidorbit.OM asteroidorbit.W asteroidorbit.M0 asteroidorbit.t0];
 
 end
 
-
-save('epochsnode','epochsnode')
-save('asteroidorbitchars','orbitchars')
+%Output the passing epoch into a file
+save(strcat(SaveDir,'epochsnode'),'epochsnode')
 
 

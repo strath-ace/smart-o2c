@@ -12,9 +12,6 @@ function [toNodeAttributes, veinlength] = MyCostFunction(Inputs, fromNode, toNod
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%Retrieve the names of the atttributes
-%attributenames = fieldnames(toNodeAttributes);
-
 %Obtain the current orbit & mu
 curr_orbit = fromNode.attributes.kep_trans;
 mu = AstroConstants.Sun_Planetary_Const;

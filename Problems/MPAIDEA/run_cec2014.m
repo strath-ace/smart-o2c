@@ -7,13 +7,19 @@ close all
 clc
 
 % Add path to optimiser folder
-addpath(genpath('..\..\Optimisation'))
+if isunix
+    addpath(genpath('../../Optimisation'))
+else
+    addpath(genpath('..\..\Optimisation'))
+end
 
 % Add path to problem folder
 addpath(genpath('CEC2014'))
 
 % Mexify cpp file
-mex CEC2014/cec14_func.cpp 
+cd CEC2014
+mex cec14_func.cpp
+cd ..
 
 %% Choose the CEC 2014 problem
 
