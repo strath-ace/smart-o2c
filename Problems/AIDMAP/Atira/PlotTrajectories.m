@@ -18,7 +18,8 @@ function [r] = PlotTrajectories(Solutions,Costs,ListNodes)
 %Initialize the time-step for the plotting and the scaling factor for the
 %vector size
 dt = 1;
-vvecsize = 8e7;
+vvecsize = 4e7;
+sizefont = 12;
 
 %Loop over all the solutions to be plotted
 for i = 1:length(Solutions)
@@ -66,11 +67,11 @@ for i = 1:length(Solutions)
         temp = strsplit(depnode.node_ID,'___');
         temp = strsplit(char(temp(end)),'__');
         deptarget = temp(1);
-        txt{i}(j) = text(depnode.attributes.r_arr(1),depnode.attributes.r_arr(2),depnode.attributes.r_arr(3),deptarget,'FontWeight','bold','VerticalAlignment','bottom');
+        txt{i}(j) = text(depnode.attributes.r_arr(1),depnode.attributes.r_arr(2),depnode.attributes.r_arr(3),deptarget,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
         
         %Generate the text for the dV vector
         dVtext = strcat(num2str(Costs{i}(j-1)),' km/s');
-        txt2{i}(j) = text(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),dVtext,'FontWeight','bold','HorizontalAlignment','right');
+        txt2{i}(j) = text(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),dVtext,'FontWeight','bold','HorizontalAlignment','right','FontSize',sizefont);
         
         %Check if the last node is being evaluated. 
         %If so, perform a number of additional calculations    
@@ -96,11 +97,12 @@ for i = 1:length(Solutions)
             temp = strsplit(char(temp(end)),'__');
             arrtarget = temp(1);
              
-            txt{i+1}(j+1) = text(arrnode.attributes.r_arr(1),arrnode.attributes.r_arr(2),arrnode.attributes.r_arr(3),arrtarget,'FontWeight','bold','VerticalAlignment','bottom');
+            txt{i+1}(j+1) = text(arrnode.attributes.r_arr(1),arrnode.attributes.r_arr(2),arrnode.attributes.r_arr(3),arrtarget,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
         end
             
     
     end
+    set(gca,'FontSize',sizefont);
     
     %Once the entire trajectory has been calculated, plot the r vector
     plot3(r{i}(:,1),r{i}(:,2),r{i}(:,3),'b')
