@@ -14,16 +14,26 @@ clearvars -except k; close all; clc
 
 
 %Add the path
-addpath(genpath(strcat(pwd,'/AsteroidMainBelt')));
-addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
-addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
+if isunix
+    addpath(genpath(strcat(pwd,'/AsteroidMainBelt')));
+    addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
+    addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
+    filenames.AsteroidsFileName = 'AsteroidMainBelt/InputFiles/DiameterGreater10km.xlsx';
+    filenames.MatFileName = 'AsteroidMainBelt/InputFiles/MainBelt10Asteroids.mat';
+    filenames.NameFile = 'AsteroidMainBelt/InputFiles/MainBelt10AsteroidsNames.txt';
+    filenames.epochsnodename = 'AsteroidMainBelt/InputFiles/MainBelt10AsteroidsEpoch.mat';
+    filenames.orbitcharsname = 'AsteroidMainBelt/InputFiles/MainBelt10AsteroidsOrbitChars.mat';
+else
+    addpath(genpath(strcat(pwd,'\AsteroidMainBelt')));
+    addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
+    addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
+    filenames.AsteroidsFileName = 'AsteroidMainBelt\InputFiles\DiameterGreater10km.xlsx';
+    filenames.MatFileName = 'AsteroidMainBelt\InputFiles\MainBelt10Asteroids.mat';
+    filenames.NameFile = 'AsteroidMainBelt\InputFiles\MainBelt10AsteroidsNames.txt';
+    filenames.epochsnodename = 'AsteroidMainBelt\InputFiles\MainBelt10AsteroidsEpoch.mat';
+    filenames.orbitcharsname = 'AsteroidMainBelt\InputFiles\MainBelt10AsteroidsOrbitChars.mat';
+end
 
-%Define the files names for the initialisation
-filenames.AsteroidsFileName = 'AsteroidMainBelt/InputFiles/DiameterGreater10km.xlsx';
-filenames.MatFileName = 'AsteroidMainBelt/InputFiles/MainBelt10Asteroids.mat';
-filenames.NameFile = 'AsteroidMainBelt/InputFiles/MainBelt10AsteroidsNames.txt';
-filenames.epochsnodename = 'AsteroidMainBelt/InputFiles/MainBelt10AsteroidsEpoch.mat';
-filenames.orbitcharsname = 'AsteroidMainBelt/InputFiles/MainBelt10AsteroidsOrbitChars.mat';
 
 %%Every two months
 %epoch_start = [10957.5,11016.5,11077.5,11138.5,11200.5,11261.5,];
@@ -50,7 +60,11 @@ for q = 1:length(startmeananomalies)
 %Clear the variables obtained during the loop to prevent issues
 clearvars -except startmeananomalies p q startorbit filenames epoch_start epoch_end
 
-SaveDir = 'AsteroidMainBelt/Results/10km/NewStartDate/EdelBaum/'; %NOT USED
+if isunix
+    SaveDir = 'AsteroidMainBelt/Results/10km/NewStartDate/EdelBaum/'; %NOT USED
+else
+    SaveDir = 'AsteroidMainBelt\Results\10km\NewStartDate\EdelBaum\'; %NOT USED
+end
 
 %Create a diary for this iteration
 %diary on

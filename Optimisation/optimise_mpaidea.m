@@ -1,21 +1,46 @@
 function [x, fval, exitflag, output] = optimise_mpaidea(fitnessfcn, LB, UB, options)
 
 %% optimise_mpaidea
-
+% MP-AIDEA-ALR: Multi-Population Adaptive Inflationary Differential Evolution Algorithm with Adaptive Local Restart.
+% - Adaptation of CR and F inside the single populations
+% - Adaptation of the dimension of the bubble for the local restart
+% - Adaptive local/global restart
+%
 %% Inputs:
 %
-% * fitnessfcn : function handle to function to optimise
-% * LB : lower boundaries
-% * UB : upper boundaries
-% * options : 
+% * fitnessfcn : function handle to cost function (real function)
+% * LB : decision variables lower boundaries
+% * UB : decision variables upper boundaries
+% * options : structure containing MP-IDEA specific input information (if empty default values are used), namely
+%           * options.population: initial population matrix pop is a 3D matrix where the third dimension identifies the numbers of populations
+%           * options.delta_local:
+%           * options.delta_global:
+%           * options.rho:
+%           * options.DE_strategy:
+%           * options.prob_DE_strategy:
+%           * options.dd_CRF:
+%           * options.nFeValMax:
 %
 %% Output:
-% * y : explanation
+% * x : optimal design solution found
+% * fval: optimal cost
+% * exitflag: exitflag from fmincon
+% * output: structure containing MP-IDEA specific ouput information, namely
+%           * output.memories: archive containing all the local minima plus the population for each restart. The solutions are sorted from the best to the worst. One cell for each population
+%           * output.archivebest: archive of local minima (obtained by local search)
+%           * output.population_evolution: initial and final population obtained at each DE step for each population
+%           * output.vval_evolution: for each population, important DE parameters 
+%           * output.B_mean: mean value of the matrix for the adaptation of delta local
+%           * output.delta_local: value of delta_local for each population
+%           * output.number_LR: number of local restart for each population
+%           * output.number_GR: number of global restart for each population
 %
-% Author: Marilena Di Carlo
-% email: marilena.di-carlo@strath.ac.uk
-
-
+%% Author(s): Edmondo Minisci and Massimiliano Vasile (2013), Marilena Di Carlo (2015)
+% email: edmondo.minisci@strath.ac.uk massimiliano.vasile@strath.ac.uk marilena.di-carlo@strath.ac.uk
+%
+%% References:
+% * M. Di Carlo, M. Vasile, E. Minisci, "Multi-Population Adaptive Inflationary Differential Evolution Algorithm with Adaptive Local Restart", IEEE Congress on Evolutionary Computation, CEC 2015, Sendai, Japan
+% https://pure.strath.ac.uk/portal/en/publications/multipopulation-adaptive-inflationary-differential-evolution-algorithm-with-adaptive-local-restart(a3a478f0-54ad-4bc0-95d8-30bc45fb3e2f).html
 
 % Run MP-AIDEA
 [memories_record, memories, archivebest, population_evolution, vval_evolution,...
