@@ -28,7 +28,7 @@ function [x,fval,exitflag,output] = optimise_macs(fitnessfcn,LB,UB,options,varar
 
 % Output
 x    = memory(:,1:length(LB));
-fval = memory(:,length(LB):end-2);
+fval = memory(:,length(LB)+1:end-2);
 
 output.memory               = memory;
 output.nfeval               = nfeval;
