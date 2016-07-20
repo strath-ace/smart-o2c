@@ -1,6 +1,5 @@
-rng('shuffle')
-for k = 1:10
 clearvars -except k; close all; clc
+rng('shuffle')
 % This is the main file for the Atira problem
 %
 % Author: Aram Vroom - 2016
@@ -10,55 +9,29 @@ clearvars -except k; close all; clc
 %Update ramification & agentmovement 1
 %Redo ALL solutions (due to bugs)
 %Fix if multiple best solutions found in 1 generation
-%Fix history saving if no nodes found by agent (only root)
 
-
-%Add the path
+%Add the path and the files that contain the data on the asteroids
 if isunix
     addpath(genpath(strcat(pwd,'/AsteroidMainBelt')));
     addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
     addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
-    filenames.AsteroidsFileName = 'AsteroidMainBelt/InputFiles/DiameterGreater10km.xlsx';
-    filenames.MatFileName = 'AsteroidMainBelt/InputFiles/MainBelt10Asteroids.mat';
-    filenames.NameFile = 'AsteroidMainBelt/InputFiles/MainBelt10AsteroidsNames.txt';
-    filenames.epochsnodename = 'AsteroidMainBelt/InputFiles/MainBelt10AsteroidsEpoch.mat';
-    filenames.orbitcharsname = 'AsteroidMainBelt/InputFiles/MainBelt10AsteroidsOrbitChars.mat';
+    
+    filenames.AsteroidsFileName = 'AsteroidMainBelt/InputFiles/37Asteroids.xlsx';
+    filenames.MatFileName = 'AsteroidMainBelt/InputFiles/37Asteroids.mat';
+    filenames.NameFile = 'AsteroidMainBelt/InputFiles/37AsteroidsNames.txt';
+    filenames.epochsnodename = 'AsteroidMainBelt/InputFiles/37AsteroidsEpochs.mat';
+    filenames.orbitcharsname = 'AsteroidMainBelt/InputFiles/37AsteroidsOrbitChars.mat';
 else
     addpath(genpath(strcat(pwd,'\AsteroidMainBelt')));
     addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
     addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
-    filenames.AsteroidsFileName = 'AsteroidMainBelt\InputFiles\DiameterGreater10km.xlsx';
-    filenames.MatFileName = 'AsteroidMainBelt\InputFiles\MainBelt10Asteroids.mat';
-    filenames.NameFile = 'AsteroidMainBelt\InputFiles\MainBelt10AsteroidsNames.txt';
-    filenames.epochsnodename = 'AsteroidMainBelt\InputFiles\MainBelt10AsteroidsEpoch.mat';
-    filenames.orbitcharsname = 'AsteroidMainBelt\InputFiles\MainBelt10AsteroidsOrbitChars.mat';
-end
-
-
-%%Every two months
-%epoch_start = [10957.5,11016.5,11077.5,11138.5,11200.5,11261.5,];
-%epoch_end = [18262.5,18321.5,18382.5,18443.5,18505.5,18566.5];
-
-%%Every month
-%epoch_start = [10957.5,10988.5,11016.5,11047.5,11077.5,11108.5,11138.5,11169.5,11200.5,11230.5,11261.5,11291.5];
-%epoch_end = [18262.5,18293.5,18321.5,18352.5,18382.5,18413.5,18443.5,18474.5,18505.5,18535.5,18566.5,18596.5];
-
-% Best for 150km
-% epoch_start = 11077.5;
-% epoch_end = 18382.5;
-
-epoch_start = 10594.35;
-epoch_end = 17894.35;
-
-%Define the mean anomalies
-startmeananomalies = 339.35; %170; %0:10:350; %270 Best for 150km
-
-%Loop over all the input starting epochs and mean anomalies
-for p = 1:length(epoch_start) 
-for q = 1:length(startmeananomalies)
     
-%Clear the variables obtained during the loop to prevent issues
-clearvars -except startmeananomalies p q startorbit filenames epoch_start epoch_end
+    filenames.AsteroidsFileName = 'AsteroidMainBelt\InputFiles\37Asteroids.xlsx';
+    filenames.MatFileName = 'AsteroidMainBelt\InputFiles\37Asteroids.mat';
+    filenames.NameFile = 'AsteroidMainBelt\InputFiles\37AsteroidsNames.txt';
+    filenames.epochsnodename = 'AsteroidMainBelt\InputFiles\37AsteroidsEpochs.mat';
+    filenames.orbitcharsname = 'AsteroidMainBelt\InputFiles\37AsteroidsOrbitChars.mat';
+end
 
 if isunix
     SaveDir = 'AsteroidMainBelt/Results/10km/NewStartDate/EdelBaum/'; %NOT USED
@@ -66,23 +39,15 @@ else
     SaveDir = 'AsteroidMainBelt\Results\10km\NewStartDate\EdelBaum\'; %NOT USED
 end
 
-%Create a diary for this iteration
-%diary on
-diaryfilename = strcat([SaveDir,'DiaryMainBelt_M',strrep(num2str(startmeananomalies(q)),'.','_'),'Start',strrep(num2str(epoch_start(p)),'.','_'),'_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
-diary(diaryfilename)
-
-%Initialize the asteroid main belt problem - comment for all asteroid
-%mission
-InitializeAsteroidsMainBelt(epoch_start(p),epoch_end(p),filenames.AsteroidsFileName,filenames.MatFileName,filenames.NameFile,filenames.epochsnodename,filenames.orbitcharsname);
+epoch_start = 10594.35;
+epoch_end = 17894.35;
 
 %Define the starting orbit
-%startorbit = [1.9252 0.4806	0	0	180	startmeananomalies(q) epoch_start(p)]; 150km ellipticalstart
-startorbit = [2.0533 0.5130	0	0	150	startmeananomalies(q) epoch_start(p)];
+startorbit = [2.0533 0.5130	0	0	150	339.35 epoch_start];
 
-%Show the current mean anomaly and start date being evaluated    
-disp(char(strcat('Current Mean anomaly:',{' '},num2str(startmeananomalies(q)))));
-disp(char(strcat('Current Start Date:',{' '},num2str(epoch_start(p)))));
-
+%Initialize the asteroid main belt problem: retrieves asteroid nodal
+%passing epochs and saves them to a file
+InitializeAsteroidsMainBelt(epoch_start,epoch_end,filenames.AsteroidsFileName,filenames.MatFileName,filenames.NameFile,filenames.epochsnodename,filenames.orbitcharsname);
    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Physarum Options         %
@@ -90,14 +55,14 @@ disp(char(strcat('Current Start Date:',{' '},num2str(epoch_start(p)))));
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
 options.EvaporationCoefficient = 1e-3;                          %Evaporation coefficient 'rho'
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 10;                                    %Number of virtual agents 'N_agents'
+options.NumberOfAgents = 1;                                    %Number of virtual agents 'N_agents'
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
 options.MaximumRadiusRatio = 2.5;                                %Maximum ratio between the link's radius & the starting radius
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
 options.StartingRadius = 2;                                     %The starting radius of the veins
 options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification
-options.Generations = 40;                                        %The number of generations
+options.Generations = 1;                                        %The number of generations
 options.Viscosity = 1;                                          %The viscocity of the "fluid" 
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
@@ -132,11 +97,13 @@ for i = 2:length(rootfieldnames)
 end
 
 options.AdditonalInputs{1} = AsteroidsMainBelt.Asteroids;
-options.AdditonalInputs{2} = 0;                                 %Set to 1 for LT, 0 for HT
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tofvalues = 4:10:2*365;             %Set the value of the sets. 
+
+tofvalues = 4:10:2*365;                                %Set the value of the sets. 
 sets.tof = mat2cell(ones(length(options.Targets),1)... %Input should be a cell array where each line depicts a target.
    *tofvalues,[ones(length(options.Targets),1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
@@ -153,52 +120,24 @@ sets.epochsnode = epochsnode(2:end);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Display the result         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 if (exitflag~=0)
     if (options.GenerateGraphPlot ~= 0)
-        PhysarumGraphPlotv2(options, output.ListNodes, output.History,'Test5');
+        PhysarumGraphPlot(options, output.ListNodes, output.History,'Test5');
     end
-    
-%If no additional nodes have been found, skip to the next starting mean
-%anomaly or quit if only one defined
-if(length(fieldnames(output.ListNodes))==1)
-    %continue
-end
-
-%Find solutions with the most asteroids
-for i = 1:length(output.Solutions.Nodes);
-    asteroidnum(i) = length(output.Solutions.Nodes{i});
-end
-maxasteroidnumindex = find(asteroidnum==max(asteroidnum));
-
-%Save the solutions with the max number of asteroids found into one array
-for i = 1:length(maxasteroidnumindex)
-    AllBestSolutions{i,1} = output.Solutions.Nodes{maxasteroidnumindex(i)};
-end
-
-%Find the individual costs corresponding to the best solution
-for i = 1:length(BestSolution)
-    for j = 2:length(BestSolution{i})
-      bestnodecosts{i}(j-1) = output.ListNodes.(char(BestSolution{i}(j))).length;
-    end
-end
-
-%Plot the trajectory
-%[r] = PlotTrajectories(BestSolution,bestnodecosts,output.ListNodes);
+        
+    %Plot the trajectory
+    [r] = PlotTrajectories(BestSolution,output.ListNodes);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Save the result          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %Save only the solution with the most asteroids and the least dV
- filename = strcat([SaveDir,'MainBelt_M',strrep(num2str(startmeananomalies(q)),'.','_'),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
- SaveTrajectorySolution(BestSolution{1},output.ListNodes,filename);
 
-%Alternative: save all solutions with the max number of asteroids
-% for i = 1:length(AllBestSolutions)
-%     filename = strcat(['AsteroidMainBelt/Results/150km/EllipticalStart/MaxdV5/MaxdV05/MainBelt60_M',num2str(startmeananomalies(q)),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam',num2str(i)]);
-%     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,strcat(filename));
-% end
+    %Save the solution with the most asteroids and the least dV
+    filename = strcat([SaveDir,'MainBelt_M',strrep(num2str(startorbit(6)),'.','_'),'Startdate',strrep(num2str(epoch_start),'.','_'),num2str(length(BestSolution{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+    SaveTrajectorySolution(BestSolution{1},output.ListNodes,filename);
+
 end
-
 
 %Remove unnecessary outputs
 nodenames = fieldnames(output.ListNodes);
@@ -206,17 +145,5 @@ for i = 1:length(nodenames)
     output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))),'ChildValidityTracker');
 end  
 
-nodenames = fieldnames(output.ListNodes);
-for i = 1:length(nodenames)
-    output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))),'ChildValidityTracker');
-end
-    
-
 %Save the workspace
-save(strcat(SaveDir,'MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',strrep(num2str(startmeananomalies(q)),'.','_'),'Startdate',strrep(num2str(epoch_start(p)),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));
-diary off
-
-end
-end
-
-end
+save(strcat(SaveDir,'MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',strrep(num2str(startorbit(6)),'.','_'),'Startdate',strrep(num2str(epoch_start),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));

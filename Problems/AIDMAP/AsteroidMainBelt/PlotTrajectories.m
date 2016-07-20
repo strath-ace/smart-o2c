@@ -1,11 +1,10 @@
-function [r] = PlotTrajectories(Solutions,Costs,ListNodes)
+function [r] = PlotTrajectories(Solutions,ListNodes)
 %This function is used to plot the trajectories found with the AIDMAP
 %algorithm
 %
 % Inputs:
 % * Solutions     : Array containing the unique IDs of the nodes to be
 %                   plotted. Can be cell array of multiple solutions
-% * Costs         : Vector containing the costs of each maneuver
 % * ListNodes     : Structure containing (at least) all the nodes to be
 %                   plotted
 %
@@ -70,7 +69,7 @@ for i = 1:length(Solutions)
         txt{i}(j) = text(depnode.attributes.r_arr(1),depnode.attributes.r_arr(2),depnode.attributes.r_arr(3),deptarget,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
         
         %Generate the text for the dV vector
-        dVtext = strcat(num2str(Costs{i}(j-1)),' km/s');
+        dVtext = strcat(num2str(ListNodes.(char(Solutions{i}(j))).length),' km/s');
         txt2{i}(j) = text(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),dVtext,'FontWeight','bold','HorizontalAlignment','right','FontSize',sizefont);
         
         %Check if the last node is being evaluated. 

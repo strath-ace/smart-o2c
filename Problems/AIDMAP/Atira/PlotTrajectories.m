@@ -1,11 +1,10 @@
-function [r] = PlotTrajectories(Solutions,Costs,ListNodes)
+function [r] = PlotTrajectories(Solutions,ListNodes)
 %This function is used to plot the trajectories found with the AIDMAP
 %algorithm
 %
 % Inputs:
 % * Solutions     : Array containing the unique IDs of the nodes to be
 %                   plotted. Can be cell array of multiple solutions
-% * Costs         : Vector containing the costs of each maneuver
 % * ListNodes     : Structure containing (at least) all the nodes to be
 %                   plotted
 %
@@ -18,14 +17,15 @@ function [r] = PlotTrajectories(Solutions,Costs,ListNodes)
 %Initialize the time-step for the plotting and the scaling factor for the
 %vector size
 dt = 1;
-vvecsize = 4e7;
+vvecsize = 1e8;
 sizefont = 12;
 
 %Loop over all the solutions to be plotted
 for i = 1:length(Solutions)
-    
+        
     %Initialize the Cartesian coordinates vector
     r{i} = [];
+    totalcost = 0;
     
     %Create a figure and set the axis and grid
     figure('Color',[1 1 1])
@@ -70,7 +70,9 @@ for i = 1:length(Solutions)
         txt{i}(j) = text(depnode.attributes.r_arr(1),depnode.attributes.r_arr(2),depnode.attributes.r_arr(3),deptarget,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
         
         %Generate the text for the dV vector
-        dVtext = strcat(num2str(Costs{i}(j-1)),' km/s');
+        currentcost = ListNodes.(char(Solutions{i}(j))).length;
+        totalcost = totalcost+currentcost;
+        dVtext = strcat(num2str(currentcost),' km/s');
         txt2{i}(j) = text(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),dVtext,'FontWeight','bold','HorizontalAlignment','right','FontSize',sizefont);
         
         %Check if the last node is being evaluated. 
@@ -115,8 +117,7 @@ for i = 1:length(Solutions)
     ylim=get(gca,'ylim');
     xlim=get(gca,'xlim');
     asteroidnum = length(Solutions{i})-1; %-1 for root
-    dVtot = sum(Costs{i});
-    txt3 = text(xlim(2),ylim(2),{char(strcat('Number of Asteroids:',{' '},num2str(asteroidnum))),char(strcat('Total \DeltaV:',{' '},num2str(dVtot),' km/s'))},'HorizontalAlignment','right','FontSize',16);
+    txt3 = text(xlim(2),ylim(2),{char(strcat('Number of Asteroids:',{' '},num2str(asteroidnum))),char(strcat('Total \DeltaV:',{' '},num2str(totalcost),' km/s'))},'HorizontalAlignment','right','FontSize',16);
     
 
     
