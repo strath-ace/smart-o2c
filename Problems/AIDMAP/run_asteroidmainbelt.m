@@ -16,27 +16,29 @@ if isunix
     addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
     addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
     
-    filenames.AsteroidsFileName = 'AsteroidMainBelt/InputFiles/37Asteroids.xlsx';
-    filenames.MatFileName = 'AsteroidMainBelt/InputFiles/37Asteroids.mat';
-    filenames.NameFile = 'AsteroidMainBelt/InputFiles/37AsteroidsNames.txt';
-    filenames.epochsnodename = 'AsteroidMainBelt/InputFiles/37AsteroidsEpochs.mat';
-    filenames.orbitcharsname = 'AsteroidMainBelt/InputFiles/37AsteroidsOrbitChars.mat';
+    filenames.AsteroidsFileName = 'AsteroidMainBelt/IO_Dir/37Asteroids.xlsx';
+    
+    filenames.MatFileName = 'AsteroidMainBelt/IO_Dir/37Asteroids.mat';
+    filenames.NameFile = 'AsteroidMainBelt/IO_Dir/37AsteroidsNames.txt';
+    filenames.epochsnodename = 'AsteroidMainBelt/IO_Dir/37AsteroidsEpochs.mat';
+    filenames.orbitcharsname = 'AsteroidMainBelt/IO_Dir/37AsteroidsOrbitChars.mat';
 else
     addpath(genpath(strcat(pwd,'\AsteroidMainBelt')));
     addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
     addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
     
-    filenames.AsteroidsFileName = 'AsteroidMainBelt\InputFiles\37Asteroids.xlsx';
-    filenames.MatFileName = 'AsteroidMainBelt\InputFiles\37Asteroids.mat';
-    filenames.NameFile = 'AsteroidMainBelt\InputFiles\37AsteroidsNames.txt';
-    filenames.epochsnodename = 'AsteroidMainBelt\InputFiles\37AsteroidsEpochs.mat';
-    filenames.orbitcharsname = 'AsteroidMainBelt\InputFiles\37AsteroidsOrbitChars.mat';
+    filenames.AsteroidsFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.xlsx';
+    
+    filenames.MatFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.mat';
+    filenames.NameFile = 'AsteroidMainBelt\IO_Dir\37AsteroidsNames.txt';
+    filenames.epochsnodename = 'AsteroidMainBelt\IO_Dir\37AsteroidsEpochs.mat';
+    filenames.orbitcharsname = 'AsteroidMainBelt\IO_Dir\37AsteroidsOrbitChars.mat';
 end
 
 if isunix
-    SaveDir = 'AsteroidMainBelt/Results/10km/NewStartDate/EdelBaum/'; %NOT USED
+    SaveDir = 'AsteroidMainBelt/IO_Dir/'; %NOT USED
 else
-    SaveDir = 'AsteroidMainBelt\Results\10km\NewStartDate\EdelBaum\'; %NOT USED
+    SaveDir = 'AsteroidMainBelt\IO_Dir\'; %NOT USED
 end
 
 epoch_start = 10594.35;
