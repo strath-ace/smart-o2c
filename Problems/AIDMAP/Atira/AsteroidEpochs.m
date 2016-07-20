@@ -18,6 +18,9 @@
 close all; clear all; clc
 addpath(genpath('astro_tool'));
 
+SaveDir = 'IO_Dir/';
+addpath(SaveDir);
+
 %Input start and end epochs
 epoch_start = 7304.5;
 epoch_end = 10957.5;
@@ -74,6 +77,6 @@ epochsnode{i,1} = sort([epochsnode1 epochsnode2]);
 end
 
 %Output the passing epoch into a file
-save('epochsnode','epochsnode')
+save(strcat(SaveDir,'epochsnode'),'epochsnode')
 
 

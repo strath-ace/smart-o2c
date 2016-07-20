@@ -6,13 +6,13 @@ if isunix
     addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
     addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
     
-    SaveDir = 'C:/Users/ckb16114/Desktop/CCDS Run/WithEdelBaumdV5/newinputs/withfunccalls/Extra Atira 20 agents 200 generations/Aram PC/';
+    SaveDir = 'Atira/IO_Dir/';
 else
     addpath(genpath(strcat(pwd,'\Atira')));
     addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
     addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
     
-    SaveDir = 'C:\Users\ckb16114\Desktop\CCDS Run\WithEdelBaumdV5\newinputs\withfunccalls\Extra Atira 20 agents 200 generations\Aram PC\';
+    SaveDir = 'Atira/IO_Dir/';
 end
 % This is the main file for the Atira problem
 %
