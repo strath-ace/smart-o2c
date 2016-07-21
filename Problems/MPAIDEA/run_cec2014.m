@@ -2,7 +2,7 @@
 % Example of run of optimisation problem of CEC 2014 using MP-AIDEA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear all
+clear 
 close all
 clc
 
