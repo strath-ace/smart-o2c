@@ -11,6 +11,7 @@ if isunix
     addpath(genpath('../../Optimisation'))
 else
     addpath(genpath('..\..\Optimisation'))
+    addpath(genpath('..\..\CEC2014'))
 end
 
 % Add path to problem folder
