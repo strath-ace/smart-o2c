@@ -1,26 +1,23 @@
 clearvars -except k; close all; clc
 rng('shuffle')
-
-if isunix
-    addpath(genpath(strcat(pwd,'/Atira')));
-    addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
-    addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
-    
-    SaveDir = 'Atira/IO_Dir/';
-else
-    addpath(genpath(strcat(pwd,'\Atira')));
-    addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
-    addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
-    
-    SaveDir = 'Atira/IO_Dir/';
-end
 % This is the main file for the Atira problem
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%To do: 
-%clean up MyAttributeCalcs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          Define Paths            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if isunix
+    addpath(genpath(strcat(pwd,'/Atira')));
+    addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
+    addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));    
+else
+    addpath(genpath(strcat(pwd,'\Atira')));
+    addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
+    addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
+end
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Physarum Options         %
@@ -41,20 +38,28 @@ options.MinCommonNodesThres = 4;                                %The minimum num
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
 options.MaxChildFindAttempts = 1e4;
 options.MinPickProbability = 0.1;
-options.GenerateGraphPlot = 0;
+options.GenerateGraphPlot = 1;
+options.GraphPlotFileName = 'Test';
+options.GenerateTreePlot = 0;
 options.SaveHistory = 0;
+
+if isunix
+    SaveDir = 'Atira/IO_Dir/'; 
+else
+    SaveDir = 'Atira\IO_Dir\';
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-options.Targets = {'neo2003CP20', 'neo2004XZ130', ...        %Targets the Physarum can choose from
+options.Cities = {'neo2003CP20', 'neo2004XZ130', ...        %Citys the Physarum can choose from
     'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
     'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
     'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
     'neo2013JX28','neo2013TQ5', 'neo2014FO47', ...
     'neo2015DR215', 'neo2015ME131'}; 
-options.MaxConsecutiveRes = 1*ones(1, length(options.Targets)); %The maximum number of resonance orbits to each target (set to -1 to ignore)
-options.MaxVisits = ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
+options.MaxConsecutiveVis = 1*ones(1, length(options.Cities)); %The maximum number of resonance orbits to each city (set to -1 to ignore)
+options.MaxVisits = ones(1, length(options.Cities));           %The maximum nubmer of visists to each city (set to -1 to ignore)                    
 options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 7304.5];                                %Attributes of the root  
 options.NodeCheckBoundaries = [3 1.5 0.31 2 2*365 5];           %The values used by the MyCreatedNodeCheck file.  In this case, it denotes [max dV_dep root, max dV_dep child, min a_per, C for the LT check, max waiting time]
@@ -64,18 +69,18 @@ options.MyAttributeCalcFile = @MyAttributeCalcs;                %The file that d
 options.MyNodeIDCheck = @MyNodeCheck;                           %The function that checks whether a node can be linked. Can only use the UID
 options.MyCreatedNodeCheck = @MyCreatedNodeCheck;               %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
 options.MyBestChainFile = @MyBestChain;
-options.EndTarget = {};
+options.EndCity = {};
 options.MyEndConditionsFile = @MyEndConditions;
-options.EndConditions = {{}};                                     %For use in the MyEndCondtions file
+options.EndConditions = {{}};                                   %For use in the MyEndCondtions file
 options.RootName = 'EARTH';
 options.AdditonalInputs = {{}};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%           Sets input             %
+%         Define Sets input        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 tofvalues = 35:10:365;             %Set the value of the sets. 
-sets.tof = mat2cell(ones(length(options.Targets),1)... %Input should be a cell array where each line depicts a target.
-   *tofvalues,[ones(length(options.Targets),1)],...    %For this mission, the ToF and the arrival epochs have been used
+sets.tof = mat2cell(ones(length(options.Cities),1)... %Input should be a cell array where each line depicts a city.
+   *tofvalues,[ones(length(options.Cities),1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
 load('epochsnode.mat')
 sets.epochsnode = epochsnode(1:end);
@@ -89,9 +94,8 @@ sets.epochsnode = epochsnode(1:end);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Display the result         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-PhysarumTreePlot(output.ListNodes)
 
-%Find solutions with the most asteroids
+%Find all solutions with the most asteroids
 for i = 1:length(output.Solutions.Nodes);
     asteroidnum(i) = length(output.Solutions.Nodes{i});
 end
@@ -104,12 +108,18 @@ end
 
 [r] = PlotTrajectories(AllBestSolutions,output.ListNodes);
 
-%Save all the solutions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%         Save the result          %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Save all the solutions that have the max. number of asteroids
 for i = 1:length(AllBestSolutions)
     filename = strcat([SaveDir,'Atira',num2str(length(AllBestSolutions{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')]);
     SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,filename);
+    ExportSolution(output.ListNodes, AllBestSolutions{i}, filename)
 end
 
+%Save the workspace
 save(strcat(SaveDir,'Atira',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')));
 
 

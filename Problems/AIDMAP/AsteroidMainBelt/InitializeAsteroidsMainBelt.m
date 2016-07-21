@@ -1,11 +1,11 @@
-function [] = InitializeAsteroidsMainBelt(epoch_start,epoch_end,AsteroidsFileName,MatFileName,NameFile,epochsnodename,orbitcharsname)
+function [] = InitializeAsteroidsMainBelt(epoch_start,epoch_end,filenames)
 addpath(genpath('astro_tool'));
 
-%AsteroidsFileName = 'DiameterGreater150.xlsx';
-%MatFileName = 'MainBelt60Asteroids.mat';
-%NameFile = 'MainBelt60Names.txt';
-%epochsnodename = 'MainBelt60Epoch.mat';
-%orbitcharsname = 'MainBelt60OrbitChars.mat';
+AsteroidsFileName = filenames.AsteroidsFileName;
+MatFileName = filenames.MatFileName;
+NameFile = filenames.NameFile;
+epochsnodename = filenames.epochsnodename;
+orbitcharsname = filenames.orbitcharsname;
 
 [Asteroids] = EvaluateAsteroidsXLS(AsteroidsFileName,MatFileName,NameFile);
 

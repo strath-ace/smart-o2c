@@ -1,18 +1,17 @@
 function [InitializedInputs, ListNodes] = InitializePhysarum(fitnessfcn,options,sets)
-% This is the main file of the physarum solver. 
-% It contains the logic for the algorithm and the solver parameters.
+%% InitializePhysarum: This algorithm prepares the workspace needed for the AIDMAP solver
 %
-% Inputs:
+%% Inputs:
 % * fitnessfcn : Reference to the fitness function
 % * options    : The structure containg the options set by the user
 % * sets       : The structure with the possible values for the attributes
 %                put in the UID
 %
-% Outputs: 
+%% Outputs: 
 % * InitializedInputs     : Structure containing the PhysarumSolver inputs
 % * ListNodes             : The structure containing all the nodes
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 disp('Initializing Physarum...')
@@ -29,9 +28,9 @@ InitializedInputs = struct(...
                 'MinimumRadiusRatio',                 options.MinimumRadiusRatio,  ...          %Minimum radius of the veins
                 'StartingRadius',                     options.StartingRadius,  ...              %The starting radius of the veins
                 'RamificationAmount',                 options.RamificationAmount,  ...          %The number of nodes initially generated for the ramification
-                'PossibleDecisions',                  {options.Targets},  ...                   %The list of possible targets
-                'MaxConsecutiveRes',                  options.MaxConsecutiveRes,  ...           %Maximum number of consecutive resonance orbits to each target
-                'MaxVisits',                          options.MaxVisits,  ...                   %Maximum number of visits to each target
+                'PossibleDecisions',                  {options.Cities},  ...                   %The list of possible cities
+                'MaxConsecutiveVis',                  options.MaxConsecutiveVis,  ...           %Maximum number of consecutive visits to each city
+                'MaxVisits',                          options.MaxVisits,  ...                   %Maximum number of visits to each city
                 'RootAttrib',                         options.RootAttrib,   ...                 %Attributes of the root
                 'NodeCheckBoundaries',                options.NodeCheckBoundaries  , ...        %The values used by the MyCreatedNodeCheck file
                 'Generations',                        options.Generations, ...                  %The number of generations
@@ -50,19 +49,21 @@ InitializedInputs = struct(...
                 'AttributeIDIndex',                   options.AttributeIDIndex, ...             %Index of the attributes that determine the unique ID
                 'AdditionalInputs',                   {options.AdditonalInputs}, ...            %Made into cell in case multiple additional outpu
                 'Sets',                               {sets}, ...                               %The sets of the possible attributes incorporated in the ID
-                'RootName',                           options.RootName, ...                     %The name of the root
-                'MinPickProbability',                 options.MinPickProbability, ...            %The minimum probability for a feasible node to be picked before the algorithm changes its method of choosing a child
-                'GenerateGraphPlot',                  options.GenerateGraphPlot, ...
-                'SaveHistory',                        options.SaveHistory ...
+                'RootName',                           char(options.RootName), ...               %The name of the root
+                'MinPickProbability',                 options.MinPickProbability, ...           %The minimum probability for a feasible node to be picked before the algorithm changes its method of choosing a child
+                'GenerateGraphPlot',                  options.GenerateGraphPlot, ...            %Indicator as to whether the algorithm should generate a graph plot animation                  
+                'GraphPlotFileName',                  char(options.GraphPlotFileName), ...      %Name of the file that the graph plot animation will be saved as
+                'GenerateTreePlot',                   options.GenerateTreePlot, ...             %Indicator as to whether the algorithm should generate a tree plot
+                'SaveHistory',                        options.SaveHistory ...                   %Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation
             );
         
       
-%%%Error Checking%%%
+% Error Checking:
 
 %Display error if the vectors with number of possible decisions, max. number of consecutive
 %resonance orbits & the max. number of visists is not equal
-if ~(length(InitializedInputs.MaxConsecutiveRes)==length(InitializedInputs.PossibleDecisions))
-    error('Check size of PossibleDecisions, MaxConsecutiveRes and MaxVisits')
+if ~(length(InitializedInputs.MaxConsecutiveVis)==length(InitializedInputs.PossibleDecisions))
+    error('Check size of PossibleDecisions, MaxConsecutiveVis and MaxVisits')
 end
 
 %Check if the number of boundaries and stepsizes correspond
@@ -71,11 +72,12 @@ if ~(length(InitializedInputs.AttributeIDIndex)==length(fieldnames(sets)))
 end
 
 %Add nodes that can be selected to the Inputs structure
-InitializedInputs.PossibleListNodes = PossChilds(options.Targets,sets);
+InitializedInputs.PossibleListNodes = PossChilds(options.Cities,sets);
 
 %Create the list of nodes
 ListNodes = CreateListNodes(InitializedInputs);
 
+%Clear workspace
 clearvars -except ListNodes InitializedInputs
 disp('Initialization Complete.')
 
