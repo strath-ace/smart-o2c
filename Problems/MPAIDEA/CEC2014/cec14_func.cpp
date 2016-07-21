@@ -13,6 +13,7 @@
 #include <math.h>
 #include <malloc.h>
 #include <mex.h>
+#include <unistd.h>
 
 double *OShift,*M,*y,*z,*x_bound;
 int ini_flag=0,n_flag,func_flag,*SS;
@@ -80,13 +81,13 @@ void mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 		mexPrintf ("usage: f = cec14_func(x, func_num);\n");
 		mexErrMsgTxt ("example: f= cec14_func([3.3253000e+000, -1.2835000e+000]', 1);");
     }
-	n = mxGetM (prhs[0]);
+	n = mxGetN (prhs[0]);
 	if (!(n==2||n==10||n==30||n==50||n==100))
     {
 		mexPrintf ("usage: f = cec14_func(x, func_num);\n");
 		mexErrMsgTxt ("Error: Test functions are only defined for D=2,10,30,50,100.");
     }
-	m = mxGetN (prhs[0]);
+	m = mxGetM (prhs[0]);
 	x = mxGetPr (prhs[0]);
 	func_num= (int)*mxGetPr (prhs[1]);
 	if (func_num>30)
@@ -116,6 +117,7 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 	{
 		FILE *fpt;
 		char FileName[256];
+        char os_slash;
 		free(M);
 		free(OShift);
 		free(y);
@@ -127,6 +129,12 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 		for (i=0; i<nx; i++)
 			x_bound[i]=100.0;
 
+        #ifdef OSisWindows
+            os_slash='\\';
+        #else
+            os_slash='/';
+        #endif
+        
 		if (!(nx==2||nx==10||nx==20||nx==30||nx==50||nx==100))
 		{
 			printf("\nError: Test functions are only defined for D=2,10,20,30,50,100.\n");
@@ -137,8 +145,9 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 		}
 
 		/* Load Matrix M*/
-		sprintf(FileName, "input_data/M_%d_D%d.txt", func_num,nx);
+        sprintf(FileName, "CEC2014%cinput_data%cM_%d_D%d.txt", os_slash, os_slash, func_num,nx);
 		fpt = fopen(FileName,"r");
+
 		if (fpt==NULL)
 		{
 		    printf("\n Error: Cannot open input file for reading \n");
@@ -164,9 +173,9 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 			}
 		}
 		fclose(fpt);
-		
+
 		/* Load shift_data */
-		sprintf(FileName, "input_data/shift_data_%d.txt", func_num);
+		sprintf(FileName, "CEC2014%cinput_data%cshift_data_%d.txt",  os_slash, os_slash, func_num);
 		fpt = fopen(FileName,"r");
 		if (fpt==NULL)
 		{
@@ -204,12 +213,11 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 		}
 		fclose(fpt);
 
-
 		/* Load Shuffle_data */
 		
 		if (func_num>=17&&func_num<=22)
 		{
-			sprintf(FileName, "input_data/shuffle_data_%d_D%d.txt", func_num, nx);
+			sprintf(FileName, "CEC2014%cinput_data%cshuffle_data_%d_D%d.txt",  os_slash, os_slash, func_num, nx);
 			fpt = fopen(FileName,"r");
 			if (fpt==NULL)
 			{
@@ -226,7 +234,7 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 		}
 		else if (func_num==29||func_num==30)
 		{
-			sprintf(FileName, "input_data/shuffle_data_%d_D%d.txt", func_num, nx);
+			sprintf(FileName, "CEC2014%cinput_data%cshuffle_data_%d_D%d.txt",  os_slash, os_slash, func_num, nx);
 			fpt = fopen(FileName,"r");
 			if (fpt==NULL)
 			{
@@ -242,7 +250,6 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 			fclose(fpt);
 		}
 		
-
 		n_flag=nx;
 		func_flag=func_num;
 		ini_flag=1;
@@ -255,6 +262,7 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 		switch(func_num)
 		{
 		case 1:	
+            printf("%d %d %d\n", mx, x[i*nx],f[i] );
 			ellips_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
 			f[i]+=100.0;
 			break;
