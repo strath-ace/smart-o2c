@@ -1,21 +1,23 @@
-function [Solutions, ListNodes, Agents, agentdeathflag] = AgentMovement(Inputs, Solutions, ListNodes, Agents, agent)
-% This function is used to move agents through the graph/tree
+function [Solutions, ListNodes, Agents, agentdeathflag, funccalls] = AgentMovement(Inputs, Solutions, ListNodes, Agents, agent, funccalls)
+%% AgentMovement: This function is used to move agents through the graph/tree
 %
-% Inputs:
+%% Inputs:
 % * Inputs      : Structure containing the PhysarumSolver inputs
 % * Solutions   : Structure containing the solutions found so far
 % * ListNodes   : Structure containing the graph
 % * Agents      : Structure containing the Agents
 % * agent       : Cell with the current agents' name
+% * funccalls   : The number of cost function calls performed so far
 % 
-% Outputs:
+%% Outputs:
 % * Solutions      : Updated structure containing the solutions found so far
 % * ListNodes      : Structure containing the graph
-% * Agents         : The agents with their new positions
+% * Agents         : The structure containing the agents with their new positions
 % * agentdeathflag : Flag that shows whether the agent has 'died'
+% * funccalls      : The number of cost function calls performed so far
 %
-% Author: Aram Vroom - 2016
-% Email:  aram.vroom@strath.ac.uk
+%% Author: Aram Vroom (2016)
+% Email: aram.vroom@strath.ac.uk
 
 %Initialize the agent death flag
 agentdeathflag = 0;
@@ -25,64 +27,114 @@ agentdeathflag = 0;
 currentagent = char(agent);
 currentnode = char(Agents.(currentagent).currentNode);
 
-%Show node agent is moving to in command window
+%Display the agent's movement in the command window
 disp(strcat([datestr(now),' === Moved to',' ',currentnode]));
 
-%Find the current target
-temp = strsplit(currentnode,'___');
-temp = strsplit(temp{end},'__');
-currenttarget = temp{1};
+%Check if end conditions reached
+continueflag = Inputs.EndConditionsFile(Inputs,Agents,agent);
 
-%Check if the final target has been reached
-if  (~(sum(ismember(currenttarget, Inputs.EndTarget))==0) || (isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0))
+%Stop agent if end conditions reached or no more possible cities to visit
+if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0) || continueflag == 0)
     
-    %If so, set the agentdeathflag to 1
+    %Display that the final conditions were reached
+    disp('End Conditions Reached')
+    
+    %Set the agent deathflag to 1
     agentdeathflag = 1;
     
     %Save the solution
-    Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.((char(agent))).currentNode}]}];   
+    Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.(char(agent)).currentNode}]}];   
     Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
-    return 
+    return
 end
 
-%Generate a random number
+%Generate a random number and retreive the ramification probability
 p = rand;
+pram = Inputs.RamificationProbability;
 
-%check whether the current node has children & whether the random number
-%falls outside of the probability margin
-if (p>Inputs.RamificationProbability && ~isempty(ListNodes.(currentnode).children))
+%Generate a set of potential nodes to ramificate to
+[ListNodes, GeneratedNodes, agentdeathflag, funccalls] = Ramification(Inputs, ListNodes, Agents, currentagent, funccalls);
+
+%Retrieve the node IDs of the generated nodes and initialize a matrix to
+%retrieve the fluxes
+generatednodenames = fieldnames(GeneratedNodes);
+ramfluxesmod = zeros(1,length(generatednodenames));
+
+%Obtain the fluxes of the generated nodes and include the ramification weight
+for i = 1:length(generatednodenames)
+    ramfluxesmod(i) = GeneratedNodes.(generatednodenames{i}).flux^(Inputs.RamificationWeight);
+end
+    
+%Check whether the current node has children. 
+if (~isempty(ListNodes.(currentnode).children))
     
     %Pre-allocation
     childfluxes = zeros(1,length(ListNodes.(currentnode).children));
     
-    %Find the fluxes of the node's children
+    %Obtain the fluxes of the children
     for i = 1:length(ListNodes.(currentnode).children)
         childfluxes(i) = ListNodes.(char(ListNodes.(currentnode).children(i))).flux;
     end
     
-    %Calculate the probabilities
-    problist = childfluxes./(sum(childfluxes));
-    problist = problist./sum(problist);
-
-    %Choose one of the node's children. Cell structure is used to
-    %circumvent issues with node selection if only 1 child is present and
-    %chosenindex = 1 (it will otherwise only return the first letter)
-    chosenindex = find(rand<cumsum(problist),1,'first');
-    nodechildren = cell(ListNodes.(currentnode).children);
-    chosennode = nodechildren{chosenindex};
-      
-    %Move agent to the new node
-    Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
-    Agents.(currentagent).currentNode = chosennode;
-    Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];
+    %Calculate the probability of going to each node. This vector has length 
+    %number of childs + number of generated nodes; it contains the probability 
+    %for each node. The smaller the cost (higher flux) the higher the probability
+    problist = [pram.*ramfluxesmod (1-pram).*childfluxes]./(sum(pram.*ramfluxesmod)+sum((1-pram).*childfluxes));
+    
 else
     
-       
-    %If there are no children or if the random number falls within the
-    %probability margin, ramificate towards a new node
-    [ListNodes, Solutions, Agents, agentdeathflag] = Ramification(Inputs, Solutions, ListNodes, Agents, currentagent);
+    %If there are no children, only use the fluxes of the nodes generated
+    %through the ramification process
+    problist = ramfluxesmod./sum(ramfluxesmod);
 end
 
+%Sanity check #2
+if isempty(problist)
+    
+    %If there are no probabilities to choose from (no children and no 
+    %generated nodes), set the death flag to 1
+    agentdeathflag = 1;
+    
+    %Show this fact in the command window
+    disp('Probability list is empty');
+    
+    %Save the solution
+    Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.((char(agent))).currentNode}]}];   
+    Solutions.Costs = [Solutions.Costs; {[Agents.(currentagent).previouscosts]}];
+    return
+end
 
+%Choose a node and find its index
+chosenindex = find(rand<cumsum(problist),1,'first');
 
+%If the index is smaller than the number of generated nodes, it falls
+%within that list
+if chosenindex <=length(generatednodenames)
+    
+    %Retrieve the ID of the chosen node
+    chosennode = generatednodenames{chosenindex};
+    
+    %Add chosen node to the ListNodes structure
+    chosennodestruct = GeneratedNodes.(chosennode);
+    ListNodes = AddNewNode(ListNodes, chosennodestruct);
+    
+%If the index falls outside of the list of generated nodes, the agent
+%moves to one of the children    
+else
+    
+    %Retrieve the children of the node
+    nodechildren = cell(ListNodes.(currentnode).children);
+    
+    %Find the child that was chosen. The -length(generatednodenames) is
+    %used to find the correct index of the child in the children list of the node 
+    chosennode = nodechildren{chosenindex-length(generatednodenames)};
+
+end
+  
+%Move the agent to the chosen node
+Agents.(currentagent).previousListNodes = [Agents.(currentagent).previousListNodes {currentnode}];
+Agents.(currentagent).currentNode = chosennode;
+Agents.(currentagent).previouscosts = [Agents.(currentagent).previouscosts ListNodes.(chosennode).length];
+
+end
    

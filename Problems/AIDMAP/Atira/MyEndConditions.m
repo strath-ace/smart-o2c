@@ -20,10 +20,10 @@ currentnode = Agents.(char(agent)).currentNode;
 %Obtain the final conditions
 endconditions = Inputs.EndConditions;
 
-%Check if final target reached
+%Check if final city reached
 temp = strsplit(currentnode,'_');
-currenttarget = temp{end-3};
-check1 = ~(sum(ismember(currenttarget, endconditions{1}))==length(currenttarget));
+currentcity = temp{end-3};
+check1 = ~(sum(ismember(currentcity, endconditions{1}))==length(currentcity));
 
 %Determine the continueflag
 continueflag = check1;

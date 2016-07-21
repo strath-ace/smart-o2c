@@ -1,33 +1,43 @@
-function [Solutions, BestSolution, InitializedInputs, ListNodes, Agents, History, funccalls] = PhysarumSolver(InitializedInputs, ListNodes)
-% This script contains the main logic of AIDMAP solver. 
+function [Solutions, BestSolution, ListNodes, Agents, History, funccalls] = PhysarumSolver(InitializedInputs, ListNodes)
+%% PhysarumSolver: This script contains the main logic of AIDMAP solver. 
 %
-% Inputs:
-% * InitializedInputs  : The structure containing the options set by the
-%                        user
+%% Inputs:
+% * InitializedInputs  : The structure containing the options set by the user
 % * ListNodes          : Structure containing the initial list of nodes
 %
-% Outputs: 
+%% Outputs: 
 % * Solutions          : The structure containing the solutions found
-% * BestSolution       : The best solution found
-% * InitializedInputs  : The structure containing the options set by the
-%                        user
+%                       * Solutions.Nodes: cell array containing all the
+%                         solutions (paths) found
+%                       * Solutions.Costs: cell array containing the costs
+%                         corresponding to each link of each solution found
+% * BestSolution       : Structure containing the best solution found
+%                       * BestSolution.BestChain = cell array containing
+%                         the node IDs of the best chain
+%                       * BestSolution.BestCost = the total cost
+%                         corresponding to the best chain               
 % * ListNodes          : Structure containing the final structure with the
 %                        nodes
 % * Agents             : the structure containing the set of agents and their
 %                        characteristics
+% * History            : the vein radii and agent movement throughout the generations
+% * funccalls          : the number of cost functio ncalls
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 %Initialize the Solutions structure
 Solutions.Nodes = [];
 Solutions.Costs = [];
 
+%Set the initial number of function calls
 funccalls = 0;
 
 %Initialize the structure that will contain the best solution
 BestSolution.BestChain = [];
 BestSolution.BestCost = [];
+
+%Initialzie the structure that will contain the history
 History.radius = {};
 History.BestSolution = {};
 History.BestCost = {};
@@ -56,7 +66,7 @@ for j = 1:InitializedInputs.Generations
         
         %Continue moving the agent until the death flag becomes 1
         while ~agentdeathflag
-            [Solutions, ListNodes, Agents, agentdeathflag, funccalls] = AgentMovement2(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i), funccalls);
+            [Solutions, ListNodes, Agents, agentdeathflag, funccalls] = AgentMovement(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i), funccalls);
                   
             
         end        
@@ -74,22 +84,26 @@ for j = 1:InitializedInputs.Generations
             
             %Check if additional nodes apart from the root have been found
             if length(nodenames)> 1   
+                
+                %If so, loop over all the nodes and save their radius
                 for p = 2:length(nodenames)
                         radii(p) = ListNodes.(char(nodenames(p))).radius;
                 end
+                
+                %Save the radius and the agent movement
                 History.radius(end+1) = {radii};
                 History.AgentMovement{j,i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
             end
         end
-    
-                       
-    %End agent loop
+                          
     end
     
    
     %Update the veins with the growth factor mechanic
     [ListNodes, BestSolution] = GrowthEvaporation(InitializedInputs, ListNodes, Solutions, BestSolution);
     
+    %If the user has specified to save the history or the generate the
+    %graph lot, save the best solution and best cost
     if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
         History.BestSolution(end+1) = BestSolution.BestChain(1);
         History.BestCost(end+1) = BestSolution.BestCost(1);
@@ -128,7 +142,6 @@ for j = 1:InitializedInputs.Generations
         end
     end
 
-%End generation loop
 end
 
 

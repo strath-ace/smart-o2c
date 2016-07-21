@@ -6,12 +6,12 @@ currentnode = Agents.(char(agent)).currentNode;
 
 endconditions = Inputs.EndConditions;
 
-%Check if final target reached
+%Check if final city reached
 temp = strsplit(currentnode,'___');
 temp = strsplit(temp{end},'__');
-currenttarget = temp{1};
+currentcity = temp{1};
 
-check1 = ~(sum(ismember(currenttarget, endconditions{1}))==length(currenttarget));
+check1 = ~(sum(ismember(currentcity, endconditions{1}))==length(currentcity));
 
 %Total dV
 %check2 = ~(sum(Agents.(char(agent)).previouscosts)>=endconditions{2});

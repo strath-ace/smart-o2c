@@ -6,9 +6,12 @@ rng('shuffle')
 % Email:  aram.vroom@strath.ac.uk
 
 %To do:
-%Update ramification & agentmovement 1
-%Redo ALL solutions (due to bugs)
 %Fix if multiple best solutions found in 1 generation
+%Clean-up PhysarumGraphPlot
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%           Define Paths           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Add the path and the files that contain the data on the asteroids
 if isunix
@@ -35,22 +38,7 @@ else
     filenames.orbitcharsname = 'AsteroidMainBelt\IO_Dir\37AsteroidsOrbitChars.mat';
 end
 
-if isunix
-    SaveDir = 'AsteroidMainBelt/IO_Dir/'; %NOT USED
-else
-    SaveDir = 'AsteroidMainBelt\IO_Dir\'; %NOT USED
-end
 
-epoch_start = 10594.35;
-epoch_end = 17894.35;
-
-%Define the starting orbit
-startorbit = [2.0533 0.5130	0	0	150	339.35 epoch_start];
-
-%Initialize the asteroid main belt problem: retrieves asteroid nodal
-%passing epochs and saves them to a file
-InitializeAsteroidsMainBelt(epoch_start,epoch_end,filenames.AsteroidsFileName,filenames.MatFileName,filenames.NameFile,filenames.epochsnodename,filenames.orbitcharsname);
-   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Physarum Options         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,14 +59,34 @@ options.IfZeroLength = 1e-15;                                   %Value assigned 
 options.MaxChildFindAttempts = 2e4; %2.5e4;
 options.MinPickProbability = 0.05;
 options.GenerateGraphPlot = 0;
+options.GraphPlotFileName = '';
+options.GenerateTreePlot = 1;
 options.SaveHistory = 0;
+
+if isunix
+    SaveDir = 'AsteroidMainBelt/IO_Dir/'; %NOT USED
+else
+    SaveDir = 'AsteroidMainBelt\IO_Dir\'; %NOT USED
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-options.Targets = textread(filenames.NameFile,'%s')';
-options.MaxConsecutiveRes = 0*ones(1, length(options.Targets)); %The maximum number of resonance orbits to each target (set to -1 to ignore)
-options.MaxVisits = 1*ones(1, length(options.Targets));           %The maximum nubmer of visists to each target (set to -1 to ignore)                    
+
+%Start & end epoch of the mission
+epoch_start = 10594.35;
+epoch_end = 17894.35;
+
+%Define the starting orbit
+startorbit = [2.0533 0.5130	0	0	150	339.35 epoch_start];
+
+%Initialize the asteroid main belt problem: retrieves asteroid nodal
+%passing epochs and saves them to a file
+InitializeAsteroidsMainBelt(epoch_start, epoch_end, filenames);
+  
+options.Cities = textread(filenames.NameFile,'%s')';
+options.MaxConsecutiveVis = 0*ones(1, length(options.Cities)); %The maximum number of resonance orbits to each city (set to -1 to ignore)
+options.MaxVisits = 1*ones(1, length(options.Cities));           %The maximum nubmer of visists to each city (set to -1 to ignore)                    
 options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
 options.RootAttrib = [0 startorbit(7)];                                %Attributes of the root  
 options.NodeCheckBoundaries = [0.75 0.31 2 2*365 5];                   %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
@@ -106,8 +114,8 @@ options.AdditonalInputs{1} = AsteroidsMainBelt.Asteroids;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 tofvalues = 4:10:2*365;                                %Set the value of the sets. 
-sets.tof = mat2cell(ones(length(options.Targets),1)... %Input should be a cell array where each line depicts a target.
-   *tofvalues,[ones(length(options.Targets),1)],...    %For this mission, the ToF and the arrival epochs have been used
+sets.tof = mat2cell(ones(length(options.Cities),1)... %Input should be a cell array where each line depicts a city.
+   *tofvalues,[ones(length(options.Cities),1)],...    %For this mission, the ToF and the arrival epochs have been used
    [length(tofvalues)]);
 load(filenames.epochsnodename)
 sets.epochsnode = epochsnode(2:end);
@@ -122,24 +130,18 @@ sets.epochsnode = epochsnode(2:end);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Display the result         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-if (exitflag~=0)
-    if (options.GenerateGraphPlot ~= 0)
-        PhysarumGraphPlot(options, output.ListNodes, output.History,'Test5');
-    end
-        
-    %Plot the trajectory
-    [r] = PlotTrajectories(BestSolution,output.ListNodes);
+      
+%Plot the trajectory
+[r] = PlotTrajectories(BestSolution,output.ListNodes);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Save the result          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    %Save the solution with the most asteroids and the least dV
-    filename = strcat([SaveDir,'MainBelt_M',strrep(num2str(startorbit(6)),'.','_'),'Startdate',strrep(num2str(epoch_start),'.','_'),num2str(length(BestSolution{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
-    SaveTrajectorySolution(BestSolution{1},output.ListNodes,filename);
-
-end
+%Save the solution with the most asteroids and the least dV
+filename = strcat([SaveDir,'MainBelt_M',strrep(num2str(startorbit(6)),'.','_'),'Startdate',strrep(num2str(epoch_start),'.','_'),num2str(length(BestSolution{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+SaveTrajectorySolution(BestSolution{1},output.ListNodes,filename);
+ExportSolution(output.ListNodes, BestSolution{1}, filename)
 
 %Remove unnecessary outputs
 nodenames = fieldnames(output.ListNodes);

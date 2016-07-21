@@ -12,7 +12,7 @@ end
 correctnames(1) = txt(1,end);
 
 containsnum = 0;
-%Check if any target names start with a number
+%Check if any asteroid names start with a number
 for i = 1:length(txt)
     firstchar = txt{i}(1);
     firstcharnum = str2num(firstchar);

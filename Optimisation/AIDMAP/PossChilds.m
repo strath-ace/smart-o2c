@@ -1,30 +1,29 @@
-function [posschildren] = PossChilds(targets,sets)
-% This script creates a cell array containing all the unique IDs (UIDs) the
-% Physarum algorithm can choose from. 
+function [posschildren] = PossChilds(cities,sets)
+%% PossChilds: This script creates a cell array containing all the unique IDs (UIDs) the Physarum algorithm can choose from. 
 %
-% Inputs:
-% * targets    : A cell array with the names of the targets
+%% Inputs:
+% * cities     : A cell array with the names of the cities
 % * sets       : A structure with the possible values each attribute
 %                shown in the unique ID can take.
 %
-% Outputs: 
+%% Outputs: 
 % * posschildren  : A cell array with all the UIDs the algorithm can
-%                choose from
+%                    choose from
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 %Retrieve the possible attribute values & create the posschildren vector
 attribvalues = struct2cell(sets);
 posschildren =[];
 
-%Loop over all the targets
-for i = 1:length(targets)
+%Loop over all the cities
+for i = 1:length(cities)
     
-    %Set for convenience the current target name as a variable
-    targetname = targets(i);
+    %Set for convenience the current city name as a variable
+    cityname = cities(i);
     
-    %Set the first column as the target's index
+    %Set the first column as the city's index
     possibleattributes{i,1} = i;
     
     %Loop over all the attributes
@@ -35,14 +34,14 @@ for i = 1:length(targets)
     end
            
     %Determine all possible combinations of the possible characteristics
-    %for this target
+    %for this city
     possiblecombinations = combvec(possibleattributes{i,:})';
     
     
     %%%Create UID%%%
     %As only underscores can be used in field names, the UID is made up as follows:
     %3 underscores seperate the parent's section of the ID and the child's
-    %2 underscores define the difference between the target and the attributes
+    %2 underscores define the difference between the city and the attributes
     %1 underscores define the difference between two attributes
 
     %First, combine all attributes into 1 string, where the space between
@@ -60,9 +59,9 @@ for i = 1:length(targets)
         possattribstr = strrep(possattribstr,'__','_');
     end
         
-    %Combine the target name and the attributes into the UID and add them
+    %Combine the city name and the attributes into the UID and add them
     %to a vector that will contain all the possible children
-    posschildren = [posschildren strcat(targetname,'__',possattribstr)];
+    posschildren = [posschildren strcat(cityname,'__',possattribstr)];
     clear possattribstr
 end
 

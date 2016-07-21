@@ -18,7 +18,12 @@
 close all; clear all; clc
 addpath(genpath('astro_tool'));
 
-SaveDir = 'IO_Dir/';
+if isunix
+    SaveDir = 'IO_Dir/'; 
+else
+    SaveDir = 'IO_Dir\';
+end
+
 addpath(SaveDir);
 
 %Input start and end epochs

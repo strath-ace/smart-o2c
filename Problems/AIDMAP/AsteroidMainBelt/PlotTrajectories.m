@@ -22,9 +22,10 @@ sizefont = 12;
 
 %Loop over all the solutions to be plotted
 for i = 1:length(Solutions)
-    
+        
     %Initialize the Cartesian coordinates vector
     r{i} = [];
+    totalcost = 0;
     
     %Create a figure and set the axis and grid
     figure('Color',[1 1 1])
@@ -62,14 +63,16 @@ for i = 1:length(Solutions)
         %Plot the dV vector
         quiver3(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),vvec(1),vvec(2),vvec(3),'g','linewidth',1.5,'MaxHeadSize',1);
         
-        %Retrieve the target name
+        %Retrieve the asteroid/planet's name
         temp = strsplit(depnode.node_ID,'___');
         temp = strsplit(char(temp(end)),'__');
-        deptarget = temp(1);
-        txt{i}(j) = text(depnode.attributes.r_arr(1),depnode.attributes.r_arr(2),depnode.attributes.r_arr(3),deptarget,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
+        depname = temp(1);
+        txt{i}(j) = text(depnode.attributes.r_arr(1),depnode.attributes.r_arr(2),depnode.attributes.r_arr(3),depname,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
         
         %Generate the text for the dV vector
-        dVtext = strcat(num2str(ListNodes.(char(Solutions{i}(j))).length),' km/s');
+        currentcost = ListNodes.(char(Solutions{i}(j))).length;
+        totalcost = totalcost+currentcost;
+        dVtext = strcat(num2str(currentcost),' km/s');
         txt2{i}(j) = text(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),dVtext,'FontWeight','bold','HorizontalAlignment','right','FontSize',sizefont);
         
         %Check if the last node is being evaluated. 
@@ -87,16 +90,16 @@ for i = 1:length(Solutions)
                 r{i}(k,:) = StardustTool.CartesianElementsAt(kep_trans,tvec(k-a));
             end
             
-            %Plot the final target
+            %Plot the final asteroid/planet
             h = plot3(arrnode.attributes.r_arr(1),arrnode.attributes.r_arr(2),arrnode.attributes.r_arr(3),'ko');
             set(h,'MarkerEdgeColor','k','MarkerFaceColor','k')
             
-            %Retrieve the final target's name
+            %Retrieve the final asteroid/planet's name
             temp = strsplit(arrnode.node_ID,'___');
             temp = strsplit(char(temp(end)),'__');
-            arrtarget = temp(1);
+            arrname = temp(1);
              
-            txt{i+1}(j+1) = text(arrnode.attributes.r_arr(1),arrnode.attributes.r_arr(2),arrnode.attributes.r_arr(3),arrtarget,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
+            txt{i+1}(j+1) = text(arrnode.attributes.r_arr(1),arrnode.attributes.r_arr(2),arrnode.attributes.r_arr(3),arrname,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
         end
             
     
@@ -114,8 +117,7 @@ for i = 1:length(Solutions)
     ylim=get(gca,'ylim');
     xlim=get(gca,'xlim');
     asteroidnum = length(Solutions{i})-1; %-1 for root
-    dVtot = sum(Costs{i});
-    txt3 = text(xlim(2),ylim(2),{char(strcat('Number of Asteroids:',{' '},num2str(asteroidnum))),char(strcat('Total \DeltaV:',{' '},num2str(dVtot),' km/s'))},'HorizontalAlignment','right','FontSize',16);
+    txt3 = text(xlim(2),ylim(2),{char(strcat('Number of Asteroids:',{' '},num2str(asteroidnum))),char(strcat('Total \DeltaV:',{' '},num2str(totalcost),' km/s'))},'HorizontalAlignment','right','FontSize',16);
     
 
     
