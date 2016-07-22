@@ -7,7 +7,8 @@ rng('shuffle')
 
 %To do:
 %Fix if multiple best solutions found in 1 generation
-%Clean-up PhysarumGraphPlot
+%Fix need to have Root as first row in the XLS?
+%LowMem version
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Define Paths           %
@@ -19,52 +20,74 @@ if isunix
     addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
     addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
     
-    filenames.AsteroidsFileName = 'AsteroidMainBelt/IO_Dir/DiameterGreater10km.xlsx';
+    %The name of the XLS file that contains the orbital elements of the
+    %asteroids. Each row should be built up as follows:
+    %[Name a e i OM W M0 t0],  where a = Semimajor axis [AU], 
+    %e = Eccentricity, i = Inclination [deg], OM = Asc. Node/raan [deg], 
+    %W = Arg. Perigee [deg], M0 = Mean anomoly, M at time given t0 [deg] 
+    %t0 = Time at which M0 is given [MJD]
+    %Cell (1,1) should contain the name of the root (e.g. "Start" or
+    %"EARTH"), but the corresponding orbital elements can be arbitrary.
+    %These are overwritten in this script.
+    filenames.AsteroidsFileName = 'AsteroidMainBelt/IO_Dir/37Asteroids.xlsx';
     
-    filenames.MatFileName = 'AsteroidMainBelt/IO_Dir/DiameterGreater10km.mat';
-    filenames.NameFile = 'AsteroidMainBelt/IO_Dir/DiameterGreater10kmNames.txt';
-    filenames.epochsnodename = 'AsteroidMainBelt/IO_Dir/DiameterGreater10kmEpochs.mat';
+    %The name of the files that will hold the data on the asteroids as
+    %calculated by the InitialiseMainBelt script
+    filenames.MatFileName = 'AsteroidMainBelt/IO_Dir/37Asteroids.mat';
+    filenames.NameFile = 'AsteroidMainBelt/IO_Dir/37AsteroidsNames.txt';
+    filenames.epochsnodename = 'AsteroidMainBelt/IO_Dir/37AsteroidsEpochs.mat';
 else
     addpath(genpath(strcat(pwd,'\AsteroidMainBelt')));
     addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
     addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
     
-    filenames.AsteroidsFileName = 'AsteroidMainBelt\IO_Dir\DiameterGreater10km.xlsx';
+    %The name of the XLS file that contains the orbital elements of the
+    %asteroids. Each row should be built up as follows:
+    %[Name a e i OM W M0 t0], where a = Semimajor axis [AU], 
+    %e = Eccentricity, i = Inclination [deg], OM = Asc. Node/raan [deg], 
+    %W = Arg. Perigee [deg], M0 = Mean anomoly, M at time given t0 [deg] and 
+    %t0 = Time at which M0 is given [MJD]
+    %Cell (1,1) should contain the name of the root (e.g. "Start" or
+    %"EARTH"), but the corresponding orbital elements can be arbitrary.
+    %These are overwritten in this script.
+    filenames.AsteroidsFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.xlsx';
     
-    filenames.MatFileName = 'AsteroidMainBelt\IO_Dir\DiameterGreater10km.mat';
-    filenames.NameFile = 'AsteroidMainBelt\IO_Dir\3DiameterGreater10kmNames.txt';
-    filenames.epochsnodename = 'AsteroidMainBelt\IO_Dir\DiameterGreater10kmEpochs.mat';
+    %The name of the files that will hold the data on the asteroids as
+    %calculated by the InitialiseMainBelt script
+    filenames.MatFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.mat';
+    filenames.NameFile = 'AsteroidMainBelt\IO_Dir\37AsteroidsNames.txt';
+    filenames.epochsnodename = 'AsteroidMainBelt\IO_Dir\37AsteroidsEpochs.mat';
 end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Physarum Options         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm'
-options.EvaporationCoefficient = 1e-3;                          %Evaporation coefficient 'rho'
-options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF'
-options.NumberOfAgents = 10;                                    %Number of virtual agents 'N_agents'
-options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram'
-options.RamificationWeight = 1;                                 %Weight on ramification 'lambda'
-options.MaximumRadiusRatio = 2.5;                                %Maximum ratio between the link's radius & the starting radius
-options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius
-options.StartingRadius = 2;                                     %The starting radius of the veins
-options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification
-options.Generations = 40;                                        %The number of generations
-options.Viscosity = 1;                                          %The viscocity of the "fluid" 
-options.MinCommonNodesThres = 5;                                %The minimum number of nodes two decision sequences should have in common for a restart to occur
-options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf)
-options.MaxChildFindAttempts = 2e4; %2.5e4;
-options.MinPickProbability = 0.05;
-options.GenerateGraphPlot = 0;
-options.GraphPlotFileName = '';
-options.GenerateTreePlot = 0;
-options.SaveHistory = 0;
+options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm' [real number]
+options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho' [real number]
+options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF' [real number]
+options.NumberOfAgents = 10;                                    %Number of virtual agents 'N_agents' [integer]
+options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram' [real number between 0 and 1, where 1 is a 100 probability for an agent to ramificate]
+options.RamificationWeight = 1;                                 %Weight on ramification 'lambda' [real number, where a larger value puts more weight on ramification]
+options.MaximumRadiusRatio = 2.5;                               %Maximum ratio between the link's radius & the starting radius [real number]
+options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius [real number]
+options.StartingRadius = 2;                                     %The starting radius of the veins [real number]
+options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification [integer]
+options.Generations = 40;                                       %The number of generations [integer]
+options.Viscosity = 1;                                          %The fluid viscocity "mu" [real number]
+options.MinCommonNodesThres = 5;                                %The minimum number of nodes two agents in a generation should have in common for a restart to occur [integer]
+options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf) [real number]
+options.MaxChildFindAttempts = 2e4;                             %Max number of attempts that will be done to find additional children for a node [integer]      
+options.MinPickProbability = 0.05;                              %The minimum probability for a feasible node to be picked before the algorithm changes its method of choosing a child [real number between 0 and 1]
+options.GenerateGraphPlot = 0;                                  %Indicator as to whether the algorithm should generate a graph plot animation, where 1 is defined as "yes"
+options.GraphPlotFileName = '';                                 %Name of the file that the graph plot animation will be saved as [string]
+options.GenerateTreePlot = 0;                                   %Indicator as to whether the algorithm should generate a tree plot, where 1 is defined as "yes"
+options.SaveHistory = 0;                                        %Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation, where 1 is defined as "yes"
 
 if isunix
-    SaveDir = 'AsteroidMainBelt/IO_Dir/'; %NOT USED
+    SaveDir = 'AsteroidMainBelt/IO_Dir/';                       %Output Directory   
 else
-    SaveDir = 'AsteroidMainBelt\IO_Dir\'; %NOT USED
+    SaveDir = 'AsteroidMainBelt\IO_Dir\';                       %Output Directory   
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -82,28 +105,31 @@ startorbit = [2.0533 0	0	0	150	339.35 epoch_start];
 %passing epochs and saves them to a file
 InitialiseAsteroidsMainBelt(epoch_start, epoch_end, filenames);
   
-options.Cities = textread(filenames.NameFile,'%s')';
-options.MaxConsecutiveVis = 0*ones(1, length(options.Cities)); %The maximum number of resonance orbits to each city (set to -1 to ignore)
-options.MaxVisits = 1*ones(1, length(options.Cities));           %The maximum nubmer of visists to each city (set to -1 to ignore)                    
-options.AttributeIDIndex = [13 12];                             %Index of the attributes that determine the unique ID
-options.RootAttrib = [0 startorbit(7)];                                %Attributes of the root  
-options.NodeCheckBoundaries = [0.75 0.31 2 2*365 5];                   %The values used by the MyCreatedNodeCheck file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
-fitnessfcn = @MyCostFunctionMainBelt;                                   %The function reference to the cost function
-options.MyNodeAttributes = @MyAttributesMainBelt;                         %The class that contains the node attributes
-options.MyAttributeCalcFile = @MyAttributeCalcsMainBelt;                %The file that does the additonal calculations wrt the attributes
-options.MyNodeIDCheck = @MyNodeCheckMainBelt;                           %The function that checks whether a node can be linked. Can only use the UID
-options.MyCreatedNodeCheck = @MyCreatedNodeCheckMainBelt;               %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
-options.MyBestChainFile = @MyBestChainMainBelt;
-options.MyEndConditionsFile = @MyEndConditionsMainBelt;
-options.EndConditions = {{}};                                           %For use in the MyEndCondtions file
-options.RootName = 'Start';
+options.Cities = textread(filenames.NameFile,'%s')';                %The list of possible cities [1xC string array, where C is the number of cities]
+options.MaxConsecutiveVis = 0*ones(1, length(options.Cities));      %Maximum number of consecutive visits to each city. Set maxima to -1 if no maximum defined [1xC vector of integers, with C being the number of cities]
+options.MaxVisits = 1*ones(1, length(options.Cities));              %Maximum number of visits to each city. Set maxima to -1 if no maximum defined [1xC vector of integers, with C being the number of cities]                    
+options.AttributeIDIndex = [13 12];                                 %Index of the optimisation variables in the MyNodeAttributes class [1xV vector of integer, where V is the number of optimisation variables]
+options.RootAttrib = [0 startorbit(7)];                             %Values of the optimisation variables at the root
+options.NodeCheckBoundaries = [0.75 0.31 2 2*365 5];                %The values used by the MyCreatedNodeCheckMainBelt file. In this case, it denotes [max dV_dep, min a_per, C for the LT check, max waiting time]  
+fitnessfcn = @MyCostFunctionMainBelt;                               %The function reference to the cost function
+options.MyNodeAttributes = @MyAttributesMainBelt;                   %Reference to the file containing the NodeAttributes class, which defines the problems-specific attributes each node has
+options.MyAttributeCalcFile = @MyAttributeCalcsMainBelt;            %The file that does the additonal calculations wrt the attributes
+options.MyNodeIDCheck = @MyNodeCheckMainBelt;                       %The function that checks whether a node can be linked. Can only use the optimisation variables listed in the AttributeIDIndex option
+options.MyCreatedNodeCheck = @MyCreatedNodeCheckMainBelt;           %After the node has been found valid using the optimisation variables and its structure has been generated, this function checks whether the node itself matches the boundaries
+options.MyBestChainFile = @MyBestChainMainBelt;                     %Reference to the file that determines the best chain in a generation
+options.MyEndConditionsFile = @MyEndConditionsMainBelt;             %Reference to the file that checks whether the end conditions have been reached
+options.EndConditions = {{}};                                       %End conditions used in the options.MyEndConditionsFile file [cell array]
+options.RootName = 'Start';                                         %The name of the root [string]
 
+%Retrieve the initialised structure of the asteroids
 AsteroidsMainBelt = load(filenames.MatFileName);
 rootfieldnames = fieldnames(AsteroidsMainBelt.Asteroids.(options.RootName));
 for i = 2:length(rootfieldnames)
     AsteroidsMainBelt.Asteroids.(options.RootName).(char(rootfieldnames(i))) = startorbit(i-1);
 end
 
+%Save the structure in the AdditionalInputs cell array, such that it can be
+%used in other files 
 options.AdditonalInputs{1} = AsteroidsMainBelt.Asteroids;
 
 
@@ -111,17 +137,19 @@ options.AdditonalInputs{1} = AsteroidsMainBelt.Asteroids;
 %           Sets input             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-tofvalues = 4:10:2*365;                                %Set the value of the sets. 
-sets.tof = mat2cell(ones(length(options.Cities),1)... %Input should be a cell array where each line depicts a city.
-   *tofvalues,[ones(length(options.Cities),1)],...    %For this mission, the ToF and the arrival epochs have been used
-   [length(tofvalues)]);
-load(filenames.epochsnodename)
-sets.epochsnode = epochsnode(2:end);
+tofvalues = 4:10:2*365;                                 %The structure containing the values that the optimisation
+sets.tof = mat2cell(ones(length(options.Cities),1)...   %variables can have for each city (where "city" is defined as done 
+   *tofvalues,[ones(length(options.Cities),1)],...      %in the traveling salesman problem). Thus, each field
+   [length(tofvalues)]);                                %contains a Cx1 cell array, where C is the number of cities and
+load(filenames.epochsnodename)                          %each cell in turn contains the discrete set of values the optimisation
+sets.epochsnode = epochsnode(2:end);                    %variable can have. For this mission, the ToF and the arrival epochs have been used
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Run the optimiser        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Run optimise_aidmap
 [BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn,sets,options);    
 
 
@@ -141,7 +169,7 @@ filename = strcat([SaveDir,'MainBelt_M',strrep(num2str(startorbit(6)),'.','_'),'
 SaveTrajectorySolution(BestSolution{1},output.ListNodes,filename);
 ExportSolution(output.ListNodes, BestSolution{1}, filename)
 
-%Remove unnecessary outputs
+%Remove unnecessary outputs to reduce workspace .mat file size
 nodenames = fieldnames(output.ListNodes);
 for i = 1:length(nodenames)
     output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))),'ChildValidityTracker');
