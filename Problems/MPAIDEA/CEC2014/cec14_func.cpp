@@ -8,7 +8,12 @@
   f = cec14_func(x,func_num); 
   Here x is a D*pop_size matrix.
 */
-//#include <WINDOWS.H>      
+#ifdef OSisWindows
+  #include <WINDOWS.H>
+#else
+  #define __USE_MINGW_ANSI_STDIO
+#endif      
+
 #include <stdio.h>
 #include <math.h>
 #include <malloc.h>
@@ -18,7 +23,11 @@
 double *OShift,*M,*y,*z,*x_bound;
 int ini_flag=0,n_flag,func_flag,*SS;
 
-//#include <WINDOWS.H>      
+#ifdef OSisWindows
+  #include <WINDOWS.H>
+#else
+  #define __USE_MINGW_ANSI_STDIO
+#endif       
 #include <stdio.h>
 #include <math.h>
 #include <malloc.h>
@@ -27,6 +36,7 @@ int ini_flag=0,n_flag,func_flag,*SS;
 #define EPS 1.0e-14
 #define E  2.7182818284590452353602874713526625
 #define PI 3.1415926535897932384626433832795029
+
 
 void sphere_func (double *, double *, int , double *,double *, int, int); /* Sphere */
 void ellips_func(double *, double *, int , double *,double *, int, int); /* Ellipsoidal */
@@ -159,7 +169,7 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 				printf("\nError: there is insufficient memory available!\n");
 			for (i=0; i<nx*nx; i++)
 			{
-				fscanf(fpt,"%Lf",&M[i]);
+				fscanf(fpt,"%lf",&M[i]);
 			}
 		}
 		else
@@ -169,7 +179,7 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 				printf("\nError: there is insufficient memory available!\n");
 			for (i=0; i<cf_num*nx*nx; i++)
 			{
-				fscanf(fpt,"%Lf",&M[i]);
+				fscanf(fpt,"%lf",&M[i]);
 			}
 		}
 		fclose(fpt);
@@ -189,25 +199,25 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 			printf("\nError: there is insufficient memory available!\n");
 			for(i=0;i<nx;i++)
 			{
-				fscanf(fpt,"%Lf",&OShift[i]);
+				fscanf(fpt,"%lf",&OShift[i]);
 			}
 		}
 		else
 		{
 			OShift=(double *)malloc(nx*cf_num*sizeof(double));
-			if (OShift==NULL)
+            if (OShift==NULL)
 			printf("\nError: there is insufficient memory available!\n");
 			for(i=0;i<cf_num-1;i++)
 			{
 				for (j=0;j<nx;j++)
 				{
-					fscanf(fpt,"%Lf",&OShift[i*nx+j]);
+					fscanf(fpt,"%lf",&OShift[i*nx+j]);
 				}
 				fscanf(fpt,"%*[^\n]%*c"); 
 			}
 			for (j=0;j<nx;j++)
 			{
-				fscanf(fpt,"%Lf",&OShift[(cf_num-1)*nx+j]);
+				fscanf(fpt,"%lf",&OShift[(cf_num-1)*nx+j]);
 			}
 				
 		}
@@ -262,8 +272,7 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 		switch(func_num)
 		{
 		case 1:	
-            printf("%d %d %d\n", mx, x[i*nx],f[i] );
-			ellips_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+            ellips_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
 			f[i]+=100.0;
 			break;
 		case 2:	
@@ -411,7 +420,7 @@ void ellips_func (double *x, double *f, int nx, double *Os,double *Mr, int s_fla
     int i;
 	f[0] = 0.0;
 	sr_func (x, z, nx, Os, Mr,1.0, s_flag, r_flag); /* shift and rotate */
-	for (i=0; i<nx; i++)
+    for (i=0; i<nx; i++)
 	{
        f[0] += pow(10.0,6.0*i/(nx-1))*z[i]*z[i];
 	}
@@ -1238,7 +1247,7 @@ void sr_func (double *x, double *sr_x, int nx, double *Os,double *Mr, double sh_
 {
 	int i;
 	if (s_flag==1)
-	{
+    {
 		if (r_flag==1)
 		{	
 			shiftfunc(x, y, nx, Os);
@@ -1259,7 +1268,6 @@ void sr_func (double *x, double *sr_x, int nx, double *Os,double *Mr, double sh_
 	}
 	else
 	{	
-
 		if (r_flag==1)
 		{	
 			for (i=0; i<nx; i++)//shrink to the orginal search range
@@ -1272,7 +1280,7 @@ void sr_func (double *x, double *sr_x, int nx, double *Os,double *Mr, double sh_
 		for (i=0; i<nx; i++)//shrink to the orginal search range
 		{
 			sr_x[i]=x[i]*sh_rate;
-		}
+        }
 	}
 }
 
