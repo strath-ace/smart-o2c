@@ -24,7 +24,7 @@ addpath(genpath('astro_tool'));
 asteroidnames = fieldnames(Asteroids);
 
 %Loop over all the asteroids
-for i = 1:length(asteroidnames)
+for i = 2:length(asteroidnames)
     
     %Ensure the name is written as characters
     asteroid = char(asteroidnames(i));
