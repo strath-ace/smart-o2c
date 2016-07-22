@@ -7,6 +7,7 @@ rng('shuffle')
 
 %To do:
 %Fix if multiple best solutions found in 1 generation
+%Fix need to have Root as first row in the XLS?
 %LowMem version
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -25,6 +26,9 @@ if isunix
     %e = Eccentricity, i = Inclination [deg], OM = Asc. Node/raan [deg], 
     %W = Arg. Perigee [deg], M0 = Mean anomoly, M at time given t0 [deg] 
     %t0 = Time at which M0 is given [MJD]
+    %Cell (1,1) should contain the name of the root (e.g. "Start" or
+    %"EARTH"), but the corresponding orbital elements can be arbitrary.
+    %These are overwritten in this script.
     filenames.AsteroidsFileName = 'AsteroidMainBelt/IO_Dir/37Asteroids.xlsx';
     
     %The name of the files that will hold the data on the asteroids as
@@ -43,6 +47,9 @@ else
     %e = Eccentricity, i = Inclination [deg], OM = Asc. Node/raan [deg], 
     %W = Arg. Perigee [deg], M0 = Mean anomoly, M at time given t0 [deg] and 
     %t0 = Time at which M0 is given [MJD]
+    %Cell (1,1) should contain the name of the root (e.g. "Start" or
+    %"EARTH"), but the corresponding orbital elements can be arbitrary.
+    %These are overwritten in this script.
     filenames.AsteroidsFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.xlsx';
     
     %The name of the files that will hold the data on the asteroids as
@@ -91,8 +98,7 @@ end
 epoch_start = 10594.35;
 epoch_end = 17894.35;
 
-%Define the starting orbit [a (AU) e (-) i (deg) OM (deg) W (deg) M0 (deg)
-%t0 (MJD2000)]. Note that t0 here is MJD2000, while the XLS uses MJD
+%Define the starting orbit
 startorbit = [2.0533 0	0	0	150	339.35 epoch_start];
 
 %Initialise the asteroid main belt problem: retrieves asteroid nodal
@@ -115,10 +121,12 @@ options.MyEndConditionsFile = @MyEndConditionsMainBelt;             %Reference t
 options.EndConditions = {{}};                                       %End conditions used in the options.MyEndConditionsFile file [cell array]
 options.RootName = 'Start';                                         %The name of the root [string]
 
-
-%Load the asteroid structure and add the starting location to it
+%Retrieve the initialised structure of the asteroids
 AsteroidsMainBelt = load(filenames.MatFileName);
-AsteroidsMainBelt.Asteroids.(options.RootName) = CelestialBody('Start',startorbit(1),startorbit(2),startorbit(3),startorbit(4),startorbit(5),startorbit(6),startorbit(7));
+rootfieldnames = fieldnames(AsteroidsMainBelt.Asteroids.(options.RootName));
+for i = 2:length(rootfieldnames)
+    AsteroidsMainBelt.Asteroids.(options.RootName).(char(rootfieldnames(i))) = startorbit(i-1);
+end
 
 %Save the structure in the AdditionalInputs cell array, such that it can be
 %used in other files 
@@ -134,7 +142,7 @@ sets.tof = mat2cell(ones(length(options.Cities),1)...   %variables can have for 
    *tofvalues,[ones(length(options.Cities),1)],...      %in the traveling salesman problem). Thus, each field
    [length(tofvalues)]);                                %contains a Cx1 cell array, where C is the number of cities and
 load(filenames.epochsnodename)                          %each cell in turn contains the discrete set of values the optimisation
-sets.epochsnode = epochsnode;                    %variable can have. For this mission, the ToF and the arrival epochs have been used
+sets.epochsnode = epochsnode(2:end);                    %variable can have. For this mission, the ToF and the arrival epochs have been used
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
