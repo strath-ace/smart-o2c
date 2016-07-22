@@ -22,9 +22,9 @@ To install this project, please ensure that you have installed the following (in
 
 Note to developers
 ------------
-Each new method should include the standard header for documentation 
+Each new optimisation algorithm should include the standard header for documentation 
 ```
-%% myfunction: brief function description
+%% myoptimiser: brief description
 % Extensive function description
 % (If you need to insert formulas use latex conventions: 
 % $x_1+x_2$) 
@@ -37,8 +37,11 @@ Each new method should include the standard header for documentation
 %% Output:
 % * y : explanation
 %
-% Author: your name
+%% Author(s): your name
 % email: your@email
+%
+%% References:
+% relevant references for the algorithm
 ```
 Contributing
 ------------
