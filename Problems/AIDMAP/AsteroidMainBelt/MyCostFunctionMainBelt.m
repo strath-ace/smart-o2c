@@ -1,23 +1,16 @@
 function [toNodeAttributes, veinlength] = MyCostFunctionMainBelt(Inputs, fromNode, toNodeAttributes)
-% This function calculates the cost of a certain connection.
-% It can be altered such that it is applicable to the problem at hand.
+%% MyCostFunctionMainBelt: This function calculates the cost of a certain connection. It can be altered such that it is applicable to the problem at hand.
 %
-% Inputs:
-% * fromNode  : The node from which the cost is calculated (structure)
-% * toNode    : The node to which the cost is calculated (structure)
+%% Inputs:
+% * Inputs             : Structure containing the inputs defined by the user
+% * fromNode           : The node from which the cost is calculated [structure]
+% * toNodeAttributes   : The known problem-specific attributes of the node to which the cost is calculated [structure]
 %
-% Outputs: 
-% * newNode   : The node currently being evaluated (structure)
-%
-% Author: Aram Vroom - 2016
-% Email:  aram.vroom@strath.ac.uk
+%% Outputs: 
+% * toNodeAttributes   : The problem-specific attributes of the node to which the cost is calculated [structure]
+% * veinlength		   : The length of the vein [real number]
 
-%attributenames = fieldnames(Attributes);
-
-%Calculate cost to change orbital elements with orbit characterstics such
-%as ToF set. Currently simple formula to test functionality.
-%toNode.length = ((Attributes.t_arr - Attributes.tof) - fromNode.attributes.t_arr)^5;
-
+%Obtain the current orbit & mu
 curr_orbit = fromNode.attributes.kep_trans;
 mu = AstroConstants.Sun_Planetary_Const;
 
@@ -111,8 +104,7 @@ M = E - ecc*sin(E);
 % Mean anomaly at the departure position [deg]
 M = M * 180/pi;
 
-% Creat object to use as 1st input in SearchAndCreateNewArc
-% (angles in degrees and distance in AU!)
+% Create CelestialBody object for the transfer orbit
 au2km = AstroConstants.Astronomical_Unit;
 curr_departure_orbit = CelestialBody('transfer_orbit',             ... % Name of the CelestialBody (This case current trajectory
                                      kep_transfer_orbit(1)/au2km,  ... % Semimajor axis [AU]
@@ -123,8 +115,10 @@ curr_departure_orbit = CelestialBody('transfer_orbit',             ... % Name of
                                      M,                            ... % Mean anomoly, M at time given t0 [deg]
                                      toNodeAttributes.t_dep); % Time at which Mo is given [MJD2000]  
 
+%Save the orbit                                 
 toNodeAttributes.kep_trans = curr_departure_orbit;
 
+%Set the vein's length as the total required dV
 veinlength = deltaV_Total;
 end
 

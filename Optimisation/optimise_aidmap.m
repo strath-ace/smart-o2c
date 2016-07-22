@@ -1,6 +1,6 @@
 function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 
-%% optimisation_aidmap: 
+%% optimisation_aidmap:
 % The AIDMAP algorithm is a combinatorial algorithm that takes its inspiration 
 % from the Physarum Polycephalum mould. To simulate this mould, a number of virtual agents 
 % are used to resemble nutrients inside veins that move through and allow 
@@ -43,11 +43,11 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %               * options.Cities: The list of possible cities [1xC string
 %                   array, where C is the number of cities]
 %               * options.MaxConsecutiveVis: Maximum number of consecutive
-%                   visits to each city [1xC vector of integers, with C being
-%                   the number of cities]
+%                   visits to each city. Set maxima to -1 if no maximum
+%                   defined [1xC vector of integers, with C being the number of cities]
 %               * options.MaxVisits: Maximum number of visits to each
-%                   city [1xC vector of integers, with T being
-%                   the number of cities]
+%                   city. Set maxima to -1 if no maximum defined
+%                   [1xC vector of integers, with C being the number of cities]
 %               * options.RootAttrib: Values of the optimisation variables
 %                   at the root [1xV vector of real numbers, where V is the
 %                   number of optimisation variables]
@@ -56,7 +56,7 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %                   in the user's MyCreateNodeCheck file [vector of real
 %                   numbers]
 %               * options.Generations: The number of generations [integer]
-%               * options.Viscosity: The viscocity of the "fluid" [real number]
+%               * options.Viscosity: The fluid viscosity "mu" [real number]
 %               * options.MinCommonNodesThres: The minimum number of nodes
 %                   two agents in a generation should have in common for a
 %                   restart to occur [integer]
@@ -80,15 +80,16 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %                   structure has been created
 %               * options.MyBestChainFile: Reference to the file that
 %                   determines the best chain (decision path)
-%               * options.MyEndConditionsFile: Reference toe the file that checks 
+%               * options.MyEndConditionsFile: Reference to the file that checks 
 %                   whether the end conditions have been reached
 %               * options.EndConditions: End conditions used in the
 %                   options.MyEndConditionsFile file [cell array]
-%               * options.AttributeIDIndex: Index of the optimisation variables 
-%                   in the MyNodeAttributes class
+%               * options.AttributeIDIndex: Index of the optimisation variables in the 
+%                   MyNodeAttributes class [1xV vector of integer, 
+%                   where V is the number of optimisation variables]
 %               * options.AdditonalInputs: Variable that can be used to
 %                   store any additional information required in one of the
-%                   user's files. [Cell array]
+%                   user's files. [cell array]
 %               * options.RootName: The name of the root [string]
 %               * options.MinPickProbability: The minimum probability for a
 %                   feasible node to be picked from the list of all possible children

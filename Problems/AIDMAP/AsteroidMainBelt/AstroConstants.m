@@ -1,7 +1,15 @@
+%% AstroConstants: This class holds the astrodynamic constants
+%
+% Inputs:
+% *
+%
+% Outputs: 
+% * 
+%
+%% Author(s): Juan Manuel Romero Martin (2014)
+%  Email:  juan.romero-martin@strath.ac.uk
+
 classdef AstroConstants
-    
-    % ASTROCONSTANTS Summary of this class goes here
-    %   Detailed explanation goes here
     
     properties (Constant = true)  
         

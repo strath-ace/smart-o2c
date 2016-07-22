@@ -1,18 +1,17 @@
 function [Attributes] = MyAttributeCalcs(Inputs, Parent, cityname, Attributes)
-% This function calculates the attributes that can not be retrieved from
-% the unique ID.
+%% MyAttributeCalcs: This function calculates the attributes that can not be retrieved from the unique ID.
 %
-% Inputs:
+%% Inputs:
 % * Inputs        : Structure containing the PhysarumSolver inputs
 % * Parent        : Structure containing the parent
-% * cityname      : The asteroid/planet of the node to be created
+% * cityname      : The asteroid/planet of the node to be created [string]
 % * Attributes    : The structure with attributes of the node to be created 
 %                   known so far
 %
-% Outputs: 
+%% Outputs: 
 % * Attributes   : The updated attributes structure
 %
-% Authors: Marilena Di Carlo - 2014, Aram Vroom - 2016
+%% Authors: Marilena Di Carlo (2014), Aram Vroom (2016)
 % Email:  marilena.di-carlo@strath.ac.uk, aram.vroom@strath.ac.uk
 
 %Check if the asteroid/planet is in the Asteroid class
@@ -40,7 +39,8 @@ if ismember(cityname,fieldnames(Asteroids))
         Attributes.kep_trans = CelestialBody('Transfer Orbit',kep.a, kep.e, kep.i, kep.OM, kep.W, kep.M0, kep.t0);
         
     end 
-    
+
+%Check if the asteroid/planet is a planet
 elseif ismember(cityname,fieldnames(Planets));
     
     %Obtain the arrival coordinates from the planetary ephemeris

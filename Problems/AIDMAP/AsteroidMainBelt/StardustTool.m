@@ -1,6 +1,15 @@
+%% StardustTool: This class contains various functions related  to finding the Keplerian and Cartesian elements at a certain time for a certain orbit
+%
+%% Inputs:
+% * 
+%
+%% Outputs: 
+% * 
+%
+%% Author: Juan Manuel Romero Martin (2014), Marilena Di Carlo (2014)
+% Email:  juan.romero-martin@strath.ac.uk, marilena.di-carlo@strath.ac.uk
+
 classdef StardustTool
-    % STARDUSTTOOL Summary of this class goes here
-    %   Detailed explanation goes here
     
     methods (Static = true)
         
@@ -180,15 +189,6 @@ classdef StardustTool
             E = CalcEA(M0 * pi/180, ecc); % [rad]            
             
             % Compute the True Anomaly 
-            
-            % OLD APPROACH - WRONG
-%             theta = 2*atan( sqrt( (1 + ecc) / (1 - ecc) ) * tan(E/2) );
-%             
-%             if (theta < 0 )
-%                 theta = pi + theta; 
-%             end
-
-            % NEW APPROACH (THAT IS, ORIGINAL ONE) - MARILENA 5th MAY
             cos_theta = ( cos(E) - ecc ) / (1 - ecc*cos(E));
             sin_theta = ( sin(E) * sqrt(1-ecc^2) ) / (1 - ecc*cos(E));
             
