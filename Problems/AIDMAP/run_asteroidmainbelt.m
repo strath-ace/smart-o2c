@@ -1,14 +1,13 @@
-clearvars -except k; close all; clc
-rng('shuffle')
-% This is the main file for the Atira problem
+% This is the main file for the Main Belt problem
 %
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
 %To do:
-%Fix if multiple best solutions found in 1 generation
-%Fix need to have Root as first row in the XLS?
 %LowMem version
+
+clear all; close all; clc
+rng('shuffle')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Define Paths           %
@@ -26,9 +25,6 @@ if isunix
     %e = Eccentricity, i = Inclination [deg], OM = Asc. Node/raan [deg], 
     %W = Arg. Perigee [deg], M0 = Mean anomoly, M at time given t0 [deg] 
     %t0 = Time at which M0 is given [MJD]
-    %Cell (1,1) should contain the name of the root (e.g. "Start" or
-    %"EARTH"), but the corresponding orbital elements can be arbitrary.
-    %These are overwritten in this script.
     filenames.AsteroidsFileName = 'AsteroidMainBelt/IO_Dir/37Asteroids.xlsx';
     
     %The name of the files that will hold the data on the asteroids as
@@ -47,9 +43,6 @@ else
     %e = Eccentricity, i = Inclination [deg], OM = Asc. Node/raan [deg], 
     %W = Arg. Perigee [deg], M0 = Mean anomoly, M at time given t0 [deg] and 
     %t0 = Time at which M0 is given [MJD]
-    %Cell (1,1) should contain the name of the root (e.g. "Start" or
-    %"EARTH"), but the corresponding orbital elements can be arbitrary.
-    %These are overwritten in this script.
     filenames.AsteroidsFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.xlsx';
     
     %The name of the files that will hold the data on the asteroids as
@@ -66,14 +59,14 @@ end
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm' [real number]
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho' [real number]
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF' [real number]
-options.NumberOfAgents = 10;                                    %Number of virtual agents 'N_agents' [integer]
+options.NumberOfAgents = 2;                                    %Number of virtual agents 'N_agents' [integer]
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram' [real number between 0 and 1, where 1 is a 100 probability for an agent to ramificate]
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda' [real number, where a larger value puts more weight on ramification]
 options.MaximumRadiusRatio = 2.5;                               %Maximum ratio between the link's radius & the starting radius [real number]
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius [real number]
 options.StartingRadius = 2;                                     %The starting radius of the veins [real number]
 options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification [integer]
-options.Generations = 40;                                       %The number of generations [integer]
+options.Generations = 2;                                       %The number of generations [integer]
 options.Viscosity = 1;                                          %The fluid viscocity "mu" [real number]
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two agents in a generation should have in common for a restart to occur [integer]
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf) [real number]
@@ -83,11 +76,12 @@ options.GenerateGraphPlot = 0;                                  %Indicator as to
 options.GraphPlotFileName = '';                                 %Name of the file that the graph plot animation will be saved as [string]
 options.GenerateTreePlot = 0;                                   %Indicator as to whether the algorithm should generate a tree plot, where 1 is defined as "yes"
 options.SaveHistory = 0;                                        %Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation, where 1 is defined as "yes"
+options.LowMem = 0;                                             %Indicator as to whether the algorithm should use the low-memory version of searching for new nodes, where 1 is defined as "yes". Using the low-memory version is slower, but requires less memory. 
 
 if isunix
-    SaveDir = 'AsteroidMainBelt/IO_Dir/';                       %Output Directory   
+    SaveDir = 'AsteroidMainBelt/IO_Dir/';                       %Input / Output Directory   
 else
-    SaveDir = 'AsteroidMainBelt\IO_Dir\';                       %Output Directory   
+    SaveDir = 'AsteroidMainBelt\IO_Dir\';                       %Input / Output Directory 
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,11 +92,12 @@ end
 epoch_start = 10594.35;
 epoch_end = 17894.35;
 
-%Define the starting orbit
+%Define the starting orbit [a (AU) e (-) i (deg) OM (deg) W (deg) M0 (deg)
+%t0 (MJD2000)]. Note that t0 here is in MJD2000, while the XLS uses MJD
 startorbit = [2.0533 0	0	0	150	339.35 epoch_start];
 
 %Initialise the asteroid main belt problem: retrieves asteroid nodal
-%passing epochs and saves them to a file
+%passing epochs and asteroid names, and saves them to a file
 InitialiseAsteroidsMainBelt(epoch_start, epoch_end, filenames);
   
 options.Cities = textread(filenames.NameFile,'%s')';                %The list of possible cities [1xC string array, where C is the number of cities]
@@ -121,12 +116,11 @@ options.MyEndConditionsFile = @MyEndConditionsMainBelt;             %Reference t
 options.EndConditions = {{}};                                       %End conditions used in the options.MyEndConditionsFile file [cell array]
 options.RootName = 'Start';                                         %The name of the root [string]
 
-%Retrieve the initialised structure of the asteroids
+
+%Load the asteroid structure and add the starting location to it
 AsteroidsMainBelt = load(filenames.MatFileName);
-rootfieldnames = fieldnames(AsteroidsMainBelt.Asteroids.(options.RootName));
-for i = 2:length(rootfieldnames)
-    AsteroidsMainBelt.Asteroids.(options.RootName).(char(rootfieldnames(i))) = startorbit(i-1);
-end
+AsteroidsMainBelt.Asteroids.(options.RootName) = CelestialBody('Start',startorbit(1),startorbit(2),startorbit(3),startorbit(4),startorbit(5),startorbit(6),startorbit(7));
+
 
 %Save the structure in the AdditionalInputs cell array, such that it can be
 %used in other files 
@@ -142,7 +136,7 @@ sets.tof = mat2cell(ones(length(options.Cities),1)...   %variables can have for 
    *tofvalues,[ones(length(options.Cities),1)],...      %in the traveling salesman problem). Thus, each field
    [length(tofvalues)]);                                %contains a Cx1 cell array, where C is the number of cities and
 load(filenames.epochsnodename)                          %each cell in turn contains the discrete set of values the optimisation
-sets.epochsnode = epochsnode(2:end);                    %variable can have. For this mission, the ToF and the arrival epochs have been used
+sets.epochsnode = epochsnode;                    %variable can have. For this mission, the ToF and the arrival epochs have been used
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -169,11 +163,11 @@ filename = strcat([SaveDir,'MainBelt_M',strrep(num2str(startorbit(6)),'.','_'),'
 SaveTrajectorySolution(BestSolution{1},output.ListNodes,filename);
 ExportSolution(output.ListNodes, BestSolution{1}, filename)
 
-%Remove unnecessary outputs to reduce workspace .mat file size
-nodenames = fieldnames(output.ListNodes);
-for i = 1:length(nodenames)
-    output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))),'ChildValidityTracker');
-end  
+% %Remove unnecessary outputs to reduce workspace .mat file size
+% nodenames = fieldnames(output.ListNodes);
+% for i = 1:length(nodenames)
+%     output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))),'ChildValidityTracker');
+% end  
 
 %Save the workspace
 save(strcat(SaveDir,'MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',strrep(num2str(startorbit(6)),'.','_'),'Startdate',strrep(num2str(epoch_start),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));

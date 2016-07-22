@@ -105,8 +105,8 @@ for j = 1:InitializedInputs.Generations
     %If the user has specified to save the history or the generate the
     %graph lot, save the best solution and best cost
     if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
-        History.BestSolution(end+1) = BestSolution.BestChain(1);
-        History.BestCost(end+1) = BestSolution.BestCost(1);
+        History.BestSolution(end+1) = BestSolution.BestChain;
+        History.BestCost(end+1) = BestSolution.BestCost;
     end
     
     %Check whether the algorithm should be restarted

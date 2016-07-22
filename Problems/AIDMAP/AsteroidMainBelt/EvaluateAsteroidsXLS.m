@@ -1,5 +1,5 @@
 function [Asteroids] = EvaluateAsteroidsXLS(AsteroidsFileName,MatFileName,NameFile)
-%% MyEndConditions: This function evaluates an XLS file containing the orbital elements of asteroids, and outputs a structure with the CelestialBody objects
+%% EvaluateAsteroidsXLS: This function evaluates an XLS file containing the orbital elements of asteroids, and outputs a structure with the CelestialBody objects
 %
 %% Inputs:
 % * AsteroidsFileName    : The filename of the XLS file containing the orbital elements[string]
@@ -44,7 +44,7 @@ end
 
 %Make sure asteroid names have the correct format (letter first, only
 %numbers and letters in the name)
-for i = 2:length(txt)
+for i = 1:length(txt)
     currentname = char(txt(i,end));
     if containsnum == 1
         correctnames{i} = strcat('a',strrep(strrep(currentname,' ',''),'-',''));
@@ -87,7 +87,7 @@ save(MatFileName,'Asteroids');
 %Save the names of all the asteroids
 fileID = fopen(NameFile,'w');
 formatspec = '%12s\n';
-for i = 2:length(names)
+for i = 1:length(names)
     fprintf(fileID,formatspec,char(names{i}));
 end
 

@@ -63,10 +63,13 @@ newNode = struct('node_ID',           node_ID,...                   % The ID of 
                  'attributes',        [Attributes], ...             % Attributes that describe this node (such as orbital elements & Time of Flight etc.)
                  'previousdecisions', {previousdecisions},...       %List of previous decisions made                    
                  'possibledecisions', {possibledecisions}, ...      %List containing the decisions that can still be made
-                 'VisitsLeft',        {visitsleft}, ...             % Vector containing the number of times each city cna still be visisted
-                 'ChildValidityTracker', 1:length(Inputs.PossibleListNodes) ... % This will track the validity of attempted children
+                 'VisitsLeft',        {visitsleft} ...             % Vector containing the number of times each city cna still be visisted                 
                 ); 
 
+% This will track the validity of attempted children
+if Inputs.LowMem == 0
+    newNode.ChildValidityTracker = 1:length(Inputs.PossibleListNodes);
+end
  
 %Calculate the flux and add it to the structure
 newNode.flux = [CalculateFlux(Inputs,newNode)];

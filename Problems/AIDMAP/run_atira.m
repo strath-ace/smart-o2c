@@ -33,21 +33,23 @@ options.MaximumRadiusRatio = 2.5;                               %Maximum ratio b
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius [real number]
 options.StartingRadius = 2;                                     %The starting radius of the veins [real number]
 options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification [integer]
-options.Generations = 1;                                        %The number of generations [integer]
+options.Generations = 2;                                        %The number of generations [integer]
 options.Viscosity = 1;                                          %The fluid viscocity "mu" [real number]
 options.MinCommonNodesThres = 4;                                %The minimum number of nodes two agents in a generation should have in common for a restart to occur [integer]
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf) [real number]
 options.MaxChildFindAttempts = 1e4;                             %Max number of attempts that will be done to find additional children for a node [integer]      
 options.MinPickProbability = 0.1;                               %The minimum probability for a feasible node to be picked before the algorithm changes its method of choosing a child [real number between 0 and 1]
-options.GenerateGraphPlot = 1;                                  %Indicator as to whether the algorithm should generate a graph plot animation, where 1 is defined as "yes"
+options.GenerateGraphPlot = 0;                                  %Indicator as to whether the algorithm should generate a graph plot animation, where 1 is defined as "yes"
 options.GraphPlotFileName = '';                                 %Name of the file that the graph plot animation will be saved as [string]
 options.GenerateTreePlot = 0;                                   %Indicator as to whether the algorithm should generate a tree plot, where 1 is defined as "yes"
 options.SaveHistory = 0;                                        %Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation, where 1 is defined as "yes"
+options.LowMem = 0;                                             %Indicator as to whether the algorithm should use the low-memory version of searching for new nodes. This is slower, but requires less memory
+
 
 if isunix
-    SaveDir = 'Atira/IO_Dir/';                                  %Output Directory    
+    SaveDir = 'Atira/IO_Dir/';                                  %Input / Output Directory 
 else
-    SaveDir = 'Atira\IO_Dir\';                                  %Output Directory  
+    SaveDir = 'Atira\IO_Dir\';                                  %Input / Output Directory  
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
