@@ -1,27 +1,34 @@
-% This script calculates the passing epochs of all the asteroids through
-% their nodal points, given a time-frame
+%% AsteroidEpochs: This script calculates the passing epochs of all the asteroids through their nodal points, given a time-frame. It should be run first when a new set of Asteroids is used to obtain their nodal epochs.
 %
-% Inputs:
+%% Inputs:
 % * epoch_start : The epoch from which the nodal points are to be
-%                 calculated
+%                 calculated [MJD2000 date]
 % * epoch_end   : The epoch up to which the nodal points should be
-%                 calculated
-% * Asteroids   : File containing the characteristics of the asteroids
+%                 calculated [MJD2000 date]
+% * Asteroids   : The file that contains the class which describes the
+%                   asteroids
 %
-% Outputs: 
+%% Outputs: 
 % * epochsnode  : Epochs at which the asteroid passes its nodal points
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 %Initialize
 close all; clear all; clc
 addpath(genpath('astro_tool'));
 
-SaveDir = 'IO_Dir/';
+%Define input & output directory
+if isunix
+    SaveDir = 'IO_Dir/'; 
+else
+    SaveDir = 'IO_Dir\';
+end
+
+%Add this path
 addpath(SaveDir);
 
-%Input start and end epochs
+%Input start and end epochs [MJD2000]
 epoch_start = 7304.5;
 epoch_end = 10957.5;
 
@@ -34,31 +41,21 @@ mu = AstroConstants.Sun_Planetary_Const;
 %Obtain the asteroid names
 asteroidnames = fieldnames(Asteroids);
 
-%Generate a virtual orbit that the asteroid's orbit will be intersected with
-virtualorbit = struct('a',1,...
-                  'e',0.035999947927132,...
-                  'i',0,...
-                  'OM',-11.26064,...
-                  'W',102.94719,...
-                  'M',0,... 
-                  't',0);
-
-%Save the virtual orbit as a CelestialBody object         
-virtorbit = CelestialBody('virtualorbit',...
-        virtualorbit.a,...
-        virtualorbit.e,...
-        virtualorbit.i,...
-        virtualorbit.OM,...
-        virtualorbit.W,...
-        virtualorbit.M,...
-        virtualorbit.t);
+%Generate a CelestialBody that holds the virtual orbit        
+virtorbit = CelestialBody('virtualorbit',...        %Name
+                            1,...                   %a   Semimajor axis [AU]   
+                            0.035999947927132,...   %e   Eccentricity 
+                            0,...                   %i   Inclination [deg]
+                            -11.26064,...           %OM  Asc. Node/raan [deg]
+                            102.94719,...           %W   Arg. Perigee [deg]
+                            0,...                   %M0  Mean anomoly, M at time given t0 [deg]
+                            0);                     %t0  Time at which Mo is given [MJD2000]  
 
 %Loop over all the asteroids
 for i = 1:length(asteroidnames)
     
 %Convert the name of the asteorid currently being evaluated to characters
 asteroid = char(asteroidnames(i));
-
 
 %Retrieve the Keplerian elements
 asteroidorbit = Asteroids.(asteroid).getKeplerianElements();

@@ -1,17 +1,16 @@
 function [r] = PlotTrajectories(Solutions,ListNodes)
-%This function is used to plot the trajectories found with the AIDMAP
-%algorithm
+%% PlotTrajectories: This function is used to plot the trajectories found with the AIDMAP algorithm
 %
-% Inputs:
+%% Inputs:
 % * Solutions     : Array containing the unique IDs of the nodes to be
 %                   plotted. Can be cell array of multiple solutions
 % * ListNodes     : Structure containing (at least) all the nodes to be
 %                   plotted
 %
-% Outputs: 
-% * r             : The Cartesian elements over time
+%% Outputs: 
+% * r             : The Cartesian elements over time [cell array]
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
 %Initialize the time-step for the plotting and the scaling factor for the
@@ -63,11 +62,11 @@ for i = 1:length(Solutions)
         %Plot the dV vector
         quiver3(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),vvec(1),vvec(2),vvec(3),'g','linewidth',1.5,'MaxHeadSize',1);
         
-        %Retrieve the target name
+        %Retrieve the asteroid/planet name
         temp = strsplit(depnode.node_ID,'___');
         temp = strsplit(char(temp(end)),'__');
-        deptarget = temp(1);
-        txt{i}(j) = text(depnode.attributes.r_arr(1),depnode.attributes.r_arr(2),depnode.attributes.r_arr(3),deptarget,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
+        depname = temp(1);
+        txt{i}(j) = text(depnode.attributes.r_arr(1),depnode.attributes.r_arr(2),depnode.attributes.r_arr(3),depname,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
         
         %Generate the text for the dV vector
         currentcost = ListNodes.(char(Solutions{i}(j))).length;
@@ -90,16 +89,16 @@ for i = 1:length(Solutions)
                 r{i}(k,:) = StardustTool.CartesianElementsAt(kep_trans,tvec(k-a));
             end
             
-            %Plot the final target
+            %Plot the final asteroid/planet
             h = plot3(arrnode.attributes.r_arr(1),arrnode.attributes.r_arr(2),arrnode.attributes.r_arr(3),'ko');
             set(h,'MarkerEdgeColor','k','MarkerFaceColor','k')
             
-            %Retrieve the final target's name
+            %Retrieve the final asteroid/planet's name
             temp = strsplit(arrnode.node_ID,'___');
             temp = strsplit(char(temp(end)),'__');
-            arrtarget = temp(1);
+            arrname = temp(1);
              
-            txt{i+1}(j+1) = text(arrnode.attributes.r_arr(1),arrnode.attributes.r_arr(2),arrnode.attributes.r_arr(3),arrtarget,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
+            txt{i+1}(j+1) = text(arrnode.attributes.r_arr(1),arrnode.attributes.r_arr(2),arrnode.attributes.r_arr(3),arrname,'FontWeight','bold','VerticalAlignment','bottom','FontSize',sizefont);
         end
             
     
