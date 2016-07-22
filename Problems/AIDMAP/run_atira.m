@@ -39,7 +39,7 @@ options.MinCommonNodesThres = 4;                                %The minimum num
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf) [real number]
 options.MaxChildFindAttempts = 1e4;                             %Max number of attempts that will be done to find additional children for a node [integer]      
 options.MinPickProbability = 0.1;                               %The minimum probability for a feasible node to be picked before the algorithm changes its method of choosing a child [real number between 0 and 1]
-options.GenerateGraphPlot = 0;                                  %Indicator as to whether the algorithm should generate a graph plot animation, where 1 is defined as "yes"
+options.GenerateGraphPlot = 1;                                  %Indicator as to whether the algorithm should generate a graph plot animation, where 1 is defined as "yes"
 options.GraphPlotFileName = '';                                 %Name of the file that the graph plot animation will be saved as [string]
 options.GenerateTreePlot = 0;                                   %Indicator as to whether the algorithm should generate a tree plot, where 1 is defined as "yes"
 options.SaveHistory = 0;                                        %Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation, where 1 is defined as "yes"
@@ -67,9 +67,9 @@ options.NodeCheckBoundaries = [3 1.5 0.31 2 2*365 5];           %The values used
 fitnessfcn = @MyCostFunction;                                   %The function reference to the cost function
 options.MyNodeAttributes = @MyAttributes;                       %Reference to the file containing the NodeAttributes class, which defines the problems-specific attributes each node has
 options.MyAttributeCalcFile = @MyAttributeCalcs;                %The file that does the additonal calculations wrt the attributes
-options.MyNodeIDCheck = @MyNodeCheck;                           %The function that checks whether a node can be linked. Can only use the UID
-options.MyCreatedNodeCheck = @MyCreatedNodeCheck;               %After the node has been found valid using its UID and its structure has been generated, this function checks whether the node itself matches the boundaries
-options.MyBestChainFile = @MyBestChain;                         %Reference to the file that determines the best chain
+options.MyNodeIDCheck = @MyNodeCheck;                           %The function that checks whether a node can be linked. Can only use the optimisation variables listed in the AttributeIDIndex option
+options.MyCreatedNodeCheck = @MyCreatedNodeCheck;               %After the node has been found valid using the optimisation variables and its structure has been generated, this function checks whether the node itself matches the boundaries
+options.MyBestChainFile = @MyBestChain;                         %Reference to the file that determines the best chain in a generation
 options.EndConditions = {};                                     %End conditions used in the options.MyEndConditionsFile file [cell array]
 options.MyEndConditionsFile = @MyEndConditions;                 %Reference to the file that checks whether the end conditions have been reached
 options.EndConditions = {{}};                                   %End conditions used in the options.MyEndConditionsFile file [cell array]
@@ -79,14 +79,14 @@ options.AdditonalInputs = {{}};                                 %Variable that c
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Define Sets input        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 tofvalues = 35:10:365;                                
 sets.tof = mat2cell(ones(length(options.Cities),1)... %The structure containing the values that the optimisation
 *tofvalues,[ones(length(options.Cities),1)],...       %variables can have for each city (where "city" is defined as done 
 [length(tofvalues)]);                                 %in the traveling salesman problem). Thus, each field
                                                       %contains a Cx1 cell array, where C is the number of cities and
 load('epochsnode.mat')                                %each cell in turn contains the discrete set of values the optimisation
-sets.epochsnode = epochsnode(1:end);                  %variable can have
-                                                      %For this mission, the ToF and the arrival epochs have been used
+sets.epochsnode = epochsnode(1:end);                  %variable can have. For this mission, the ToF and the arrival epochs have been used
    
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
