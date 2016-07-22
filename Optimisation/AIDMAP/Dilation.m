@@ -1,17 +1,16 @@
 function [ListNodes] = Dilation(Inputs, ListNodes, Agents, agent)
-%This function handles the dilation and evaporation of the paths taken by
-%an agent
+%% Dilation: This function handles the dilation and evaporation of the paths taken by an agent
 %
-% Inputs:
+%% Inputs:
 % * Inputs      : Structure containing the PhysarumSolver inputs
-% * ListNodes       : Structure containing the graph
+% * ListNodes   : Structure containing the graph
 % * Agents      : Structure containing the Agents
 % * agent       : Cell with the current agents' name
 % 
-% Outputs:
-% * ListNodes       : Structure containing the updated graph
+%% Outputs:
+% * ListNodes   : Structure containing the updated graph
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 %Convert the agent input into a character array

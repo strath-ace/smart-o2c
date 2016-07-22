@@ -1,18 +1,16 @@
 function [bestchainindex, bestcost] = MyBestChain(numberofnodes,nodecosts)
-% This function find the best chain to be used in the growth factor
-% functionality
-
-% Inputs:
-% * numberofnodes : Vector with the amount of nodes for each solution so
-%                   far
+%% MyBestChain: This function find the best chain to be used in the growth factor functionality
+%
+%% Inputs:
+% * numberofnodes : Vector with the amount of nodes for each solution so far
 % * nodecosts     : Vector with the costs for each solution
 %
-% Outputs: 
+%% Outputs: 
 % * bestchainindex  : The index of the best chain within the numberofnodes
-%                      nodecosts vectors
-% * bestcost        : The cost of the best solution
+%                       and nodecosts vectors [integer]
+% * bestcost        : The cost of the best solution [real number]
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 %Find the index of the solution(s) with the most asteroids

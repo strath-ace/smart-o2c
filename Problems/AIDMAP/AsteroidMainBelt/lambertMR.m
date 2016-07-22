@@ -1,6 +1,5 @@
 function [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,Ncase,optionsLMR)
-
-% Lambert's problem solver for all possible transfers:
+%% lambertMR: Lambert's problem solver for all possible transfers:
 %   
 % 1- zero-revolution (for all possible types of orbits: circles, ellipses,
 %                   parabolas and hyperbolas)
@@ -57,7 +56,7 @@ function [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,
 % NOTE: If ERROR occurs or the 360 or 180 degree transfer case is 
 % encountered. 
 %
-% INPUT:
+%% INPUT:
 %       RI(3) = a three element array containing the initial position
 %               vector [L]
 %       RF(3) = a three element array containing the final position vector
@@ -82,7 +81,7 @@ function [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,
 %                                       the algorithm does not converge
 %                                    2: full warnings displayed
 %
-% OUTPUT:
+%% OUTPUT:
 %       A = Semi-major axis of the transfer orbit [L]
 %       P = Semi-latus rectum of the transfer orbit [L]
 %       E = Eccentricity of the transfer orbit
@@ -117,7 +116,7 @@ function [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,
 %                           PROGRAMMER:    Chris D'Souza
 %                           DATE:          January 20, 1989
 %                           VERIFIED BY:   Darrel Monroe, 10/25/90
-%
+%% Author(s)
 % - Camilla Colombo - 10/11/2006
 %                   - 13/11/2006 - added ERROR = 3 if Nrev > NrevMAX
 %                   - 21/11/2006 - added another case of ERROR = 3 (index

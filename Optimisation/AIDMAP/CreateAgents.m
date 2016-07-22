@@ -1,16 +1,15 @@
-function [Agents] = CreateAgents(ListNodes,NumberOfAgents)
-%This function creates the structure containing the Agent decisions and
-%other characteristics.
+function [Agents] = CreateAgents(ListNodes, NumberOfAgents)
+%% CreateAgents: This function creates the structure containing the Agent decisions and other characteristics.
 %
-% Inputs:
+%% Inputs:
 % * ListNodes      : Structure containing the graph
-% * NumberOfAgents : the number of agents used in the solver
+% * NumberOfAgents : The number of agents used in the solver
 %
-% Outputs: 
-% * Agents         : the structure containing the set of agents and their
+%% Outputs: 
+% * Agents         : The structure containing the set of agents and their
 %                    characteristics
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 %Initialize the Agents structure

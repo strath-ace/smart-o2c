@@ -1,7 +1,13 @@
-% KEPLERIANELEMENTS Summary of this class goes here
-% Detailed explanation goes here
-% 
+%% KeplerianElements: This class defines the KeplerianElements object and the corresponding calculations
 %
+% Inputs:
+% *
+%
+% Outputs: 
+% * 
+%
+%% Author(s): Juan Manuel Romero Martin (2014)
+%  Email:  juan.romero-martin@strath.ac.uk
 
 classdef KeplerianElements
      
