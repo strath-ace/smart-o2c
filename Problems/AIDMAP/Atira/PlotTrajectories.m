@@ -13,7 +13,7 @@ function [r] = PlotTrajectories(Solutions,ListNodes)
 %% Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%Initialize the time-step for the plotting and the scaling factor for the
+%Initialise the time-step for the plotting and the scaling factor for the
 %vector size
 dt = 1;
 vvecsize = 1e8;
@@ -22,7 +22,7 @@ sizefont = 12;
 %Loop over all the solutions to be plotted
 for i = 1:length(Solutions)
         
-    %Initialize the Cartesian coordinates vector
+    %Initialise the Cartesian coordinates vector
     r{i} = [];
     totalcost = 0;
     

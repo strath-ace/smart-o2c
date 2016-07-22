@@ -141,11 +141,11 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %Start clock
 tic;
 
-%Initialize the AIDMAP algorithm
-[InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
+%Initialise the AIDMAP algorithm
+[InitialisedInputs,ListNodes] = InitialisePhysarum(fitnessfcn,options,sets);
 
 %Run the algorithm
-[output.Solutions, BestSolution, output.ListNodes, output.Agents, output.History, output.funccalls] = PhysarumSolver(InitializedInputs, ListNodes);
+[output.Solutions, BestSolution, output.ListNodes, output.Agents, output.History, output.funccalls] = PhysarumSolver(InitialisedInputs, ListNodes);
 
 %Retrieve the best solution
 x = BestSolution.BestChain(1);

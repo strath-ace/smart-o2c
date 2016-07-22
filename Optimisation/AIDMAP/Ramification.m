@@ -57,7 +57,7 @@ possdecisions = ListNodes.(currentNode).possibledecisions;
 %possible decisions in this node
 indextracker(ismember(temp(:,1), possdecisions)==0) = NaN;
 
-%Initialize structures to save the generated nodes in. The generatednodes
+%Initialise structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
 %empty structures
 GeneratedNodes = struct('temp',0);

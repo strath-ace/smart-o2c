@@ -12,7 +12,7 @@ function [restartflag] = RestartCheck(Inputs, Agents)
 %% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
-%Initialize the restart flag
+%Initialise the restart flag
 restartflag = 0;
 
 %Retrieve the agent names

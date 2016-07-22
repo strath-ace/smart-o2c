@@ -3,9 +3,6 @@
 % Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
-%To do:
-%LowMem version
-
 clear all; close all; clc
 rng('shuffle')
 
@@ -59,14 +56,14 @@ end
 options.LinearDilationCoefficient = 5e-3;                       %Linear dilation coefficient 'm' [real number]
 options.EvaporationCoefficient = 1e-4;                          %Evaporation coefficient 'rho' [real number]
 options.GrowthFactorVal = 5e-3;                                 %Growth factor 'GF' [real number]
-options.NumberOfAgents = 2;                                    %Number of virtual agents 'N_agents' [integer]
+options.NumberOfAgents = 1;                                     %Number of virtual agents 'N_agents' [integer]
 options.RamificationProbability = 0.7;                          %Probability of ramification 'p_ram' [real number between 0 and 1, where 1 is a 100 probability for an agent to ramificate]
 options.RamificationWeight = 1;                                 %Weight on ramification 'lambda' [real number, where a larger value puts more weight on ramification]
 options.MaximumRadiusRatio = 2.5;                               %Maximum ratio between the link's radius & the starting radius [real number]
 options.MinimumRadiusRatio = 1e-3;                              %Maximum ratio between the link's radius & the starting radius [real number]
 options.StartingRadius = 2;                                     %The starting radius of the veins [real number]
 options.RamificationAmount = 5;                                 %The number of nodes initially generated for the ramification [integer]
-options.Generations = 2;                                       %The number of generations [integer]
+options.Generations = 1;                                        %The number of generations [integer]
 options.Viscosity = 1;                                          %The fluid viscocity "mu" [real number]
 options.MinCommonNodesThres = 5;                                %The minimum number of nodes two agents in a generation should have in common for a restart to occur [integer]
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf) [real number]
@@ -136,7 +133,7 @@ sets.tof = mat2cell(ones(length(options.Cities),1)...   %variables can have for 
    *tofvalues,[ones(length(options.Cities),1)],...      %in the traveling salesman problem). Thus, each field
    [length(tofvalues)]);                                %contains a Cx1 cell array, where C is the number of cities and
 load(filenames.epochsnodename)                          %each cell in turn contains the discrete set of values the optimisation
-sets.epochsnode = epochsnode;                    %variable can have. For this mission, the ToF and the arrival epochs have been used
+sets.epochsnode = epochsnode;                           %variable can have. For this mission, the ToF and the arrival epochs have been used
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -146,6 +143,15 @@ sets.epochsnode = epochsnode;                    %variable can have. For this mi
 %Run optimise_aidmap
 [BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn,sets,options);    
 
+%It may be noted that the command window shows the movement of the agents.
+%This is shown through the use of the node's unique identifier (UID).
+%As only underscores can be used in field names, the UID is made up as follows:
+%3 underscores seperate the parent's section of the ID and the child's
+%2 underscores define the difference between the city's name and the optimisation variables
+%1 underscores define the difference between two optimation variables
+%To minimise the length of the UID, the optimisation variables are represented 
+%through their index within the sets structure. 
+%The first integer after the city's name is the index of the city within the options.Cities array.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Display the result         %
@@ -159,15 +165,15 @@ sets.epochsnode = epochsnode;                    %variable can have. For this mi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Save the solution with the most asteroids and the least dV
-filename = strcat([SaveDir,'MainBelt_M',strrep(num2str(startorbit(6)),'.','_'),'Startdate',strrep(num2str(epoch_start),'.','_'),num2str(length(BestSolution{1})-1),'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
+filename = strcat([SaveDir,'MainBelt_M',strrep(num2str(startorbit(6)),'.','_'),'Startdate',strrep(num2str(epoch_start),'.','_'),num2str(length(BestSolution{1})-1),'Asteroids','_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
 SaveTrajectorySolution(BestSolution{1},output.ListNodes,filename);
 ExportSolution(output.ListNodes, BestSolution{1}, filename)
 
-% %Remove unnecessary outputs to reduce workspace .mat file size
-% nodenames = fieldnames(output.ListNodes);
-% for i = 1:length(nodenames)
-%     output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))),'ChildValidityTracker');
-% end  
+%Remove unnecessary outputs to reduce workspace .mat file size
+nodenames = fieldnames(output.ListNodes);
+for i = 1:length(nodenames)
+    output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))),'ChildValidityTracker');
+end  
 
 %Save the workspace
 save(strcat(SaveDir,'MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',strrep(num2str(startorbit(6)),'.','_'),'Startdate',strrep(num2str(epoch_start),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));

@@ -12,7 +12,7 @@ function [Agents] = CreateAgents(ListNodes, NumberOfAgents)
 %% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
-%Initialize the Agents structure
+%Initialise the Agents structure
 Agents = struct();          
 
 %Retreive the currently existing nodes and the name of the root

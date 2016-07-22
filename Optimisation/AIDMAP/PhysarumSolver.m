@@ -1,8 +1,8 @@
-function [Solutions, BestSolution, ListNodes, Agents, History, funccalls] = PhysarumSolver(InitializedInputs, ListNodes)
+function [Solutions, BestSolution, ListNodes, Agents, History, funccalls] = PhysarumSolver(InitialisedInputs, ListNodes)
 %% PhysarumSolver: This script contains the main logic of AIDMAP solver. 
 %
 %% Inputs:
-% * InitializedInputs  : The structure containing the options set by the user
+% * InitialisedInputs  : The structure containing the options set by the user
 % * ListNodes          : Structure containing the initial list of nodes
 %
 %% Outputs: 
@@ -26,14 +26,14 @@ function [Solutions, BestSolution, ListNodes, Agents, History, funccalls] = Phys
 %% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
-%Initialize the Solutions structure
+%Initialise the Solutions structure
 Solutions.Nodes = [];
 Solutions.Costs = [];
 
 %Set the initial number of function calls
 funccalls = 0;
 
-%Initialize the structure that will contain the best solution
+%Initialise the structure that will contain the best solution
 BestSolution.BestChain = [];
 BestSolution.BestCost = [];
 
@@ -44,13 +44,13 @@ History.BestCost = {};
 History.AgentMovement = {};
 
 %Loop over the generations
-for j = 1:InitializedInputs.Generations
+for j = 1:InitialisedInputs.Generations
     
     %Show the current generation
-    disp(strcat(['Starting Generation',' ',num2str(j)]));
+    disp(strcat([datestr(now),' === Starting Generation',' ',num2str(j)]));
     
     %Create a new structure for the agents
-    Agents = CreateAgents(ListNodes,InitializedInputs.NumberOfAgents);
+    Agents = CreateAgents(ListNodes,InitialisedInputs.NumberOfAgents);
     
     %Retrieve the agent names
     agentnames = fieldnames(Agents);
@@ -59,25 +59,25 @@ for j = 1:InitializedInputs.Generations
     for i = 1:length(agentnames);
         
         %Show the current agent
-        disp(strcat(['Moving Agent',' ',num2str(i)]));
+        disp(strcat([datestr(now),' === Moving Agent',' ',num2str(i)]));
         
         %Reset the agent death flag
         agentdeathflag = 0;
         
         %Continue moving the agent until the death flag becomes 1
         while ~agentdeathflag
-            [Solutions, ListNodes, Agents, agentdeathflag, funccalls] = AgentMovement(InitializedInputs, Solutions, ListNodes, Agents, agentnames(i), funccalls);
+            [Solutions, ListNodes, Agents, agentdeathflag, funccalls] = AgentMovement(InitialisedInputs, Solutions, ListNodes, Agents, agentnames(i), funccalls);
                   
             
         end        
         
         %Update veins with the dilation and evaporation mechanics
-        [ListNodes] = Dilation(InitializedInputs, ListNodes, Agents, agentnames(i));
+        [ListNodes] = Dilation(InitialisedInputs, ListNodes, Agents, agentnames(i));
         
         %If the user has specified the request to save the history or to
         %generate the graph plot, save the current radii of the veins and
         %the path that each agent has moved
-        if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
+        if ((InitialisedInputs.SaveHistory ~= 0) ||(InitialisedInputs.GenerateGraphPlot ~= 0))
         
             %Obtain the names of the currently existing nodes
             nodenames = fieldnames(ListNodes); 
@@ -100,26 +100,26 @@ for j = 1:InitializedInputs.Generations
     
    
     %Update the veins with the growth factor mechanic
-    [ListNodes, BestSolution] = GrowthEvaporation(InitializedInputs, ListNodes, Solutions, BestSolution);
+    [ListNodes, BestSolution] = GrowthEvaporation(InitialisedInputs, ListNodes, Solutions, BestSolution);
     
     %If the user has specified to save the history or the generate the
     %graph lot, save the best solution and best cost
-    if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
+    if ((InitialisedInputs.SaveHistory ~= 0) ||(InitialisedInputs.GenerateGraphPlot ~= 0))
         History.BestSolution(end+1) = BestSolution.BestChain;
         History.BestCost(end+1) = BestSolution.BestCost;
     end
     
     %Check whether the algorithm should be restarted
-    restartflag = RestartCheck(InitializedInputs, Agents);
+    restartflag = RestartCheck(InitialisedInputs, Agents);
     
     %If so, reset the veins 
     if (restartflag)
-        ListNodes = RadiusFluxReset(InitializedInputs, ListNodes);
+        ListNodes = RadiusFluxReset(InitialisedInputs, ListNodes);
         
         %If the user has specified the request to save the history or to
         %generate the graph plot, save the current radii of the veins and
         %the path that each agent has moved
-        if ((InitializedInputs.SaveHistory ~= 0) ||(InitializedInputs.GenerateGraphPlot ~= 0))
+        if ((InitialisedInputs.SaveHistory ~= 0) ||(InitialisedInputs.GenerateGraphPlot ~= 0))
             
             %Obtain the names of the currently existing nodes
             nodenames = fieldnames(ListNodes); 
