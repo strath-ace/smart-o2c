@@ -1,156 +1,135 @@
-function [ListNodes, Solutions, Agents, agentdeathflag] = Ramification(Inputs, Solutions, ListNodes, Agents, agent)
-% This function handles the ramification to new nodes. It does so by
-% generating a preset number of random nodes and making a probabilistic
+function [ListNodes, GeneratedNodes, agentdeathflag, funccalls] = Ramification(Inputs, ListNodes, Agents, agent, funccalls)
+%% Ramification: This function handles the ramification to new nodes. 
+%It does so by generating a preset number of random nodes and making a probabilistic
 % selection based on the cost function.
 %
-% Inputs:
+%% Inputs:
 % * Inputs      : Structure containing the PhysarumSolver inputs
-% * Solutions   : Structure containing the solutions found so far
-% * ListNodes   : Structure containing the graph
+% * ListNodes       : Structure containing the graph
 % * Agents      : The structure containing the agents
 % * agent       : A string containing the name of the current agent
+% * funccalls   : The number of cost function calls performed so far
 %
-% Outputs: 
-% * ListNodes   : ListNodes structure where the radii have been updated with
-%                 the dilation and evaporation
-% * Solutions   : Structure containing the solutions found so far
-% * Agents      : The updated structure containing the agents
-% * agentdeathflag : flag that shows wether the current agent has died
+%% Outputs: 
+% * ListNodes           : ListNodes structure where the radii have been updated with
+%                           the dilation and evaporation
+% * GeneratedNodes      :  Structure containing the ramification nodes generated
+% * agentdeathflag      : Indicator as to whether the agent couldn't move.
+%                           Is 1 if this is the case, 0 otherwise
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
-
-%If there are no possible decisions, exit function
 
 %For easy of reading, save the agent's current node in a variable
 currentNode = char(Agents.(agent).currentNode);
 agentdeathflag = 0;
 
-%Sanity check: confirm that there are decisions possible
+%If there are no possible decisions, exit function
 if (isempty(ListNodes.(currentNode).possibledecisions))
-    
-    %If not, ste the death flag to 1
     agentdeathflag = 1;
-    
-    %Save the solution
-    Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}]';
-    Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
     return
 end
 
 %Find all the nodes that can be chosen:
 
-%To do so, get first all the possible nodes that can be made over the
-%entire graph. 
-possnodes = Inputs.PossibleListNodes;
-
-%Remove the already existing nodes
-%Find the already existing children
+%To do so, get first all the IDs that can be in the tree
 temp = strsplit(currentNode,'___');
+possnodes = Inputs.PossibleListNodes;
 possids = strcat(temp(end),'___',possnodes);
 
-possnodes(ismember(possids,fieldnames(ListNodes)))=[];
+%Set the index of the already existing nodes to NaN
+ListNodes.(currentNode).ChildValidityTracker(ismember(possids,fieldnames(ListNodes)))=NaN;
 
-%Split the remaining nodes into their target & characteristic
+%Split the remaining nodes into their city & characteristic
 temp = regexp(possnodes, '__', 'split');
 [temp]=cat(1, temp{:});
 
 %Next, retrieve the decisions possible in this node
 possdecisions = ListNodes.(currentNode).possibledecisions;
 
-%Remove all the nodes that do not have as decision one of possible decisions
-%in this node
-possnodes(ismember(temp(:,1), possdecisions)==0) = [];
+%Set the indices to NaN of the nodes that do not have as decision one of 
+%possible decisions in this node
+ListNodes.(currentNode).ChildValidityTracker(ismember(temp(:,1), possdecisions)==0) = NaN;
 
 %Initialize structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
 %empty structures
-generatednodes = struct('temp',0);
+GeneratedNodes = struct('temp',0);
 nameslist = cell(1,Inputs.RamificationAmount);
 
-%Initial index for the nameslist, the attempt counter & costvec variable
+%Initial index for the nameslist variable, the attempt counter and a
+%tracker for the number of NaNs in the ListNodes.(currentNode).ChildValidityTracker vector
 i = 1;
 attempt = 1;
-costvec = [];
+nantracker = sum(isnan(ListNodes.(currentNode).ChildValidityTracker));
 
 %Disable the "Concatenate empty structure" warning
 warning('off','MATLAB:catenate:DimensionMismatch');
 
 %Start loop to generate the desired number of nodes
-while (length(fields(generatednodes)) <= Inputs.RamificationAmount)
-    
-    %If no more decisions are possible, exit while loop and set
-    %agentdeathflag to 1
-    if (isempty(possnodes) || attempt == Inputs.MaxChildFindAttempts)
-        disp(strcat(agent,' died'))
-        agentdeathflag = 1;
-        
-        %Save the solution
-        Solutions.Nodes = [Solutions.Nodes; {[Agents.(agent).previousListNodes {Agents.(agent).currentNode}]}];
-        Solutions.Costs = [Solutions.Costs; {[Agents.(agent).previouscosts]}];
+while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
+
+    %If all values in ListNodes.(currentNode).ChildValidityTracker are NaN (meaning no more possible
+    %children to choose from), a max number of attempts has been reached or
+    %all the possible nodes have been generated, exit while loop. The -1 in
+    %the last check is due to the temporary field in the generatednodes
+    %structure
+    if ((nantracker == length(ListNodes.(currentNode).ChildValidityTracker)) || (attempt == Inputs.MaxChildFindAttempts) || (length(fieldnames(GeneratedNodes))-1) == (length(ListNodes.(currentNode).ChildValidityTracker)-nantracker))      
         break
     end
     
-    %Increase the attempt counter
-    attempt = attempt+1;
+    %Choose a node from the list of possible nodes to generate
+    [newnode_ID,nodeindex] = ChooseNode(Inputs,currentNode,possnodes,ListNodes.(currentNode).ChildValidityTracker,nantracker);
+        
+    %Increase the attempt counter by 1
+    attempt = attempt +1;
     
-    [newnode_ID,nodeindex] = ChooseNode(currentNode,possnodes);
-    
-    %Remove chosen decision from list of possible decisions
-    possnodes(nodeindex) = [];
+    %If the chosen node is already part of the generatednodes structure,
+    %continue to another attempt
+    if any(strcmp(fieldnames(GeneratedNodes),newnode_ID))
+        continue
+    end   
+       
     
     %Check if the node is valid based on the UID
-    [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode,generatednodes);
+    [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode);
    
     %Confirm that node doesn't already exist
-    if (validflag)
-
-        
-        %Generate the new node & save its cost in a vector
-        [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
-        if newNode.length ~= Inf
-            [newNode] = Inputs.CreatedNodeCheckFile(Inputs, newNode, ListNodes);
-        end
-        if newNode.length ~= Inf
-            costvec = [costvec newNode.length];
-
-            %Add generated node to the structure created earlier.
-            generatednodes.(newNode.node_ID) = newNode;
-
-            %Add generated node name & cost to matrices for ease of access
-            nameslist{i} = newnode_ID;
-            
-            %Increase the index for the nameslist variable
-            i = i+1;
-        end
-            
+    if (~validflag)
+        %Remove chosen decision from list of possible decisions & increment
+        %nantracker
+        ListNodes.(currentNode).ChildValidityTracker(nodeindex) = NaN;
+        nantracker = nantracker+1;
+        continue
     end
+    
+    funccalls = funccalls+1;
+    
+    %Generate the new node & save its cost in a vector
+    [newNode] = CreateNode(Inputs, ListNodes, newnode_ID, currentNode);
+    
+        
+    if isempty(newNode)
+        %Remove chosen decision from list of possible decisions & increment
+        %nantracker
+        ListNodes.(currentNode).ChildValidityTracker(nodeindex) = NaN;
+        nantracker = nantracker+1;
+        continue
+    end
+
+    %Add generated node to the structure created earlier.
+    GeneratedNodes.(newNode.node_ID) = newNode;
+    
+    %Add generated node name & cost to matrices for ease of access
+    nameslist{i} = newnode_ID;           
+    
+    %Increase the index for the nameslist struct
+    i = i+1;
+
 end
 
 %Remove temporary field within the generatednodes stucture
-generatednodes = rmfield(generatednodes, 'temp');
-
-%If no nodes are found, exit the function
-if isempty(costvec)
-    return
-end
-
-%Use node name & cost matrices to make a probabilistic choice based on the
-%cost. The lower the cost, the higher the chance of the node being selected
-problist = 1./(costvec.^Inputs.RamificationWeight);
-problist = problist./sum(problist);
-
-chosenindex = find(rand<cumsum(problist), 1, 'first');
-chosennode = char(nameslist(chosenindex));
-
-%Add chosen node to the ListNodes structure
-chosennodestruct = generatednodes.(chosennode);
-ListNodes = AddNode(ListNodes, chosennodestruct);
-
-%Move agent to the new node
-Agents.(agent).previousListNodes = [Agents.(agent).previousListNodes {currentNode}];
-Agents.(agent).currentNode = chosennode;
-Agents.(agent).previouscosts = [Agents.(agent).previouscosts costvec(chosenindex)];
+GeneratedNodes = rmfield(GeneratedNodes, 'temp');
 
 
 end

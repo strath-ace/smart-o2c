@@ -2,7 +2,7 @@
 % Example of run of optimisation problem of CEC 2014 using MP-AIDEA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear all
+clear 
 close all
 clc
 
@@ -11,6 +11,7 @@ if isunix
     addpath(genpath('../../Optimisation'))
 else
     addpath(genpath('..\..\Optimisation'))
+    addpath(genpath('..\..\CEC2014'))
 end
 
 % Add path to problem folder

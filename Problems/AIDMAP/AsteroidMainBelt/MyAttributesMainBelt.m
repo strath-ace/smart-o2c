@@ -1,3 +1,14 @@
+%% MyAttributesMainBelt: this file contains the MyAttributesMainBelt class, which defines the problems-specific attributes each node has 
+%
+%% Inputs:
+% * 
+%
+%% Outputs: 
+% * 
+%
+%% Author: Aram Vroom (2016)
+% Email:  aram.vroom@strath.ac.uk
+
 classdef MyAttributesMainBelt
     % The atributes of each node should be noted in this file
     

@@ -1,15 +1,15 @@
 function [restartflag] = RestartCheck(Inputs, Agents)
-% This function checks the restarting of the Physarum algorithm
+%% RestartCheck: This function checks the restarting of the Physarum algorithm
 %
-% Inputs:
+%% Inputs:
 % * Inputs   : Structure containing the PhysarumSolver inputs
 % * Agents      : Structure containing the Agents & their characteristics
 %
-% Outputs: 
+%% Outputs: 
 % * restartflag : A flag that is set to 1 if the algorithm is to be
 %                 restarted
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 %Initialize the restart flag
@@ -49,7 +49,7 @@ for i = 1:length(visistednodes)
     end
 end
 
-%For debug purposes, show that a restart was confirmed to be needed
+%Show if a restart is needed
 if restartflag
     disp('Restart Needed')
 end
