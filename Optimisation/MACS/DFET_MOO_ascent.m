@@ -18,7 +18,7 @@ g = @(x,u,t) [t 0; -x(2) 0];
 weights = [1 0; 1 0];
 
 % path constraints
-c = @(c,u,t) []
+c = [];%@(c,u,t) [];
 
 % initial and final conditions
 t_0 = 0;
@@ -30,9 +30,9 @@ x_f = [0 0.1 10 0];
 
 %% Discretisation settings
 
-num_elems = 1;
-state_order = 4;
-control_order = 4;
+num_elems = 4;
+state_order = 6;
+control_order = 6;
 DFET = 1;
 state_distrib = 'Lobatto'; % or Cheby
 control_distrib = 'Legendre';
@@ -103,7 +103,7 @@ fminconoptions = optimoptions('fmincon','Display','off','MaxFunEvals',maxits,'To
 
 %% MACS PARAMETERS
 
-opt.maxnfeval=10000;                                                       % maximum number of f evals 
+opt.maxnfeval=100;                                                       % maximum number of f evals 
 opt.popsize=10;                                                             % popsize (for each archive)
 opt.rhoini=1;                                                               % initial span of each local hypercube (1=full domain)
 opt.F=0.9;                                                                    % F, the parameter for Differential Evolution

@@ -1,6 +1,9 @@
 function [x,fval,exitflag,output] = optimise_macs(fitnessfcn,LB,UB,options,varargin)
 
 %% optimise_macs
+% MACS: Multi Agent Collaborative Search
+% - Population based memetic algorithm for multi-objective optimisation
+%
 %% Inputs:
 %
 % * fitnessfcn : function handle to cost function (vectorial function)
@@ -32,11 +35,17 @@ function [x,fval,exitflag,output] = optimise_macs(fitnessfcn,LB,UB,options,varar
 %          * output.ener : value of the energy of the archive, used by Energy
 %                   Based Archiving strategy
 %
-%% Author(s): Lorenzo A. Ricciardi (2015-2016)
-% email: lorenzo.ricciardi@strath.ac.uk
+%% Author(s): Massimiliano Vasile (2005-2016), Federico Zuiani (2011-2015) and Lorenzo A. Ricciardi (2015-2016)
+% email: massimiliano.vasile@strath.ac.uk lorenzo.ricciardi@strath.ac.uk
 %
 %% References
-
+% * Vasile M., Robust Mission Design Through Evidence Theory and Multiagent Collaborative Search. Annals of the New York Academy of Sciences, Vol 1065: pp. 152-173, December 2005
+% http://onlinelibrary.wiley.com/doi/10.1196/annals.1370.024/full
+% * Vasile M., Zuiani F. MACS: An Agent-Based Memetic Multiobjective  Optimization Algorithm Applied to Space Trajectory Design. Institution of Mechanical Engineers, Part G, Journal of Aerospace Engineering, September 5, 2011.
+% https://pure.strath.ac.uk/portal/files/7573632/EPICMOO_ImechEGm2.pdf 
+% * Zuiani F., Vasile M., Multi Agent Collaborative Search Based on Tchebycheff Decomposition, Computational Optimization and Applications September 2013, Volume 56, Issue 1, pp 189-208, DOI 10.1007/s10589-013-9552-9
+% http://strathprints.strath.ac.uk/43208/
+% * Ricciardi L., Vasile M., Improved Archiving and Search Strategies for Multi Agent Collaborative Search, Eurogen 2015
 
 % Run MACS
 [memory,nfeval,ener]=macs7v16OC(fitnessfcn,[],LB,UB,options,[],[],varargin{1:end});
