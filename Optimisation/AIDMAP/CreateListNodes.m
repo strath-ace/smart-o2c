@@ -41,8 +41,12 @@ ListNodes = struct(struct(rootID,   ...
                                                  zeros(1,length(Inputs.RootAttrib)))],... % (such as orbital elements & Time of Flight. etc)
                          'previousdecisions',    [],...         % List of the previous decisions made
                          'possibledecisions',    {Inputs.PossibleDecisions}, ...          % Cities that can still be visisted by the node
-                         'VisitsLeft',           {Inputs.MaxVisits}, ...                  % Vector containing the number of times each city can still be visisted
-                         'ChildValidityTracker', 1:length(Inputs.PossibleListNodes) ...   % This will track the validity of attempted children      
+                         'VisitsLeft',           {Inputs.MaxVisits} ...                  % Vector containing the number of times each city can still be visisted                         
                      )));
-           
+
+% This will track the validity of attempted children                       
+if Inputs.LowMem == 0
+    ListNodes.(rootID).ChildValidityTracker = 1:length(Inputs.PossibleListNodes);
+end
+
 end 

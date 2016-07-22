@@ -37,8 +37,14 @@ temp = strsplit(currentNode,'___');
 possnodes = Inputs.PossibleListNodes;
 possids = strcat(temp(end),'___',possnodes);
 
+if Inputs.LowMem == 1
+    indextracker = 1:length(possnodes);
+else
+    indextracker = ListNodes.(currentNode).ChildValidityTracker;
+end
+
 %Set the index of the already existing nodes to NaN
-ListNodes.(currentNode).ChildValidityTracker(ismember(possids,fieldnames(ListNodes)))=NaN;
+indextracker(ismember(possids,fieldnames(ListNodes)))=NaN;
 
 %Split the remaining nodes into their city & characteristic
 temp = regexp(possnodes, '__', 'split');
@@ -49,7 +55,7 @@ possdecisions = ListNodes.(currentNode).possibledecisions;
 
 %Set the indices to NaN of the nodes that do not have as decision one of 
 %possible decisions in this node
-ListNodes.(currentNode).ChildValidityTracker(ismember(temp(:,1), possdecisions)==0) = NaN;
+indextracker(ismember(temp(:,1), possdecisions)==0) = NaN;
 
 %Initialize structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
@@ -61,7 +67,7 @@ nameslist = cell(1,Inputs.RamificationAmount);
 %tracker for the number of NaNs in the ListNodes.(currentNode).ChildValidityTracker vector
 i = 1;
 attempt = 1;
-nantracker = sum(isnan(ListNodes.(currentNode).ChildValidityTracker));
+nantracker = sum(isnan(indextracker));
 
 %Disable the "Concatenate empty structure" warning
 warning('off','MATLAB:catenate:DimensionMismatch');
@@ -74,12 +80,12 @@ while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
     %all the possible nodes have been generated, exit while loop. The -1 in
     %the last check is due to the temporary field in the generatednodes
     %structure
-    if ((nantracker == length(ListNodes.(currentNode).ChildValidityTracker)) || (attempt == Inputs.MaxChildFindAttempts) || (length(fieldnames(GeneratedNodes))-1) == (length(ListNodes.(currentNode).ChildValidityTracker)-nantracker))      
+    if ((nantracker == length(indextracker)) || (attempt == Inputs.MaxChildFindAttempts) || (length(fieldnames(GeneratedNodes))-1) == (length(indextracker)-nantracker))      
         break
     end
     
     %Choose a node from the list of possible nodes to generate
-    [newnode_ID,nodeindex] = ChooseNode(Inputs,currentNode,possnodes,ListNodes.(currentNode).ChildValidityTracker,nantracker);
+    [newnode_ID,nodeindex] = ChooseNode(Inputs,currentNode,possnodes,indextracker,nantracker);
         
     %Increase the attempt counter by 1
     attempt = attempt +1;
@@ -98,7 +104,7 @@ while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
     if (~validflag)
         %Remove chosen decision from list of possible decisions & increment
         %nantracker
-        ListNodes.(currentNode).ChildValidityTracker(nodeindex) = NaN;
+        indextracker(nodeindex) = NaN;
         nantracker = nantracker+1;
         continue
     end
@@ -112,7 +118,7 @@ while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
     if isempty(newNode)
         %Remove chosen decision from list of possible decisions & increment
         %nantracker
-        ListNodes.(currentNode).ChildValidityTracker(nodeindex) = NaN;
+        indextracker(nodeindex) = NaN;
         nantracker = nantracker+1;
         continue
     end
@@ -131,6 +137,14 @@ end
 %Remove temporary field within the generatednodes stucture
 GeneratedNodes = rmfield(GeneratedNodes, 'temp');
 
+%Save indextracker to the ChildValidityTracker of the node, so the next
+%agent can use this information. The code has been written such that this
+%does not change the probability for this other agent to find valid nodes
+%(as this would otherwise mean information is shared where the algorithm
+%should not); saving this information merely saves on computation time
+if Inputs.LowMem == 0
+    ListNodes.(currentNode).ChildValidityTracker = indextracker;
+end
 
 end
 

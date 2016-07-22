@@ -1,5 +1,4 @@
 function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
-
 %% optimisation_aidmap:
 % The AIDMAP algorithm is a combinatorial algorithm that takes its inspiration 
 % from the Physarum Polycephalum mould. To simulate this mould, a number of virtual agents 

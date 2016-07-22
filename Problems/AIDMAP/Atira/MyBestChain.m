@@ -7,7 +7,8 @@ function [bestchainindex, bestcost] = MyBestChain(numberofnodes,nodecosts)
 %
 %% Outputs: 
 % * bestchainindex  : The index of the best chain within the numberofnodes
-%                       and nodecosts vectors [integer]
+%                       and nodecosts vectors. Note: AIDMAP does not support 
+%                       multiple best chains in a single generation [integer]
 % * bestcost        : The cost of the best solution [real number]
 %
 %% Author: Aram Vroom (2016)
