@@ -1,17 +1,16 @@
 function [r] = PlotTrajectories(Solutions,ListNodes)
-%This function is used to plot the trajectories found with the AIDMAP
-%algorithm
+%% PlotTrajectories: This function is used to plot the trajectories found with the AIDMAP algorithm
 %
-% Inputs:
+%% Inputs:
 % * Solutions     : Array containing the unique IDs of the nodes to be
 %                   plotted. Can be cell array of multiple solutions
 % * ListNodes     : Structure containing (at least) all the nodes to be
 %                   plotted
 %
-% Outputs: 
-% * r             : The Cartesian elements over time
+%% Outputs: 
+% * r             : The Cartesian elements over time [cell array]
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
 %Initialize the time-step for the plotting and the scaling factor for the
@@ -63,7 +62,7 @@ for i = 1:length(Solutions)
         %Plot the dV vector
         quiver3(arrnode.attributes.r_dep(1),arrnode.attributes.r_dep(2),arrnode.attributes.r_dep(3),vvec(1),vvec(2),vvec(3),'g','linewidth',1.5,'MaxHeadSize',1);
         
-        %Retrieve the asteroid/planet's name
+        %Retrieve the asteroid/planet name
         temp = strsplit(depnode.node_ID,'___');
         temp = strsplit(char(temp(end)),'__');
         depname = temp(1);

@@ -14,7 +14,7 @@ function [Attributes] = SetNodeAttributes(Inputs, Parent, cityname, attributes)
 % Email:  aram.vroom@strath.ac.uk
     
 %Retrieve the node attributes defined by the user
-Attributes = Inputs.NodeAttributes();
+Attributes = Inputs.MyNodeAttributes();
 SetNames = fieldnames(Inputs.Sets);
 
 %Obtain their names

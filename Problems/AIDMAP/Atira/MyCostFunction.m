@@ -1,16 +1,17 @@
 function [toNodeAttributes, veinlength] = MyCostFunction(Inputs, fromNode, toNodeAttributes)
-% This function calculates the cost of a certain connection.
-% It can be altered such that it is applicable to the problem at hand.
+%% MyCostFunction: This function calculates the cost of a certain connection. It can be altered such that it is applicable to the problem at hand.
 %
-% Inputs:
-% * fromNode  : The node from which the cost is calculated (structure)
-% * toNode    : The node to which the cost is calculated (structure)
+%% Inputs:
+% * Inputs             : Structure containing the inputs defined by the user
+% * fromNode           : The node from which the cost is calculated [structure]
+% * toNodeAttributes   : The known attributes of the node to which the cost is calculated [structure]
 %
-% Outputs: 
-% * toNode   : The updated node structure
+%% Outputs: 
+% * toNodeAttributes   : The attributes of the node to which the cost is calculated [structure]
+% * veinlength		   : The length of the vein [real number]
 
-% Author: Aram Vroom - 2016
-% Email:  aram.vroom@strath.ac.uk
+%% Author: Marilena Di Carlo (2014), Aram Vroom (2016)
+% Email:  marilena.di-carlo@strath.ac.uk, aram.vroom@strath.ac.uk
 
 %Obtain the current orbit & mu
 curr_orbit = fromNode.attributes.kep_trans;
@@ -28,7 +29,7 @@ arrival_r = toNodeAttributes.r_arr;
 ToF = toNodeAttributes.tof;
 [~,~,~,err,vel_initial,vel_final,~,~] = lambertMR(departure_r,      ... % Initial Vector Position
                                                   arrival_r,        ... % Final position vector
-                                                  ToF*86400, ... % Time of flight [seconds]
+                                                  ToF*86400, ...        % Time of flight [seconds]
                                                   mu,               ... % Planetary constant of the planet (mu = mass * G) [L^3/T^2]
                                                   0,                ... % Logical variable defining whether transfer is
                                                                                 ... %   0: direct transfer from R1 to R2 (counterclockwise)
@@ -110,8 +111,7 @@ M = E - ecc*sin(E);
 % Mean anomaly at the departure position [deg]
 M = M * 180/pi;
 
-% Creat object to use as 1st input in SearchAndCreateNewArc
-% (angles in degrees and distance in AU!)
+% Create CelestialBody object for the transfer o rbit
 au2km = AstroConstants.Astronomical_Unit;
 curr_departure_orbit = CelestialBody('transfer_orbit',             ... % Name of the CelestialBody (This case current trajectory
                                      kep_transfer_orbit(1)/au2km,  ... % Semimajor axis [AU]
@@ -120,10 +120,12 @@ curr_departure_orbit = CelestialBody('transfer_orbit',             ... % Name of
                                      kep_transfer_orbit(4)*180/pi, ... % Asc. Node/Raan [deg]
                                      kep_transfer_orbit(5)*180/pi, ... % Arg. Perigee [deg]
                                      M,                            ... % Mean anomoly, M at time given t0 [deg]
-                                     toNodeAttributes.t_dep); % Time at which Mo is given [MJD2000]  
+                                     toNodeAttributes.t_dep);          % Time at which Mo is given [MJD2000]  
 
+%Save the orbit                                 
 toNodeAttributes.kep_trans = curr_departure_orbit;
 
+%Set the vein's length as the total required dV
 veinlength = deltaV_Total;
 end
 

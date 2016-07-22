@@ -80,8 +80,7 @@ while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
     
     %Choose a node from the list of possible nodes to generate
     [newnode_ID,nodeindex] = ChooseNode(Inputs,currentNode,possnodes,ListNodes.(currentNode).ChildValidityTracker,nantracker);
-    
-    
+        
     %Increase the attempt counter by 1
     attempt = attempt +1;
     
@@ -93,7 +92,7 @@ while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
        
     
     %Check if the node is valid based on the UID
-    [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode,GeneratedNodes);
+    [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode);
    
     %Confirm that node doesn't already exist
     if (~validflag)

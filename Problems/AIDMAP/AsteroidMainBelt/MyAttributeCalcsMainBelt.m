@@ -1,20 +1,20 @@
 function [Attributes] = MyAttributeCalcsMainBelt(Inputs, Parent, cityname, Attributes)
-% This function calculates the attributes that can not be retrieved from
-% the unique ID.
+%% MyAttributeCalcsMainBelt: This function calculates the attributes that can not be retrieved from the unique ID.
 %
-% Inputs:
+%% Inputs:
 % * Inputs        : Structure containing the PhysarumSolver inputs
 % * Parent        : Structure containing the parent
-% * cityname    : The asteroid/planet of the node to be created
+% * cityname      : The asteroid/planet of the node to be created [string]
 % * Attributes    : The structure with attributes of the node to be created 
 %                   known so far
 %
-% Outputs: 
-% * Attributes   : The updated attributes structure
+%% Outputs: 
+% * Attributes   : The updated attributes [structure]
 %
-% Author: Aram Vroom - 2016
+%% Author: Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
+%Retrieve the data on the asteroids
 Asteroids = Inputs.AdditionalInputs{1};
 
 %Retrieve the cartesian coordiantes of the asteroid/planet at the arrival epoch

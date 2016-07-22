@@ -1,6 +1,15 @@
+%% Planets: This class defines the planets as their index within the solar system
+%
+% Inputs:
+% *
+%
+% Outputs: 
+% * 
+%
+%% Author(s): Juan Manuel Romero Martin (2014)
+%  Email:  juan.romero-martin@strath.ac.uk
+
 classdef Planets
-    %PLANETS Summary of this class goes here
-    %   Detailed explanation goes here
     
     properties (Constant = true)
         MERCURY =  1;

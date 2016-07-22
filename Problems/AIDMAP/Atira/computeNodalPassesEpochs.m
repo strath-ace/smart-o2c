@@ -1,10 +1,7 @@
 function [epochs, error_flag] = computeNodalPassesEpochs( keporb, M, epoch_start, epoch_end, mu)
-%--------------------------------------------------------------------------
+%%  computeNodalPassesEpochs: computes the passing epochs at the given Mean Anomaly M0 within the given time domain [epoch_start, epoch_end].
 %
-%  The computeNodalPassesEpochs Function computes the passing epochs at the 
-%  given Mean Anomaly M0 within the given time domain [epoch_start, epoch_end].
-%
-% INPUTS:
+%% INPUTS:
 %   keporb       - Keplerian Elements for the current Orbit. The keporb has
 %                  to be a KeplerianElements Object that contains the 
 %                  following attributes:
@@ -22,12 +19,12 @@ function [epochs, error_flag] = computeNodalPassesEpochs( keporb, M, epoch_start
 %   epoch_end    - End Epoch for the Time Frame [MDJ2000]
 %   mu           - Gravitational Parameter [km^3/s^2]
 %
-% OUTPUTS:
+%% OUTPUTS:
 %  epochs        -
 %  error_flag    - 
 %
-% AUTHORS:
-%     Juan Manuel Romero Martin
+%% AUTHORS:
+%     Juan Manuel Romero Martin (2014)
 %
 %  Equation used to compute the Epoch at given position:
 %

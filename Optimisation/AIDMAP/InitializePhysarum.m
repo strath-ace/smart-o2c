@@ -28,18 +28,18 @@ InitializedInputs = struct(...
                 'MinimumRadiusRatio',                 options.MinimumRadiusRatio,  ...          %Minimum radius of the veins
                 'StartingRadius',                     options.StartingRadius,  ...              %The starting radius of the veins
                 'RamificationAmount',                 options.RamificationAmount,  ...          %The number of nodes initially generated for the ramification
-                'PossibleDecisions',                  {options.Cities},  ...                   %The list of possible cities
+                'PossibleDecisions',                  {options.Cities},  ...                    %The list of possible cities
                 'MaxConsecutiveVis',                  options.MaxConsecutiveVis,  ...           %Maximum number of consecutive visits to each city
                 'MaxVisits',                          options.MaxVisits,  ...                   %Maximum number of visits to each city
                 'RootAttrib',                         options.RootAttrib,   ...                 %Attributes of the root
                 'NodeCheckBoundaries',                options.NodeCheckBoundaries  , ...        %The values used by the MyCreatedNodeCheck file
                 'Generations',                        options.Generations, ...                  %The number of generations
-                'Viscosity',                          options.Viscosity, ...                    %The viscocity of the "fluid" 
+                'Viscosity',                          options.Viscosity, ...                    %The fluid viscosity "mu"
                 'MinCommonNodesThres',                options.MinCommonNodesThres,  ...         %The minimum number of nodes two decision sequences should have in common for a restart to occur
                 'IfZeroLength',                       options.IfZeroLength, ...                 %Value assigned to the length if it's zero (to prevent flux = inf)
                 'MaxChildFindAttempts',               options.MaxChildFindAttempts, ...         %Max number of attempts that will be done to find additional children for a node
                 'CostFunction',                       fitnessfcn,  ...                          %Reference to the fitness function file
-                'NodeAttributes',                     options.NodeAttributes, ...               %Reference to the file containing the NodeAttributes class
+                'MyNodeAttributes',                     options.MyNodeAttributes, ...               %Reference to the file containing the NodeAttributes class
                 'MyAttributeCalcFile',                options.MyAttributeCalcFile, ...          %Reference to the file performing the attribute calculations
                 'NodeIDCheckFile',                    options.MyNodeIDCheck, ...                %Reference to the file that checks the feasibility of a node's child using solely the unique ID
                 'CreatedNodeCheckFile',               options.MyCreatedNodeCheck, ...           %Reference to the file that checks the feasibility of a node's child after the child's structure has been created
@@ -47,7 +47,7 @@ InitializedInputs = struct(...
                 'EndConditionsFile',                  options.MyEndConditionsFile, ...          %Reference toe the file that checks whether the end conditions have been reached
                 'EndConditions',                      {options.EndConditions}, ...              %End conditions used in the options.MyEndConditionsFile file
                 'AttributeIDIndex',                   options.AttributeIDIndex, ...             %Index of the attributes that determine the unique ID
-                'AdditionalInputs',                   {options.AdditonalInputs}, ...            %Made into cell in case multiple additional outpu
+                'AdditionalInputs',                   {options.AdditonalInputs}, ...            %Variable that can be used to store any additional information required in one of the user's files.
                 'Sets',                               {sets}, ...                               %The sets of the possible attributes incorporated in the ID
                 'RootName',                           char(options.RootName), ...               %The name of the root
                 'MinPickProbability',                 options.MinPickProbability, ...           %The minimum probability for a feasible node to be picked before the algorithm changes its method of choosing a child
