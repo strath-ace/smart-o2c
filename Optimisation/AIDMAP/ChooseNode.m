@@ -1,15 +1,15 @@
-function [newnode_ID, nodeindex] = ChooseNode(Inputs, currentNode, posschildren, ChildValidityTracker, nantracker)
+function [newnode_ID, nodeindex] = ChooseNode(Inputs, currentNode, posschildren, indextracker, nantracker)
 %% ChooseNode: This function is used to choose a new node for ramification
 %
 %% Inputs:
-% * currentNode           : The unique ID of the current node
+% * currentNode           : The unique identifier of the current node
 % * posschildren          : Vector containing the node_IDs of all the possible nodes
 % * ChildValidityTracker  : The vector containing the data as to whether
 %                           each possible child to this node is found to be invalid or not
 % * nantracker            : The number of invalid nodes found so far
 % 
 %% Outputs:
-% * newnode_ID     : The node_ID chosen
+% * newnode_ID     : The unique identifier of the chosen node
 % * nodeindex      : The index of the node in the posschildren array
 %
 %% Author: Aram Vroom (2016)
@@ -38,17 +38,17 @@ if pickprob > Inputs.MinPickProbability
     
     %If the probability is larger, attempt to pick a child by randomly
     %selecting one from the ChildValidityTracker list
-    nodeindex = ChildValidityTracker(randi([1 numberofchildren]));
+    nodeindex = indextracker(randi([1 numberofchildren]));
     
     %If the child node was already found to be infeasible (the
     %ChildValidityTracker is NaN), try again
     while isnan(nodeindex)
-        nodeindex = ChildValidityTracker(randi([1 numberofchildren]));
+        nodeindex = indextracker(randi([1 numberofchildren]));
     end
 else
     
     %If the probability is smaller than specified, find index of non-NaN values
-    nonanindices = ChildValidityTracker(~isnan(ChildValidityTracker));
+    nonanindices = indextracker(~isnan(indextracker));
 
     %Choose a random decision (node_ID)
     nodeindex = nonanindices(randi([1 length(nonanindices)]));

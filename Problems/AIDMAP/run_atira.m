@@ -101,9 +101,9 @@ sets.epochsnode = epochsnode(1:end);                  %variable can have. For th
 %It may be noted that the command window shows the movement of the agents.
 %This is shown through the use of the node's unique identifier (UID).
 %As only underscores can be used in field names, the UID is made up as follows:
-%3 underscores seperate the parent's section of the ID and the child's
-%2 underscores define the difference between the city's name and the optimisation variables
-%1 underscores define the difference between two optimation variables
+%3 underscores denote the delimiter between the parent's section of the ID and the child's
+%2 underscores denote the delimiter between the city's name and the optimisation variables
+%1 underscore denotes the delimiter between two optimation variables
 %To minimise the length of the UID, the optimisation variables are represented 
 %through their index within the sets structure. 
 %The first integer after the city's name is the index of the city within the options.Cities array.
