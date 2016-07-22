@@ -1,16 +1,30 @@
-close all
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Example of run of Multi-objective optimal control with MACS: Ascent
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 clear all
+close all
 clc
+
+% Add path to optimiser folder
+if isunix
+    addpath(genpath('../../Optimisation'))
+    addpath(genpath('../../Transcription'))
+    addpath(genpath('MO_control/Ascent'))
+else
+    addpath(genpath('..\..\Optimisation'))
+    addpath(genpath('..\..\Transcription'))    
+    addpath(genpath('MO_control\Ascent'))
+end
 
 %% DFET PROBLEM TRANSCRIPTION
 
 % Dynamics
 
 f = @ascent_state_equation;
-dfx = [];%@ascent_drag_mass_state_jacobian;
-dfu = [];%@ascent_drag_mass_control_jacobian;
+dfx = [];
+dfu = [];
 dft = [];
-smooth_scal_const = @ascent_specific_smooth_scal_constraints; 
 
 % Objective functions and Bolza's problem weights
 
@@ -18,7 +32,7 @@ g = @(x,u,t) [t 0; -x(2) 0];
 weights = [1 0; 1 0];
 
 % path constraints
-c = [];%@(c,u,t) [];
+c = [];
 
 % initial and final conditions
 t_0 = 0;
@@ -34,10 +48,10 @@ num_elems = 4;
 state_order = 6;
 control_order = 6;
 DFET = 1;
-state_distrib = 'Lobatto'; % or Cheby
+state_distrib = 'Lobatto';
 control_distrib = 'Legendre';
 
-integr_order = 2*state_order;%2*state_order-1;
+integr_order = 2*state_order;
 
 num_eqs = length(x_0);
 num_controls = 1;
@@ -76,10 +90,6 @@ structure = prepare_transcription(num_eqs,num_controls,num_elems,state_order,con
 
 structure = impose_final_conditions(structure,imposed_final_states);
 
-% include function handles, derivatives, objective functions and weights
-% for Bolza's problem in the structure. Will have to do it with a proper
-% function
-
 structure.f = f;
 structure.dfx = dfx;
 structure.dfu = dfu;
@@ -103,14 +113,14 @@ fminconoptions = optimoptions('fmincon','Display','off','MaxFunEvals',maxits,'To
 
 %% MACS PARAMETERS
 
-opt.maxnfeval=100;                                                       % maximum number of f evals 
+opt.maxnfeval=10000;                                                        % maximum number of f evals 
 opt.popsize=10;                                                             % popsize (for each archive)
 opt.rhoini=1;                                                               % initial span of each local hypercube (1=full domain)
-opt.F=0.9;                                                                    % F, the parameter for Differential Evolution
-opt.CR=0.9;                                                                   % CR, crossover probability
-opt.p_social=1;                                                           % popratio
+opt.F=0.9;                                                                  % F, the parameter for Differential Evolution
+opt.CR=0.9;                                                                 % CR, crossover probability
+opt.p_social=1;                                                             % popratio
 opt.max_arch=10;                                                            % archive size
-opt.coord_ratio=1;%/(sum(~isinf(vlb)));                                               
+opt.coord_ratio=1;                                                          % ratio of total coordinates on which pattern search will be performed
 opt.contr_ratio=0.5;                                                        % contraction ratio
 opt.draw_flag=0;                                                            % draw flag
 opt.cp=0;                                                                   % constraints yes/no 
@@ -125,13 +135,12 @@ opt.dyn_pat_search = 1;
 opt.upd_subproblems = 0;
 opt.max_rho_contr = 5;
 opt.pat_search_strategy = 'standard';
+
+% optimal control specific settings
 opt.optimal_control = 1;
 opt.vars_to_opt = ~isinf(vub);
 opt.oc.structure = structure;
-opt.oc.smooth_scal_constr_fun = smooth_scal_const;
-%opt.oc.f = f;
-%opt.oc.dfx = dfx;
-%opt.oc.dfu = dfu;
+opt.oc.smooth_scal_constr_fun = [];
 opt.oc.init_type = 'copy_ic';
 opt.oc.x_0 = x_0;
 opt.oc.x_f = x_f;
@@ -142,17 +151,13 @@ opt.oc.control_vars(1) = 0;
 
 %% OPTIMISATION LOOP
 
-for i=1:1
-    
-    mem(i).memory=macs7v16OC(@ascent_drag_mass_MACS_MOO,[],vlb,vub,opt,[],[],vlb,vub,structure,x_0,x_f,fminconoptions);    
-    
-end
+[x,fval,exitflag,output] = optimise_macs(@ascent_MOO,vlb,vub,opt,vlb,vub,structure,x_0,x_f,fminconoptions); 
 
 %% plot 
 
-[~,b] = sort(mem(1).memory(:,length(vlb)+1));
+[~,b] = sort(output.memory(:,length(vlb)+1));
  
-qq = mem(1).memory(b,:);    %sort wrt t_f
+qq = output.memory(b,:);    %sort wrt t_f
 
 for i = 1:size(qq,1)
     
