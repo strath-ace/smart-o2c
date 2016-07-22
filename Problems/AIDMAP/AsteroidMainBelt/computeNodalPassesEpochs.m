@@ -20,8 +20,8 @@ function [epochs, error_flag] = computeNodalPassesEpochs( keporb, M, epoch_start
 %   mu           - Gravitational Parameter [km^3/s^2]
 %
 %% OUTPUTS:
-%  epochs        -
-%  error_flag    - 
+%  epochs        - The passing epochs
+%  error_flag    - Flag that indicates whether an error occured
 %
 %% AUTHORS:
 %     Juan Manuel Romero Martin (2014)

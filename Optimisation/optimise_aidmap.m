@@ -20,7 +20,11 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %                each cell in turn contains the discrete set of values the optimisation
 %                variable can have
 % * options    : Structure containing the options sets by the user. 
-%                Note that all these options need to be defined
+%                Note that all these options need to be defined. 
+%                The references to files starting with "My" are files that
+%                are to be provided by the user. Examples of these files
+%                and their structure can be found in the Problems folder of
+%                the SMART-O2C Toolbox
 %               * options.LinearDilationCoefficient: Linear dilation
 %                   coefficient 'm' [real number]
 %               * options.EvaporationCoefficient: Evaporation coefficient
@@ -64,7 +68,7 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %               * options.MaxChildFindAttempts: Max number of attempts that
 %                   will be done to find additional children for a node
 %                   [integer]
-%               * options.NodeAttributes:  Reference to the file
+%               * options.MyNodeAttributes:  Reference to the file
 %                   containing the NodeAttributes class, which defines the
 %                   problems-specific attributes each node has          
 %               * options.MyAttributeCalcFile: Reference to the file that
@@ -151,15 +155,22 @@ tic;
 x = BestSolution.BestChain(1);
 fval = BestSolution.BestCost(1);
 
-
+%Exitflag = 0 denotes no solution found
 exitflag = 0;
+
+%If the length of x is more than 1, a solution was found
 if (length(x{1})>1)
-    exitflag = 1; %Exitflag = 0 denotes no solution found
     
+    %Set the exitflag to 1
+    exitflag = 1;
+    
+    %If the user has requested the generation of the graph plot animation,
+    %generate this plot
     if (options.GenerateGraphPlot==1)
         PhysarumGraphPlot(options, output.ListNodes, output.History);
     end
     
+    %If the user has requested the generation of the tree plot, generate this plot
     if (options.GenerateTreePlot==1)
         PhysarumTreePlot(output.ListNodes)
     end

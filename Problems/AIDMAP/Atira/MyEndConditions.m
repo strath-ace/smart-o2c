@@ -1,5 +1,5 @@
 function [continueflag] = MyEndConditions(Inputs,Agents,agent)
-%% MyEndConditions This function confirms whether the final condtions have been reached
+%% MyEndConditions: This function confirms whether the final condtions have been reached
 %
 %% Inputs:
 % * Inputs        : Structure containing the PhysarumSolver inputs
