@@ -14,7 +14,7 @@
 %% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
-%Initialize
+%Initialise
 close all; clear all; clc
 addpath(genpath('astro_tool'));
 

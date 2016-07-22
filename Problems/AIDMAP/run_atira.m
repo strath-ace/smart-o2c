@@ -98,6 +98,16 @@ sets.epochsnode = epochsnode(1:end);                  %variable can have. For th
 %Run optimise_aidmap
 [BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn,sets,options);    
 
+%It may be noted that the command window shows the movement of the agents.
+%This is shown through the use of the node's unique identifier (UID).
+%As only underscores can be used in field names, the UID is made up as follows:
+%3 underscores seperate the parent's section of the ID and the child's
+%2 underscores define the difference between the city's name and the optimisation variables
+%1 underscores define the difference between two optimation variables
+%To minimise the length of the UID, the optimisation variables are represented 
+%through their index within the sets structure. 
+%The first integer after the city's name is the index of the city within the options.Cities array.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       Display the result         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

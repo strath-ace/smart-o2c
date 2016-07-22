@@ -19,7 +19,7 @@ function [Solutions, ListNodes, Agents, agentdeathflag, funccalls] = AgentMoveme
 %% Author: Aram Vroom (2016)
 % Email: aram.vroom@strath.ac.uk
 
-%Initialize the agent death flag
+%Initialise the agent death flag
 agentdeathflag = 0;
 
 %For ease of reading, define the current agent and the current node as
@@ -35,10 +35,7 @@ continueflag = Inputs.EndConditionsFile(Inputs,Agents,agent);
 
 %Stop agent if end conditions reached or no more possible cities to visit
 if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0) || continueflag == 0)
-    
-    %Display that the final conditions were reached
-    disp('End Conditions Reached')
-    
+       
     %Set the agent deathflag to 1
     agentdeathflag = 1;
     
@@ -55,7 +52,7 @@ pram = Inputs.RamificationProbability;
 %Generate a set of potential nodes to ramificate to
 [ListNodes, GeneratedNodes, agentdeathflag, funccalls] = Ramification(Inputs, ListNodes, Agents, currentagent, funccalls);
 
-%Retrieve the node IDs of the generated nodes and initialize a matrix to
+%Retrieve the node IDs of the generated nodes and Initialise a matrix to
 %retrieve the fluxes
 generatednodenames = fieldnames(GeneratedNodes);
 ramfluxesmod = zeros(1,length(generatednodenames));
@@ -94,9 +91,6 @@ if isempty(problist)
     %If there are no probabilities to choose from (no children and no 
     %generated nodes), set the death flag to 1
     agentdeathflag = 1;
-    
-    %Show this fact in the command window
-    disp('Probability list is empty');
     
     %Save the solution
     Solutions.Nodes = [Solutions.Nodes; {[Agents.(char(agent)).previousListNodes {Agents.((char(agent))).currentNode}]}];   

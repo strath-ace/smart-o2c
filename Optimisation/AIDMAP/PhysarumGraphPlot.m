@@ -2,7 +2,7 @@ function [] = PhysarumGraphPlot(Inputs, ListNodes, History)
 %% PhysarumGraphPlot: This function creates an animation that shows the evolution of the graph
 %
 %% Inputs:
-% * InitializedInputs : Structure containing the PhysarumSolver inputs
+% * InitialisedInputs : Structure containing the PhysarumSolver inputs
 % * ListNodes         : Structure containing the graph
 % * History           : The vein radii and agent movement throughout the generations
 %

@@ -2,7 +2,7 @@ function [checktot] = MyCreatedNodeCheck(Inputs, Attributes, ListNodes, parent)
 %% MyCreatedNodeCheck: This function does the further checking on whether the node is valid
 %
 %% Inputs:
-% * Inputs      : The initialized inputs structure
+% * Inputs      : The Initialised inputs structure
 % * Attributes  : The structure containing the problem-specific attributes of the node to be checked
 % * ListNodes   : The structure containing all the nodes
 % * parent      : The parent of the node to be checked

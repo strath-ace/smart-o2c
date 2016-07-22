@@ -254,7 +254,7 @@ N = 0;
 
 if Nrev == 0
     % C
-    % C     ***  Initialize values of y, n, and x
+    % C     ***  Initialise values of y, n, and x
     % C
 
     Y= 1;
@@ -386,7 +386,7 @@ elseif (Nrev > 0) && (4*TOF*LAMBDA~=0) %(abs(THETA)-pi > 0.5*pi/180)
             % always converges to xL - small a
 
             % C
-            % C     ***  Initialize values of y, n, and x
+            % C     ***  Initialise values of y, n, and x
             % C
 
             Y= 1;
@@ -545,7 +545,7 @@ elseif (Nrev > 0) && (4*TOF*LAMBDA~=0) %(abs(THETA)-pi > 0.5*pi/180)
             % always converges to xR - large a
 
             % C
-            % C     ***  Initialize values of y, n, and x
+            % C     ***  Initialise values of y, n, and x
             % C
 
             N = 0;

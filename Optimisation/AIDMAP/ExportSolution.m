@@ -19,7 +19,7 @@ for i = 1:length(Nodes)
     SolutionNodes.(char(Nodes(i))) = ListNodes.(char(Nodes(i)));
 end
 
-%Save the initialized inputs and the solution
+%Save the Initialised inputs and the solution
 save(strcat(filename,'.mat'),'SolutionNodes');
 end
 
