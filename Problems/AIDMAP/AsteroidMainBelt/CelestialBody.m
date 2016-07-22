@@ -1,6 +1,15 @@
+%% CelestialBody: This class defines the CelestialBody object
+%
+% Inputs:
+% *
+%
+% Outputs: 
+% * 
+%
+%% Author(s): Juan Manuel Romero Martin (2014)
+%  Email:  juan.romero-martin@strath.ac.uk
+
 classdef CelestialBody 
-    % CELESTIALBODY Summary of this class goes here
-    %   Detailed explanation goes here
     
     properties 
         name % Name of the Celestial Body
