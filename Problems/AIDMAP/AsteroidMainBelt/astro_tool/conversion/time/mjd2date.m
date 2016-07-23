@@ -2,7 +2,7 @@ function date = mjd2date(mjd)
 
 %MJD2DATE Gregorian calendar date from modified Julian day number.
 %
-% DATE = MJD2DATE(MJD) returns the Gregorian calendar date (year, month,
+% DATE = MJD2DATE(MJD) returns the Gregorian calendar date (year, month, 
 % day, hour, minute, and second) corresponding to the modified Julian day
 % number.
 %

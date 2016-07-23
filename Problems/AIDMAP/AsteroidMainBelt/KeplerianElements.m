@@ -36,7 +36,7 @@ classdef KeplerianElements
         %  W   Arg. Perigee [deg]     
         %  M0  Mean anomoly, M at time given t0 [deg]
         %  t0  Time at which Mo is given [MJD2000]  
-        function kep_obj = KeplerianElements(a,e,i,om,w,M0,t0) 
+        function kep_obj = KeplerianElements(a, e, i, om, w, M0, t0) 
            kep_obj.a  = a; 
            kep_obj.e  = e;
            kep_obj.i  = i;

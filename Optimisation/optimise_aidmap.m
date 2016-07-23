@@ -1,4 +1,4 @@
-function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
+function [x, fval, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options)
 %% optimisation_aidmap:
 % The AIDMAP algorithm is a combinatorial algorithm that takes its inspiration 
 % from the Physarum Polycephalum mould. To simulate this mould, a number of virtual agents 
@@ -113,7 +113,7 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %                   as "yes"
 %               * options.SaveHistory: Indicator as to whether the
 %                   algorithm should save the history of the radius of each
-%                   vein and the path of each agent throughout the simulation,
+%                   vein and the path of each agent throughout the simulation, 
 %                   where 1 is defined as 'yes'
 %
 %% Output:
@@ -146,7 +146,7 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 tic;
 
 %Initialise the AIDMAP algorithm
-[InitialisedInputs,ListNodes] = InitialisePhysarum(fitnessfcn,options,sets);
+[InitialisedInputs, ListNodes] = InitialisePhysarum(fitnessfcn, options, sets);
 
 %Run the algorithm
 [output.Solutions, BestSolution, output.ListNodes, output.Agents, output.History, output.funccalls] = PhysarumSolver(InitialisedInputs, ListNodes);
@@ -164,7 +164,7 @@ if (length(x{1})>1)
     %Set the exitflag to 1
     exitflag = 1;
     
-    %If the user has requested the generation of the graph plot animation,
+    %If the user has requested the generation of the graph plot animation, 
     %generate this plot
     if (options.GenerateGraphPlot==1)
         PhysarumGraphPlot(options, output.ListNodes, output.History);

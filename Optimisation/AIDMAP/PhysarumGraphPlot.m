@@ -31,16 +31,16 @@ for i = 2:length(treeplotnodes);
 end
 
 %Initialise a figure
-figure('units','normalized','outerposition',[0 0 1 1])
+figure('units', 'normalized', 'outerposition', [0 0 1 1])
 
 %Create the graph
-G = graph(s,t);
+G = graph(s, t);
 
 %Set the node and edge color to black & remove the node labels
-nodeclr = ones(height(G.Edges)+1,3);
-edgeclr = ones(height(G.Edges),3);
-h = plot(G,'Layout','force','EdgeColor',edgeclr,'NodeColor',nodeclr);
-set(h,'NodeLabel',[])
+nodeclr = ones(height(G.Edges)+1, 3);
+edgeclr = ones(height(G.Edges), 3);
+h = plot(G, 'Layout', 'force', 'EdgeColor', edgeclr, 'NodeColor', nodeclr);
+set(h, 'NodeLabel', [])
 
 %Prepare radiushistory for plotting
 RadiusHistoryPad = History.radius;
@@ -73,7 +73,7 @@ for i = 1:length(BestSolutionHist);
     for j = 1:length(BestSolutionHist{i})
         
         %Find the indices of the nodes that are part of the best chain
-        [~, bestindextrack{i}(j)] = ismember(BestSolutionHist{i}(j),nodenames);
+        [~, bestindextrack{i}(j)] = ismember(BestSolutionHist{i}(j), nodenames);
     end
 end
 
@@ -85,10 +85,10 @@ if (length(fieldnames(ListNodes))==1)
 end
 
 %Initialise the video writing and set the number of frames
-vidObj = VideoWriter(strcat(char(Inputs.GraphPlotFileName),'.mp4'),'MPEG-4');
+vidObj = VideoWriter(strcat(char(Inputs.GraphPlotFileName), '.mp4'), 'MPEG-4');
 vidObj.FrameRate = 10;
 open(vidObj);
-set(gcf,'Renderer','zbuffer');
+set(gcf, 'Renderer', 'zbuffer');
 
 %Retrieve the number of generations and agents
 [generations, agents] = size(History.AgentMovement);
@@ -103,47 +103,47 @@ for i= 1:generations
     for j = 1:agents
 	
 		%Loop over the movement of the current agent
-        for k = 1:length(History.AgentMovement{i,j})
+        for k = 1:length(History.AgentMovement{i, j})
 		
 			%Retrieve the index in the full list of all nodes, of the node
             %that the agent moved to
-            [AgentMovement{i,j}(k), ~] = find(strcmp(nodenames,History.AgentMovement{i,j}(k)));
+            [AgentMovement{i, j}(k), ~] = find(strcmp(nodenames, History.AgentMovement{i, j}(k)));
 			
 			%Save the movement of the current agent
-            AgentMovementVec(end+1) = AgentMovement{i,j}(k);
+            AgentMovementVec(end+1) = AgentMovement{i, j}(k);
         end
 		
 		%Save the indices of the departure nodes
-        dep{i,j} = AgentMovement{i,j}(1:end-1);
+        dep{i, j} = AgentMovement{i, j}(1:end-1);
 		
 		%Save the indices of the arrival nodes
-        arr{i,j} = AgentMovement{i,j}(2:end);        
+        arr{i, j} = AgentMovement{i, j}(2:end);        
 		
         %Loop over all departure nodes (agent moves)
-        for k = 1:length(dep{i,j})  
+        for k = 1:length(dep{i, j})  
 
 			%Find the index of each move of the agent within the G.Edges.Endnodes array
-            [~,  agentmovementindex{i,j}(k)]=ismember([dep{i,j}(k) arr{i,j}(k)],G.Edges.EndNodes,'rows');
+            [~,  agentmovementindex{i, j}(k)]=ismember([dep{i, j}(k) arr{i, j}(k)], G.Edges.EndNodes, 'rows');
         end
 
 		%Generate the vectors that hold the departure and arrival nodes
-        depvec(end+1:end+length(dep{i,j})) = dep{i,j};
-        arrvec(end+1:end+length(arr{i,j})) = arr{i,j};
+        depvec(end+1:end+length(dep{i, j})) = dep{i, j};
+        arrvec(end+1:end+length(arr{i, j})) = arr{i, j};
     end    
 end
 
 %Set all the node and edge colors to be white
-nodeclr = ones(height(G.Edges)+1,3);
-edgeclr = ones(height(G.Edges),3);
+nodeclr = ones(height(G.Edges)+1, 3);
+edgeclr = ones(height(G.Edges), 3);
 
 %Plot the graph & remove the node labels
-h = plot(G,'Layout','force','EdgeColor',edgeclr,'NodeColor',nodeclr);
-set(h,'NodeLabel',[])
-ylim=get(gca,'ylim');
-xlim=get(gca,'xlim');
+h = plot(G, 'Layout', 'force', 'EdgeColor', edgeclr, 'NodeColor', nodeclr);
+set(h, 'NodeLabel', [])
+ylim=get(gca, 'ylim');
+xlim=get(gca, 'xlim');
 
 %Add the generation and agent counter
-txt3 = text(xlim(1),ylim(2),{char(strcat({' '},'Generation',{' '},num2str(1),{' '})),char(strcat({' '},'Agent',{' '},num2str(1),{' '}))},'HorizontalAlignment','left','VerticalAlignment','top','FontSize',16);                  
+txt3 = text(xlim(1), ylim(2), {char(strcat({' '}, 'Generation', {' '}, num2str(1), {' '})), char(strcat({' '}, 'Agent', {' '}, num2str(1), {' '}))}, 'HorizontalAlignment', 'left', 'VerticalAlignment', 'top', 'FontSize', 16);                  
  
 %Initialise a tracker to track the current radius & movement snapshot being plotted
 tracker = 1;
@@ -153,52 +153,52 @@ hold on
 for i = 1:Inputs.Generations
     for j = 1:Inputs.NumberOfAgents
 	
-		%Highlight the initial starting point (being dep{i,j}(1)) 
-        highlight(h,dep{i,j}(1),'NodeColor','r','EdgeColor','r','MarkerSize',3);   
+		%Highlight the initial starting point (being dep{i, j}(1)) 
+        highlight(h, dep{i, j}(1), 'NodeColor', 'r', 'EdgeColor', 'r', 'MarkerSize', 3);   
 
 		%Update the current generation and agent counter
         delete(txt3)
-        txt3 = text(xlim(1),ylim(2),{char(strcat({' '},'Generation',{' '},num2str(i),{' '})),char(strcat({' '},'Agent',{' '},num2str(j),{' '}))},'HorizontalAlignment','left','VerticalAlignment','top','FontSize',16);
+        txt3 = text(xlim(1), ylim(2), {char(strcat({' '}, 'Generation', {' '}, num2str(i), {' '})), char(strcat({' '}, 'Agent', {' '}, num2str(j), {' '}))}, 'HorizontalAlignment', 'left', 'VerticalAlignment', 'top', 'FontSize', 16);
         
 		%Save the frame
 		pause(1/vidObj.FrameRate)
-        writeVideo(vidObj,getframe);
+        writeVideo(vidObj, getframe);
 		
 		%Reset the marker size
-        set(h,'MarkerSize',2)
+        set(h, 'MarkerSize', 2)
 		
 		%Loop over all the moves performed by the agent
-        for k = 1:length(dep{i,j}) 
+        for k = 1:length(dep{i, j}) 
 
 			%Update the current generation and agent counter 
             delete(txt3);    
-            txt3 = text(xlim(1),ylim(2),{char(strcat({' '},'Generation',{' '},num2str(i),{' '})),char(strcat({' '},'Agent',{' '},num2str(j),{' '}))},'HorizontalAlignment','left','VerticalAlignment','top','FontSize',16);      
+            txt3 = text(xlim(1), ylim(2), {char(strcat({' '}, 'Generation', {' '}, num2str(i), {' '})), char(strcat({' '}, 'Agent', {' '}, num2str(j), {' '}))}, 'HorizontalAlignment', 'left', 'VerticalAlignment', 'top', 'FontSize', 16);      
 
 			%Set the current departure and arrival node of the agent from white to black
-            index = agentmovementindex{i,j}(k);
-            edgeclr(index,:) = zeros(1,3);
-            nodeclr(dep{i,j}(k),:) = zeros(1,3);        
-            nodeclr(arr{i,j}(k),:) = zeros(1,3);
-            set(h,'EdgeColor',edgeclr,'NodeColor',nodeclr);     
+            index = agentmovementindex{i, j}(k);
+            edgeclr(index, :) = zeros(1, 3);
+            nodeclr(dep{i, j}(k), :) = zeros(1, 3);        
+            nodeclr(arr{i, j}(k), :) = zeros(1, 3);
+            set(h, 'EdgeColor', edgeclr, 'NodeColor', nodeclr);     
 
 			%Highly the current arrival node
-            highlight(h,arr{i,j}(k),'NodeColor','r','EdgeColor','r','MarkerSize',3);
+            highlight(h, arr{i, j}(k), 'NodeColor', 'r', 'EdgeColor', 'r', 'MarkerSize', 3);
             
 			%Save the frame
             pause(1/vidObj.FrameRate)
-            writeVideo(vidObj,getframe);
+            writeVideo(vidObj, getframe);
 			
 			%Update marker sizes and color
-            set(h,'MarkerSize',2,'NodeColor',nodeclr,'EdgeColor',edgeclr)
+            set(h, 'MarkerSize', 2, 'NodeColor', nodeclr, 'EdgeColor', edgeclr)
             
         end
         
 		%Update the current generation and agent counter 
         delete(txt3)
-        txt3 = text(xlim(1),ylim(2),{char(strcat({' '},'Generation',{' '},num2str(i),{' '})),char(strcat({' '},'Agent',{' '},num2str(j),{' '}))},'HorizontalAlignment','left','VerticalAlignment','top','FontSize',16);
+        txt3 = text(xlim(1), ylim(2), {char(strcat({' '}, 'Generation', {' '}, num2str(i), {' '})), char(strcat({' '}, 'Agent', {' '}, num2str(j), {' '}))}, 'HorizontalAlignment', 'left', 'VerticalAlignment', 'top', 'FontSize', 16);
 
 		%Once agent has completed moving, show update of vein radii 
-        G = graph(s,t,RadiusHistoryPad{tracker});   
+        G = graph(s, t, RadiusHistoryPad{tracker});   
         G.Edges.LWidths = G.Edges.Weight/max(maxradius);
         h.LineWidth = G.Edges.LWidths;
         
@@ -207,28 +207,28 @@ for i = 1:Inputs.Generations
         
 		%Display frame
         pause(1/vidObj.FrameRate)
-        writeVideo(vidObj,getframe);
+        writeVideo(vidObj, getframe);
         delete(txt3)
     end
 	
 	%Update the current generation and agent counter once all agents of a generation have moved 
     delete(txt3)
-    txt3 = text(xlim(1),ylim(2),{char(strcat({' '},'Generation',{' '},num2str(i),{' '})),char(strcat({' '},'Agent',{' '},num2str(j),{' '}))},'HorizontalAlignment','left','VerticalAlignment','top','FontSize',16);
+    txt3 = text(xlim(1), ylim(2), {char(strcat({' '}, 'Generation', {' '}, num2str(i), {' '})), char(strcat({' '}, 'Agent', {' '}, num2str(j), {' '}))}, 'HorizontalAlignment', 'left', 'VerticalAlignment', 'top', 'FontSize', 16);
 	
 	%Highly best chain of the current generation and show growth and evaporation
-    highlight(h,bestindextrack{i},'NodeColor','g','EdgeColor','g')
+    highlight(h, bestindextrack{i}, 'NodeColor', 'g', 'EdgeColor', 'g')
     h.LineWidth = G.Edges.LWidths;            
     
 	%Save the frame
 	pause(1/vidObj.FrameRate)
-    writeVideo(vidObj,getframe);
+    writeVideo(vidObj, getframe);
 	
 	%Remove the current generation and agent counter to prevent overlapping text 
     delete(txt3)
 end
 
 %Update the current generation and agent counter once all generations have been shown
-txt3 = text(xlim(1),ylim(2),{char(strcat({' '},'Generation',{' '},num2str(i))),char(strcat({' '},'Agent',{' '},num2str(j)))},'HorizontalAlignment','left','VerticalAlignment','top','FontSize',16);
+txt3 = text(xlim(1), ylim(2), {char(strcat({' '}, 'Generation', {' '}, num2str(i))), char(strcat({' '}, 'Agent', {' '}, num2str(j)))}, 'HorizontalAlignment', 'left', 'VerticalAlignment', 'top', 'FontSize', 16);
 
 %Close the video file
 close(vidObj)

@@ -2,7 +2,10 @@ function [Attributes] = MyAttributeCalcs(Inputs, Parent, cityname, Attributes)
 %% MyAttributeCalcs: This function calculates the attributes that can not be retrieved from the unique ID.
 %
 %% Inputs:
-% * Inputs        : Structure containing the PhysarumSolver inputs
+% * Inputs        : Structure containing the inputs defined by the
+%                   user. This variable is currently not used in this file, 
+%                   but shown here to illustrate the ability for users 
+%                   to use this structure.
 % * Parent        : Structure containing the parent
 % * cityname      : The asteroid/planet of the node to be created [string]
 % * Attributes    : The structure with attributes of the node to be created 
@@ -15,10 +18,10 @@ function [Attributes] = MyAttributeCalcs(Inputs, Parent, cityname, Attributes)
 % Email:  marilena.di-carlo@strath.ac.uk, aram.vroom@strath.ac.uk
 
 %Check if the asteroid/planet is in the Asteroid class
-if ismember(cityname,fieldnames(Asteroids))
+if ismember(cityname, fieldnames(Asteroids))
     
     %Retrieve the cartesian coordiantes of the asteroid/planet at the arrival epoch
-    Attributes.r_arr = StardustTool.CartesianElementsAt(Asteroids.(cityname),Attributes.t_arr);
+    Attributes.r_arr = StardustTool.CartesianElementsAt(Asteroids.(cityname), Attributes.t_arr);
         
     %Find the departure time by subtracting the ToF from the arrival time
     Attributes.t_dep = Attributes.t_arr - Attributes.tof;
@@ -36,15 +39,15 @@ if ismember(cityname,fieldnames(Asteroids))
 
         %The current keplerian orbit is then assumed to be that of the root
         kep = Asteroids.(cityname).getKeplerianElements;
-        Attributes.kep_trans = CelestialBody('Transfer Orbit',kep.a, kep.e, kep.i, kep.OM, kep.W, kep.M0, kep.t0);
+        Attributes.kep_trans = CelestialBody('Transfer Orbit', kep.a, kep.e, kep.i, kep.OM, kep.W, kep.M0, kep.t0);
         
     end 
 
 %Check if the asteroid/planet is a planet
-elseif ismember(cityname,fieldnames(Planets));
+elseif ismember(cityname, fieldnames(Planets));
     
     %Obtain the arrival coordinates from the planetary ephemeris
-    [Attributes.r_arr, ~] = EphSS(Planets.(cityname),Attributes.t_arr);
+    [Attributes.r_arr, ~] = EphSS(Planets.(cityname), Attributes.t_arr);
     
     %Find the departure time by subtracting the ToF from the arrival time
     Attributes.t_dep = Attributes.t_arr - Attributes.tof;
@@ -60,7 +63,7 @@ elseif ismember(cityname,fieldnames(Planets));
         %If no parent has been set, the total ToF is the current ToF
         Attributes.tof_tot = Attributes.tof;
         
-        kep_elements = EphSS_kep(Planets.(cityname),Attributes.t_dep);              
+        kep_elements = EphSS_kep(Planets.(cityname), Attributes.t_dep);              
         
         % True anomaly at departure position over transfer orbit [rad]
         theta = kep_elements(6);
@@ -96,7 +99,7 @@ else
     
     %If the asteroid/planet is not in the Asteroids list, set the r_arr, tof_tot and
     %t_dep to default values.
-    Attributes.r_arr = zeros(1,3);
+    Attributes.r_arr = zeros(1, 3);
     Attributes.tof_tot = 0;
     Attributes.t_dep = 0;
 end

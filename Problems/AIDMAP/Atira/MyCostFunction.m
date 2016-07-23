@@ -2,7 +2,10 @@ function [toNodeAttributes, veinlength] = MyCostFunction(Inputs, fromNode, toNod
 %% MyCostFunction: This function calculates the cost of a certain connection. It can be altered such that it is applicable to the problem at hand.
 %
 %% Inputs:
-% * Inputs             : Structure containing the inputs defined by the user
+% * Inputs             : Structure containing the inputs defined by the
+%                        user. This variable is currently not used in this file, 
+%                        but shown here to illustrate the ability for users 
+%                        to use this structure.
 % * fromNode           : The node from which the cost is calculated [structure]
 % * toNodeAttributes   : The known attributes of the node to which the cost is calculated [structure]
 %
@@ -18,7 +21,7 @@ curr_orbit = fromNode.attributes.kep_trans;
 mu = AstroConstants.Sun_Planetary_Const;
 
 %Find the departure date and the departure velocity
-[departure_r, departure_v] = StardustTool.CartesianElementsAt(curr_orbit,toNodeAttributes.t_dep);
+[departure_r, departure_v] = StardustTool.CartesianElementsAt(curr_orbit, toNodeAttributes.t_dep);
 
 %Save the departure coordinates
 toNodeAttributes.r_dep = departure_r;
@@ -27,7 +30,10 @@ toNodeAttributes.v_dep = departure_v;
 %Retrieve the arrival coordinates
 arrival_r = toNodeAttributes.r_arr;
 ToF = toNodeAttributes.tof;
-[~,~,~,err,vel_initial,vel_final,~,~] = lambertMR(departure_r,      ... % Initial Vector Position
+
+%Use the Lambert's problem solver to find the initial and final velocity of
+%the transfer orbit
+[~, ~, ~, err, vel_initial, vel_final, ~, ~] = lambertMR(departure_r,      ... % Initial Vector Position
                                                   arrival_r,        ... % Final position vector
                                                   ToF*86400, ...        % Time of flight [seconds]
                                                   mu,               ... % Planetary constant of the planet (mu = mass * G) [L^3/T^2]
@@ -64,13 +70,7 @@ dv1(1) = vel_initial(1) - departure_v(1);
 dv1(2) = vel_initial(2) - departure_v(2);
 dv1(3) = vel_initial(3) - departure_v(3);
 
-% dv2(1) = arrival_v(1) - vel_final(1);
-% dv2(2) = arrival_v(2) - vel_final(2);
-% dv2(3) = arrival_v(3) - vel_final(3);
-
 deltaV_Departure =  abs(norm(dv1));
-%deltaV_Arrival   =  abs(norm(dv2));
-%deltaV_Total     = (deltaV_Departure+ deltaV_Arrival);
 deltaV_Total     = deltaV_Departure;
 
 %Save found dV in node attributes
@@ -85,7 +85,7 @@ end
 % ==========================================================================================                                                                        
 % MARILENA
 % Compute the Keplerian elements of the transfer orbit at the departure position (a in km and angles in rad)               
-kep_transfer_orbit = cart2kep([departure_r, vel_initial],mu);
+kep_transfer_orbit = cart2kep([departure_r, vel_initial], mu);
 
 % Eccentricity of transfer orbit
 ecc = kep_transfer_orbit(2);

@@ -1,4 +1,4 @@
-%% run_atira: This is the main file for the Atira problem
+%% run_atira: This is the main file for the Atira problem. 
 %
 %% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
@@ -11,13 +11,13 @@ rng('shuffle')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if isunix
-    addpath(genpath(strcat(pwd,'/Atira')));
-    addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
-    addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));    
+    addpath(genpath(strcat(pwd, '/Atira')));
+    addpath(genpath(strcat(fileparts(fileparts(pwd)), '/Optimisation/AIDMAP')));
+    addpath(strcat(fileparts(fileparts(pwd)), '/Optimisation'));    
 else
-    addpath(genpath(strcat(pwd,'\Atira')));
-    addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
-    addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
+    addpath(genpath(strcat(pwd, '\Atira')));
+    addpath(genpath(strcat(fileparts(fileparts(pwd)), '\Optimisation\AIDMAP')));
+    addpath(strcat(fileparts(fileparts(pwd)), '\Optimisation'));
 end
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,7 +37,7 @@ options.Generations = 2;                                        %The number of g
 options.Viscosity = 1;                                          %The fluid viscocity "mu" [real number]
 options.MinCommonNodesThres = 4;                                %The minimum number of nodes two agents in a generation should have in common for a restart to occur [integer]
 options.IfZeroLength = 1e-15;                                   %Value assigned to the length if it's zero (to prevent flux = inf) [real number]
-options.MaxChildFindAttempts = 1e4;                             %Max number of attempts that will be done to find additional children for a node [integer]      
+options.MaxChildFindAttempts = 1e3;                             %Max number of attempts that will be done to find additional children for a node [integer]      
 options.MinPickProbability = 0.1;                               %The minimum probability for a feasible node to be picked before the algorithm changes its method of choosing a child [real number between 0 and 1]
 options.GenerateGraphPlot = 0;                                  %Indicator as to whether the algorithm should generate a graph plot animation, where 1 is defined as "yes"
 options.GraphPlotFileName = '';                                 %Name of the file that the graph plot animation will be saved as [string]
@@ -45,21 +45,23 @@ options.GenerateTreePlot = 0;                                   %Indicator as to
 options.SaveHistory = 0;                                        %Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation, where 1 is defined as "yes"
 options.LowMem = 0;                                             %Indicator as to whether the algorithm should use the low-memory version of searching for new nodes. This is slower, but requires less memory
 
+SaveDir = 'Atira\IO_Dir\';                                      %Input / Output Directory 
 
+
+%If the user is using a Linux or Mac version of MATLAB, replace the
+%backslashes by forward slashes in the Input / Output directory
 if isunix
-    SaveDir = 'Atira/IO_Dir/';                                  %Input / Output Directory 
-else
-    SaveDir = 'Atira\IO_Dir\';                                  %Input / Output Directory  
+    SaveDir = strrep(SaveDir,'\','/');                           
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 options.Cities = {'neo2003CP20', 'neo2004XZ130', ...            %The list of possible cities [1xC string array, where C is the number of cities]
-    'neo1998DK36', 'neo2004JG6', 'neo2005TG45',...
-    'neo2006WE4', 'neo2007EB26', 'neo2008EA32',...
-    'neo2008UL90' ,'neo2010XB11','neo2012VE46' ,...
-    'neo2013JX28','neo2013TQ5', 'neo2014FO47', ...
+    'neo1998DK36', 'neo2004JG6', 'neo2005TG45', ...
+    'neo2006WE4', 'neo2007EB26', 'neo2008EA32', ...
+    'neo2008UL90' , 'neo2010XB11', 'neo2012VE46' , ...
+    'neo2013JX28', 'neo2013TQ5', 'neo2014FO47', ...
     'neo2015DR215', 'neo2015ME131'}; 
 options.MaxConsecutiveVis = 1*ones(1, length(options.Cities));  %Maximum number of consecutive visits to each city. Set maxima to -1 if no maximum defined [1xC vector of integers, with C being the number of cities]
 options.MaxVisits = ones(1, length(options.Cities));            %Maximum number of visits to each city. Set maxima to -1 if no maximum defined [1xC vector of integers, with C being the number of cities]                    
@@ -83,12 +85,14 @@ options.AdditonalInputs = {{}};                                 %Variable that c
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 tofvalues = 35:10:365;                                
-sets.tof = mat2cell(ones(length(options.Cities),1)... %The structure containing the values that the optimisation
-*tofvalues,[ones(length(options.Cities),1)],...       %variables can have for each city (where "city" is defined as done 
+sets.tof = mat2cell(ones(length(options.Cities), 1)... %The structure containing the values that the optimisation
+*tofvalues, [ones(length(options.Cities), 1)], ...       %variables can have for each city (where "city" is defined as done 
 [length(tofvalues)]);                                 %in the traveling salesman problem). Thus, each field
                                                       %contains a Cx1 cell array, where C is the number of cities and
 load('epochsnode.mat')                                %each cell in turn contains the discrete set of values the optimisation
-sets.epochsnode = epochsnode(1:end);                  %variable can have. For this mission, the ToF and the arrival epochs have been used
+sets.epochsnode = epochsnode(1:end);                  %variable can have. For this mission, the ToF and the arrival epochs have been used.
+													  %To obtain these passing epochs when the asteroid database is changed, AsteroidEpochs.m
+													  %should be changed and run first.
    
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -96,7 +100,7 @@ sets.epochsnode = epochsnode(1:end);                  %variable can have. For th
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Run optimise_aidmap
-[BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn,sets,options);    
+[BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options);    
 
 %It may be noted that the command window shows the movement of the agents.
 %This is shown through the use of the node's unique identifier (UID).
@@ -119,11 +123,11 @@ end
 maxasteroidnumindex = find(asteroidnum==max(asteroidnum));
 
 for i = 1:length(maxasteroidnumindex)
-    AllBestSolutions{i,1} = output.Solutions.Nodes{maxasteroidnumindex(i)};
+    AllBestSolutions{i, 1} = output.Solutions.Nodes{maxasteroidnumindex(i)};
 end
 
 %Plot the solutions with the most asteroids
-[r] = PlotTrajectories(AllBestSolutions,output.ListNodes);
+[r] = PlotTrajectories(AllBestSolutions, output.ListNodes, 1e8, 12, 1);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Save the result          %
@@ -131,15 +135,15 @@ end
 
 %Save all the solutions that have the max. number of asteroids
 for i = 1:length(AllBestSolutions)
-    filename = strcat([SaveDir,'Atira',num2str(length(AllBestSolutions{1})-1),...
-        'Asteroids',num2str(i),'_',num2str(options.NumberOfAgents),'Agents',...
-        num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')]);
-    SaveTrajectorySolution(AllBestSolutions{i},output.ListNodes,filename);
+    filename = strcat([SaveDir, 'Atira', num2str(length(AllBestSolutions{1})-1), ...
+        'Asteroids', num2str(i), '_', num2str(options.NumberOfAgents), 'Agents', ...
+        num2str(options.Generations), 'Generations', '_', datestr(now, 'yyyymmdd_HHMMSS')]);
+    SaveTrajectorySolution(AllBestSolutions{i}, output.ListNodes, filename);
     ExportSolution(output.ListNodes, AllBestSolutions{i}, filename)
 end
 
 %Save the workspace
-save(strcat(SaveDir,'Atira',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS')));
+save(strcat(SaveDir, 'Atira', num2str(options.NumberOfAgents), 'Agents', num2str(options.Generations), 'Generations', '_', datestr(now, 'yyyymmdd_HHMMSS')));
 
 
 

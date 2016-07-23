@@ -18,28 +18,28 @@ function [ListNodes] = CreateListNodes(Inputs)
 
 rootattribstr = [];
 for i = 1:(length(Inputs.RootAttrib)*2+1)
-    if rem(i,2)
-        rootattribstr = strcat(rootattribstr,'0');
+    if rem(i, 2)
+        rootattribstr = strcat(rootattribstr, '0');
     else
-        rootattribstr = strcat(rootattribstr,'_');
+        rootattribstr = strcat(rootattribstr, '_');
     end
 end
 
-rootID = strcat(Inputs.RootName,'__',rootattribstr);
+rootID = strcat(Inputs.RootName, '__', rootattribstr);
 
 %Create the ListNodes structure
 ListNodes = struct(struct(rootID,   ...
                          struct(...
-                         'node_ID',             rootID,...      % The node_ID of the root
-                         'parent',              [],...          % The parent of the node
-                         'children',            [],...          % Matrix that holds the nodes' connections to each other
-                         'radius',              [],...          % The radius of each connection
-                         'length',              [],...          % The length of each connection
-                         'flux',                [],...          % Matrix containing each connection's flux
-                         'attributes',          [SetNodeAttributes(Inputs,[], ...         % Problem-specific Attributes that 
+                         'node_ID',             rootID, ...      % The node_ID of the root
+                         'parent',              [], ...          % The parent of the node
+                         'children',            [], ...          % Matrix that holds the nodes' connections to each other
+                         'radius',              [], ...          % The radius of each connection
+                         'length',              [], ...          % The length of each connection
+                         'flux',                [], ...          % Matrix containing each connection's flux
+                         'attributes',          [SetNodeAttributes(Inputs, [], ...         % Problem-specific Attributes that 
                                                  Inputs.RootName, ...                     % describe this node 
-                                                 zeros(1,length(Inputs.RootAttrib)))],... % (such as orbital elements & Time of Flight. etc)
-                         'previousdecisions',    [],...         % List of the previous decisions made
+                                                 zeros(1, length(Inputs.RootAttrib)))], ... % (such as orbital elements & Time of Flight. etc)
+                         'previousdecisions',    [], ...         % List of the previous decisions made
                          'possibledecisions',    {Inputs.PossibleDecisions}, ...          % Cities that can still be visisted by the node
                          'VisitsLeft',           {Inputs.MaxVisits} ...                  % Vector containing the number of times each city can still be visisted                         
                      )));

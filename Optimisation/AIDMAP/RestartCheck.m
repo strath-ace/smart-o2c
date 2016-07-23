@@ -3,7 +3,7 @@ function [restartflag] = RestartCheck(Inputs, Agents)
 %
 %% Inputs:
 % * Inputs   : Structure containing the PhysarumSolver inputs
-% * Agents      : Structure containing the Agents & their characteristics
+% * Agents   : Structure containing the Agents & their characteristics
 %
 %% Outputs: 
 % * restartflag : A flag that is set to 1 if the algorithm is to be
@@ -38,7 +38,7 @@ for i = 1:length(visistednodes)
         if i ~= j
             
             %Find the number of equal nodes in the sequences
-            numberequal = sum(ismember(visistednodes{i}(1,:),visistednodes{j}(1,:)));
+            numberequal = sum(ismember(visistednodes{i}(1, :), visistednodes{j}(1, :)));
             
             %If this exceeds the set threshold, set the restartflag to 1
             if numberequal > Inputs.MinCommonNodesThres

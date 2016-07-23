@@ -1,4 +1,4 @@
-function [v2,delta]=swingby(v1,rp,mu,gamma,n_r)
+function [v2, delta]=swingby(v1, rp, mu, gamma, n_r)
 % Computes the outgoing velocity after the swingby of a planet, given
 % incoming velocity and swingby parameters.
 %
@@ -37,5 +37,5 @@ mu_rp=mu/rp;
 theta_inf=acos(-mu_rp/(norm(v1)^2+mu_rp)); % See Kaplan "Modern spacecraft dynamics and control", pag. 93
 delta=2*theta_inf-pi; % Deflection angle
 
-n_pi=euler_axis_angle(n_r,v1,gamma); % Rotates n_r around v1
-v2=euler_axis_angle(v1,n_pi,delta); % Rotates v1 around n_pi
+n_pi=euler_axis_angle(n_r, v1, gamma); % Rotates n_r around v1
+v2=euler_axis_angle(v1, n_pi, delta); % Rotates v1 around n_pi

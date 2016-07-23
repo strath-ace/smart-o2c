@@ -1,12 +1,12 @@
-function [car]=kepcartn(kep,V,gam0);
+function [car]=kepcartn(kep, V, gam0);
 %
-%   [car]=kepcart(kep,V);
+%   [car]=kepcart(kep, V);
 %  
 %   convertes from keplerian orbital elements to Cartesian coordinates
 %   
 %   INPUT
 %               kep = vector of keplerian elements
-%                          a,e,i,Omega,omega,tho
+%                          a, e, i, Omega, omega, tho
 %                          angles are in degrees
 %               mu  = planetary gravity constat
 %
@@ -37,15 +37,15 @@ R(1)=cos(om)*cos(Om)-sin(om)*cos(i)*sin(Om);
 R(2)=cos(om)*sin(Om)+sin(om)*cos(i)*cos(Om);
 R(3)=sin(om)*sin(i);
 
-gam= atan2(e*sin(tho),1+e*cos(tho))+gam0*pi/180;
+gam= atan2(e*sin(tho), 1+e*cos(tho))+gam0*pi/180;
 
-% R(1,2)=-sin(om)*cos(Om)-cos(om)*cos(i)*sin(Om);
-% R(2,2)=-sin(om)*sin(Om)+cos(om)*cos(i)*cos(Om);
-% R(3,2)=cos(om)*sin(i);
+% R(1, 2)=-sin(om)*cos(Om)-cos(om)*cos(i)*sin(Om);
+% R(2, 2)=-sin(om)*sin(Om)+cos(om)*cos(i)*cos(Om);
+% R(3, 2)=cos(om)*sin(i);
 % 
-% R(1,3)=sin(i)*sin(Om);
-% R(2,3)=-sin(i)*cos(Om);
-% R(3,3)=cos(i);
+% R(1, 3)=sin(i)*sin(Om);
+% R(2, 3)=-sin(i)*cos(Om);
+% R(3, 3)=cos(i);
 
 
 %  In plane     Parameters
@@ -59,9 +59,9 @@ gam= atan2(e*sin(tho),1+e*cos(tho))+gam0*pi/180;
 % vyp=r_dot*sin(tho)+r*cos(tho)*wom_dot;
 
 % 3D cartesian vector
-% car(1)=R(1,1)*xp+R(1,2)*yp;
-% car(2)=R(2,1)*xp+R(2,2)*yp;
-% car(3)=R(3,1)*xp+R(3,2)*yp;
+% car(1)=R(1, 1)*xp+R(1, 2)*yp;
+% car(2)=R(2, 1)*xp+R(2, 2)*yp;
+% car(3)=R(3, 1)*xp+R(3, 2)*yp;
 
 car(1)=R(1)*sin(gam) - cos(gam)*(cos(Om)*sin(om)+sin(Om)*cos(i)*cos(om));
 car(2)=R(2)*sin(gam) - cos(gam)*(sin(Om)*sin(om)-cos(Om)*cos(i)*cos(om));

@@ -1,4 +1,4 @@
-function v1=euler_axis_angle(v,n,theta)
+function v1=euler_axis_angle(v, n, theta)
 
 % Rotates a vector about an axis of a given angle (Eules axis and angle
 % rotation).

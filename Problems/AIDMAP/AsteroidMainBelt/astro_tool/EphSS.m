@@ -1,11 +1,11 @@
-function [r,v] = EphSS(n,t)
+function [r, v] = EphSS(n, t)
 
 % Ephemerides of the solar system.
 %
-%	[r, v] = EphSS(n,t)
+%	[r, v] = EphSS(n, t)
 %
 % It uses uplanet for planets, moon_eph for the Moon, and NeoEphemeris for
-% asteroid ephemerides. Outputs cartesian position and velocity of the body,
+% asteroid ephemerides. Outputs cartesian position and velocity of the body, 
 % centered in the Sun for all the bodies but the Moon (for which a
 % cartesian Earth-centered reference frame is chosen).
 %
@@ -19,7 +19,7 @@ function [r,v] = EphSS(n,t)
 %       (MJD2000 = MJD-51544.5)
 %
 % OUTPUT
-%   r   Cartesian position of the body (Sun-centered for all bodies,
+%   r   Cartesian position of the body (Sun-centered for all bodies, 
 %       Earth-centered for the Moon).
 %   v   Cartesian velocity.
 %
@@ -36,11 +36,11 @@ function [r,v] = EphSS(n,t)
 % ------------------------- - SpaceART Toolbox - --------------------------
 
 if n<11 % uplanet needed
-    kep = uplanet(t,n);
+    kep = uplanet(t, n);
 elseif n==11 % moon_eph needed
     [r, v] = moon_eph(t); % Returns the cartesian position and velocity
 else % NeoEphemeris needed
-    kep = NeoEphemeris(t,n);
+    kep = NeoEphemeris(t, n);
 end
 
 if n~=11 % Planet or asteroid, Sun-centered
@@ -49,7 +49,7 @@ if n~=11 % Planet or asteroid, Sun-centered
     mu = AstroConstants.Sun_Planetary_Const; %[JMRM]
     
     % transform from Keplerian to cartesian
-    car = kep2cart(kep,mu);
+    car = kep2cart(kep, mu);
     r   = car(1:3);
     v   = car(4:6);
 end

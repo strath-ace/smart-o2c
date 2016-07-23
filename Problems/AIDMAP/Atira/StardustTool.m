@@ -1,4 +1,4 @@
-%% StardustTool: This class contains various functions related  to finding the Keplerian and Cartesian elements at a certain time for a certain orbit
+%% StardustTool: This class contains various functions related to finding the Keplerian and Cartesian elements at a certain time for a certain orbit
 %
 %% Inputs:
 % * 

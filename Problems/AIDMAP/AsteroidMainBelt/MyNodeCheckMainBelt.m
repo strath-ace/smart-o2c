@@ -1,4 +1,4 @@
-function [validflag] = MyNodeCheckMainBelt(Inputs,ListNodes,newnode_ID,currentNode)
+function [validflag] = MyNodeCheckMainBelt(Inputs, ListNodes, newnode_ID, currentNode)
 %% MyNodeCheckMainBelt: This function checks the validity of the node to be created using solely the unique ID 
 %
 %% Inputs:
@@ -19,7 +19,7 @@ function [validflag] = MyNodeCheckMainBelt(Inputs,ListNodes,newnode_ID,currentNo
 %before the current time
 
 %Obtain attribute indices
-temp = strsplit(newnode_ID,'_');
+temp = strsplit(newnode_ID, '_');
 
 asteroidindex = sscanf(temp{end-2}, '%f');
 tofindex = sscanf(temp{end-1}, '%f');

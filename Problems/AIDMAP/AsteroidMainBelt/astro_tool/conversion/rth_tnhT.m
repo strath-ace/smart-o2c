@@ -1,38 +1,38 @@
-function x_tnh = rth_tnhT(x_rth,a,e,f,mu)
+function x_tnh = rth_tnhT(x_rth, a, e, f, mu)
 
 % Vector reference frame Transformation.
 % Radial-transversal-h reference frame to tangent-normal-h reference frame.
 %
-%	x_tnh = rth_tnhT(x_rth,a,e,f,mu)
+%	x_tnh = rth_tnhT(x_rth, a, e, f, mu)
 %
-% rth reference frame: {r,t,h}
+% rth reference frame: {r, t, h}
 %   r-axis: direction of the orbit radius
 %   h-axis: direction of angular momentum
 %   t-axis: in the orbit plane, completes the reference frame
-% tnh reference frame: {t,n,h}
+% tnh reference frame: {t, n, h}
 %   t-axis: tangent to the motion
 %   h-axis: direction of angular momentum
 %   n-axis: inward normal to t, in the orbit plane
 %
 % INPUT:
-%        x_rth = vector to be transformed, expressed in {r,t,h}
+%        x_rth = vector to be transformed, expressed in {r, t, h}
 %        a = semi-major axis
 %        e = eccentricity
 %        f = true anomaly from the pericentre [rad]
 %        mu = gravitational constant
 %
 % OUTPUT:
-%        x_tnh = vector transformed into {t,n,h}
+%        x_tnh = vector transformed into {t, n, h}
 %
 % EXAMPLE:
 %   Given a spacecraft in orbit:
-%       - we have the thrust vector in {r,t,h};
-%       - we want the thrust vector in {t,n,h}.
+%       - we have the thrust vector in {r, t, h};
+%       - we want the thrust vector in {t, n, h}.
 %   In this case:
-%       x_rth = Thrust vector in {r,t,h};
-%       a,e,f = Orbital parameters of the spacecraft;
+%       x_rth = Thrust vector in {r, t, h};
+%       a, e, f = Orbital parameters of the spacecraft;
 %       mu = Gravitational constant of the attractor;
-%       x_tnh = Thrust vector, transformed in {t,n,h}.
+%       x_tnh = Thrust vector, transformed in {t, n, h}.
 %
 % FUNCTIONS CALLED: none
 %

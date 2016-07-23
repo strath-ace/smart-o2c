@@ -146,7 +146,7 @@ classdef StardustTool
         % TODO
         %  - Change the name of the method. 
         %
-        function [r v] = CartesianElementsAt(celestial_obj, epochMDJ2000)
+        function [r, v] = CartesianElementsAt(celestial_obj, epochMDJ2000)
                             
             % Compute the Cartesian Vectors for Celestial Body Object
             if isa(celestial_obj, 'CelestialBody')

@@ -1,14 +1,13 @@
 function [possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNodes, parent, previousdecisions, decisionname, decisionindex)
-%% DeterminePossDecisions: This function creates the structure for a new node.
+%% DeterminePossDecisions: This function determines the possible cities the agent can move to from the current city, using the maximum number of (consecutive) visits
 %
 %% Inputs:
 % * Inputs            : Structure containing the PhysarumSolver inputs
 % * ListNodes         : Structure that contains the Graph's information
-% * parent            : a string containing the node_ID of the parent node
-% * previousdecisions : a list of the previous decisions made
-% * decisionname      : string with the name of the chosen city
-% * decisionindex     : the index of the city's name in the list the
-%                         Inputs.Cities array
+% * parent            : A string containing the node_ID of the parent node
+% * previousdecisions : A list of the previous decisions made
+% * decisionname      : String with the name of the chosen city
+% * decisionindex     : The index of the city's name in the list the Inputs.Cities array
 %
 %% Outputs: 
 % * possibledecisions : A list of the decisions that can still be made by
@@ -43,10 +42,10 @@ possibledecisions(visitsleft == 0) = [];
 
 %Check whether resonance orbit is allowed by first generating the string that
 %should be checked for in the previous decisions
-checkforconcities = repmat(decisionname,1,maxconsecutive+1);
+checkforconcities = repmat(decisionname, 1, maxconsecutive+1);
 
 %See if max. resonant orbit has been performed as last trajectory so far 
-resperformed = max(strfind(previousdecisions,checkforconcities))==(length(previousdecisions)-length(checkforconcities)+1);
+resperformed = max(strfind(previousdecisions, checkforconcities))==(length(previousdecisions)-length(checkforconcities)+1);
 
 %If so, exclude the respective city from the list of possible decisions
 if resperformed 

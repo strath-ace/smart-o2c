@@ -6,7 +6,7 @@ function [newnode_ID, nodeindex] = ChooseNode(Inputs, currentNode, posschildren,
 % * posschildren          : Vector containing the node_IDs of all the possible nodes
 % * ChildValidityTracker  : The vector containing the data as to whether
 %                           each possible child to this node is found to be invalid or not
-% * nantracker            : The number of invalid nodes found so far
+% * nantracker            : The number of invalid nodes found so far [integer]
 % 
 %% Outputs:
 % * newnode_ID     : The unique identifier of the chosen node
@@ -16,7 +16,7 @@ function [newnode_ID, nodeindex] = ChooseNode(Inputs, currentNode, posschildren,
 % Email:  aram.vroom@strath.ac.uk
 
 %Split the ID of the curren node
-temp = strsplit(currentNode,'___');
+temp = strsplit(currentNode, '___');
 
 %Find the current city + ID attributes. If the current node is the root, 
 %the length of the temp vector is 1, and the current node is therefore the root. 
@@ -58,6 +58,6 @@ end
 childID = posschildren{nodeindex};
 
 %Generate the new node ID
-newnode_ID = strcat(exchild,'___',childID);
+newnode_ID = strcat(exchild, '___', childID);
 end
 

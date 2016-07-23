@@ -1,12 +1,12 @@
-function [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,Ncase,optionsLMR)
+function [A, P, E, ERROR, VI, VF, TPAR, THETA] = lambertMR(RI, RF, TOF, MU, orbitType, Nrev, Ncase, optionsLMR)
 %% lambertMR: Lambert's problem solver for all possible transfers:
 %   
-% 1- zero-revolution (for all possible types of orbits: circles, ellipses,
+% 1- zero-revolution (for all possible types of orbits: circles, ellipses, 
 %                   parabolas and hyperbolas)
 % 2- multirevolution case
 % 3- inversion of the motion
 % 
-% [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,Ncase)
+% [A, P, E, ERROR, VI, VF, TPAR, THETA] = lambertMR(RI, RF, TOF, MU, orbitType, Nrev, Ncase)
 %
 % 1- ZERO-REVOLUTION LAMBERT'S PROBLEM
 %
@@ -17,7 +17,7 @@ function [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,
 % two. It solves the problem using a new algorithm developed by R. Battin.
 % It solves the Lambert problem for all possible types of orbits (circles, 
 % ellipses, parabolas and hyperbolas).
-% The only singularity is for the case of a transfer angle of 360 degrees,
+% The only singularity is for the case of a transfer angle of 360 degrees, 
 % which is a rather obscure case.
 % It computes the velocity vectors corresponding to the given radius
 % vectors except for the case when the transfer angle is 180 degrees
@@ -26,7 +26,7 @@ function [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,
 % 
 % 2- MULTIREVOLUTION LAMBERT'S PROBLEM
 %
-% For the solution of Lambert's problem with Nrev>0 number of revolution,
+% For the solution of Lambert's problem with Nrev>0 number of revolution, 
 % Battin's formulation has been extended to accomodate N-revolution
 % transfer orbits, by following the paper: "USING BATTIN METHOD TO OBTAIN 
 % MULTIPLE-REVOLUTION LAMBERT'S SOLUTIONS" by Shen and Tsiotras.
@@ -42,7 +42,7 @@ function [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,
 % A procedure is implemented in order to guarantee to provide initial
 % guesses in the convergence region. If Nrew exceeds the maximum number of
 % revolution an ERROR is given:
-% warning('off','lambertMR:SuccessiveSubstitutionDiverged') to take out the
+% warning('off', 'lambertMR:SuccessiveSubstitutionDiverged') to take out the
 % warnings or use optionsLMR(1) = 0.
 % 
 % 
@@ -132,10 +132,10 @@ function [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,
 %       "==" to ">=" (if N1 >= nitermax || N >= nitermax).
 %   - Increased maxumum number of iterations to 2000, not to lose some
 %       solutions.
-%   - In OSS loop, added check for maximum number of iterations exceeded,
+%   - In OSS loop, added check for maximum number of iterations exceeded, 
 %       which then sets checkNconvOSS = 0.
 %   - Changed the way of coumputing X given Y1 in RSS. Now the
-%       Newton-Raphson method with initial guess suggested by Shen,
+%       Newton-Raphson method with initial guess suggested by Shen, 
 %       Tsiotras is used. This should guarantee convergence without the
 %       need of an external zero finder (fsolve).
 %   - Changed absolute tolerance into relative tolerance in all loops X0-X.
@@ -149,7 +149,7 @@ function [A,P,E,ERROR,VI,VF,TPAR,THETA] = lambertMR(RI,RF,TOF,MU,orbitType,Nrev,
 %
 % - Revised by Matteo Ceriotti - 29/01/2009.
 %
-% Note: Please if you have got any changes that you would like to be done,
+% Note: Please if you have got any changes that you would like to be done, 
 %       do not change the function and let me know, because I am working on
 %       it in order to improve it and solve the remaining issues. Camilla
 %
@@ -175,19 +175,19 @@ TOL = 1e-14;
 TWOPI=2*pi;
 
 % RESET
-A=0;P=0;E=0;VI=[0,0,0];VF=[0,0,0];
+A=0;P=0;E=0;VI=[0, 0, 0];VF=[0, 0, 0];
 
 % C
 % C     ***  Compute the vector magnitudes and various
 % C     ***  cross and dot products
 % C
 
-RIM2   = dot(RI,RI);
+RIM2   = dot(RI, RI);
 RIM    = sqrt(RIM2);
-RFM2   = dot(RF,RF);
+RFM2   = dot(RF, RF);
 RFM    = sqrt(RFM2);
-CTH    = dot(RI,RF)/(RIM*RFM);
-CR     = cross(RI,RF);
+CTH    = dot(RI, RF)/(RIM*RFM);
+CR     = cross(RI, RF);
 STH    = norm(CR)/(RIM*RFM);
 
 %*** choose angle for up angular momentum ***
@@ -201,15 +201,15 @@ switch orbitType
             STH = -STH;
         end
     otherwise
-		error('%d is not an allowed orbitType',orbitType);
+		error('%d is not an allowed orbitType', orbitType);
 end
         
-THETA  = qck(atan2(STH,CTH));
+THETA  = qck(atan2(STH, CTH));
 
 %if abs(THETA - pi) >= 0.01
 if THETA == TWOPI || THETA==0
     ERROR = 2;
-    A=0; P=0; E=0; VI=[0,0,0]; VF=[0,0,0]; TPAR=0; THETA=0;
+    A=0; P=0; E=0; VI=[0, 0, 0]; VF=[0, 0, 0]; TPAR=0; THETA=0;
     return
 end
 
@@ -227,7 +227,7 @@ LAMBDA = B1*sqrt((S-C)/S);
 
 if 4*TOF*LAMBDA == 0
     ERROR = -1;
-    A=0; P=0; E=0; VI=[0,0,0]; VF=[0,0,0]; TPAR=0; THETA=0;
+    A=0; P=0; E=0; VI=[0, 0, 0]; VF=[0, 0, 0]; TPAR=0; THETA=0;
     return
 end
 
@@ -368,7 +368,7 @@ if Nrev == 0
         Y = ((1+H1)/3)*(2+sqrt(B+1)/(1-2*U*KU));    % Y = Ycami
         
         X0 = sqrt(((1-L)/2)^2+M/Y^2)-(1+L)/2;
-        % fprintf('n= %d, x0=%.14f\n',N,X0);
+        % fprintf('n= %d, x0=%.14f\n', N, X0);
     end
     
 % MULTIREVOLUTION
@@ -511,7 +511,7 @@ elseif (Nrev > 0) && (4*TOF*LAMBDA~=0) %(abs(THETA)-pi > 0.5*pi/180)
                 Y = ((1+H1)/3)*(2+sqrt(B+1)/(1-2*U*KU));	% Y = Ycami
                 if Y > sqrt(M/L)
                     if optionsLMR(1) == 2
-                        warning('lambertMR:SuccessiveSubstitutionDiverged',...
+                        warning('lambertMR:SuccessiveSubstitutionDiverged', ...
                                 ['Original Successive Substitution is diverging\n'...
                                 '-> Reverse Successive Substitution used to find the proper XO.\n']);
                     end
@@ -520,7 +520,7 @@ elseif (Nrev > 0) && (4*TOF*LAMBDA~=0) %(abs(THETA)-pi > 0.5*pi/180)
                 end
                 
                 X0 = sqrt(((1-L)/2)^2+M/Y^2)-(1+L)/2;
-                % fprintf('N: %d X0: %.14f\n',N,X0);
+                % fprintf('N: %d X0: %.14f\n', N, X0);
             end
             
             % When 2 solutions exist (small and big a), the previous loop
@@ -532,7 +532,7 @@ elseif (Nrev > 0) && (4*TOF*LAMBDA~=0) %(abs(THETA)-pi > 0.5*pi/180)
             
             if N >= nitermax % Checks if previous loop ended due to maximum number of iterations
                 if optionsLMR(1) == 2
-                    warning('lambertMR:SuccessiveSubstitutionExceedMaxIter',...
+                    warning('lambertMR:SuccessiveSubstitutionExceedMaxIter', ...
                             ['Original Successive Substitution exceeded max number of iteration\n'...
                             '-> Reverse Successive Substitution used to find the proper XO.\n']);
                 end
@@ -581,7 +581,7 @@ elseif (Nrev > 0) && (4*TOF*LAMBDA~=0) %(abs(THETA)-pi > 0.5*pi/180)
 
                 if Y < 1
                     if optionsLMR(1) == 2
-                        warning('lambertMR:SuccessiveSubstitutionDiverged',...
+                        warning('lambertMR:SuccessiveSubstitutionDiverged', ...
                                 ['Reverse Successive Substitution is diverging\n' ...
                                 '-> Original Successive Substitution used to find the proper XO.\n']);
                     end
@@ -596,7 +596,7 @@ elseif (Nrev > 0) && (4*TOF*LAMBDA~=0) %(abs(THETA)-pi > 0.5*pi/180)
                 
                 % To assure the Newton-Raphson method to be convergent
                 Erss = 2*atan(sqrt(X));
-                while h_E(Erss,Y,M,Nrev) < 0
+                while h_E(Erss, Y, M, Nrev) < 0
                     Erss = Erss/2;
                 end
                 
@@ -604,16 +604,16 @@ elseif (Nrev > 0) && (4*TOF*LAMBDA~=0) %(abs(THETA)-pi > 0.5*pi/180)
                 Erss_old = -1.e8;
                 
                 % The following Newton-Raphson method should always
-                % converge, given the previous first guess choice,
+                % converge, given the previous first guess choice, 
                 % according to the paper. Therefore, the condition on
                 % number of iterations should not be neccesary. It could be
                 % necessary for the case tof < tofmin.
                 while (abs(Erss-Erss_old) >= abs(Erss)*TOL+TOL) && Nnew < nitermax
                     Nnew = Nnew+1;
-                    [h, dh] = h_E(Erss,Y,M,Nrev);
+                    [h, dh] = h_E(Erss, Y, M, Nrev);
                     Erss_old = Erss;
                     Erss = Erss - h/dh;
-                    % fprintf('Nnew: %d Erss: %.16f h_E: %.16f\n',Nnew,Erss,h);
+                    % fprintf('Nnew: %d Erss: %.16f h_E: %.16f\n', Nnew, Erss, h);
                 end
                 if Nnew >= nitermax
                     if optionsLMR(1) ~= 0
@@ -629,13 +629,13 @@ elseif (Nrev > 0) && (4*TOF*LAMBDA~=0) %(abs(THETA)-pi > 0.5*pi/180)
         
         if checkNconvRSS == 0 && checkNconvOSS == 0
             if optionsLMR ~=0
-                warning('lambertMR:SuccessiveSubstitutionDiverged',...
+                warning('lambertMR:SuccessiveSubstitutionDiverged', ...
                         ['Both Original Successive Substitution and Reverse ' ...
                         'Successive Substitution diverge because Nrev > NrevMAX.\n' ...
                         'Work in progress to calculate NrevMAX.\n']);
             end
             ERROR = 3;
-            A=0; P=0; E=0; VI=[0,0,0]; VF=[0,0,0]; TPAR=0; THETA=0;
+            A=0; P=0; E=0; VI=[0, 0, 0]; VF=[0, 0, 0]; TPAR=0; THETA=0;
             return
         end
         
@@ -644,14 +644,14 @@ elseif (Nrev > 0) && (4*TOF*LAMBDA~=0) %(abs(THETA)-pi > 0.5*pi/180)
     
     if N3 == 3
         if optionsLMR ~=0
-            warning('lambertMR:SuccessiveSubstitutionDiverged',...
+            warning('lambertMR:SuccessiveSubstitutionDiverged', ...
                     ['Either Original Successive Substitution or Reverse ' ...
                     'Successive Substitution is always diverging\n' ...
                     'because Nrev > NrevMAX or because large-a solution = small-a solution (limit case).\n' ...
                     'Work in progress to calculate NrevMAX.\n']);
         end
         ERROR = 3;
-        A=0; P=0; E=0; VI=[0,0,0]; VF=[0,0,0]; TPAR=0; THETA=0;
+        A=0; P=0; E=0; VI=[0, 0, 0]; VF=[0, 0, 0]; TPAR=0; THETA=0;
         return
     end
 end
@@ -662,7 +662,7 @@ end
 
 if CHECKFEAS == 0
     ERROR = 1;
-    A=0; P=0; E=0; VI=[0,0,0]; VF=[0,0,0]; TPAR=0; THETA=0;
+    A=0; P=0; E=0; VI=[0, 0, 0]; VF=[0, 0, 0]; TPAR=0; THETA=0;
     return
 end
 
@@ -671,7 +671,7 @@ if N1 >= nitermax || N >= nitermax
     if optionsLMR ~=0
         disp('Lambert algorithm has not converged, maximum number of iterations exceeded.');
     end
-    A=0; P=0; E=0; VI=[0,0,0]; VF=[0,0,0]; TPAR=0; THETA=0;
+    A=0; P=0; E=0; VI=[0, 0, 0]; VF=[0, 0, 0]; TPAR=0; THETA=0;
     return
 end
 
@@ -697,7 +697,7 @@ return
 function [angle]=qck(angle)
 
 % %***********************************************************************
-% *     This function takes any angle and reduces it, if necessary,
+% *     This function takes any angle and reduces it, if necessary, 
 % *     so that it lies in the range from 0 to 2 PI radians.
 % *
 % *     INPUTS TO THE FUNCTION
@@ -720,7 +720,7 @@ function [angle]=qck(angle)
 
 twopi = 2*pi;
  
-diff = twopi * (fix(angle/twopi) + min([0,sign(angle)]));
+diff = twopi * (fix(angle/twopi) + min([0, sign(angle)]));
 
 angle = angle -diff;
 

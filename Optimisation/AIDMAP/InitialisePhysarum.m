@@ -1,4 +1,4 @@
-function [InitialisedInputs, ListNodes] = InitialisePhysarum(fitnessfcn,options,sets)
+function [InitialisedInputs, ListNodes] = InitialisePhysarum(fitnessfcn, options, sets)
 %% InitialisePhysarum: This algorithm prepares the workspace needed for the AIDMAP solver
 %
 %% Inputs:
@@ -73,7 +73,7 @@ if ~(length(InitialisedInputs.AttributeIDIndex)==length(fieldnames(sets)))
 end
 
 %Add nodes that can be selected to the Inputs structure
-InitialisedInputs.PossibleListNodes = PossChilds(options.Cities,sets);
+InitialisedInputs.PossibleListNodes = PossChilds(options.Cities, sets);
 
 %Create the list of nodes
 ListNodes = CreateListNodes(InitialisedInputs);

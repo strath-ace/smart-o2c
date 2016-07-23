@@ -4,7 +4,7 @@ function [Attributes] = SetNodeAttributes(Inputs, Parent, cityname, attributes)
 %% Inputs:
 % * Inputs            : Structure containing the PhysarumSolver inputs
 % * Parent            : String containing the name of the node's parent
-% * cityname          : Name of the current city
+% * cityname          : Name of the current city [string]
 % * attributes        : Vector containing the attributes to be assigned
 %
 %% Outputs: 
@@ -21,7 +21,7 @@ SetNames = fieldnames(Inputs.Sets);
 attributenames = fieldnames(Attributes);
 
 %Check if the current node is the root
-if strcmp(cityname,Inputs.RootName)
+if strcmp(cityname, Inputs.RootName)
     %Loop over the attributes
     for i = 1:length(attributes)
 

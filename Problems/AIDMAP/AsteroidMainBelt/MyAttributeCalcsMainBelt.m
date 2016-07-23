@@ -18,7 +18,7 @@ function [Attributes] = MyAttributeCalcsMainBelt(Inputs, Parent, cityname, Attri
 Asteroids = Inputs.AdditionalInputs{1};
 
 %Retrieve the cartesian coordiantes of the asteroid/planet at the arrival epoch
-[Attributes.r_arr, Attributes.v_body] = StardustTool.CartesianElementsAt(Asteroids.(cityname),Attributes.t_arr);
+[Attributes.r_arr, Attributes.v_body] = StardustTool.CartesianElementsAt(Asteroids.(cityname), Attributes.t_arr);
 
 %Save the body's orbital parameters
 Attributes.kep_body = StardustTool.KeplerianElementsAt2(Asteroids.(cityname), Attributes.t_arr);
@@ -39,7 +39,7 @@ else
 
     %The current keplerian orbit is then assumed to be that of the root
     kep = Asteroids.(cityname).getKeplerianElements;
-    Attributes.kep_trans = CelestialBody('Transfer Orbit',kep.a, kep.e, kep.i, kep.OM, kep.W, kep.M0, kep.t0);
+    Attributes.kep_trans = CelestialBody('Transfer Orbit', kep.a, kep.e, kep.i, kep.OM, kep.W, kep.M0, kep.t0);
 end 
 
 end
