@@ -1,4 +1,5 @@
-%% AsteroidEpochs: This script calculates the passing epochs of all the asteroids through their nodal points, given a time-frame. It should be run first when a new set of Asteroids is used to obtain their nodal epochs.
+%% AsteroidEpochs: This script calculates the passing epochs of all the asteroids through their nodal points, given a time-frame. 
+% It should be run first when a new set of Asteroids is used to obtain their nodal epochs.
 %
 %% Inputs:
 % * epoch_start : The epoch from which the nodal points are to be
@@ -19,10 +20,12 @@ close all; clear all; clc
 addpath(genpath('astro_tool'));
 
 %Define input & output directory
+SaveDir = 'IO_Dir\';
+
+%If the user is using a Linux or Mac version of MATLAB, replace the
+%backslashes by forward slashes in the Input / Output directory
 if isunix
-    SaveDir = 'IO_Dir/'; 
-else
-    SaveDir = 'IO_Dir\';
+    SaveDir = strrep(SaveDir,'\','/');     
 end
 
 %Add this path
@@ -42,13 +45,13 @@ mu = AstroConstants.Sun_Planetary_Const;
 asteroidnames = fieldnames(Asteroids);
 
 %Generate a CelestialBody that holds the virtual orbit        
-virtorbit = CelestialBody('virtualorbit',...        %Name
-                            1,...                   %a   Semimajor axis [AU]   
-                            0.035999947927132,...   %e   Eccentricity 
-                            0,...                   %i   Inclination [deg]
-                            -11.26064,...           %OM  Asc. Node/raan [deg]
-                            102.94719,...           %W   Arg. Perigee [deg]
-                            0,...                   %M0  Mean anomoly, M at time given t0 [deg]
+virtorbit = CelestialBody('virtualorbit', ...        %Name
+                            1, ...                   %a   Semimajor axis [AU]   
+                            0.035999947927132, ...   %e   Eccentricity 
+                            0, ...                   %i   Inclination [deg]
+                            -11.26064, ...           %OM  Asc. Node/raan [deg]
+                            102.94719, ...           %W   Arg. Perigee [deg]
+                            0, ...                   %M0  Mean anomoly, M at time given t0 [deg]
                             0);                     %t0  Time at which Mo is given [MJD2000]  
 
 %Loop over all the asteroids
@@ -62,18 +65,18 @@ asteroidorbit = Asteroids.(asteroid).getKeplerianElements();
 
 %Compute the location of Nodal points (the intersection between the two
 %orbits)
-[Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalPoints_M0(virtorbit,Asteroids.(asteroid),mu);
+[Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalPoints_M0(virtorbit, Asteroids.(asteroid), mu);
 
 %Find the passing epochs
-epochsnode1 = computeNodalPassesEpochs(asteroidorbit,Mnode1,epoch_start, epoch_end, mu);
-epochsnode2 = computeNodalPassesEpochs(asteroidorbit,Mnode2,epoch_start, epoch_end, mu);
+epochsnode1 = computeNodalPassesEpochs(asteroidorbit, Mnode1, epoch_start, epoch_end, mu);
+epochsnode2 = computeNodalPassesEpochs(asteroidorbit, Mnode2, epoch_start, epoch_end, mu);
 
 %Save the passing epochs into a single array
-epochsnode{i,1} = sort([epochsnode1 epochsnode2]);
+epochsnode{i, 1} = sort([epochsnode1 epochsnode2]);
 
 end
 
 %Output the passing epoch into a file
-save(strcat(SaveDir,'epochsnode'),'epochsnode')
+save(strcat(SaveDir, 'epochsnode'), 'epochsnode')
 
 

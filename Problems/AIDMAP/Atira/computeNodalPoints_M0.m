@@ -95,9 +95,9 @@ x0 = [cos(OM)*cos(om) - sin(OM)*sin(om)*cos(inc), ...
 % Compute the Periapsis Argument of the Second Orbit in the Mutual
 % reference frame
 cos_om_node = dotprod(asc_vec, x0');
-sin_om_node = norm3(cross(asc_vec,x0'))/(norm3(asc_vec)*norm3(x0));
+sin_om_node = norm3(cross(asc_vec, x0'))/(norm3(asc_vec)*norm3(x0));
 
-temp = atan2(sin_om_node,cos_om_node) * 180/pi;
+temp = atan2(sin_om_node, cos_om_node) * 180/pi;
 theta = temp;
 
 % Sanity Check: Quadrant Check
@@ -137,7 +137,7 @@ Mnode1 = mod(Mnode1, 360);
 % The Mean Anomaly of the 2nd node is not Mnode1 + 180
 
 % True anomaly second node
-theta2 = mod(theta1 + 180,360);
+theta2 = mod(theta1 + 180, 360);
 
 % Eccentric anomaly second node                                           
 cos_E2 = (cosd(theta2) + ecc ) / (1 + ecc*cosd(theta2));

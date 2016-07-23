@@ -1,5 +1,5 @@
 function [ListNodes] = Dilation(Inputs, ListNodes, Agents, agent)
-%% Dilation: This function handles the dilation and evaporation of the paths taken by an agent
+%% Dilation: This function handles the dilation of the paths taken by an agent
 %
 %% Inputs:
 % * Inputs      : Structure containing the PhysarumSolver inputs
@@ -42,7 +42,7 @@ for i = 1:length(visistednodes)
         ListNodes.(evaluatednode).radius(ListNodes.(evaluatednode).radius./Inputs.StartingRadius < Inputs.MinimumRadiusRatio) = Inputs.MinimumRadiusRatio*Inputs.StartingRadius;
         
         %Update flux
-        ListNodes.(evaluatednode).flux = CalculateFlux(Inputs,ListNodes.(evaluatednode));
+        ListNodes.(evaluatednode).flux = CalculateFlux(Inputs, ListNodes.(evaluatednode));
     end
 
 end

@@ -28,10 +28,10 @@ currentagent = char(agent);
 currentnode = char(Agents.(currentagent).currentNode);
 
 %Display the agent's movement in the command window
-disp(strcat([datestr(now),' === Moved to',' ',currentnode]));
+disp(strcat([datestr(now), ' === Moved to', ' ', currentnode]));
 
 %Check if end conditions reached
-continueflag = Inputs.EndConditionsFile(Inputs,Agents,agent);
+continueflag = Inputs.EndConditionsFile(Inputs, Agents, agent);
 
 %Stop agent if end conditions reached or no more possible cities to visit
 if ((isempty(ListNodes.(currentnode).possibledecisions)) || (sum(ListNodes.(currentnode).VisitsLeft) == 0) || continueflag == 0)
@@ -55,7 +55,7 @@ pram = Inputs.RamificationProbability;
 %Retrieve the node IDs of the generated nodes and Initialise a matrix to
 %retrieve the fluxes
 generatednodenames = fieldnames(GeneratedNodes);
-ramfluxesmod = zeros(1,length(generatednodenames));
+ramfluxesmod = zeros(1, length(generatednodenames));
 
 %Obtain the fluxes of the generated nodes and include the ramification weight
 for i = 1:length(generatednodenames)
@@ -66,7 +66,7 @@ end
 if (~isempty(ListNodes.(currentnode).children))
     
     %Pre-allocation
-    childfluxes = zeros(1,length(ListNodes.(currentnode).children));
+    childfluxes = zeros(1, length(ListNodes.(currentnode).children));
     
     %Obtain the fluxes of the children
     for i = 1:length(ListNodes.(currentnode).children)
@@ -99,7 +99,7 @@ if isempty(problist)
 end
 
 %Choose a node and find its index
-chosenindex = find(rand<cumsum(problist),1,'first');
+chosenindex = find(rand<cumsum(problist), 1, 'first');
 
 %If the index is smaller than the number of generated nodes, it falls
 %within that list

@@ -18,10 +18,11 @@ function [Solutions, BestSolution, ListNodes, Agents, History, funccalls] = Phys
 %                         corresponding to the best chain               
 % * ListNodes          : Structure containing the final structure with the
 %                        nodes
-% * Agents             : the structure containing the set of agents and their
+% * Agents             : The structure containing the set of agents and their
 %                        characteristics
-% * History            : the vein radii and agent movement throughout the generations
-% * funccalls          : the number of cost functio ncalls
+% * History            : The vein radii and agent movement throughout the
+%                        generations [structure]
+% * funccalls          : The number of cost function calls [integer]
 %
 %% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
@@ -47,10 +48,10 @@ History.AgentMovement = {};
 for j = 1:InitialisedInputs.Generations
     
     %Show the current generation
-    disp(strcat([datestr(now),' === Starting Generation',' ',num2str(j)]));
+    disp(strcat([datestr(now), ' === Starting Generation', ' ', num2str(j)]));
     
     %Create a new structure for the agents
-    Agents = CreateAgents(ListNodes,InitialisedInputs.NumberOfAgents);
+    Agents = CreateAgents(ListNodes, InitialisedInputs.NumberOfAgents);
     
     %Retrieve the agent names
     agentnames = fieldnames(Agents);
@@ -59,7 +60,7 @@ for j = 1:InitialisedInputs.Generations
     for i = 1:length(agentnames);
         
         %Show the current agent
-        disp(strcat([datestr(now),' === Moving Agent',' ',num2str(i)]));
+        disp(strcat([datestr(now), ' === Moving Agent', ' ', num2str(i)]));
         
         %Reset the agent death flag
         agentdeathflag = 0;
@@ -92,7 +93,7 @@ for j = 1:InitialisedInputs.Generations
                 
                 %Save the radius and the agent movement
                 History.radius(end+1) = {radii};
-                History.AgentMovement{j,i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
+                History.AgentMovement{j, i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
             end
         end
                           
@@ -134,10 +135,9 @@ for j = 1:InitialisedInputs.Generations
                     radii(p) = ListNodes.(char(nodenames(p))).radius;
                 end
                 
-                %Add the radii and the agent movement to their respective
-                %cells
+                %Add the radii and the agent movement to their respective cells
                 History.radius(end) = {radii};
-                History.AgentMovement{j,i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
+                History.AgentMovement{j, i} = [Agents.(char(agentnames(i))).previousListNodes Agents.(char(agentnames(i))).currentNode];
             end
         end
     end

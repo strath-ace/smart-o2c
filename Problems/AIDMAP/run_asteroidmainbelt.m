@@ -12,41 +12,13 @@ rng('shuffle')
 
 %Add the path and the files that contain the data on the asteroids
 if isunix
-    addpath(genpath(strcat(pwd,'/AsteroidMainBelt')));
-    addpath(genpath(strcat(fileparts(fileparts(pwd)),'/Optimisation/AIDMAP')));
-    addpath(strcat(fileparts(fileparts(pwd)),'/Optimisation'));
-    
-    %The name of the XLS file that contains the orbital elements of the
-    %asteroids. Each row should be built up as follows:
-    %[Name a e i OM W M0 t0],  where a = Semimajor axis [AU], 
-    %e = Eccentricity, i = Inclination [deg], OM = Asc. Node/raan [deg], 
-    %W = Arg. Perigee [deg], M0 = Mean anomoly, M at time given t0 [deg] 
-    %t0 = Time at which M0 is given [MJD]
-    filenames.AsteroidsFileName = 'AsteroidMainBelt/IO_Dir/37Asteroids.xlsx';
-    
-    %The name of the files that will hold the data on the asteroids as
-    %calculated by the InitialiseMainBelt script
-    filenames.MatFileName = 'AsteroidMainBelt/IO_Dir/37Asteroids.mat';
-    filenames.NameFile = 'AsteroidMainBelt/IO_Dir/37AsteroidsNames.txt';
-    filenames.epochsnodename = 'AsteroidMainBelt/IO_Dir/37AsteroidsEpochs.mat';
+    addpath(genpath(strcat(pwd, '/AsteroidMainBelt')));
+    addpath(genpath(strcat(fileparts(fileparts(pwd)), '/Optimisation/AIDMAP')));
+    addpath(strcat(fileparts(fileparts(pwd)), '/Optimisation'));
 else
-    addpath(genpath(strcat(pwd,'\AsteroidMainBelt')));
-    addpath(genpath(strcat(fileparts(fileparts(pwd)),'\Optimisation\AIDMAP')));
-    addpath(strcat(fileparts(fileparts(pwd)),'\Optimisation'));
-    
-    %The name of the XLS file that contains the orbital elements of the
-    %asteroids. Each row should be built up as follows:
-    %[Name a e i OM W M0 t0], where a = Semimajor axis [AU], 
-    %e = Eccentricity, i = Inclination [deg], OM = Asc. Node/raan [deg], 
-    %W = Arg. Perigee [deg], M0 = Mean anomoly, M at time given t0 [deg] and 
-    %t0 = Time at which M0 is given [MJD]
-    filenames.AsteroidsFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.xlsx';
-    
-    %The name of the files that will hold the data on the asteroids as
-    %calculated by the InitialiseMainBelt script
-    filenames.MatFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.mat';
-    filenames.NameFile = 'AsteroidMainBelt\IO_Dir\37AsteroidsNames.txt';
-    filenames.epochsnodename = 'AsteroidMainBelt\IO_Dir\37AsteroidsEpochs.mat';
+    addpath(genpath(strcat(pwd, '\AsteroidMainBelt')));
+    addpath(genpath(strcat(fileparts(fileparts(pwd)), '\Optimisation\AIDMAP')));
+    addpath(strcat(fileparts(fileparts(pwd)), '\Optimisation'));    
 end
 
 
@@ -75,15 +47,38 @@ options.GenerateTreePlot = 0;                                   %Indicator as to
 options.SaveHistory = 0;                                        %Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation, where 1 is defined as "yes"
 options.LowMem = 0;                                             %Indicator as to whether the algorithm should use the low-memory version of searching for new nodes, where 1 is defined as "yes". Using the low-memory version is slower, but requires less memory. 
 
-if isunix
-    SaveDir = 'AsteroidMainBelt/IO_Dir/';                       %Input / Output Directory   
-else
-    SaveDir = 'AsteroidMainBelt\IO_Dir\';                       %Input / Output Directory 
-end
+SaveDir = 'AsteroidMainBelt\IO_Dir\';                           %Input / Output Directory   
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Problem-Specific Options     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%The name of the XLS file that contains the orbital elements of the
+%asteroids. Each row should be built up as follows:
+%[Name a e i OM W M0 t0],  where a = Semimajor axis [AU], 
+%e = Eccentricity, i = Inclination [deg], OM = Asc. Node/raan [deg], 
+%W = Arg. Perigee [deg], M0 = Mean anomoly, M at time given t0 [deg] 
+%t0 = Time at which M0 is given [MJD]
+filenames.AsteroidsFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.xlsx';
+
+%The name of the files that will hold the data on the asteroids as
+%calculated by the InitialiseMainBelt script
+filenames.MatFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.mat';
+filenames.NameFile = 'AsteroidMainBelt\IO_Dir\37AsteroidsNames.txt';
+filenames.epochsnodename = 'AsteroidMainBelt\IO_Dir\37AsteroidsEpochs.mat';
+
+
+%If the user is using a Linux or Mac version of MATLAB, replace the
+%backslashes by forward slashes in the filenames and Input / Output
+%directory
+if isunix    
+    filenames.AsteroidsFileName = strrep(filenames.AsteroidsFileName,'\','/');
+    filenames.MatFileName = strrep(filenames.MatFileName,'\','/');
+    filenames.NameFile = strrep(filenames.NameFile,'\','/');
+    filenames.epochsnodename = strrep(filenames.epochsnodename,'\','/');    
+    SaveDir = strrep(SaveDir,'\','/');     
+end
 
 %Start & end epoch of the mission
 epoch_start = 10594.35;
@@ -91,13 +86,13 @@ epoch_end = 17894.35;
 
 %Define the starting orbit [a (AU) e (-) i (deg) OM (deg) W (deg) M0 (deg)
 %t0 (MJD2000)]. Note that t0 here is in MJD2000, while the XLS uses MJD
-startorbit = [2.0533 0	0	0	150	339.35 epoch_start];
+startorbit = [2.0533 0.5130	0	0	150	339.35 epoch_start];
 
 %Initialise the asteroid main belt problem: retrieves asteroid nodal
 %passing epochs and asteroid names, and saves them to a file
 InitialiseAsteroidsMainBelt(epoch_start, epoch_end, filenames);
   
-options.Cities = textread(filenames.NameFile,'%s')';                %The list of possible cities [1xC string array, where C is the number of cities]
+options.Cities = textread(filenames.NameFile, '%s')';              %The list of possible cities [1xC string array, where C is the number of cities]
 options.MaxConsecutiveVis = 0*ones(1, length(options.Cities));      %Maximum number of consecutive visits to each city. Set maxima to -1 if no maximum defined [1xC vector of integers, with C being the number of cities]
 options.MaxVisits = 1*ones(1, length(options.Cities));              %Maximum number of visits to each city. Set maxima to -1 if no maximum defined [1xC vector of integers, with C being the number of cities]                    
 options.AttributeIDIndex = [13 12];                                 %Index of the optimisation variables in the MyNodeAttributes class [1xV vector of integer, where V is the number of optimisation variables]
@@ -116,7 +111,7 @@ options.RootName = 'Start';                                         %The name of
 
 %Load the asteroid structure and add the starting location to it
 AsteroidsMainBelt = load(filenames.MatFileName);
-AsteroidsMainBelt.Asteroids.(options.RootName) = CelestialBody('Start',startorbit(1),startorbit(2),startorbit(3),startorbit(4),startorbit(5),startorbit(6),startorbit(7));
+AsteroidsMainBelt.Asteroids.(options.RootName) = CelestialBody('Start', startorbit(1), startorbit(2), startorbit(3), startorbit(4), startorbit(5), startorbit(6), startorbit(7));
 
 
 %Save the structure in the AdditionalInputs cell array, such that it can be
@@ -129,8 +124,8 @@ options.AdditonalInputs{1} = AsteroidsMainBelt.Asteroids;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 tofvalues = 4:10:2*365;                                 %The structure containing the values that the optimisation
-sets.tof = mat2cell(ones(length(options.Cities),1)...   %variables can have for each city (where "city" is defined as done 
-   *tofvalues,[ones(length(options.Cities),1)],...      %in the traveling salesman problem). Thus, each field
+sets.tof = mat2cell(ones(length(options.Cities), 1)...  %variables can have for each city (where "city" is defined as done 
+   *tofvalues, [ones(length(options.Cities), 1)], ...   %in the traveling salesman problem). Thus, each field
    [length(tofvalues)]);                                %contains a Cx1 cell array, where C is the number of cities and
 load(filenames.epochsnodename)                          %each cell in turn contains the discrete set of values the optimisation
 sets.epochsnode = epochsnode;                           %variable can have. For this mission, the ToF and the arrival epochs have been used
@@ -141,7 +136,7 @@ sets.epochsnode = epochsnode;                           %variable can have. For 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Run optimise_aidmap
-[BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn,sets,options);    
+[BestSolution, BestCost, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options);    
 
 %It may be noted that the command window shows the movement of the agents.
 %This is shown through the use of the node's unique identifier (UID).
@@ -158,22 +153,22 @@ sets.epochsnode = epochsnode;                           %variable can have. For 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
 %Plot the trajectory
-[r] = PlotTrajectories(BestSolution,output.ListNodes);
+[r] = PlotTrajectories(BestSolution, output.ListNodes, 1e8, 12, 1);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %         Save the result          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Save the solution with the most asteroids and the least dV
-filename = strcat([SaveDir,'MainBelt_M',strrep(num2str(startorbit(6)),'.','_'),'Startdate',strrep(num2str(epoch_start),'.','_'),num2str(length(BestSolution{1})-1),'Asteroids','_',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','_',datestr(now,'yyyymmdd_HHMMSS'),'_','NewRam']);
-SaveTrajectorySolution(BestSolution{1},output.ListNodes,filename);
+filename = strcat([SaveDir, 'MainBelt_', 'Startdate', strrep(num2str(epoch_start), '.', '_'), num2str(length(BestSolution{1})-1), 'Asteroids', '_', num2str(options.NumberOfAgents), 'Agents', num2str(options.Generations), 'Generations', '_', datestr(now, 'yyyymmdd_HHMMSS'), '_', 'NewRam']);
+SaveTrajectorySolution(BestSolution{1}, output.ListNodes, filename);
 ExportSolution(output.ListNodes, BestSolution{1}, filename)
 
 %Remove unnecessary outputs to reduce workspace .mat file size
 nodenames = fieldnames(output.ListNodes);
 for i = 1:length(nodenames)
-    output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))),'ChildValidityTracker');
+    output.ListNodes.(char(nodenames(i))) = rmfield(output.ListNodes.(char(nodenames(i))), 'ChildValidityTracker');
 end  
 
 %Save the workspace
-save(strcat(SaveDir,'MainBelt',num2str(options.NumberOfAgents),'Agents',num2str(options.Generations),'Generations','M',strrep(num2str(startorbit(6)),'.','_'),'Startdate',strrep(num2str(epoch_start),'.','_'),datestr(now,'yyyymmdd_HHMMSS')));
+save(strcat(SaveDir, 'MainBelt', num2str(options.NumberOfAgents), 'Agents', num2str(options.Generations), 'Generations', 'M', strrep(num2str(startorbit(6)), '.', '_'), 'Startdate', strrep(num2str(epoch_start), '.', '_'), datestr(now, 'yyyymmdd_HHMMSS')));

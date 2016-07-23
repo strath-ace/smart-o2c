@@ -1,4 +1,4 @@
-function  [E,ksun] = uplanet(mjd2000, IBODY)
+function  [E, ksun] = uplanet(mjd2000, IBODY)
 
 %  ANALYTICAL EPHEMERIDES FOR PLANETS - P. DYSLI, 1977.
 %  PLANETARY ORBITAL ELEMENTS ARE RESTITUTED IN A SUN-CENTRED (EARTH-
@@ -203,7 +203,7 @@ end
  
 E(1)   = E(1)*KM;       % a [km]
 E(3:6) = E(3:6)*RAD;    % Transform from deg to rad
-E(6)   = mod(E(6),PI2);
+E(6)   = mod(E(6), PI2);
 % XMU  = (XM*RAD/(864000*365250))^2*E(1)^3;
 phi    = E(6);          % phi is the eccentric anomaly, uses E(6)=M as a first guess
      

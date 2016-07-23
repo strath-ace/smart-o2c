@@ -1,4 +1,4 @@
-function yend = plot_trajectory(r0,v0,tof,mu,s,k)
+function yend = plot_trajectory(r0, v0, tof, mu, s, k)
 % Plots a keplerian orbit of a body around a cental mass, given the initial
 % position and velocity in cartesian coordinates, and the final time.
 %
@@ -39,14 +39,14 @@ if nargin < 5
 end
 
 % Initialises figure
-line(0,0,0,'Marker','*','Color','k');
+line(0, 0, 0, 'Marker', '*', 'Color', 'k');
 
 % Initialise integrator used to plot trajectories
-ode45options = odeset('abstol',1e-11,'reltol',1e-9);
-[t,y]=ode45(@two_body_dynamics,[0, tof],[r0,v0],ode45options,mu);
-yend = y(end,:);
+ode45options = odeset('abstol', 1e-11, 'reltol', 1e-9);
+[t, y]=ode45(@two_body_dynamics, [0, tof], [r0, v0], ode45options, mu);
+yend = y(end, :);
 
-line(y(:,1),y(:,2),y(:,3),'Color',s,'LineWidth',k);
-line(y(1,1),y(1,2),y(1,3),'Marker','o','Color',s) % Marker at departure point
-line(yend(1),yend(2),yend(3),'Marker','o','Color',s) % Marker at arrival point
-%plot3(y(:,1),y(:,2),y(:,3),s)
+line(y(:, 1), y(:, 2), y(:, 3), 'Color', s, 'LineWidth', k);
+line(y(1, 1), y(1, 2), y(1, 3), 'Marker', 'o', 'Color', s) % Marker at departure point
+line(yend(1), yend(2), yend(3), 'Marker', 'o', 'Color', s) % Marker at arrival point
+%plot3(y(:, 1), y(:, 2), y(:, 3), s)

@@ -1,4 +1,4 @@
-function [] = ExportSolution(ListNodes,Nodes,filename)
+function [] = ExportSolution(ListNodes, Nodes, filename)
 %% ExportSolution: This script exports the found solution to a file
 %
 %% Inputs:
@@ -20,6 +20,6 @@ for i = 1:length(Nodes)
 end
 
 %Save the Initialised inputs and the solution
-save(strcat(filename,'.mat'),'SolutionNodes');
+save(strcat(filename, '.mat'), 'SolutionNodes');
 end
 

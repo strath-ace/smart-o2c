@@ -14,7 +14,7 @@ function [newNode] = CreateNode(Inputs, ListNodes, node_ID, parent)
 % Email:  aram.vroom@strath.ac.uk
         
 %Retrieve the city name and attributes from the unique ID
-temp = strsplit(char(node_ID),'_');
+temp = strsplit(char(node_ID), '_');
 cityname = temp{end-length(Inputs.AttributeIDIndex)-1};
 attributes = str2double(temp(end-length(Inputs.AttributeIDIndex):end));
 
@@ -42,7 +42,7 @@ end
 veinlength(veinlength == 0) = Inputs.IfZeroLength;
 
 %Find the decision that was made by the parent
-parentdecision = strsplit(parent,'_');
+parentdecision = strsplit(parent, '_');
 parentdecision = parentdecision(1);
 
 %Add the parent's decision to the list of previous decisions
@@ -54,14 +54,14 @@ previousdecisions = [previousdecisions{:}];
 [possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNodes, parent, previousdecisions, cityname, attributes(1));
 
 %Create structure of the new node
-newNode = struct('node_ID',           node_ID,...                   % The ID of the node
+newNode = struct('node_ID',           node_ID, ...                   % The ID of the node
                  'parent',            parent, ...                   % The parent of the node
-                 'children',          [],...                        % Matrix that holds the nodes' connections to each other
-                 'radius',            [Inputs.StartingRadius],...   % The radius of each connection
-                 'length',            [veinlength],...              % The length of each connection
-                 'flux',              [],...                        % Matrix containing each connection's flux
+                 'children',          [], ...                        % Matrix that holds the nodes' connections to each other
+                 'radius',            [Inputs.StartingRadius], ...   % The radius of each connection
+                 'length',            [veinlength], ...              % The length of each connection
+                 'flux',              [], ...                        % Matrix containing each connection's flux
                  'attributes',        [Attributes], ...             % Attributes that describe this node (such as orbital elements & Time of Flight etc.)
-                 'previousdecisions', {previousdecisions},...       %List of previous decisions made                    
+                 'previousdecisions', {previousdecisions}, ...       %List of previous decisions made                    
                  'possibledecisions', {possibledecisions}, ...      %List containing the decisions that can still be made
                  'VisitsLeft',        {visitsleft} ...             % Vector containing the number of times each city cna still be visisted                 
                 ); 
@@ -72,7 +72,7 @@ if Inputs.LowMem == 0
 end
  
 %Calculate the flux and add it to the structure
-newNode.flux = [CalculateFlux(Inputs,newNode)];
+newNode.flux = [CalculateFlux(Inputs, newNode)];
                  
 end
 

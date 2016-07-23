@@ -1,4 +1,4 @@
-function [bestchainindex, bestcost] = MyBestChainMainBelt(numberofnodes,nodecosts)
+function [bestchainindex, bestcost] = MyBestChainMainBelt(numberofnodes, nodecosts)
 %% MyBestChainMainBelt: This function find the best chain to be used in the growth factor functionality
 %
 %% Inputs:
@@ -7,8 +7,8 @@ function [bestchainindex, bestcost] = MyBestChainMainBelt(numberofnodes,nodecost
 %
 %% Outputs: 
 % * bestchainindex  : The index of the best chain within the numberofnodes
-%                       and nodecosts vectors. Note: AIDMAP does not support 
-%                       multiple best chains in a single generation [integer]
+%                     and nodecosts vectors. Note: AIDMAP does not support 
+%                     multiple best chains in a single generation [integer]
 % * bestcost        : The cost of the best solution [real number]
 %
 %% Author: Aram Vroom (2016)

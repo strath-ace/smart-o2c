@@ -5,17 +5,17 @@ function [ListNodes, GeneratedNodes, agentdeathflag, funccalls] = Ramification(I
 %
 %% Inputs:
 % * Inputs      : Structure containing the PhysarumSolver inputs
-% * ListNodes       : Structure containing the graph
+% * ListNodes   : Structure containing the graph
 % * Agents      : The structure containing the agents
 % * agent       : A string containing the name of the current agent
 % * funccalls   : The number of cost function calls performed so far
 %
 %% Outputs: 
 % * ListNodes           : ListNodes structure where the radii have been updated with
-%                           the dilation and evaporation
-% * GeneratedNodes      :  Structure containing the ramification nodes generated
+%                         the dilation and evaporation
+% * GeneratedNodes      : Structure containing the ramification nodes generated
 % * agentdeathflag      : Indicator as to whether the agent couldn't move.
-%                           Is 1 if this is the case, 0 otherwise
+%                         Is 1 if this is the case, 0 otherwise
 %
 %% Author: Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
@@ -33,9 +33,9 @@ end
 %Find all the nodes that can be chosen:
 
 %To do so, get first all the IDs that can be in the tree
-temp = strsplit(currentNode,'___');
+temp = strsplit(currentNode, '___');
 possnodes = Inputs.PossibleListNodes;
-possids = strcat(temp(end),'___',possnodes);
+possids = strcat(temp(end), '___', possnodes);
 
 if Inputs.LowMem == 1
     indextracker = 1:length(possnodes);
@@ -44,7 +44,7 @@ else
 end
 
 %Set the index of the already existing nodes to NaN
-indextracker(ismember(possids,fieldnames(ListNodes)))=NaN;
+indextracker(ismember(possids, fieldnames(ListNodes)))=NaN;
 
 %Split the remaining nodes into their city & characteristic
 temp = regexp(possnodes, '__', 'split');
@@ -55,13 +55,13 @@ possdecisions = ListNodes.(currentNode).possibledecisions;
 
 %Set the indices to NaN of the nodes that do not have as decision one of 
 %possible decisions in this node
-indextracker(ismember(temp(:,1), possdecisions)==0) = NaN;
+indextracker(ismember(temp(:, 1), possdecisions)==0) = NaN;
 
 %Initialise structures to save the generated nodes in. The generatednodes
 %structure has a temporary field to circumvent issues with adding fields to
 %empty structures
-GeneratedNodes = struct('temp',0);
-nameslist = cell(1,Inputs.RamificationAmount);
+GeneratedNodes = struct('temp', 0);
+nameslist = cell(1, Inputs.RamificationAmount);
 
 %Initial index for the nameslist variable, the attempt counter and a
 %tracker for the number of NaNs in the ListNodes.(currentNode).ChildValidityTracker vector
@@ -70,7 +70,7 @@ attempt = 1;
 nantracker = sum(isnan(indextracker));
 
 %Disable the "Concatenate empty structure" warning
-warning('off','MATLAB:catenate:DimensionMismatch');
+warning('off', 'MATLAB:catenate:DimensionMismatch');
 
 %Start loop to generate the desired number of nodes
 while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
@@ -85,20 +85,20 @@ while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
     end
     
     %Choose a node from the list of possible nodes to generate
-    [newnode_ID,nodeindex] = ChooseNode(Inputs,currentNode,possnodes,indextracker,nantracker);
+    [newnode_ID, nodeindex] = ChooseNode(Inputs, currentNode, possnodes, indextracker, nantracker);
         
     %Increase the attempt counter by 1
     attempt = attempt +1;
     
-    %If the chosen node is already part of the generatednodes structure,
+    %If the chosen node is already part of the generatednodes structure, 
     %continue to another attempt
-    if any(strcmp(fieldnames(GeneratedNodes),newnode_ID))
+    if any(strcmp(fieldnames(GeneratedNodes), newnode_ID))
         continue
     end   
        
     
     %Check if the node is valid based on the UID
-    [validflag] = Inputs.NodeIDCheckFile(Inputs,ListNodes,newnode_ID,currentNode);
+    [validflag] = Inputs.NodeIDCheckFile(Inputs, ListNodes, newnode_ID, currentNode);
    
     %Confirm that node doesn't already exist
     if (~validflag)
@@ -109,6 +109,7 @@ while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
         continue
     end
     
+    %Update the number of function calls
     funccalls = funccalls+1;
     
     %Generate the new node & save its cost in a vector

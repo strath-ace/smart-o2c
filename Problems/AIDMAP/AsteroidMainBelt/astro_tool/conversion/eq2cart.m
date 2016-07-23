@@ -1,4 +1,4 @@
-function cart = eq2cart (equin,j)
+function cart = eq2cart (equin, j)
 
 global mu
 

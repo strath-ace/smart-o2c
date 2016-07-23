@@ -1,4 +1,4 @@
-function [] = InitialiseAsteroidsMainBelt(epoch_start,epoch_end,filenames)
+function [] = InitialiseAsteroidsMainBelt(epoch_start, epoch_end, filenames)
 %% InitialiseAsteroidsMainBelt: This function retrieves the asteroid names and the passing epochs through the nodal points required for the Main Belt problem
 %
 %% Inputs:
@@ -18,7 +18,7 @@ addpath(genpath('astro_tool'));
 
 %Obtain the Asteroids structure that contains the CelestialBody objects for
 %each asteroid
-[Asteroids] = EvaluateAsteroidsXLS(filenames.AsteroidsFileName,filenames.MatFileName,filenames.NameFile);
+[Asteroids] = EvaluateAsteroidsXLS(filenames.AsteroidsFileName, filenames.MatFileName, filenames.NameFile);
 
 %Retrieve their names
 asteroidnames = fieldnames(Asteroids);
@@ -33,32 +33,32 @@ for i = 1:length(asteroidnames)
     mu = AstroConstants.Sun_Planetary_Const;
 
     %Generate a CelestialBody that holds the virtual orbit      
-    virtorbit = CelestialBody('virtualorbit',...        %Name
-                                1,...                   %a   Semimajor axis [AU]   
-                                0.035999947927132,...   %e   Eccentricity 
-                                0,...                   %i   Inclination [deg]
-                                -11.26064,...           %OM  Asc. Node/raan [deg]
-                                102.94719,...           %W   Arg. Perigee [deg]
-                                0,...                   %M0  Mean anomoly, M at time given t0 [deg]
+    virtorbit = CelestialBody('virtualorbit', ...        %Name
+                                1, ...                   %a   Semimajor axis [AU]   
+                                0.035999947927132, ...   %e   Eccentricity 
+                                0, ...                   %i   Inclination [deg]
+                                -11.26064, ...           %OM  Asc. Node/raan [deg]
+                                102.94719, ...           %W   Arg. Perigee [deg]
+                                0, ...                   %M0  Mean anomoly, M at time given t0 [deg]
                                 0);                     %t0  Time at which Mo is given [MJD2000]  
 
     %Retrieve the asteroid's orbit
     asteroidorbit = Asteroids.(asteroid).getKeplerianElements();
 
     %Compute Nodal points
-    [Mnode1(i), Mnode2(i), ~, ~, ~, ~, ~] = computeNodalPoints_M0(virtorbit,Asteroids.(asteroid),mu);
+    [Mnode1(i), Mnode2(i), ~, ~, ~, ~, ~] = computeNodalPoints_M0(virtorbit, Asteroids.(asteroid), mu);
     
     %Compute the passing epochs
-    epochsnode1 = computeNodalPassesEpochs(asteroidorbit,Mnode1(i),epoch_start, epoch_end, mu);
-    epochsnode2 = computeNodalPassesEpochs(asteroidorbit,Mnode2(i),epoch_start, epoch_end, mu);
+    epochsnode1 = computeNodalPassesEpochs(asteroidorbit, Mnode1(i), epoch_start, epoch_end, mu);
+    epochsnode2 = computeNodalPassesEpochs(asteroidorbit, Mnode2(i), epoch_start, epoch_end, mu);
 
     %Save the passing epochs into a single array
-    epochsnode{i,1} = [epochsnode1 epochsnode2];
+    epochsnode{i, 1} = [epochsnode1 epochsnode2];
 
 end
 
 %Save the epochs
-save(filenames.epochsnodename,'epochsnode')
+save(filenames.epochsnodename, 'epochsnode')
 end
 
 

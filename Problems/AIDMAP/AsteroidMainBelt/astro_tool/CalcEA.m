@@ -5,15 +5,15 @@
 %
 % Default tolerances is 10^-8 rad.
 %
-% E = CalcEA(M,e) uses default tolerances
+% E = CalcEA(M, e) uses default tolerances
 %
-% E = CalcEA(M,e,tol) will use a user specified tolerance, tol
+% E = CalcEA(M, e, tol) will use a user specified tolerance, tol
 % 
 % Richard Rieber
 % 1/23/2005
 % E-mail problems/suggestions rrieber@gmail.com
 
-function E = CalcEA(M,e)
+function E = CalcEA(M, e)
 
 tol = 10^-8;
 

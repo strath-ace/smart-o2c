@@ -1,4 +1,4 @@
-function [kep,E,M,dt,p]=cart2kep(in,mu)
+function [kep, E, M, dt, p]=cart2kep(in, mu)
 
 % Convertion from cartesian position and velocity to keplerian elements.
 %
@@ -38,14 +38,14 @@ r=in(1:3);
 v=in(4:6);
 
 nr=sqrt(r(1)^2+r(2)^2+r(3)^2); % Norm of r
-h=[r(2)*v(3)-r(3)*v(2),r(3)*v(1)-r(1)*v(3),r(1)*v(2)-r(2)*v(1)]; % cross(r,v): Angular momentum vector
+h=[r(2)*v(3)-r(3)*v(2), r(3)*v(1)-r(1)*v(3), r(1)*v(2)-r(2)*v(1)]; % cross(r, v): Angular momentum vector
 nh=sqrt(h(1)^2+h(2)^2+h(3)^2); % Norm of h
 p=nh^2/mu;
-e=1/mu*[v(2)*h(3)-v(3)*h(2),v(3)*h(1)-v(1)*h(3),v(1)*h(2)-v(2)*h(1)]-r/nr; % Eccentricity vector
+e=1/mu*[v(2)*h(3)-v(3)*h(2), v(3)*h(1)-v(1)*h(3), v(1)*h(2)-v(2)*h(1)]-r/nr; % Eccentricity vector
 ne=sqrt(e(1)^2+e(2)^2+e(3)^2); % Eccentricity
 if ne==1 % Parabola
     a=Inf;
-    warning('cart2kep:parabola','Parabola. Semi-major axis is Inf.');
+    warning('cart2kep:parabola', 'Parabola. Semi-major axis is Inf.');
 else
     a=p/(1-ne^2); % Semi-major axis
 end
@@ -55,10 +55,10 @@ i=acos(h(3)/nh); % Inclination
 
 % Line of nodes vector
 if i~=0 && i~=pi % Inclined orbit
-    n=[-h(2),h(1),0]/sqrt(h(1)^2+h(2)^2); % n=cross([0 0 1],h); n=n/norm(n);
+    n=[-h(2), h(1), 0]/sqrt(h(1)^2+h(2)^2); % n=cross([0 0 1], h); n=n/norm(n);
     %n=n/sqrt(n(1)^2+n(2)^2+n(3)^2); % Normalisation to 1 of nv
 else % Zero-inclination orbit: n is not defined
-    n=[1,0,0]; % Arbitrary choic
+    n=[1, 0, 0]; % Arbitrary choic
 end
 
 % Argument of the ascending node
@@ -71,7 +71,7 @@ end
 if ne~=0 % Non circular orbit
     % Argument of the pericentre
 
-    om=acos((n(1)*e(1)+n(2)*e(2)+n(3)*e(3))/ne); % acos(dot(n,e)/ne)
+    om=acos((n(1)*e(1)+n(2)*e(2)+n(3)*e(3))/ne); % acos(dot(n, e)/ne)
 
 %         if e(3)<0         % 06-11-2007 version 
     if e(3)<-10^(-9)        % 16-07-2014 version (evaluate if it is close to the value)
@@ -90,21 +90,21 @@ if ne~=0 % Non circular orbit
 
 
     % True anomaly
-    th=acos(min(max((e(1)*r(1)+e(2)*r(2)+e(3)*r(3))/ne/nr,-1),1)); % acos(dot(e,r)/ne/nr);
-    if dot(r,v)<0
+    th=acos(min(max((e(1)*r(1)+e(2)*r(2)+e(3)*r(3))/ne/nr, -1), 1)); % acos(dot(e, r)/ne/nr);
+    if dot(r, v)<0
         th=2*pi-th;
     end
 else % Circular orbit: e is not defined
     e_conv=n; % Arbitrary eccentricity vector
     om=0;
     % True anomaly
-    th=acos((e_conv(1)*r(1)+e_conv(2)*r(2)+e_conv(3)*r(3))/nr); % acos(dot(e_conv,r)/nr);
-    if dot(r,v)<0
+    th=acos((e_conv(1)*r(1)+e_conv(2)*r(2)+e_conv(3)*r(3))/nr); % acos(dot(e_conv, r)/nr);
+    if dot(r, v)<0
         th=2*pi-th;
     end
 end
 
-kep=[a,ne,i,Om,om,th];
+kep=[a, ne, i, Om, om, th];
 
 % The following formulas have been found in Vallado chapter 2.
 
@@ -112,7 +112,7 @@ if nargout>1 % E (= eccentric or hyperbolic anomaly) required as output
     if ne>0 && ne<1 % Ellipse
         sinE=sin(th)*sqrt(1-ne^2)/(1+ne*cos(th));
         cosE=(ne+cos(th))/(1+ne*cos(th));
-        E=atan2(sinE,cosE);
+        E=atan2(sinE, cosE);
         if E<0
             E=E+2*pi;
         end

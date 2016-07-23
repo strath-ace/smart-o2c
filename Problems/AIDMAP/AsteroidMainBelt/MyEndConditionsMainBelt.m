@@ -1,4 +1,4 @@
-function [continueflag] = MyEndConditionsMainBelt(Inputs,Agents,agent)
+function [continueflag] = MyEndConditionsMainBelt(Inputs, Agents, agent)
 %% MyEndConditions: This function confirms whether the final condtions have been reached
 %
 %% Inputs:
@@ -21,7 +21,7 @@ currentnode = Agents.(char(agent)).currentNode;
 endconditions = Inputs.EndConditions;
 
 %Check if final city reached
-temp = strsplit(currentnode,'_');
+temp = strsplit(currentnode, '_');
 currentcity = temp{end-3};
 check1 = ~(sum(ismember(currentcity, endconditions{1}))==length(currentcity));
 

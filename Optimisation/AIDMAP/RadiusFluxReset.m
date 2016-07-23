@@ -2,7 +2,7 @@ function [ListNodes] = RadiusFluxReset(Inputs, ListNodes)
 %% RadiusFluxReset: This function handles the restarting of the Physarum algorithm by resetting the radii to their default values and updating the fluxes accordingly.
 %
 %% Inputs:
-% * Inputs   : Structure containing the PhysarumSolver inputs
+% * Inputs          : Structure containing the PhysarumSolver inputs
 % * ListNodes       : Structure containing the graph
 %
 %% Outputs: 

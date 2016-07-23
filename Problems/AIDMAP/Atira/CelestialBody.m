@@ -35,7 +35,7 @@ classdef CelestialBody
         %  W   Arg. Perigee [deg]     
         %  M0  Mean anomoly, M at time given t0 [deg]
         %  t0  Time at which Mo is given [MJD2000]  
-        function celestial_obj = CelestialBody(name,a,e,i,om,w,M0,t0) 
+        function celestial_obj = CelestialBody(name, a, e, i, om, w, M0, t0) 
            celestial_obj.name = name;
            celestial_obj.a    = a; 
            celestial_obj.e    = e;
@@ -60,7 +60,7 @@ classdef CelestialBody
         function kep = getKeplerianElements(obj)
             
             % Create a new Keplerian Element Object                 
-            kep = KeplerianElements(obj.a,obj.e,obj.i,obj.OM, obj.W, obj.M0, obj.t0);
+            kep = KeplerianElements(obj.a, obj.e, obj.i, obj.OM, obj.W, obj.M0, obj.t0);
             
         end
                 

@@ -23,7 +23,7 @@ P1 = e * sin(Om+om);
 P2 = e * cos(Om+om);
 Q1 = tan(incl/2) * sin(Om);
 Q2 = tan(incl/2) * cos(Om);
-L = mod(Om + om + th,2*pi);
+L = mod(Om + om + th, 2*pi);
 
 
 equ = [a P1 P2 Q1 Q2 L];

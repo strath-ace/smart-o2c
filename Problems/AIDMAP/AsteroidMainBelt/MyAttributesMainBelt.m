@@ -1,4 +1,4 @@
-%% MyAttributesMainBelt: this file contains the MyAttributesMainBelt class, which defines the problems-specific attributes each node has 
+%% MyAttributesMainBelt: This file contains the MyAttributesMainBelt class, which defines the problems-specific attributes each node has 
 %
 %% Inputs:
 % * 

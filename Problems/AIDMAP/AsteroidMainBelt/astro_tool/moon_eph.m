@@ -5,8 +5,8 @@ function [XP, VP] = moon_eph(MJD2000)
 %   [XP, VP] = moon_eph(MJD2000)
 %
 % It gives the position and the velocity of the Moon at a given epoch in
-% Geocentric Equatorial Reference Frame (IAU-76/FK5 J2000, mean equator,
-% mean equinox frame) This frame {x,y,z} is characterised by:
+% Geocentric Equatorial Reference Frame (IAU-76/FK5 J2000, mean equator, 
+% mean equinox frame) This frame {x, y, z} is characterised by:
 %   x-axis: on the equatorial plane, along the direction of the gamma point
 %   z-axis: direction of the north pole
 %   y-axis: on the equatorial plane, completes the reference frame
