@@ -1,5 +1,5 @@
 function [memories_out, memories, archivebest, population_evolution, vval_evolution, B_mean, delta_local, inite, iglob, options, exitflag] = ...
-         MP_AIDEA(fname, vlb, vub, pop, options, varargin)
+         MP_AIDEA_old(fname, vlb, vub, pop, options, varargin)
 
 % =========================================================================
 % MP-AIDEA-ALR: Multi-Population Adaptive Inflationary Differential
@@ -531,7 +531,7 @@ while sum(nFeVal) < nFeValMax
    
     % If there are more than 1 population, use mechanism to adapt
     % delta_local and local/global restart
-    if pop_number > 1 && isempty(options.max_LR)
+    if pop_number > 1 
         
         for i_pop_number = 1 : pop_number
             
@@ -859,119 +859,7 @@ while sum(nFeVal) < nFeValMax
             % End of cycle for number of populations
         end
         
-
-        
-        
-        
-    else
-       
-        % IF the population is only one or if max_LR is an input, run local search always before going into
-        % local/gobal restart
-        
-        for i_pop_number = 1 : pop_number
-            
-            % Number of function evaluations for the local search for
-            % the current population
-            nfev(1,i_pop_number) =round( max([min([300*D  nFeValLS]) D]));
-            
-            foptionsNLP = optimset('Display','off','MaxFunEvals',nfev(1,i_pop_number),'LargeScale','off','FinDiffType','central','Algorithm','sqp');
-            
-            % Local search with fmincon
-            [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:),[],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
-            
-            % Update number of function evaluations
-            nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
-            
-            % If value of minimum find by the local search is lower
-            % than current best value:
-            if fvalgrad < BestVal(1,i_pop_number)
-                % substitute best value with function value of minimum
-                % found by fmincon
-                BestVal(1,i_pop_number) = fvalgrad;
-                % Substitute best member components with minimum found
-                % by fmincon
-                BestMem(i_pop_number,:) = xgrad;
-            end
-            if options.text
-                disp('---------------------------------------------------------------------------------------')
-                disp('LOCAL SEARCH')
-                disp(['Population number: ' num2str(i_pop_number)]);
-                disp('---------------------------------------------------------------------------------------')
-                disp(['Minimum: ' num2str(BestVal(1,i_pop_number))]);
-                disp(['Number of function evaluations (so far): ' num2str(sum(nFeVal))]);
-                disp('------------------------------------------------')
-            end
-            
-            % ==================================================================
-            % Archiving of solutions
-            % ==================================================================
-            % Add local minimum to the archive
-            ArchiveBM_LM(2,:,end) = [xgrad fvalgrad];
-            
-            % isnan is true for Not-A-Number
-            if isnan(BestVal(1,i_pop_number))
-                error('NaN value in the objective function')
-            else
-                % archivebest is updated at each local minimum search with the new
-                % bestvalue and the number of function evaluation (only if the
-                % minimum thus found gives a value of the function lower than
-                % the one given by the best element of the population)
-                
-                archivebest_update = [BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
-                
-                archivebest{i_pop_number} = [archivebest{i_pop_number}; archivebest_update];
-                
-                % Archivebest collects values separately for each
-                % population. ArchiveALL collects all the minimum
-                % together (used by clustering mean shift for
-                % clustering of local minima and global restart of the
-                % population)
-                archiveALL = [archiveALL; BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
-                
-                % The population used until this point is going to be
-                % re-initialized. Before this happens, save the population into
-                % the matrix memories - therefore memories contains the
-                % population at the moment of the contraction of the population
-                memories_update = [pop(:,:,i_pop_number) Val(:,i_pop_number);...
-                    xgrad                 fvalgrad];
-                
-                memories{i_pop_number} = [memories{i_pop_number}; memories_update];
-                
-            end
-            
-            
-            % ==================================================================
-            % Update Best
-            % ==================================================================
-            
-            % If the new BestVal value found for the current contracted
-            % population is not better than the previous ones (fmin) the
-            % population keeps being re-initialized around the previous xmin
-            % value
-            
-            if BestVal(1,i_pop_number) < fmin
-                
-                fmin = BestVal(1,i_pop_number);
-                xmin = BestMem(i_pop_number,:);
-                
-            end
-            
-            % What happens to the following line if BestVal is not below the fmin
-            % value and therefore xmin is not defined? This does not happen - see
-            % the value of fmin!!!
-            % Reference point for the re-initialization of the
-            % population
-            xref(i_pop_number,:) = xmin;
-            
-            
-        end
-    end
-    
-    
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % If the dimension for the local restart is not defined by the user,
+        % If the dimension for the local restart is not defined by the user,
         % create matrix to adapt it and adapt it when required:
         if isempty(options.delta_local)
             
@@ -1146,8 +1034,108 @@ while sum(nFeVal) < nFeValMax
             
             % End of condition if isempty(options.delta_local)
         end
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        
+        
+    else
+       
+        % IF the population is only one, run local search before going into
+        % local/gobal restart
+
+        % Number of function evaluations for the local search for
+        % the current population
+        nfev(1,i_pop_number) =round( max([min([300*D  nFeValLS]) D]));
+        
+        foptionsNLP = optimset('Display','off','MaxFunEvals',nfev(1,i_pop_number),'LargeScale','off','FinDiffType','central','Algorithm','sqp');
+        
+        % Local search with fmincon
+        [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:),[],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
+        
+        % Update number of function evaluations
+        nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
+        
+        % If value of minimum find by the local search is lower
+        % than current best value:
+        if fvalgrad < BestVal(1,i_pop_number)
+            % substitute best value with function value of minimum
+            % found by fmincon
+            BestVal(1,i_pop_number) = fvalgrad;
+            % Substitute best member components with minimum found
+            % by fmincon
+            BestMem(i_pop_number,:) = xgrad;
+        end
+        if options.text
+            disp('---------------------------------------------------------------------------------------')
+            disp('LOCAL SEARCH')
+            disp(['Population number: ' num2str(i_pop_number)]);
+            disp('---------------------------------------------------------------------------------------')
+            disp(['Minimum: ' num2str(BestVal(1,i_pop_number))]);
+            disp(['Number of function evaluations (so far): ' num2str(sum(nFeVal))]);
+            disp('------------------------------------------------')
+        end
+        
+        % ==================================================================
+        % Archiving of solutions
+        % ==================================================================
+        % Add local minimum to the archive
+        ArchiveBM_LM(2,:,end) = [xgrad fvalgrad];
+        
+        % isnan is true for Not-A-Number
+        if isnan(BestVal(1,i_pop_number))
+            error('NaN value in the objective function')
+        else
+            % archivebest is updated at each local minimum search with the new
+            % bestvalue and the number of function evaluation (only if the
+            % minimum thus found gives a value of the function lower than
+            % the one given by the best element of the population)
+            
+            archivebest_update = [BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
+            
+            archivebest{i_pop_number} = [archivebest{i_pop_number}; archivebest_update];
+            
+            % Archivebest collects values separately for each
+            % population. ArchiveALL collects all the minimum
+            % together (used by clustering mean shift for
+            % clustering of local minima and global restart of the
+            % population)
+            archiveALL = [archiveALL; BestMem(i_pop_number,:) BestVal(1,i_pop_number) nFeVal(1,i_pop_number)];
+            
+            % The population used until this point is going to be
+            % re-initialized. Before this happens, save the population into
+            % the matrix memories - therefore memories contains the
+            % population at the moment of the contraction of the population
+            memories_update = [pop(:,:,i_pop_number) Val(:,i_pop_number);...
+                xgrad                 fvalgrad];
+            
+            memories{i_pop_number} = [memories{i_pop_number}; memories_update];
+            
+        end
+        
+        
+        % ==================================================================
+        % Update Best
+        % ==================================================================
+        
+        % If the new BestVal value found for the current contracted
+        % population is not better than the previous ones (fmin) the
+        % population keeps being re-initialized around the previous xmin
+        % value
+        
+        if BestVal(1,i_pop_number) < fmin
+            
+            fmin = BestVal(1,i_pop_number);
+            xmin = BestMem(i_pop_number,:);
+            
+        end
+        
+        % What happens to the following line if BestVal is not below the fmin
+        % value and therefore xmin is not defined? This does not happen - see
+        % the value of fmin!!!
+        % Reference point for the re-initialization of the
+        % population
+        xref(i_pop_number,:) = xmin;
+        
+    end
     
     
     
@@ -1186,10 +1174,8 @@ while sum(nFeVal) < nFeValMax
             % - the population is only one and its number of local restart
             % is below the maximum number
 
-            if (pop_number>1 && isempty(options.max_LR) && ~exist('warning_LS','var') ) || ...
-               (exist('warning_LS','var') && warning_LS(i_pop_number) ~= 1) || ...
-               (pop_number == 1 && inite(1,i_pop_number) < options.max_LR) || ...
-               (pop_number>1 && ~isempty(options.max_LR) && inite(1,i_pop_number) < options.max_LR)
+            if (pop_number>1 && ~exist('warning_LS','var') ) || (exist('warning_LS','var') && warning_LS(i_pop_number) ~= 1) || ...
+               (pop_number == 1 && inite(1,i_pop_number) < options.max_LR)
                 
                 
                 % --------- LOCAL RESTART
@@ -1245,8 +1231,8 @@ while sum(nFeVal) < nFeValMax
                 % 1 and the maximum number of local restart has been
                 % reached for that population
             elseif (exist('warning_LS','var') && warning_LS(i_pop_number) == 1) || ...
-                   (pop_number == 1  && inite(1,i_pop_number) >= options.max_LR) || ... 
-                   (pop_number > 1  && ~isempty(options.max_LR) && inite(1,i_pop_number) >= options.max_LR) 
+                   (pop_number == 1  && inite(1,i_pop_number) >= options.max_LR)
+                
                 
                 % --------- GLOBAL RESTART
                 
@@ -1281,7 +1267,7 @@ while sum(nFeVal) < nFeValMax
                                         
                     % For problem with no bounds
                     if isfield(options,'no_bounds') && options.no_bounds
-                        xref0 = lhsdesign(NP,D,'criterion','maximin').* repmat(vub_NoBounds-vlb_NoBounds,NP,1) + repmat(vlb_NoBounds,NP,1);                
+                        xref0 = lhsdesign(NP,D,'criterion','maximin').* repmat(vub_NoBounds-vlb_NoBounds,NP,1) + repmat(vlb_NoBounds,NP,1)                
                     else
                         xref0 = lhsdesign(NP,D,'criterion','maximin').* repmat(vub-vlb,NP,1) + repmat(vlb,NP,1);
                     end
