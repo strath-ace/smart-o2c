@@ -11,7 +11,6 @@ function [x, fval, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options
 % the set of consecutive decisions present in discrete decision making problems.
 %
 %% Inputs:
-%
 % * fitnessfcn : Function handle to cost function (real function)
 % * sets       : The structure containing the values that the optimisation
 %                variables can have for each city (where "city" is defined as done 
