@@ -97,7 +97,7 @@ elseif ismember(cityname, fieldnames(Planets));
     
 else
     
-    % If the asteroid/planet is not in the Asteroids list, set the r_arr, tof_tot and
+    % If the asteroid/planet is not in the Asteroids and Planets list, set the r_arr, tof_tot and
     % t_dep to default values.
     Attributes.r_arr = zeros(1, 3);
     Attributes.tof_tot = 0;
