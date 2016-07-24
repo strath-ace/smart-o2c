@@ -30,14 +30,14 @@ end
 options.LinearDilationCoefficient = 5e-3;                       % Linear dilation coefficient 'm' [real number]
 options.EvaporationCoefficient = 1e-4;                          % Evaporation coefficient 'rho' [real number]
 options.GrowthFactorVal = 5e-3;                                 % Growth factor 'GF' [real number]
-options.NumberOfAgents = 10;                                    % Number of virtual agents 'N_agents' [integer]
+options.NumberOfAgents = 1;                                    % Number of virtual agents 'N_agents' [integer]
 options.RamificationProbability = 0.7;                          % Probability of ramification 'p_ram' [real number between 0 and 1, where 1 is a 100 probability for an agent to ramificate]
 options.RamificationWeight = 1;                                 % Weight on ramification 'lambda' [real number, where a larger value puts more weight on ramification]
 options.MaximumRadiusRatio = 2.5;                               % Maximum ratio between the link's radius & the starting radius [real number]
 options.MinimumRadiusRatio = 1e-3;                              % Maximum ratio between the link's radius & the starting radius [real number]
 options.StartingRadius = 2;                                     % The starting radius of the veins [real number]
 options.RamificationAmount = 5;                                 % The number of nodes initially generated for the ramification [integer]
-options.Generations = 40;                                       % The number of generations [integer]
+options.Generations = 1;                                       % The number of generations [integer]
 options.Viscosity = 1;                                          % The fluid viscocity "mu" [real number]
 options.MinCommonNodesThres = 5;                                % The minimum number of nodes two agents in a generation should have in common for a restart to occur [integer]
 options.IfZeroLength = 1e-15;                                   % Value assigned to the length if it's zero (to prevent flux = inf) [real number]
@@ -64,7 +64,7 @@ SaveDir = 'AsteroidMainBelt\IO_Dir\';                           % Input / Output
 % t0 = Time at which M0 is given [MJD]
 filenames.AsteroidsFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.xlsx';
 
-% The name of the files that will hold the data on the asteroids as
+% The name of the output files that will hold the data on the asteroids as
 % calculated by the InitialiseMainBelt script
 filenames.MatFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.mat';
 filenames.NameFile = 'AsteroidMainBelt\IO_Dir\37AsteroidsNames.txt';
@@ -162,7 +162,7 @@ sets.epochsnode = epochsnode;                           % variable can have. For
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Save the solution with the most asteroids and the least dV
-filename = strcat([SaveDir, 'MainBelt_', 'Startdate', strrep(num2str(epoch_start), '.', '_'), num2str(length(BestSolution{1})-1), 'Asteroids', '_', num2str(options.NumberOfAgents), 'Agents', num2str(options.Generations), 'Generations', '_', datestr(now, 'yyyymmdd_HHMMSS'), '_', 'NewRam']);
+filename = strcat([SaveDir, 'MainBelt_', 'Startdate', strrep(num2str(epoch_start), '.', '_'), '_', num2str(length(BestSolution)-1), 'Asteroids', '_', num2str(options.NumberOfAgents), 'Agents', num2str(options.Generations), 'Generations', '_', datestr(now, 'yyyymmdd_HHMMSS')]);
 SaveTrajectorySolution(BestSolution, output.ListNodes, filename);
 ExportSolution(output.ListNodes, BestSolution, filename)
 
@@ -173,4 +173,4 @@ for i = 1:length(nodenames)
 end  
 
 % Save the workspace
-save(strcat(SaveDir, 'MainBelt', num2str(options.NumberOfAgents), 'Agents', num2str(options.Generations), 'Generations', 'M', strrep(num2str(startorbit(6)), '.', '_'), 'Startdate', strrep(num2str(epoch_start), '.', '_'), datestr(now, 'yyyymmdd_HHMMSS')));
+save(strcat(SaveDir, 'MainBelt', num2str(options.NumberOfAgents), 'Agents', num2str(options.Generations), 'Generations', 'M', strrep(num2str(startorbit(6)), '.', '_'), 'Startdate', strrep(num2str(epoch_start), '.', '_'), '_', datestr(now, 'yyyymmdd_HHMMSS')));
