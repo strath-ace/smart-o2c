@@ -2,7 +2,7 @@ function [validflag] = MyNodeCheckMainBelt(Inputs, ListNodes, newnode_ID, curren
 %% MyNodeCheckMainBelt: This function checks the validity of the node to be created using solely the unique ID 
 % 
 %% Inputs:
-% * Inputs      : The Initialised inputs structure
+% * Inputs      : The initialised inputs structure
 % * ListNodes   : The structure containing all the nodes
 % * newNode     : The node ID of the node to be created [string]
 % * currentNode : The ID of the current node [string]
