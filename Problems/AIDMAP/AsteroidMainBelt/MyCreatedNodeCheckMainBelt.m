@@ -2,11 +2,11 @@ function [checktot] = MyCreatedNodeCheckMainBelt(Inputs, Attributes, ListNodes, 
 %% MyCreatedNodeCheckMainBelt: This function does the further checking on whether the node is valid
 % 
 %% Inputs:
-% * Inputs      : The Initialised inputs structure
+% * Inputs      : The initialised inputs structure
 % * Attributes  : The structure containing the problem-specific attributes 
 %                 of the node to be checked
 % * ListNodes   : The structure containing all the nodes
-% * parent      : The parent of the node to be checked
+% * parent      : The parent of the node to be checked [string]
 % 
 %% Outputs: 
 % * checktot  : The confirmation whether the node is a valid child. This
