@@ -12,7 +12,7 @@ function [validflag] = MyNodeCheckMainBelt(Inputs, ListNodes, newnode_ID, curren
 %                 valid. This should be 1 if the node is valid and 0
 %                 otherwise
 % 
-%% Author: Aram Vroom - 2016
+%% Author(s): Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
 % Check 1 - ToF check: confirm that the required departure date is not

@@ -10,7 +10,7 @@ function [newNode] = CreateNode(Inputs, ListNodes, node_ID, parent)
 %% Outputs: 
 % * newNode : A structure describing the new node and its attributes
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
         
 % Retrieve the city name and attributes from the unique ID

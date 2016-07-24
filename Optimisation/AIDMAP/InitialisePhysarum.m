@@ -11,7 +11,7 @@ function [InitialisedInputs, ListNodes] = InitialisePhysarum(fitnessfcn, options
 % * InitialisedInputs     : Structure containing the PhysarumSolver inputs
 % * ListNodes             : The structure containing all the nodes
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 disp('Initialising Physarum...')

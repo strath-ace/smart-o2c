@@ -9,7 +9,7 @@ function [restartflag] = RestartCheck(Inputs, Agents)
 % * restartflag : A flag that is set to 1 if the algorithm is to be
 %                 restarted
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Initialise the restart flag

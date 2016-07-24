@@ -12,7 +12,7 @@ function [Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalP
 %  theta           : True anomaly of the nodal points
 %  E               : Eccentric anomaly of the nodal points
 % 
-%% Authors:
+%% Author(s):
 %    Juan Manuel Romero Martin (2014), Marilena Di Carlo (2014)
 % 
 % REFERENCE

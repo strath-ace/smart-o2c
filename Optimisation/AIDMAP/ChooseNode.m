@@ -13,7 +13,7 @@ function [newnode_ID, nodeindex] = ChooseNode(Inputs, currentNode, posschildren,
 % * newnode_ID     : The unique identifier of the chosen node [string]
 % * nodeindex      : The index of the node in the posschildren array [integer]
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Split the ID of the curren node

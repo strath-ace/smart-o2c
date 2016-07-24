@@ -11,7 +11,7 @@ function [] = SaveTrajectorySolution(Sequence, ListNodes, filename)
 %% Outputs: 
 % * 
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Open the file

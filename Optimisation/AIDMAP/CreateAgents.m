@@ -9,7 +9,7 @@ function [Agents] = CreateAgents(ListNodes, NumberOfAgents)
 % * Agents         : The structure containing the set of agents and their
 %                    characteristics
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Initialise the Agents structure

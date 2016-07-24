@@ -12,8 +12,8 @@ function [toNodeAttributes, veinlength] = MyCostFunction(Inputs, fromNode, toNod
 %% Outputs: 
 % * toNodeAttributes   : The attributes of the node to which the cost is calculated [structure]
 % * veinlength		   : The length of the vein [real number]
-
-%% Author: Marilena Di Carlo (2014), Aram Vroom (2016)
+%
+%% Author(s): Marilena Di Carlo (2014), Aram Vroom (2016)
 % Email:  marilena.di-carlo@strath.ac.uk, aram.vroom@strath.ac.uk
 
 % Obtain the current orbit & mu

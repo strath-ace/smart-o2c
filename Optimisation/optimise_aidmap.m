@@ -135,7 +135,7 @@ function [x, fval, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options
 %                * output.CompTime: the computation time of the algorithm
 %
 %% Author(s): Aram Vroom (2016), Juan Manuel Romero Martin (2014) and Luca Masi (2012)
-%  Email: aram.vroom@strath.ac.uk juan.romero-martin@strath.ac.uk luca.masi@strath.ac.uk
+% Email: aram.vroom@strath.ac.uk juan.romero-martin@strath.ac.uk luca.masi@strath.ac.uk
 %
 %% References
 % * Masi, Luca and Vasile, Massimiliano (2014) A multidirectional Physarum solver for the automated design of space trajectories. In: Proceedings of the 2014 IEEE Congress on Evolutionary Computation, CEC 2014. Institute of Electrical and Electronics Engineers Inc., pp. 2992-2999. ISBN 978-1-4799-6626-4

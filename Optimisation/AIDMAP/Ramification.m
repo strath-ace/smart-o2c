@@ -17,7 +17,7 @@ function [ListNodes, GeneratedNodes, agentdeathflag, funccalls] = Ramification(I
 % * agentdeathflag      : Indicator as to whether the agent couldn't move.
 %                         Is 1 if this is the case, 0 otherwise
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % For easy of reading, save the agent's current node in a variable
