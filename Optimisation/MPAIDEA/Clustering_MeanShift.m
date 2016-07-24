@@ -39,7 +39,7 @@ while nInitialisationSamples
     
     while true
         
-        SqDist = sum((repmat(ClusterMean,1,nSamples) - DataValues).^2);
+        SqDist = sum((repmat(ClusterMean,1,nSamples) - DataValues).^2, 1);
         PointsInBand      = find(SqDist < BandSquare);
         CurrClusterOpt(PointsInBand) = CurrClusterOpt(PointsInBand)+1;
         

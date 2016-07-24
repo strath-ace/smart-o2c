@@ -1,4 +1,6 @@
-% function y=parzenself(wei,x,f,ny,pdftype,rewei)
+function y=parzenself_k(wei,x,f,ny,pdftype,rewei)
+
+%% Function parzenself_k
 
 % wei: nx or empty row vector
 % x: nx*mx matrix
@@ -8,7 +10,6 @@
 % pdftype: string
 % rewei: scalar
 
-function y=parzenself_k(wei,x,f,ny,pdftype,rewei)
 
 if (nargin==0)
   disp('function y=parzenself(wei,x,f,ny,pdftype,rewei)');

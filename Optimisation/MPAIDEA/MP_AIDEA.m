@@ -1,5 +1,5 @@
 function [memories_out, memories, archivebest, population_evolution, vval_evolution, B_mean, delta_local, inite, iglob, options, exitflag] = ...
-         MP_AIDEA_ALR(fname, vlb, vub, pop, options, varargin)
+         MP_AIDEA(fname, vlb, vub, pop, options, varargin)
 
 % =========================================================================
 % MP-AIDEA-ALR: Multi-Population Adaptive Inflationary Differential
@@ -19,7 +19,7 @@ function [memories_out, memories, archivebest, population_evolution, vval_evolut
 %           vub     = upper boundaries
 %           pop     = initial population matrix
 %                     pop is a 3D matrix where the third dimension
-%                     identifies the numbers of populations
+%                     identifies the number of populations
 %           options = structure containing options for the problem
 %
 %   OUTPUT
@@ -27,13 +27,14 @@ function [memories_out, memories, archivebest, population_evolution, vval_evolut
 %                         population, at each value of function evaluations
 %                         chosen to record the results obtained
 %          memories   = archive containing all the local minima plus the
-%                       population for each restart. The solutions are sorted
+%                       individuals of the 
+%                       population at each restart. The solutions are sorted
 %                       from the best to the worst. One cell for each
 %                       population
 %          archivebest = archive of local minima (obtained by local search)
 %          population_evolution = initial and final population obtained at
 %                                 each DE step for each population
-%          vval_evolution = for each population, important DE parameters 
+%          vval_evolution = for each population, DE parameters 
 %          B_mean   = mean value of the matrix for the adaptation of delta
 %                     local
 %          delta_local = value of delta_local for each population
@@ -56,51 +57,58 @@ function [memories_out, memories, archivebest, population_evolution, vval_evolut
 
 % Check if number of population is compatible with defined input
 if size(pop,3) == 1 && isempty(options.delta_local)
-    error('Adaptation of delta_local is not possible using one population. Increase number of populations or define value for delta_local')
+    error('The adaptation of delta_local is not possible using only one population. Increase the number of populations or define a value for delta_local')
 end
 
 % Check if delta_global was provided by the user
-if ~isfield(options,'delta_global')    
-    warning('\delta_{global} (options.delta_global) not defined - Default value is used');
-    options.delta_global = max(vub-vlb)/50;
+if ~isfield(options,'delta_global') || isempty(options.delta_global) 
+    warning('delta_global (options.delta_global) is not defined or is empty. Default value of 0.1 is used. Press any key to continue or stop MP-AIDEA (Ctrl+c) and define a value for options.delta_global');
+    pause
+    options.delta_global = 0.1;
 end
 
 % Check if convergence threshold was provided by the user
-if ~isfield(options,'rho')
-    warning('\rho (options.rho) not defined by the user - Default value is used');
-    options.rho = max(vub-vlb)/100;
+if ~isfield(options,'rho') || isempty(options.rho)
+    warning('rho (options.rho) is not defined by the user or is empty. The default value 0.2 is used. Press any key to continue or stop MP-AIDEA (Ctrl+c) and define a value for options.rho');
+    pause
+    options.rho = 0.2;
 end
 
 % Chek if user choose DE strategy
-if ~isfield(options,'DE_strategy')    
-    warning('DE strategy (options.DE_strategy) not defined by the user - Default value is used');
+if ~isfield(options,'DE_strategy')  || isempty(options.DE_strategy)  
+    warning('The DE strategy (options.DE_strategy) is not defined by the user. The default value is used (DE/Rand and DE/CurrentToBest). Press any key to continue or stop MP-AIDEA (Ctr+c) and define options.DE_strategy');
+    pause
     options.DE_strategy = 1;
 
 end
 
 % Chek if user choose probability of DE strategy
-if ~isfield(options,'prob_DE_strategy')
-    warning('Probablity of DE strategy (options.prob_DE_strategy) not defined by the user - Default value is used');
+if ~isfield(options,'prob_DE_strategy') || options.prob_DE_strategy
+    warning('The probablity of DE strategies (options.prob_DE_strategy) is not defined by the user. The default value 0.5 is used. Press any key to continue or stop MP-AIDEA (Ctrl+c) and define options.prob_DE_strategy');
+    pause
     options.prob_DE_strategy = 0.5;
 end
 
 % Chek if user choose CRF
-if ~isfield(options,'dd_CRF')
-    warning('options.dd_CRF not defined by the user - Default value is used');
+if ~isfield(options,'dd_CRF') || isempty(options.dd_CRF)
+    warning('options.dd_CRF is not defined by the user. The default value 3 is used. Press any key to continue');
+    pause
     options.dd_CRF = 3;
 
 end
 
 % Check on maximum number of function evaluations
-if ~isfield(options,'nFeValMax')
-    warning('Maximum number of function evaluations (options.nFeValMax) not defined by the user - Default value is used');
+if ~isfield(options,'nFeValMax') && isempty(options.nFeValMax)
+    warning('The maximum number of function evaluations (options.nFeValMax) is not defined by the user. A default value of 100000 is used. Press any key to continue or stop MP-AIDEA (Ctrl+c) and define options.nFeValMax');
+    pause
     options.nFeValMax = 100000;
 end
 
 
-% check on plot flag
-if ~isfield(options,'text')
-        warning('Flag for text display (options.text) not defined by the user - Default value is used');
+% check on text flag
+if ~isfield(options,'text') || isempty(options.text)
+    warning('The flag for text display (options.text) is not defined by the user. Text will not be displayed during the optimisation. Press any key to continue or stop MP-AIDEA and define a value for options.text');
+    pause
     options.text = 0;
 end
 
@@ -229,13 +237,13 @@ for i_pop_number = 1 : pop_number
     % process. Information are not saved only after contraction of the
     % population, but all along the DE evolution (for each parents and
     % offspring generation). Each row of vval_evolution saves:
-    % 1st column: 
+    % 1st column: DE iteration number
     % 2nd column: minimum value of objective function for the current
-    % individual of the current generation of the considered population
+    % individuals of the current generation of the considered population
     % 3rd column: mean value of the objective function 
     % 4th column: maximum value of the objective function
-    % 5th column:
-    % 6th column:
+    % 5th column: parameter contraction
+    % 6th column: parameter contraction
     vval_evolution{i_pop_number}       = [];
     
     % For each population, saves the individuals and the objective function
@@ -324,18 +332,10 @@ while sum(nFeVal) < nFeValMax
                              nFeValMax,...              % Maximum number of functions evaluations
                              varargin{:});
                 
-%                      keyboard    
-%                  if options.text
-%                      disp('---------------------------------------------------------------------------------------')
-%                      disp('END OF DIFFERENTIAL EVOLUTION - CONTRACTION OF POPULATION')
-%                      disp(['Population number: ' num2str(i_pop_number)]);
-%                      disp(['Best objective function value: ' num2str(BestVal(1,i_pop_number))]);
-%                      disp('---------------------------------------------------------------------------------------')
-%                  end
+
                       
                 % Save population and other parameters of the population
                 population_evolution{i_pop_number} = [population_evolution{i_pop_number}; pop(:,:,i_pop_number)];  
-%                 keyboard
                 vval_evolution{i_pop_number}       = [vval_evolution{i_pop_number};       vval_DE];
                 
                 % ---------------------------------------------------------
@@ -711,11 +711,7 @@ while sum(nFeVal) < nFeValMax
                     
                     % isnan is true for Not-A-Number
                     if isnan(BestVal(1,i_pop_number))
-                        disp('NAN')
-                        pop
-                        BestMem
-                        [isave nFeVal]
-                        pause
+                        error('NaN value in the objective function')
                     else
                         % archivebest is updated at each local minimum search with the new
                         % bestvalue and the number of function evaluation (only if the
@@ -1075,11 +1071,7 @@ while sum(nFeVal) < nFeValMax
         
         % isnan is true for Not-A-Number
         if isnan(BestVal(1,i_pop_number))
-            disp('NAN')
-            pop
-            BestMem
-            [isave nFeVal]
-            pause
+            error('NaN value in the objective function')
         else
             % archivebest is updated at each local minimum search with the new
             % bestvalue and the number of function evaluation (only if the
@@ -1408,7 +1400,8 @@ DE_strategy = options.DE_strategy;
 CR_user = options.CR;
 F_user  = options.F;
 
-% ?
+% Number of new individuals evaluated before reaching the maximum number of
+% function evaluation
 new_elements = 0;
 
 % 
@@ -1757,9 +1750,7 @@ while nostop
         if lElTooLow > 0
             InterPop(i,ElTooLow) = ( popold(i,ElTooLow) + lb(ElTooLow) ) / 2;
         end
-        
-        
-        
+   
         if lElTooHigh > 0
             InterPop(i,ElTooHigh) = ( popold(i,ElTooHigh) + ub(ElTooHigh) ) / 2;
         end

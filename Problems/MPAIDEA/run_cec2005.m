@@ -20,13 +20,13 @@ addpath(genpath('CEC2005'))
 global initial_flag
 initial_flag = 0;
 
-%% Choose the CEC 2014 problem
+%% Choose the CEC 2005 problem
 
-% Number of the function to optimise. The CEC 2014 competition includes 30
-% test functions. func_num must be betwen 1 and 30
-func_num = 12;
+% Number of the function to optimise. The CEC 2005 competition includes 25
+% test functions. func_num must be betwen 1 and 25
+func_num = 2;
 
-% Dimension of the problem - Choose between 10, 30, 50 and 100 dimensions
+% Dimension of the problem - Choose between 10, 30 and 50 dimensions
 D = 10;
 
 
@@ -40,7 +40,7 @@ pop_number = 4;
 % -------------------------------------------------------------------------
 % Number of individuals in each population
 % -------------------------------------------------------------------------
-NP = 10;
+NP = D;
 
 % -------------------------------------------------------------------------
 % Dimension of the bubble for the local restart. If empty, MP-AIDEA will
@@ -61,16 +61,16 @@ options.delta_global = 0.1;
 options.rho = 0.2;
 
 % -------------------------------------------------------------------------
-% Maximum number of local restart before global restart (for cases when 1
-% population is considered and no adaptation of delta_local and
+% Maximum number of local restart before global restart (for cases when
+% only one population is considered and no adaptation of delta_local and
 % local/global restart is performed)
 % -------------------------------------------------------------------------
 options.max_LR = 5;
 
 % -------------------------------------------------------------------------
-% Choose the DE strategies. 
+% Choose the Differential Evolution (DE) strategies. 
 % -------------------------------------------------------------------------
-% The DE evolution of MP-AIDEA uses two DE strategies, with probability
+% The DE of MP-AIDEA uses two DE strategies, with probability
 % defined by options.prob_DE_strategy (see later).
 % DE/Rand, DE/CurrentToBest and DE/Best are well know DE strategies.
 % Uncomment the following line for DE strategies DE/Rand and DE/CurrentToBest:
@@ -83,7 +83,7 @@ options.DE_strategy = 1;
 % Probability of having DE strategy 1 rather than DE strategy 2 (DE
 % strategies 1 and 2 have been defined in options.DE_strategy)
 % -------------------------------------------------------------------------
-% Example: if options_DE_strategy was set to 1, options.prob_DE_strategy
+% Example: if options.DE_strategy was set to 1, options.prob_DE_strategy
 % defines the probability of using DE/Rand rather than DE/CurrentToBest
 options.prob_DE_strategy = 0.5;
 
@@ -110,11 +110,41 @@ options.dd_CRF = 3;
 options.text = 1;
 
 
-%% CEC 2014 guidelines
 
-% Lower and upper boundaries of the search space
-UB =  100*ones(1,D);
-LB = -100*ones(1,D);
+%% Lower and upper boundaries of the search space
+
+% The lower and upper boundaries of the search space depend on the given problem
+switch func_num
+    
+    case {1, 2, 3, 4, 5, 6, 14}
+        UB =  100*ones(1,D);
+        LB = -100*ones(1,D);
+        
+    case 7
+        UB =  600*ones(1,D);
+        LB =  zeros(1,D);
+        
+    case 8 
+        UB =  32*ones(1,D);
+        LB = -32*ones(1,D);
+        
+    case {9, 10, 13, 15, 16, 17 18, 19, 20, 21, 22, 23, 24}
+        UB =  5*ones(1,D);
+        LB = -5*ones(1,D);
+        
+    case 11
+        UB =  0.5*ones(1,D);
+        LB = -0.5*ones(1,D);
+        
+    case 12
+        UB =  pi*ones(1,D);
+        LB = -pi*ones(1,D);
+        
+    case 25
+        UB =  2*ones(1,D);
+        LB =  5*ones(1,D);      
+end
+
 
 % Maximum number of function evaluations
 nFeValMax = 10000 * D;
