@@ -63,12 +63,21 @@ InitialisedInputs = struct(...
 
 % Display error if the vectors with number of possible decisions, max. number of consecutive
 % resonance orbits & the max. number of visists is not equal
-if ~(length(InitialisedInputs.MaxConsecutiveVis)==length(InitialisedInputs.PossibleDecisions))
+if (length(InitialisedInputs.MaxConsecutiveVis)~=length(InitialisedInputs.PossibleDecisions))
     error('Check size of PossibleDecisions, MaxConsecutiveVis and MaxVisits')
 end
 
-% Check if the number of boundaries and stepsizes correspond
-if ~(length(InitialisedInputs.AttributeIDIndex)==length(fieldnames(sets)))
+%Check if the sets input has the correct size
+setnames = fieldnames(sets);
+for i = 1:length(setnames)
+    if (length(sets.(char(setnames(i))))~=length(options.Cities))
+        error(strcat('Each field within the sets structure should contain a Cx1 cell array,', ...
+            ' where C is the number of cities'));
+    end
+end
+
+% Check if the size of the AttributeIDIndex option is correct
+if (length(InitialisedInputs.AttributeIDIndex)~=length(fieldnames(sets)))
     error('Check size of AttributeIDIndex and sets')
 end
 

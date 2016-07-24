@@ -78,8 +78,6 @@ else
     toNodeAttributes.dV_tot = fromNode.attributes.dV_tot + deltaV_Total; 
 end
             
-% ==========================================================================================                                                                        
-% MARILENA
 % Compute the Keplerian elements of the transfer orbit at the departure position (a in km and angles in rad)               
 kep_transfer_orbit = cart2kep([departure_r, vel_initial], mu);
 
