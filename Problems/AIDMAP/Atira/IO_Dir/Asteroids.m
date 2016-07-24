@@ -1,33 +1,33 @@
-%------------------------------------------------------------------------%
+% ------------------------------------------------------------------------% 
 % Copyright 2013 -  Juan Manuel Romero Martin
-%------------------------------------------------------------------------%
-%
+% ------------------------------------------------------------------------% 
+% 
 % The Asteroids Class gather a collision of NEO ... blablabla 
-%
+% 
 % Author:
-%   Juan Manuel Romero Martin
-%
+%  Juan Manuel Romero Martin
+% 
 % Reference:
-%   The Orbital elements of the Atira asteroids have been obtained from the
-%   NEODys (Orb9 propagator) <http://newton.dm.unipi.it/neodys/>
-%
+%  The Orbital elements of the Atira asteroids have been obtained from the
+%  NEODys (Orb9 propagator) <http://newton.dm.unipi.it/neodys/>
+% 
 % TODO:
-%   - Finish the documentation of the code
-%
+%  - Finish the documentation of the code
+% 
 
 classdef Asteroids 
     
      properties(Constant = true)  
          
-%         %Earth
-%         Earth = CelestialBody('Earth',    ... % Name 
-%                                   1, ... % Semimajor axis [AU]  
-%                                   0.0167, ... % Eccentricity 
-%                                   0,  ... % Inclination [deg]  
-%                                   -11.26064, ... % Asc. Node/raan [deg]
-%                                   102.94719, ... % Arg. Perigee [deg]
-%                                   124.9799993,   ... % Mean anomoly, M at time given t0 [deg]
-%                                   5972.5);          % Epoch [MJD2000]
+%        % Earth
+%        Earth = CelestialBody('Earth',    ... % Name 
+%                                  1, ... % Semimajor axis [AU]  
+%                                  0.0167, ... % Eccentricity 
+%                                  0,  ... % Inclination [deg]  
+%                                  -11.26064, ... % Asc. Node/raan [deg]
+%                                  102.94719, ... % Arg. Perigee [deg]
+%                                  124.9799993,   ... % Mean anomoly, M at time given t0 [deg]
+%                                  5972.5);          % Epoch [MJD2000]
          
         % Asteroid '163693'
         neo2003CP20 = CelestialBody('2003CP20',    ... % Name 
@@ -150,7 +150,7 @@ classdef Asteroids
                                     5055.5);          % Epoch [MJD2000]
                                 
                                 
-        %Additional Atira asteroids found                        
+        % Additional Atira asteroids found                        
         neo2013TQ5 = CelestialBody('2013TQ5',  ... % Name 
                                     0.773678583, ... % Semimajor axis [AU] 
                                     0.155608989, ... % Eccentricity 
