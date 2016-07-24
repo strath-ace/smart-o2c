@@ -66,7 +66,8 @@ options.rho = 0.2;
 % only one population is considered and no adaptation of delta_local and
 % local/global restart is performed)
 % -------------------------------------------------------------------------
-options.max_LR = 5;
+options.max_LR = [];
+% options.max_LR = 5;
 
 % -------------------------------------------------------------------------
 % Choose the Differential Evolution (DE) strategies. 

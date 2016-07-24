@@ -24,7 +24,7 @@ initial_flag = 0;
 
 % Number of the function to optimise. The CEC 2005 competition includes 25
 % test functions. func_num must be betwen 1 and 25
-func_num = 2;
+func_num = 1;
 
 % Dimension of the problem - Choose between 10, 30 and 50 dimensions
 D = 10;
@@ -65,7 +65,8 @@ options.rho = 0.2;
 % only one population is considered and no adaptation of delta_local and
 % local/global restart is performed)
 % -------------------------------------------------------------------------
-options.max_LR = 5;
+options.max_LR = [];
+% options.max_LR = 5;
 
 % -------------------------------------------------------------------------
 % Choose the Differential Evolution (DE) strategies. 
@@ -123,6 +124,7 @@ switch func_num
     case 7
         UB =  600*ones(1,D);
         LB =  zeros(1,D);
+        options.no_bounds = 1;
         
     case 8 
         UB =  32*ones(1,D);
