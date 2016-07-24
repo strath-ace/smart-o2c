@@ -6,7 +6,7 @@
 %% Outputs: 
 % * 
 % 
-%% Author: Juan Manuel Romero Martin (2014), Marilena Di Carlo (2014)
+%% Author(s): Juan Manuel Romero Martin (2014), Marilena Di Carlo (2014)
 % Email:  juan.romero-martin@strath.ac.uk, marilena.di-carlo@strath.ac.uk
 
 classdef StardustTool

@@ -180,9 +180,7 @@ classdef KeplerianElements
             % Compute the Eccentricity Anomaly
             E = CalcEA(M0_, ecc); % [rad]            
             
-            % Compute the True Anomaly
-            
-            % NEW APPROACH (THAT IS, ORIGINAL ONE) - MARILENA 5th MAY
+            % Compute the True Anomaly            
             cos_theta = ( cos(E) - ecc ) / (1 - ecc*cos(E));
             sin_theta = ( sin(E) * sqrt(1-ecc^2) ) / (1 - ecc*cos(E));
             

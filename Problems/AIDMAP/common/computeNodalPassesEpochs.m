@@ -23,7 +23,7 @@ function [epochs, error_flag] = computeNodalPassesEpochs( keporb, M, epoch_start
 % epochs        : The passing epochs
 % error_flag    : Flag that indicates whether an error occured
 % 
-%% Author: Juan Manuel Romero Martin (2014)
+%% Author(s): Juan Manuel Romero Martin (2014)
 % Email:  juan.romero-martin@strath.ac.uk
 % 
 % Equation used to compute the Epoch at given position:

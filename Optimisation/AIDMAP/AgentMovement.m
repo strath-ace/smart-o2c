@@ -16,7 +16,7 @@ function [Solutions, ListNodes, Agents, agentdeathflag, funccalls] = AgentMoveme
 % * agentdeathflag : Flag that shows whether the agent has 'died'
 % * funccalls      : The number of cost function calls performed so far
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email: aram.vroom@strath.ac.uk
 
 % Initialise the agent death flag

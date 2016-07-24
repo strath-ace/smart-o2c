@@ -12,7 +12,7 @@
 %% Outputs: 
 % * epochsnode  : Epochs at which the asteroid passes its nodal points
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Initialise

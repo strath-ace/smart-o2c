@@ -24,7 +24,7 @@ function [Solutions, BestSolution, ListNodes, Agents, History, funccalls] = Phys
 %                        generations [structure]
 % * funccalls          : The number of cost function calls [integer]
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Initialise the Solutions structure

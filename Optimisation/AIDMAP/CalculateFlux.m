@@ -8,7 +8,7 @@ function [Flux] = CalculateFlux(Inputs, Node)
 %% Outputs:
 % * Flux        : The flux for the node [real number]
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Retreive the link's radius

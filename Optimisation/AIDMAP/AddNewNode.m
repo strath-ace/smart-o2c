@@ -8,7 +8,7 @@ function [ListNodes] = AddNewNode(ListNodes, newNode)
 %% Outputs: 
 % * ListNodes: Previous ListNodes structure but with additional node
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Retrieve the node_ID of the node that is added

@@ -10,7 +10,7 @@ function [ListNodes] = Dilation(Inputs, ListNodes, Agents, agent)
 %% Outputs:
 % * ListNodes   : Structure containing the updated graph
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Convert the agent input into a character array
