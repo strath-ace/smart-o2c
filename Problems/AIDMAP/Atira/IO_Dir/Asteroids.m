@@ -11,9 +11,6 @@
 %  The Orbital elements of the Atira asteroids have been obtained from the
 %  NEODys (Orb9 propagator) <http://newton.dm.unipi.it/neodys/>
 % 
-% TODO:
-%  - Finish the documentation of the code
-% 
 
 classdef Asteroids 
     
