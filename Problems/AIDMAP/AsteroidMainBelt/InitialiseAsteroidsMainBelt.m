@@ -11,7 +11,7 @@ function [] = InitialiseAsteroidsMainBelt(epoch_start, epoch_end, filenames)
 %% Outputs: 
 % * 
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 if isunix

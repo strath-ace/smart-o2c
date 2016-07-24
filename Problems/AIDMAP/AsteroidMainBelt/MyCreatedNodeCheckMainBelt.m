@@ -12,7 +12,7 @@ function [checktot] = MyCreatedNodeCheckMainBelt(Inputs, Attributes, ListNodes, 
 % * checktot  : The confirmation whether the node is a valid child. This
 %               should be 1 if it is and 0 otherwise 
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Retreive the boundaries set for the node validity checks

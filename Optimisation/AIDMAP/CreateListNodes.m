@@ -7,7 +7,7 @@ function [ListNodes] = CreateListNodes(Inputs)
 %% Outputs: 
 % * ListNodes  : Empty structure that will contain the Graph's information
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 

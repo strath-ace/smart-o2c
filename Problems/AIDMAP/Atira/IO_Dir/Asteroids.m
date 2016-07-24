@@ -4,7 +4,7 @@
 % 
 % The Asteroids Class gather a collision of NEO ... blablabla 
 % 
-% Author:
+% Author(s):
 %  Juan Manuel Romero Martin
 % 
 % Reference:

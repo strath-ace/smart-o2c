@@ -14,6 +14,9 @@ function [toNodeAttributes, veinlength] = MyCostFunctionMainBelt(Inputs, fromNod
 % * toNodeAttributes   : The problem-specific attributes of the node to 
 %                        which the cost is calculated [structure]
 % * veinlength		   : The length of the vein [real number]
+%
+%% Author(s): Marilena Di Carlo (2014), Aram Vroom (2016)
+% Email:  marilena.di-carlo@strath.ac.uk, aram.vroom@strath.ac.uk
 
 % Obtain the current orbit & mu
 curr_orbit = fromNode.attributes.kep_trans;

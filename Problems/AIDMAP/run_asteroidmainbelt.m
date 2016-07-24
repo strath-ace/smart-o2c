@@ -1,7 +1,7 @@
 % This is the main file for the Main Belt problem
 % 
-% Author: Aram Vroom (2016)
-% Email:  aram.vroom@strath.ac.uk
+% Author(s): Aram Vroom, Marilena Di Carlo and Juan Manuel Romero Martin (2016)
+% Email: aram.vroom@strath.ac.uk marilena.di-carlo@strath.ac.uk juan.romero-martin@strath.ac.uk
 
 clear all; close all; clc
 rng('shuffle')

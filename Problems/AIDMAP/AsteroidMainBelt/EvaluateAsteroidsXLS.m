@@ -12,7 +12,7 @@ function [Asteroids] = EvaluateAsteroidsXLS(AsteroidsFileName, MatFileName, Name
 % * Asteroids  : The structure containing the CelestialBody objects of the
 %                asteroids
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Read the XLS file

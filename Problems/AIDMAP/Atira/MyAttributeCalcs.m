@@ -14,7 +14,7 @@ function [Attributes] = MyAttributeCalcs(Inputs, Parent, cityname, Attributes)
 %% Outputs: 
 % * Attributes   : The updated attributes structure
 % 
-%% Authors: Marilena Di Carlo (2014), Aram Vroom (2016)
+%% Author(s): Marilena Di Carlo (2014), Aram Vroom (2016)
 % Email:  marilena.di-carlo@strath.ac.uk, aram.vroom@strath.ac.uk
 
 % Check if the asteroid/planet is in the Asteroid class
