@@ -8,7 +8,7 @@ function [x, fval, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options
 % These characteristics are stored in so-called nodes that are placed in between every two veins. 
 % Aside from the vein characteristics, each node also contains the problem-specific attributes. 
 % As each node resembles a certain decision, a set of nodes connected by veins can resemble
-% the set of consecutive decisions present in the aforementioned discrete decision making problems.
+% the set of consecutive decisions present in discrete decision making problems.
 %
 %% Inputs:
 %
@@ -116,7 +116,7 @@ function [x, fval, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options
 %                   vein and the path of each agent throughout the simulation, 
 %                   where 1 is defined as 'yes'
 %
-%% Output:
+%% Outputs:
 % * x           : The best chain of nodes found [string array of node IDs]
 % * fval        : The cost of the best chain of nodes found [real value]
 % * exitflag    : Indicator as to whether a solution has been found. 
@@ -142,41 +142,41 @@ function [x, fval, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options
 % https://pure.strath.ac.uk/portal/files/39689086/Masi_Vasile_CEC_2014_A_multidirectional_physarum_solver_automated_design_space_trajectories_Jul_2014.html
 
 
-%Start clock
+% Start clock
 tic;
 
-%Initialise the AIDMAP algorithm
+% Initialise the AIDMAP algorithm
 [InitialisedInputs, ListNodes] = InitialisePhysarum(fitnessfcn, options, sets);
 
-%Run the algorithm
+% Run the algorithm
 [output.Solutions, BestSolution, output.ListNodes, output.Agents, output.History, output.funccalls] = PhysarumSolver(InitialisedInputs, ListNodes);
 
-%Retrieve the best solution
-x = BestSolution.BestChain(1);
-fval = BestSolution.BestCost(1);
+% Retrieve the best solution
+x = BestSolution.BestChain;
+fval = BestSolution.BestCost;
 
-%Exitflag = 0 denotes no solution found
+% Exitflag = 0 denotes no solution found
 exitflag = 0;
 
-%If the length of x is more than 1, a solution was found
+% If the length of x is more than 1, a solution was found
 if (length(x{1})>1)
     
-    %Set the exitflag to 1
+    % Set the exitflag to 1
     exitflag = 1;
     
-    %If the user has requested the generation of the graph plot animation, 
-    %generate this plot
+    % If the user has requested the generation of the graph plot animation, 
+    % generate this plot
     if (options.GenerateGraphPlot==1)
         PhysarumGraphPlot(options, output.ListNodes, output.History);
     end
     
-    %If the user has requested the generation of the tree plot, generate this plot
+    % If the user has requested the generation of the tree plot, generate this plot
     if (options.GenerateTreePlot==1)
         PhysarumTreePlot(output.ListNodes)
     end
 end
 
-%End clock
+% End clock
 output.CompTime = toc;
 
 end
