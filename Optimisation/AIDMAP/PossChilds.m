@@ -10,7 +10,7 @@ function [posschildren] = PossChilds(cities, sets)
 % * posschildren  : A cell array with all the UIDs the algorithm can
 %                   choose from
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Retrieve the possible attribute values & create the posschildren vector

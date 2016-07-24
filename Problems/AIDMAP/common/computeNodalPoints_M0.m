@@ -12,7 +12,7 @@ function [Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalP
 %  theta           : True anomaly of the nodal points
 %  E               : Eccentric anomaly of the nodal points
 % 
-%% Authors:
+%% Author(s):
 %    Juan Manuel Romero Martin (2014), Marilena Di Carlo (2014)
 % 
 % REFERENCE
@@ -107,7 +107,6 @@ end
 
 % Compute the First Node --------------------------------------------------
 
-% MODIFIED BY MARILENA - 5th MAY 2014
 % Eccentric Anomaly has to be computed using theta and not sin_om_node and
 % cos_om_node (as was previously done)
 cos_E = (cosd(theta) + ecc ) / (1 + ecc*cosd(theta));
@@ -133,7 +132,6 @@ Mnode1 = mod(Mnode1, 360);
 
 % Compute the Second Node -------------------------------------------------
 
-% MODIFIED BY MARILENA - 5th MAY 2014
 % The Mean Anomaly of the 2nd node is not Mnode1 + 180
 
 % True anomaly second node

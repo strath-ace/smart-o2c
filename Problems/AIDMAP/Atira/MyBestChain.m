@@ -11,7 +11,7 @@ function [bestchainindex, bestcost] = MyBestChain(numberofnodes, nodecosts)
 %                     multiple best chains in a single generation [integer]
 % * bestcost        : The cost of the best solution [real number]
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Find the index of the solution(s) with the most asteroids

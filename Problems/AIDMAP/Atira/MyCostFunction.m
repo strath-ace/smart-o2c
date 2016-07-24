@@ -12,8 +12,8 @@ function [toNodeAttributes, veinlength] = MyCostFunction(Inputs, fromNode, toNod
 %% Outputs: 
 % * toNodeAttributes   : The attributes of the node to which the cost is calculated [structure]
 % * veinlength		   : The length of the vein [real number]
-
-%% Author: Marilena Di Carlo (2014), Aram Vroom (2016)
+%
+%% Author(s): Marilena Di Carlo (2014), Aram Vroom (2016)
 % Email:  marilena.di-carlo@strath.ac.uk, aram.vroom@strath.ac.uk
 
 % Obtain the current orbit & mu
@@ -82,8 +82,6 @@ else
     toNodeAttributes.dV_tot = fromNode.attributes.dV_tot + deltaV_Total; 
 end
             
-% ==========================================================================================                                                                        
-% MARILENA
 % Compute the Keplerian elements of the transfer orbit at the departure position (a in km and angles in rad)               
 kep_transfer_orbit = cart2kep([departure_r, vel_initial], mu);
 

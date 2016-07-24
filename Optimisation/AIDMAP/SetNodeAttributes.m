@@ -10,7 +10,7 @@ function [Attributes] = SetNodeAttributes(Inputs, Parent, cityname, attributes)
 %% Outputs: 
 % * Attributes   : Object containing the node's attributes
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
     
 % Retrieve the node attributes defined by the user

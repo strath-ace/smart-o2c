@@ -11,7 +11,7 @@ function [continueflag] = MyEndConditionsMainBelt(Inputs, Agents, agent)
 %                   reached the final condition. This should be 1 if 
 %                   it has, and 0 otherwise
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 % Retrieve the current node

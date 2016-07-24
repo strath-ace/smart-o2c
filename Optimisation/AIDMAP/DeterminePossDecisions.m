@@ -15,7 +15,7 @@ function [possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNo
 % * visitsleft        : Updated vector with the number of times each city
 %                       can still be visisted
 % 
-%% Author: Aram Vroom (2016)
+%% Author(s): Aram Vroom (2016)
 % Email:  aram.vroom@strath.ac.uk
 
 

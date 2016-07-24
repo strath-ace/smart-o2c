@@ -11,7 +11,7 @@ function [Attributes] = MyAttributeCalcsMainBelt(Inputs, Parent, cityname, Attri
 %% Outputs: 
 % * Attributes   : The updated attributes [structure]
 % 
-%% Author: Aram Vroom - 2016
+%% Author(s): Aram Vroom - 2016
 % Email:  aram.vroom@strath.ac.uk
 
 % Retrieve the data on the asteroids
