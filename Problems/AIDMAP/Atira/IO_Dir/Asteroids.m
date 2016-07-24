@@ -10,7 +10,7 @@
 % Email: juan.romero-martin@strath.ac.uk aram.vroom@strath.ac.uk
 %
 %% References:
-% The Orbital elements of the Atira asteroids have been obtained from the
+% * The Orbital elements of the Atira asteroids have been obtained from the
 % NEODys (Orb9 propagator) <http://newton.dm.unipi.it/neodys/>
 % 
 
