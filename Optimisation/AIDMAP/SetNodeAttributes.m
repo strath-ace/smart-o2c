@@ -1,12 +1,12 @@
+function [Attributes] = SetNodeAttributes(Inputs, Parent, cityname, attributes)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [Attributes] = SetNodeAttributes(Inputs, Parent, cityname, attributes)
+%
+%
 %% SetNodeAttributes: This function creates an object using the function specified in the options and sets attributes that identify the node using the characteristics
 % 
 %% Inputs:

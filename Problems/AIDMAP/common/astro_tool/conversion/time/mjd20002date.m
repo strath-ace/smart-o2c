@@ -1,5 +1,12 @@
 function date = mjd20002date(mjd2000)
-
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+%
+%
 % MJD20002DATE Gregorian calendar date from modified Julian day 2000 number.
 % 
 % DATE = MJD20002DATE(MJD2000) returns the Gregorian calendar date

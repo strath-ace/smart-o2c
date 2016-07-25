@@ -1,15 +1,14 @@
+function structure = impose_final_conditions(structure, imposed_final_states)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function structure = impose_final_conditions(structure, imposed_final_states)
-
+%
+%
 % Inputs should already be checked at this point
-
+%
 % Continuous Galerkin adds matching equations, Discontinuous Galerkin adds
 % unconstrained final states as unknowns!!!!!!!
 

@@ -1,13 +1,12 @@
+function [PC,DPC,elem_basis,basis_eval] = make_basis2(order,num_elems,num_eqs,x_temp,int_nodes)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [PC,DPC,elem_basis,basis_eval] = make_basis2(order,num_elems,num_eqs,x_temp,int_nodes)
-
+%
+%
 % As these are polynomials, only the coefficients are needed, and
 % derivation/integration can be performed exactly :)
 

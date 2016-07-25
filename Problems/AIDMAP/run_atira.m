@@ -4,8 +4,8 @@
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
+%
+%
 %% run_atira: This is the main file for the Atira problem. 
 % 
 % Author(s): Aram Vroom, Marilena Di Carlo and Juan Manuel Romero Martin (2016)

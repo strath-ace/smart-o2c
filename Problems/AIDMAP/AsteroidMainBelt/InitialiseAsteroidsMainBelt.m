@@ -1,12 +1,12 @@
+function [] = InitialiseAsteroidsMainBelt(epoch_start, epoch_end, filenames)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [] = InitialiseAsteroidsMainBelt(epoch_start, epoch_end, filenames)
+%
+%
 %% InitialiseAsteroidsMainBelt: This function retrieves the asteroid names and the passing epochs through the nodal points required for the Main Belt problem
 % 
 %% Inputs:

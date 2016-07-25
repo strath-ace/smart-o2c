@@ -4,8 +4,8 @@
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
+%
+%
 %% CelestialBody: This class defines the CelestialBody object
 % 
 % Inputs:

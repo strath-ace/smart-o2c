@@ -1,13 +1,12 @@
+function [vals,gradx,gradu] = eval_cost_functions(g,weights,x,u,x_b,time_interval,els,structure,compute_grad,dgxf,dguf,dgxi,dgui)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [vals,gradx,gradu] = eval_cost_functions(g,weights,x,u,x_b,time_interval,els,structure,compute_grad,dgxf,dguf,dgxi,dgui)
-
+%
+%
 % g is a 2 columns vector containing function handles. left entries are
 % for functions for which we are interested in evaluating them at final
 % time, right entry is for functions which we are interested in evaluating
