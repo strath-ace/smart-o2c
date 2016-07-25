@@ -11,7 +11,7 @@ Features
 ------
 
   - Matlab project ([Matlab](http://www.mathworks.com/products/matlab/ "Matlab homepage"))
-  - Automatic API documentation (Matlab *publish* function)
+  - Automatic API documentation (Matlab *doc* function)
   
 Requirements
 ------
