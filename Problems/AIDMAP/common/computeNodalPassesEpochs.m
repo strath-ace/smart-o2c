@@ -1,3 +1,11 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+
+
 function [epochs, error_flag] = computeNodalPassesEpochs( keporb, M, epoch_start, epoch_end, mu)
 %% computeNodalPassesEpochs: computes the passing epochs at the given Mean Anomaly M0 within the given time domain [epoch_start, epoch_end].
 % 

@@ -1,3 +1,11 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+
+
 function [posschildren] = PossChilds(cities, sets)
 %% PossChilds: This script creates a cell array containing all the unique identifiers (UIDs) of the potential child nodes the AIDMAP algorithm can choose from. 
 % 

@@ -1,3 +1,11 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+
+
 function [xtrial,vtrial,ftrial,maxC,nfeval,discarded,rho,patdirs,MBH_positions,MADS_dirs,loc_opt]=explore2(memories,x,v,f,cid,nfeval,lambda,act_subpr,id_pop_act_subpr,z,zstar,rho,patdirs,pigr,MBH_positions,MADS_dirs,local_only,params)
 %
 %  [x,v,f,maxC,nfeval,discarded,rho]=explore(agents,memories,x,v,f,cid,nfeval,rho,params)

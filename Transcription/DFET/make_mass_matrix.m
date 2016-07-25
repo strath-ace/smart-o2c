@@ -1,3 +1,11 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+
+
 function M = make_mass_matrix(num_elems,state_order,test_order,num_eqs,PC,DPC,pos,neg,DFET)
 
 % TODO: improve readability by factoring out terms indexing the matrix

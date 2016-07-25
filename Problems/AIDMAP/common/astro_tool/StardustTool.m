@@ -1,3 +1,11 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+
+
 %% StardustTool: This class contains various functions related  to finding the Keplerian and Cartesian elements at a certain time for a certain orbit
 % 
 %% Inputs:
