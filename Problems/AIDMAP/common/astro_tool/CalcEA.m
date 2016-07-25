@@ -4,8 +4,8 @@
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
+%
+%
 % Solves for eccentric anomaly, E from a given mean anomaly, M
 % and eccentricty, e.  Performs a simple Newton-Raphson iteration
 % 

@@ -4,8 +4,8 @@
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
+%
+%
 %% norm3: This function calculates the norm of a vector with 3 elements
 % 
 %% Inputs:

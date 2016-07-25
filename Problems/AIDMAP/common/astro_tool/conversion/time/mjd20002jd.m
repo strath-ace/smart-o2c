@@ -1,5 +1,12 @@
 function jd = mjd20002jd(mjd2000)
-
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+%
+%
 % MJD20002JD Julian day number from Modified Julian day 2000 number.
 % 
 % JD = MJD20002JD(MJD2000) returns the Julian day number corresponding to

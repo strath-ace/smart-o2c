@@ -4,8 +4,8 @@
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
+%
+%
 %% MyAttributesMainBelt: This file contains the MyAttributesMainBelt class, which defines the problems-specific attributes each node has 
 % 
 %% Inputs:

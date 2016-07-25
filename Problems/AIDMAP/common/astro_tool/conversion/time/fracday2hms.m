@@ -1,5 +1,12 @@
 function [hrs, mn, sec] = fracday2hms(fracDay)
-
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+%
+%
 % FRACDAY2HMS Convert a fraction of day into hours, minutes, and seconds.
 % 
 % [HRS, MN, SEC] = FRACDAY2HMS(FRACDAY) converts the fraction of day to

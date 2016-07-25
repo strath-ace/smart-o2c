@@ -1,12 +1,12 @@
+function [ListNodes, GeneratedNodes, agentdeathflag, funccalls] = Ramification(Inputs, ListNodes, Agents, agent, funccalls)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [ListNodes, GeneratedNodes, agentdeathflag, funccalls] = Ramification(Inputs, ListNodes, Agents, agent, funccalls)
+%
+%
 %% Ramification: This function handles the ramification to new nodes. 
 % It does so by generating a preset number of random nodes and making a probabilistic
 % selection based on the cost function.

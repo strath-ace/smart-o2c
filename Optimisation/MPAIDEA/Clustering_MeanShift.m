@@ -1,25 +1,25 @@
+function [ClusterCenters,DataClusters,DatainClusters] = Clustering_MeanShift(DataValues,Band)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [ClusterCenters,DataClusters,DatainClusters] = Clustering_MeanShift(DataValues,Band)
+%
+%
 %% Function Clustering_MeanShift clusters data by Mean Shift approach using flat kernel
-
+%
 % INPUTs
 % DataValues        : [nDim x nSamples] input data matrix
 % Band              : is Band parameter (scalar)
-
+%
 % ---OUTPUTs---
 % ClusterCenters    : [nDim x nClusters] locations of cluster centers matrix
 % DataClusters      : clusters for each data
 % DatainClusters    : data in clusters for each cluster
 %
 % Edmondo Minisci 2013
-
+%
 % Ref. : K. Funkunaga and L.D. Hosteler, "The Estimation of the Gradient of a Density Function, with Applications in Pattern Recognition"
 
 
