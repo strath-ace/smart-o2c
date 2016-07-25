@@ -62,13 +62,13 @@ SaveDir = 'AsteroidMainBelt\IO_Dir\';                           % Input / Output
 % e = Eccentricity, i = Inclination [deg], OM = Asc. Node/raan [deg], 
 % W = Arg. Perigee [deg], M0 = Mean anomoly, M at time given t0 [deg] 
 % t0 = Time at which M0 is given [MJD]
-filenames.AsteroidsFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.xlsx';
+filenames.AsteroidsFileName = 'AsteroidMainBelt\IO_Dir\DiameterGreater10km_Reduced.xlsx';
 
 % The name of the output files that will hold the data on the asteroids as
 % calculated by the InitialiseMainBelt script
-filenames.MatFileName = 'AsteroidMainBelt\IO_Dir\37Asteroids.mat';
-filenames.NameFile = 'AsteroidMainBelt\IO_Dir\37AsteroidsNames.txt';
-filenames.epochsnodename = 'AsteroidMainBelt\IO_Dir\37AsteroidsEpochs.mat';
+filenames.MatFileName = 'AsteroidMainBelt\IO_Dir\DiameterGreater10km_Reduced.mat';
+filenames.NameFile = 'AsteroidMainBelt\IO_Dir\DiameterGreater10km_Reduced_Names.txt';
+filenames.epochsnodename = 'AsteroidMainBelt\IO_Dir\DiameterGreater10km_Reduced_Epochs.mat';
 
 
 % If the user is using a Linux or Mac version of MATLAB, replace the
