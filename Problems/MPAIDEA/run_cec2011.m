@@ -24,18 +24,15 @@ addpath(genpath('CEC2011'))
 % MP-AIDEA. The possible problems are: 1, 2, 3, 5, 6, 7, 10, 12, 13
 
 % Number of the function to optimise. Uncomment one of the following lines:
-% func_num = 1;
+func_num = 1;
 % func_num = 2;
 % func_num = 3;
 % func_num = 5;
 % func_num = 6;
 % func_num = 7;
-func_num = 10;
+% func_num = 10;
 % func_num = 12;
 % func_num = 13;
-
-
-
 
 
 %% Set the parameters for MP-AIDEA
@@ -73,7 +70,8 @@ options.rho = 0.2;
 % population is considered and no adaptation of delta_local and
 % local/global restart is performed)
 % -------------------------------------------------------------------------
-options.max_LR = 5;
+options.max_LR = [];
+% options.max_LR = 5;
 
 % -------------------------------------------------------------------------
 % Choose the DE strategies. 

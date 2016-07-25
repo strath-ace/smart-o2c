@@ -11,7 +11,6 @@ if isunix
     addpath(genpath('../../Optimisation'))
 else
     addpath(genpath('..\..\Optimisation'))
-    addpath(genpath('..\..\CEC2014'))
 end
 
 % Add path to problem folder
@@ -42,7 +41,7 @@ pop_number = 4;
 % -------------------------------------------------------------------------
 % Number of individuals in each population
 % -------------------------------------------------------------------------
-NP = 10;
+NP = D;
 
 % -------------------------------------------------------------------------
 % Distance from cluster of global minima for global restart of the
@@ -63,14 +62,15 @@ options.delta_local = [];
 options.rho = 0.2;
 
 % -------------------------------------------------------------------------
-% Maximum number of local restart before global restart (for cases when 1
-% population is considered and no adaptation of delta_local and
+% Maximum number of local restart before global restart (for cases when
+% only one population is considered and no adaptation of delta_local and
 % local/global restart is performed)
 % -------------------------------------------------------------------------
-options.max_LR = 5;
+options.max_LR = [];
+% options.max_LR = 5;
 
 % -------------------------------------------------------------------------
-% Choose the DE strategies. 
+% Choose the Differential Evolution (DE) strategies. 
 % -------------------------------------------------------------------------
 % The DE evolution of MP-AIDEA uses two DE strategies, with probability
 % defined by options.prob_DE_strategy (see later).
