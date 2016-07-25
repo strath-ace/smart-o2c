@@ -4,12 +4,14 @@
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
 % This is the main file for the Main Belt problem
 % 
 % Author(s): Aram Vroom, Marilena Di Carlo and Juan Manuel Romero Martin (2016)
 % Email: aram.vroom@strath.ac.uk marilena.di-carlo@strath.ac.uk juan.romero-martin@strath.ac.uk
+%
+%% References:
+% * JPL Small-Body Database Search Engine
+% http://ssd.jpl.nasa.gov/sbdb_query.cgi#x
 
 clear all; close all; clc
 rng('shuffle')
