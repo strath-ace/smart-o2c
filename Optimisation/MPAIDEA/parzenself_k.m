@@ -15,6 +15,8 @@ function y=parzenself_k(wei,x,f,ny,pdftype,rewei)
 % y: ny*mx matrix
 % pdftype: string
 % rewei: scalar
+%
+%% Author: Mario Costa, Edmondo Minisci
 
 
 if (nargin==0)
