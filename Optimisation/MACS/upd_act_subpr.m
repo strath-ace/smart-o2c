@@ -1,13 +1,12 @@
+function [act_subpr,id_pop_act_subpr,pigr,lambda_f_best]=upd_act_subpr(pigr,lambda,lambda_f_best_old,x,f,memories,z,n_agents_subpr,maxs)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [act_subpr,id_pop_act_subpr,pigr,lambda_f_best]=upd_act_subpr(pigr,lambda,lambda_f_best_old,x,f,memories,z,n_agents_subpr,maxs)
-
+%
+%
 % This function tires to assess which subproblems are improving and selects
 % new promising subproblems to investigate if some older ones are not
 % progressing. It also associates the best candidate agent to solve each

@@ -1,12 +1,12 @@
+function [possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNodes, parent, previousdecisions, decisionname, decisionindex)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [possibledecisions, visitsleft] = DeterminePossDecisions(Inputs, ListNodes, parent, previousdecisions, decisionname, decisionindex)
+%
+%
 %% DeterminePossDecisions: This function determines the possible cities the agent can move to from the current city, using the maximum number of (consecutive) visits
 % 
 %% Inputs:

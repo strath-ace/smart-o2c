@@ -1,13 +1,12 @@
+function  [E, ksun] = uplanet(mjd2000, IBODY)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function  [E, ksun] = uplanet(mjd2000, IBODY)
-
+%
+%
 % ANALYTICAL EPHEMERIDES FOR PLANETS - P. DYSLI, 1977.
 % PLANETARY ORBITAL ELEMENTS ARE RESTITUTED IN A SUN-CENTRED (EARTH-
 % CENTRED FOR THE MOON) ECLIPTIC SYSTEM.

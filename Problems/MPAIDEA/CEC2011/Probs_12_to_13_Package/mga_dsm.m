@@ -1,11 +1,3 @@
-% This Source Code Form is subject to the terms of the Mozilla Public
-% License, v. 2.0. If a copy of the MPL was not distributed with this
-% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-%
-%-----------Copyright (C) 2016 University of Strathclyde-------------
-%
-
-
 % ------------------------------------------------------------------------
 % This source file is part of the 'ESA Advanced Concepts Team's			
 % Space Mechanics Toolbox' software.                                       
@@ -1094,7 +1086,7 @@ E(6)     = mod(E(6), 2*pi);
 EccAnom=M2E(E(6),E(2));
 E(6)=EccAnom;
 
-%Calcolo velocità e posizione nel sistema J2000
+%Calcolo velocit\E0 e posizione nel sistema J2000
 [r,v]=conversion(E);
 
 
