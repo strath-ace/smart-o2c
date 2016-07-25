@@ -1,13 +1,12 @@
+function [x, fval, exitflag, output] = optimise_mpaidea(fitnessfcn, LB, UB, options)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [x, fval, exitflag, output] = optimise_mpaidea(fitnessfcn, LB, UB, options)
-
+%
+%
 %% optimise_mpaidea
 % MP-AIDEA-ALR: Multi-Population Adaptive Inflationary Differential Evolution Algorithm with Adaptive Local Restart.
 % - Adaptation of CR and F inside the single populations

@@ -1,12 +1,12 @@
+function [Asteroids] = EvaluateAsteroidsXLS(AsteroidsFileName, MatFileName, NameFile)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [Asteroids] = EvaluateAsteroidsXLS(AsteroidsFileName, MatFileName, NameFile)
+%
+%
 %% EvaluateAsteroidsXLS: This function evaluates an XLS file containing the orbital elements of asteroids, and outputs a structure with the CelestialBody objects
 % 
 %% Inputs:

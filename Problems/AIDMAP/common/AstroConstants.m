@@ -4,8 +4,8 @@
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
+%
+%
 %% AstroConstants: This class holds the astrodynamic constants
 % 
 % Inputs:

@@ -1,12 +1,12 @@
+function [els, el_nodes, nodes] = make_elements(t_n,order,type)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [els, el_nodes, nodes] = make_elements(t_n,order,type)
+%
+%
 
 num_elems = length(t_n)-1;
 

@@ -1,12 +1,12 @@
+function [Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalPoints_M0( keporb1, keporb2, mu)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function [Mnode1, Mnode2, error_status, theta1, E1, theta2, E2 ] = computeNodalPoints_M0( keporb1, keporb2, mu)
+%
+%
 %% computeNodalPoints_M0: computes the Mean Anomaly of the mutal nodal points between two orbits
 % 
 %% Inputs:

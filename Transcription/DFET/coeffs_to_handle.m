@@ -1,13 +1,12 @@
+function h = coeffs_to_handle (coeffs) 
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function h = coeffs_to_handle (coeffs) 
-
+%
+%
 % Returns a function handle h for the evaluation of a polynomial with
 % coeffs coefficient
 % If coeffs is a row vector, it returns a scalar function handle

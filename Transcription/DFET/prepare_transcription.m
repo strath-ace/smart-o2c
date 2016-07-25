@@ -1,16 +1,14 @@
+function out = prepare_transcription(num_eqs,num_controls,num_elems,state_order,control_order,integr_order,DFET,state_distrib,control_distrib)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function out = prepare_transcription(num_eqs,num_controls,num_elems,state_order,control_order,integr_order,DFET,state_distrib,control_distrib)
-
+%
+%
 % Transcribes problem
 % BLA BLA BLA later on...
-
 % Mi aspetto f(x,u,t) direttamente, quindi num_eqs e num_controls sono dati
 % direttamente dall'utente per evitare casino
 

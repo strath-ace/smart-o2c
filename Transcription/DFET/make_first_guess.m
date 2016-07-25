@@ -1,13 +1,12 @@
+function x = make_first_guess(f,x_0,t_0,t_f,u,structure)
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
-function x = make_first_guess(f,x_0,t_0,t_f,u,structure)
-
+%
+%
 % check format of u (changes if using just fmincon or MACS)
 
 if (size(u,1)*size(u,2))~=structure.num_controls*structure.num_elems*(structure.control_order+1)

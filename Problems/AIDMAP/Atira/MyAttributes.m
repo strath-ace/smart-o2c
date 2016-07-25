@@ -4,8 +4,8 @@
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
+%
+%
 %% MyAttributes: this file contains the MyAttributes class, which defines the problems-specific attributes each node has 
 % 
 %% Inputs:

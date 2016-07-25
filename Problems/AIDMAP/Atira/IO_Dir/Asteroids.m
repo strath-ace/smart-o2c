@@ -4,8 +4,8 @@
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
+%
+%
 %% Asteroids: This file contains the CelestialBody objects for the asteroids to be considered
 % 
 %% Inputs:

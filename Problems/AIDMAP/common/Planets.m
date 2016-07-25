@@ -4,8 +4,8 @@
 %
 %-----------Copyright (C) 2016 University of Strathclyde-------------
 %
-
-
+%
+%
 %% Planets: This class defines the planets as their index within the solar system
 % 
 % Inputs:
