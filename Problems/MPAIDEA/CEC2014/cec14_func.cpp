@@ -18,7 +18,6 @@
 #include <math.h>
 #include <malloc.h>
 #include <mex.h>
-#include <unistd.h>
 
 double *OShift,*M,*y,*z,*x_bound;
 int ini_flag=0,n_flag,func_flag,*SS;
@@ -94,7 +93,7 @@ void mexFunction (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 	n = mxGetN (prhs[0]);
 	if (!(n==2||n==10||n==30||n==50||n==100))
     {
-		mexPrintf ("usage: f = cec14_func(x, func_num);\n");
+ 		mexPrintf ("usage: f = cec14_func(x, func_num);\n");
 		mexErrMsgTxt ("Error: Test functions are only defined for D=2,10,30,50,100.");
     }
 	m = mxGetM (prhs[0]);
@@ -147,7 +146,8 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
         
 		if (!(nx==2||nx==10||nx==20||nx==30||nx==50||nx==100))
 		{
-			printf("\nError: Test functions are only defined for D=2,10,20,30,50,100.\n");
+            mexPrintf ("usage: f = cec14_func(x, func_num);\n");
+            printf("\nError: Test functions are only defined for D=2,10,20,30,50,100.\n");
 		}
 		if (nx==2&&((func_num>=17&&func_num<=22)||(func_num>=29&&func_num<=30)))
 		{

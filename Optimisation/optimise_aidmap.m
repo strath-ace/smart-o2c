@@ -1,5 +1,4 @@
-function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
-
+function [x, fval, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options)
 %% optimisation_aidmap:
 % The AIDMAP algorithm is a combinatorial algorithm that takes its inspiration 
 % from the Physarum Polycephalum mould. To simulate this mould, a number of virtual agents 
@@ -9,10 +8,9 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 % These characteristics are stored in so-called nodes that are placed in between every two veins. 
 % Aside from the vein characteristics, each node also contains the problem-specific attributes. 
 % As each node resembles a certain decision, a set of nodes connected by veins can resemble
-% the set of consecutive decisions present in the aforementioned discrete decision making problems.
+% the set of consecutive decisions present in discrete decision making problems.
 %
 %% Inputs:
-%
 % * fitnessfcn : Function handle to cost function (real function)
 % * sets       : The structure containing the values that the optimisation
 %                variables can have for each city (where "city" is defined as done 
@@ -21,7 +19,11 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %                each cell in turn contains the discrete set of values the optimisation
 %                variable can have
 % * options    : Structure containing the options sets by the user. 
-%                Note that all these options need to be defined
+%                Note that all these options need to be defined. 
+%                The references to files starting with "My" are files that
+%                are to be provided by the user. Examples of these files
+%                and their structure can be found in the Problems folder of
+%                the SMART-O2C Toolbox
 %               * options.LinearDilationCoefficient: Linear dilation
 %                   coefficient 'm' [real number]
 %               * options.EvaporationCoefficient: Evaporation coefficient
@@ -65,7 +67,7 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %               * options.MaxChildFindAttempts: Max number of attempts that
 %                   will be done to find additional children for a node
 %                   [integer]
-%               * options.NodeAttributes:  Reference to the file
+%               * options.MyNodeAttributes:  Reference to the file
 %                   containing the NodeAttributes class, which defines the
 %                   problems-specific attributes each node has          
 %               * options.MyAttributeCalcFile: Reference to the file that
@@ -110,10 +112,10 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %                   as "yes"
 %               * options.SaveHistory: Indicator as to whether the
 %                   algorithm should save the history of the radius of each
-%                   vein and the path of each agent throughout the simulation,
+%                   vein and the path of each agent throughout the simulation, 
 %                   where 1 is defined as 'yes'
 %
-%% Output:
+%% Outputs:
 % * x           : The best chain of nodes found [string array of node IDs]
 % * fval        : The cost of the best chain of nodes found [real value]
 % * exitflag    : Indicator as to whether a solution has been found. 
@@ -131,40 +133,49 @@ function [x,fval,exitflag,output] = optimise_aidmap(fitnessfcn,sets,options)
 %                * output.funcalls: number of cost function calls
 %                * output.CompTime: the computation time of the algorithm
 %
-%% Author(s): Aram Vroom (2016)
-%  Email:  aram.vroom@strath.ac.uk
+%% Author(s): Aram Vroom (2016), Juan Manuel Romero Martin (2014) and Luca Masi (2012)
+% Email: aram.vroom@strath.ac.uk juan.romero-martin@strath.ac.uk luca.masi@strath.ac.uk
 %
-%% References
+%% References:
+% * Masi, Luca and Vasile, Massimiliano (2014) A multidirectional Physarum solver for the automated design of space trajectories. In: Proceedings of the 2014 IEEE Congress on Evolutionary Computation, CEC 2014. Institute of Electrical and Electronics Engineers Inc., pp. 2992-2999. ISBN 978-1-4799-6626-4
+% https://pure.strath.ac.uk/portal/files/39689086/Masi_Vasile_CEC_2014_A_multidirectional_physarum_solver_automated_design_space_trajectories_Jul_2014.html
 
 
-%Start clock
+% Start clock
 tic;
 
-%Initialize the AIDMAP algorithm
-[InitializedInputs,ListNodes] = InitializePhysarum(fitnessfcn,options,sets);
+% Initialise the AIDMAP algorithm
+[InitialisedInputs, ListNodes] = InitialisePhysarum(fitnessfcn, options, sets);
 
-%Run the algorithm
-[output.Solutions, BestSolution, output.ListNodes, output.Agents, output.History, output.funccalls] = PhysarumSolver(InitializedInputs, ListNodes);
+% Run the algorithm
+[output.Solutions, BestSolution, output.ListNodes, output.Agents, output.History, output.funccalls] = PhysarumSolver(InitialisedInputs, ListNodes);
 
-%Retrieve the best solution
-x = BestSolution.BestChain(1);
-fval = BestSolution.BestCost(1);
+% Retrieve the best solution
+x = BestSolution.BestChain;
+fval = BestSolution.BestCost;
 
-
+% Exitflag = 0 denotes no solution found
 exitflag = 0;
+
+% If the length of x is more than 1, a solution was found
 if (length(x{1})>1)
-    exitflag = 1; %Exitflag = 0 denotes no solution found
     
+    % Set the exitflag to 1
+    exitflag = 1;
+    
+    % If the user has requested the generation of the graph plot animation, 
+    % generate this plot
     if (options.GenerateGraphPlot==1)
         PhysarumGraphPlot(options, output.ListNodes, output.History);
     end
     
+    % If the user has requested the generation of the tree plot, generate this plot
     if (options.GenerateTreePlot==1)
         PhysarumTreePlot(output.ListNodes)
     end
 end
 
-%End clock
+% End clock
 output.CompTime = toc;
 
 end
