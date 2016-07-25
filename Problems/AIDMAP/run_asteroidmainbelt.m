@@ -10,6 +10,10 @@
 % 
 % Author(s): Aram Vroom, Marilena Di Carlo and Juan Manuel Romero Martin (2016)
 % Email: aram.vroom@strath.ac.uk marilena.di-carlo@strath.ac.uk juan.romero-martin@strath.ac.uk
+%
+%% References:
+% * JPL Small-Body Database Search Engine
+% http://ssd.jpl.nasa.gov/sbdb_query.cgi#x
 
 clear all; close all; clc
 rng('shuffle')
@@ -38,7 +42,7 @@ end
 options.LinearDilationCoefficient = 5e-3;                       % Linear dilation coefficient 'm' [real number]
 options.EvaporationCoefficient = 1e-4;                          % Evaporation coefficient 'rho' [real number]
 options.GrowthFactorVal = 5e-3;                                 % Growth factor 'GF' [real number]
-options.NumberOfAgents = 20;                                    % Number of virtual agents 'N_agents' [integer]
+options.NumberOfAgents = 10;                                    % Number of virtual agents 'N_agents' [integer]
 options.RamificationProbability = 0.7;                          % Probability of ramification 'p_ram' [real number between 0 and 1, where 1 is a 100 probability for an agent to ramificate]
 options.RamificationWeight = 1;                                 % Weight on ramification 'lambda' [real number, where a larger value puts more weight on ramification]
 options.MaximumRadiusRatio = 2.5;                               % Maximum ratio between the link's radius & the starting radius [real number]
