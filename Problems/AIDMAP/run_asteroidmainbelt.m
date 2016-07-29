@@ -55,7 +55,7 @@ options.GenerateGraphPlot = 0;                                  % Indicator as t
 options.GraphPlotFileName = '';                                 % Name of the file that the graph plot animation will be saved as [string]
 options.GenerateTreePlot = 0;                                   % Indicator as to whether the algorithm should generate a tree plot, where 1 is defined as "yes"
 options.SaveHistory = 0;                                        % Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation, where 1 is defined as "yes"
-options.LowMem = 0;                                             % Indicator as to whether the algorithm should use the low-memory version of searching for new nodes, where 1 is defined as "yes". Using the low-memory version is slower, but requires less memory. 
+options.LowMem = 0;                                             % Indicator as to whether the algorithm should use the low-memory version of the searching for new nodes, where 1 is defined as "yes".
 
 SaveDir = 'AsteroidMainBelt\IO_Dir\';                           % Input / Output Directory   
 
