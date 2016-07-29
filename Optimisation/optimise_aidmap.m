@@ -123,7 +123,7 @@ function [x, fval, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options
 %                   vein and the path of each agent throughout the simulation, 
 %                   where 1 is defined as 'yes'
 %               * options.LowMem = 0: Indicator as to whether the algorithm 
-%                   should use the low-memory version of searching for new nodes, 
+%                   should use the low-memory version of the searching for new nodes, 
 %                   where 1 is defined as "yes". Using the low-memory version is slower
 %                   for small problems, but requires less memory. For large cases, the LowMem
 %                   version may run faster due to the fact that certain node-selection
