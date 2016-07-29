@@ -122,7 +122,7 @@ function [x, fval, exitflag, output] = optimise_aidmap(fitnessfcn, sets, options
 %                   algorithm should save the history of the radius of each
 %                   vein and the path of each agent throughout the simulation, 
 %                   where 1 is defined as 'yes'
-%               * options.LowMem = 0: Indicator as to whether the algorithm 
+%               * options.LowMem: Indicator as to whether the algorithm 
 %                   should use the low-memory version of the searching for new nodes, 
 %                   where 1 is defined as "yes". Using the low-memory version is slower
 %                   for small problems, but requires less memory. For large cases, the LowMem
