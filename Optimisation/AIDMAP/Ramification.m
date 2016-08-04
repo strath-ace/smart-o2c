@@ -69,11 +69,9 @@ indextracker(ismember(temp(:, 1), possdecisions)==0) = NaN;
 % structure has a temporary field to circumvent issues with adding fields to
 % empty structures
 GeneratedNodes = struct('temp', 0);
-nameslist = cell(1, Inputs.RamificationAmount);
 
-% Initial index for the nameslist variable, the attempt counter and a
-% tracker for the number of NaNs in the ListNodes.(currentNode).ChildValidityTracker vector
-i = 1;
+% The attempt counter and a tracker for the number of NaNs in the 
+% ListNodes.(currentNode).ChildValidityTracker vector
 attempt = 1;
 nantracker = sum(isnan(indextracker));
 
@@ -135,12 +133,6 @@ while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
     % Add generated node to the structure created earlier.
     GeneratedNodes.(newNode.node_ID) = newNode;
     
-    % Add generated node name & cost to matrices for ease of access
-    nameslist{i} = newnode_ID;           
-    
-    % Increase the index for the nameslist struct
-    i = i+1;
-
 end
 
 % Remove temporary field within the generatednodes stucture
@@ -156,6 +148,3 @@ if Inputs.LowMem == 0
 end
 
 end
-
-
-
