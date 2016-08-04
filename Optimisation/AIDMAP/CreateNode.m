@@ -50,7 +50,7 @@ end
 veinlength(veinlength == 0) = Inputs.IfZeroLength;
 
 % Find the decision that was made by the parent
-parentdecision = strsplit(parent, '_');
+parentdecision = strsplit(node_ID, '_');
 parentdecision = parentdecision(1);
 
 % Add the parent's decision to the list of previous decisions
