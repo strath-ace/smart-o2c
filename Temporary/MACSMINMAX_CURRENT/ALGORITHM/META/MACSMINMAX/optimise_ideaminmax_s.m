@@ -125,7 +125,8 @@ while ~stop
         indicator_d = -indicator_d;
 
         % update x_doe, f_doe
-        % also build f_outer_aux that is like the result of validation on d_outer_aux and u_record (running validation would repeat fevals)
+        % also build f_outer_aux that is like the result of validation on d_outer_aux and u_record
+        % (running validation would repeat fevals). This is indeed like an inline u_validation.
         x_doe_aux = [];
         f_doe_aux = [];
         f_outer_aux = -sign_inner*inf(size(d_outer_aux,1),n_obj);
@@ -182,15 +183,21 @@ while ~stop
         % end
 
         % update fmin_outer and friends, and ymin for EI computation
-        if n_obj == 1
-            [fmin_outer,idx] = min([fmin_outer;f_outer_aux]);
-            dmin_outer = [dmin_outer; d_outer_aux];
-            dmin_outer = dmin_outer(idx,:);
-        else
-            error('MO: some things not implemented! (and nothing tested...)')
-            % problem_outer.par_objfun.ymin = f_outer(dominance(f_outer,0) == 0,:); % pareto front
-            % probably the simpler is to make a stack f_outer with all f_outer_aux and choose the non-dominated
-        end
+        f_outer_stack = [fmin_outer; f_outer_aux];
+        d_outer_stack = [dmin_outer; d_outer_aux];
+        idx = dominance(f_outer_stack,0) == 0;
+        fmin_outer = f_outer_stack(idx,:);
+        dmin_outer = d_outer_stack(idx,:);
+
+        % if n_obj == 1
+        %     [fmin_outer,idx] = min([fmin_outer;f_outer_aux]);
+        %     dmin_outer = [dmin_outer; d_outer_aux];
+        %     dmin_outer = dmin_outer(idx,:);
+        % else
+        %     error('MO: some things not implemented! (and nothing tested...)')
+        %     % problem_outer.par_objfun.ymin = f_outer(dominance(f_outer,0) == 0,:); % pareto front
+        %     % probably the simpler is to make a stack f_outer with all f_outer_aux and choose the non-dominated
+        % end
         
     end
 
