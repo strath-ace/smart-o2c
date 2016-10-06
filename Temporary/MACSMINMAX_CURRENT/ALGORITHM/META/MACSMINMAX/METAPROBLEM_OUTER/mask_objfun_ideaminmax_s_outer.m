@@ -1,10 +1,6 @@
 function [masked] = mask_objfun_ideaminmax_s_outer(d,par_objfun)
 
 n_obj = max(par_objfun.objectives);
-if(n_obj>1)
-    error('this needs to be checked because it does not work for MO!')
-end
-
 idx=ones(1,n_obj);
 for obj = par_objfun.objectives
     for idx_u = 1:size(par_objfun.u_record{obj},1)
@@ -17,7 +13,13 @@ for obj = par_objfun.objectives
 
 end
 
-u = par_objfun.u_record{1}(idx(1),:);
-masked = -par_objfun.surrogate.indicator([d u],par_objfun.ymin,par_objfun.surrogate); % negative because we will always maximize PI or EI
-
+if n_obj == 1
+	u = par_objfun.u_record{1}(idx(1),:);
+	masked = -par_objfun.surrogate.indicator([d u],par_objfun.ymin,par_objfun.surrogate); % negative because we will always maximize PI or EI
+else
+	error('this needs to be checked because it is not straightforward for MO!')
+	% I think that a solution is to compute EIaug or EIdom with the y and mse values of a point (d,u) for each objective, where
+	% the d would be the same. Conceptually this is like computing the EI for the minmax front that is kept in ymin, i.e. we are driving
+	% the optimisation with an EI(d) even though we are using a single surrogate. That could work...
+end
 return

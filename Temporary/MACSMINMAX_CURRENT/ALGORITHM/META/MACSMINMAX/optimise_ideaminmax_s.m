@@ -33,79 +33,85 @@ problem_inner = build_metaproblem_ideaminmax_s_inner(problem_minmax);
 % The fun begins
 nfeval = 0;
 
-% Initialise DOE and train surrogate
+% Initialise DOE
 du_0 = lhsu(zeros(1,n_d+n_u),ones(1,n_d+n_u),n_du_0);
 x_doe = [];
 f_doe = [];
 for i=1:n_du_0
     x_doe(i,:) = du_0(i,:);
     problem_max_u.par_objfun.d = du_0(i,1:n_d);
-    for obj = 1:n_obj % This is like this because so far the code takes one function handle per objective. Some adaptations are needed so it can take vectorial objfuns.
-        problem_max_u.par_objfun.objective = obj;
-        f_doe(i,obj) = -sign_inner*problem_max_u.objfun(x_doe(i,n_d+1:n_d+n_u),problem_max_u.par_objfun);
+    % NOTE: A lot of the fevals will look like this because so far the code takes one 
+    % function handle per objective. Some adaptation is needed so it can take vectorial objfuns.
+    for obj2 = 1:n_obj 
+        problem_max_u.par_objfun.objective = obj2;
+        f_doe(i,obj2) = -sign_inner*problem_max_u.objfun(du_0(i,n_d+1:n_d+n_u),problem_max_u.par_objfun);
     end
-    nfeval = nfeval + 1;
+    nfeval = nfeval + 1; % Conceptually this is only one feval.
 end
 
 % train surrogate inner
 problem_inner.par_objfun.surrogate.model = problem_inner.par_objfun.surrogate.training(x_doe,-sign_inner*f_doe,problem_inner.par_objfun.surrogate);
 
-
+% Declare the optimisation archives Au, Ad, Afminmax
 u_record = cell(1,n_obj);
 d_record = [];
 f_record = [];
 
-% % Initialise archive Au randomly and Ad empty
-% % NOTE: instead of this in ideaminmax here they select the minimum point in x_doe and take their d, 
-% % optimise in u, add us to the archive Au, ds and us to the x_doe and retrain.
+% % Initialise archive Au randomly
 % for obj = 1:n_obj
 %     u_record{obj} = lhsu(zeros(1,n_u),ones(1,n_u),n_u_record_0(obj));
 % end
 
-% as they do it in ideaminmax_sur3:
-problem_inner.par_objfun.ymin = 1e32;
+% Initialise archive Au as they do it in ideaminmax_sur3:
 for obj = 1:n_obj
+    % look for the d with max f in the DOE.
+    % NOTE: what if we try with the min??
+    [~, idx] = max(f_doe(:,obj));
+    dmaxdoe = x_doe(idx,1:n_d);
     
-    [~, idmaxdoe] = max(f_doe(:,obj));
-    dmaxdoe = x_doe(idmaxdoe,1:n_d);
-    
+    % run an EI optimisation in U for those ds
     problem_inner.par_objfun.d = dmaxdoe;
     problem_inner.par_objfun.objective = obj;
-    
-    [umaxmaxdoe , ~ , ~ , ~ ] = algo_inner.optimise(problem_inner,algo_inner.par);
+    problem_inner.par_objfun.ymin = 1e32*ones(1,n_obj);
 
+    [umax_dmaxdoe , ~ , ~ , ~ ] = algo_inner.optimise(problem_inner,algo_inner.par);
+
+    % add the output u to Au
+    u_record{obj}=[u_record{obj};umax_dmaxdoe];
+
+    % evaluate the output x and add to the DOE
     f_aux = [];
     problem_max_u.par_objfun.d = dmaxdoe;
     for obj2 = 1:n_obj
         problem_max_u.par_objfun.objective = obj2;
-        f_aux(1,obj2) = -sign_inner*problem_max_u.objfun(umaxmaxdoe,problem_max_u.par_objfun);
+        f_aux(1,obj2) = -sign_inner*problem_max_u.objfun(umax_dmaxdoe,problem_max_u.par_objfun);
     end
     nfeval = nfeval + 1;
     
-    u_record{obj}=[u_record{obj};umaxmaxdoe];
-    
-    x_doe = [x_doe;[dmaxdoe umaxmaxdoe]];
+    x_doe = [x_doe;[dmaxdoe umax_dmaxdoe]];
     f_doe = [f_doe;f_aux];
+
 end
 
 
 
-% Main loop
+%% Main loop
 iter=0;
 precision = inf;
-problem_outer.par_objfun.ymin = 1e32;
-% problem_inner.par_objfun.ymin = 1e32;
 dmin_outer = nan(1,n_d);
 fmin_outer = 1e32*ones(1,n_obj);
-umax_inner = nan(1,n_d);
-fmax_inner = sign_inner*1e32*ones(1,n_obj);
+umax_inner_history = cell(1,n_obj);
+for obj = 1:n_obj
+    umax_inner_history{obj}= nan(1,n_u);
+end
+fmax_inner_history = sign_inner*1e32*ones(1,n_obj);
 stop = false;
 while ~stop
 
     iter = iter +1;
     u_record_aux = cell(1,n_obj);
 
-    % %OUTER LOOP: MINIMISATION OVER D
+    %% OUTER LOOP: MINIMISATION OVER D
     indicator_d = inf;
     iter_d = 0;
     problem_outer.par_objfun.u_record = u_record;
@@ -118,15 +124,15 @@ while ~stop
         x_doe = x_doe(idx,:);
         f_doe = f_doe(idx,:);
         problem_outer.par_objfun.surrogate.model = problem_outer.par_objfun.surrogate.training(x_doe,f_doe,problem_outer.par_objfun.surrogate);
-        problem_outer.par_objfun.ymin = fmin_outer; % we'll come back to this, but it's like this in ideaminmax
+        problem_outer.par_objfun.ymin = fmin_outer; % we'll come back to this, but it's like this in ideaminmax_sur3
 
         % maximise indicator_d
         [d_outer_aux, indicator_d, ~, ~] = algo_outer.optimise(problem_outer,algo_outer.par); %no feval here
         indicator_d = -indicator_d;
 
-        % update x_doe, f_doe
+        % update x_doe, f_doe (1)
         % also build f_outer_aux that is like the result of validation on d_outer_aux and u_record
-        % (running validation would repeat fevals). This is indeed like an inline u_validation.
+        % (running u_validation would repeat fevals). This indeed looks like an inline u_validation.
         x_doe_aux = [];
         f_doe_aux = [];
         f_outer_aux = -sign_inner*inf(size(d_outer_aux,1),n_obj);
@@ -134,7 +140,7 @@ while ~stop
         for obj = 1:n_obj
             u_outer_aux{obj} = nan(size(d_outer_aux,1),problem_minmax.dim_u);
         end
-
+        % We will add dmin x Au to the DOE
         for idx_d = 1:size(d_outer_aux,1) % this should be 1:1 but let's leave it like this to facilitate possible changes
             problem_max_u.par_objfun.d = d_outer_aux(idx_d,:);
             for obj = 1:n_obj
@@ -146,21 +152,36 @@ while ~stop
                     end
                     nfeval = nfeval + 1;
 
+                    x_doe_aux = [x_doe_aux; d_outer_aux(idx_d,:), u_record{obj}(idx_u,:)];
+                    f_doe_aux = [f_doe_aux; f_doe_aux_aux];
+
+                    % And in the meanwhile we keep track of the max. in Au
                     if (sign_inner*f_outer_aux(idx_d,obj)<sign_inner*f_doe_aux_aux(1,obj))
                         f_outer_aux(idx_d,obj) = f_doe_aux_aux(1,obj);
                         u_outer_aux{obj}(idx_d,:) = u_record{obj}(idx_u,:);
                     end
-
-                    x_doe_aux = [x_doe_aux; d_outer_aux(idx_d,:), u_record{obj}(idx_u,:)];
-                    f_doe_aux = [f_doe_aux; f_doe_aux_aux];
                 end
             end
         end
         x_doe = [x_doe; x_doe_aux];
         f_doe = [f_doe; f_doe_aux];
 
+        % update fmin_outer for EI computation, the idea is that in the MO case a minmax front gets gradually built
+        if n_obj == 1
+            [fmin_outer,idx] = min([fmin_outer;f_outer_aux]);
+            dmin_outer_stack = [dmin_outer; d_outer_aux];
+            dmin_outer = dmin_outer_stack(idx,:);
+        else
+            f_outer_stack = [fmin_outer; f_outer_aux];
+            d_outer_stack = [dmin_outer; d_outer_aux];
+            idx = dominance(f_outer_stack,0) == 0;
+            fmin_outer = f_outer_stack(idx,:);
+            dmin_outer = d_outer_stack(idx,:);
+        end
 
 
+
+        % OLD VERSION OF WHAT IS ABOVE SINCE (1)
         % % validate dmin with the archive
         % [f_outer_aux, u_outer_aux, nfeval_aux, all_f] = u_validation(problem_max_u, d_outer_aux, u_record, false, 1:n_obj);
         % nfeval = nfeval + nfeval_aux;
@@ -182,13 +203,6 @@ while ~stop
         %     problem_outer.par_objfun.surrogate.model{obj} = problem_outer.par_objfun.surrogate.training(x_doe{obj},f_doe{obj},problem_outer.par_objfun.surrogate);
         % end
 
-        % update fmin_outer and friends, and ymin for EI computation
-        f_outer_stack = [fmin_outer; f_outer_aux];
-        d_outer_stack = [dmin_outer; d_outer_aux];
-        idx = dominance(f_outer_stack,0) == 0;
-        fmin_outer = f_outer_stack(idx,:);
-        dmin_outer = d_outer_stack(idx,:);
-
         % if n_obj == 1
         %     [fmin_outer,idx] = min([fmin_outer;f_outer_aux]);
         %     dmin_outer = [dmin_outer; d_outer_aux];
@@ -201,10 +215,10 @@ while ~stop
         
     end
 
-    n_dmin = size(dmin_outer,1);
     % % Archive shrinking for MO??
     
-    % INNER LOOP: MAXIMISATION OVER U
+    %% INNER LOOP: MAXIMISATION OVER U
+    n_dmin = size(dmin_outer,1);
     for i = 1:n_dmin
         problem_inner.par_objfun.d = dmin_outer(i,:);
         problem_max_u.par_objfun.d = dmin_outer(i,:);
@@ -212,52 +226,53 @@ while ~stop
         for obj = 1:n_obj
             problem_max_u.par_objfun.objective = obj;
             problem_inner.par_objfun.objective = obj;
-
+            fmax_inner_obj = fmax_inner_history(1,obj); % scalar!
+            umax_inner_obj = umax_inner_history{obj};
             indicator_u = inf;
             iter_u = 0;
             while abs(indicator_u) > indicator_u_max && iter_u < iter_u_max
                 iter_u = iter_u + 1;
 
-                % train surrogate inner problem
+                % train surrogate of inner problem
+                % NOTE I  : the 2nd objective has more info than the 1st, etc... potential issue?
+                % NOTE II : the inner surrogate gets trained in negative for minmax. maybe it should be trained in positive
+                %           and just the EI computed for maximisation, so the surrogate can be passed from inner to outer
                 [~, idx] = unique(round(1e8*x_doe),'rows');
                 x_doe = x_doe(idx,:);
                 f_doe = f_doe(idx,:);
                 problem_inner.par_objfun.surrogate.model = problem_inner.par_objfun.surrogate.training(x_doe,-sign_inner*f_doe,problem_inner.par_objfun.surrogate);
-                problem_inner.par_objfun.ymin = fmax_inner(1,obj); % we'll come back to this, but it's like this in ideaminmax
+                problem_inner.par_objfun.ymin = fmax_inner_obj; % we'll come back to this, but it's like this in ideaminmax_sur3
 
                 % maximise indicator_u
                 [u_inner_aux, indicator_u, ~, ~] = algo_inner.optimise(problem_inner,algo_inner.par); %no nfeval here
                 indicator_u = -indicator_u;
 
-                % evaluate
+                % Add the point to the DOE
                 f_doe_aux = [];
                 for obj2 = 1:n_obj
                     f_doe_aux(1,obj2) = problem_max_u.objfun(u_inner_aux,problem_max_u.par_objfun); %note it comes negative for minmax
                 end
                 nfeval = nfeval + 1;
 
-                f_inner_aux = f_doe_aux(1,obj);
+                f_inner_aux_obj = f_doe_aux(1,obj); % scalar!
                 
+                % update the DOE with the new point
                 x_doe = [x_doe; dmin_outer(i,:) , u_inner_aux];
                 f_doe = [f_doe; -sign_inner*f_doe_aux];
 
                 % update ymin for EI computation
-                if n_obj == 1
-                    [fmax_inner,idx] = min([fmax_inner;f_inner_aux]);
-                    umax_inner = [umax_inner; u_inner_aux];
-                    umax_inner = umax_inner(idx,:);
-                else
-                    error('MO: some things not implemented! (and nothing tested...)')
-                    % problem_outer.par_objfun.ymin = f_outer(dominance(f_outer,0) == 0,:); % pareto front
-                end
+                [fmax_inner_obj,idx] = min([fmax_inner_obj; f_inner_aux_obj]); % scalar!
+                umax_inner_obj_stack = [umax_inner_obj; u_inner_aux];
+                umax_inner_obj = umax_inner_obj_stack(idx,:);
             end
 
-            if fmax_inner(1,obj) < -sign_inner*fmin_outer(i,obj)
-                u_record_aux{obj} = [u_record_aux{obj}; umax_inner];
-                f_record_aux(1,obj) = -sign_inner*fmax_inner(1,obj);
+            % update Au with the champion between outer and inner loop
+            if fmax_inner_obj < -sign_inner*fmin_outer(i,obj)
+                u_record_aux{obj} = [u_record_aux{obj}; umax_inner_obj];
+                f_record_aux(1,obj) = -sign_inner*fmax_inner_obj;
             else
                 if iter==1 %this is already in the archive, only replace it for iter==1 because we are gonna restart the archive
-                    u_record_aux{obj} = [u_record_aux{obj}; u_outer_aux];
+                    u_record_aux{obj} = [u_record_aux{obj}; u_outer_aux{obj}];
                 end
                 f_record_aux(1,obj) = fmin_outer(i,obj);
             end
@@ -266,11 +281,10 @@ while ~stop
         f_record = [f_record;f_record_aux];
     end
     
-    
     % update u_record
     for obj = 1:n_obj
         if iter==1
-            u_record{obj} = []; % I don't like this too much
+            u_record{obj} = []; % NOTE: not sure if this is good for the MO but was like this in ideaminmax_sur3
         end
         u_record{obj} = [u_record{obj}; u_record_aux{obj}];
         % u_record{obj} = uniquetol(u_record{obj},1e-8,'ByRows',true); % R2015b+
@@ -278,24 +292,42 @@ while ~stop
         u_record{obj} = u_record{obj}(idx,:);
     end
     
+    % Stop criterions
     size_u_record = sum(cellfun('size',u_record,1));
-    nfeval_val = size_u_record*size(dmin_outer,1);
+    nfeval_val = size_u_record*size(dmin_outer,1); % NOTE: This counts too large with the clever validation. Should add a rule of thumb.
     stop = nfeval + nfeval_val >= nfevalmax;
     if n_obj == 1
-        precision = abs(-sign_inner*fmax_inner - fmin_outer);
+        % NOTE: Maybe the idea of a precision in the maximisation as stop criterion can be extended to MO?
+        precision = abs(-sign_inner*fmax_inner_obj - fmin_outer);
         stop = stop || precision < tol_conv;
+    end 
+
+    % update the f-values that we use to compute EI
+    % NOTE I  ; Needs to be done here not to interfer with stopping criterion for SO
+    % NOTE II : Reinitialised the opposite to add randomness to the iteration?? Should test
+    %           the recommended initialisation of MinMaReK maybe improves convergence, 
+    %           especially in MO but for the moment I follow ideaminmax_sur3;
+    [fmax_inner_history,idx] = min(sign_inner*f_doe,[],1);
+    fmax_inner_history = -sign_inner*fmax_inner_history;
+    for obj = 1:n_obj
+        umax_inner_history{obj} = x_doe(idx(obj),n_d+1:n_d+n_u);
     end
-    
-    fmax_inner = -sign_inner*min(sign_inner*f_doe,[],1);
-    fmin_outer = max(f_doe,[],1);
-    
+    if n_obj == 1
+        [fmin_outer,idx] = max(f_doe,[],1);
+        if(~stop); dmin_outer = x_doe(idx,1:n_d); end;
+    else
+        idx = dominance(f_doe,0)==0;
+        if(~stop); dmin_outer = x_doe(idx,1:n_d); end;
+    end
+       
+
 end
 
 if ~keep_d_record
     d_record = dmin_outer;
 end
 
-%% archive cross check
+%% OLD archive cross check
 % [f_val, u_val_record, nfeval_aux] = u_validation(problem_max_u, d_record, u_record, lsflag_validation, 1:n_obj);
 % nfeval = nfeval + nfeval_aux;
 % % Select non-dominated solutions and define outputs
@@ -303,8 +335,7 @@ end
 % fval = f_val(sel,:);
 
 %% more clever archive cross check
-% even more clever would be to keep track of which u's have the d's been validated against already
-
+% NOTE: even more clever would be to keep track of which u's have the d's been validated against already
 stop = false;
 checked = false(1,size(d_record,1));
 sel = false(1,size(d_record,1));
@@ -321,8 +352,10 @@ while ~stop
     
     tocheck = sel & ~checked;               % select only those that have not been checked
     stop = all(~tocheck);                   % stop if you have nothing to check
-    % check those that have been selected
-    d_tocheck = d_record(tocheck,:);
+    
+    d_tocheck = d_record(tocheck,:);        % check those that have been selected
+
+    % validate
     [f_val_aux, u_val_record_aux, nfeval_aux] = u_validation(problem_max_u, d_tocheck, u_record, lsflag_validation, 1:n_obj);
     nfeval_val = nfeval_val + nfeval_aux;
 
@@ -334,6 +367,7 @@ while ~stop
     checked = checked | tocheck;           % update who has been checked
 end
 
+% at the end of the loop above, sel keeps the non-dominated and validated solutions
 fval = f_record(sel,:);
 nfeval = nfeval + nfeval_val;
 
