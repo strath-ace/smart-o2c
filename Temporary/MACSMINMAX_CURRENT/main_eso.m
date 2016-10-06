@@ -6,7 +6,7 @@ RandStream.setGlobalStream(s);
 init = str2func('init_ideaminmax_s');
 
 %%
-for runid=1
+for runid=1:100
     for tc = 8:13
         disp(strcat(num2str(tc),'_',num2str(runid)))
 

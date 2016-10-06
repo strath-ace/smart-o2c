@@ -40,17 +40,15 @@ f_doe = [];
 for i=1:n_du_0
     x_doe(i,:) = du_0(i,:);
     problem_max_u.par_objfun.d = du_0(i,1:n_d);
-    for obj = 1:n_obj
+    for obj = 1:n_obj % This is like this because so far the code takes one function handle per objective. Some adaptations are needed so it can take vectorial objfuns.
         problem_max_u.par_objfun.objective = obj;
-        f_doe(i,obj) = -sign_inner*problem_max_u.objfun(x_doe{obj}(i,n_d+1:n_d+n_u),problem_max_u.par_objfun);
+        f_doe(i,obj) = -sign_inner*problem_max_u.objfun(x_doe(i,n_d+1:n_d+n_u),problem_max_u.par_objfun);
     end
     nfeval = nfeval + 1;
 end
 
-for obj = 1:n_obj
-%     problem_outer.par_objfun.surrogate.model{obj} = problem_outer.par_objfun.surrogate.training(x_doe{obj},f_doe{obj},problem_outer.par_objfun.surrogate);
-    problem_inner.par_objfun.surrogate.model{obj} = problem_inner.par_objfun.surrogate.training(x_doe{obj},-sign_inner*f_doe{obj},problem_inner.par_objfun.surrogate);
-end
+% train surrogate inner
+problem_inner.par_objfun.surrogate.model = problem_inner.par_objfun.surrogate.training(x_doe,-sign_inner*f_doe,problem_inner.par_objfun.surrogate);
 
 
 u_record = cell(1,n_obj);
@@ -68,37 +66,39 @@ f_record = [];
 problem_inner.par_objfun.ymin = 1e32;
 for obj = 1:n_obj
     
-    [~, idmaxdoe] = max(f_doe{obj});
-    dmaxdoe = x_doe{obj}(idmaxdoe,1:n_d);
-    
-    problem_max_u.par_objfun.d = dmaxdoe;
-    problem_max_u.par_objfun.objective = obj;
+    [~, idmaxdoe] = max(f_doe(:,obj));
+    dmaxdoe = x_doe(idmaxdoe,1:n_d);
     
     problem_inner.par_objfun.d = dmaxdoe;
-    problem_inner.par_objfun.surrogate.model{obj} = problem_inner.par_objfun.surrogate.training(x_doe{obj},-sign_inner*f_doe{obj},problem_outer.par_objfun.surrogate);
+    problem_inner.par_objfun.objective = obj;
     
     [umaxmaxdoe , ~ , ~ , ~ ] = algo_inner.optimise(problem_inner,algo_inner.par);
-    f_aux = -sign_inner*problem_max_u.objfun(umaxmaxdoe,problem_max_u.par_objfun);
+
+    f_aux = [];
+    problem_max_u.par_objfun.d = dmaxdoe;
+    for obj2 = 1:n_obj
+        problem_max_u.par_objfun.objective = obj2;
+        f_aux(1,obj2) = -sign_inner*problem_max_u.objfun(umaxmaxdoe,problem_max_u.par_objfun);
+    end
     nfeval = nfeval + 1;
     
     u_record{obj}=[u_record{obj};umaxmaxdoe];
     
-    x_doe{obj} = [x_doe{obj};[dmaxdoe umaxmaxdoe]];
-    f_doe{obj} = [f_doe{obj};f_aux];
-    
-    problem_outer.par_objfun.surrogate.model{obj} = problem_outer.par_objfun.surrogate.training(x_doe{obj},f_doe{obj},problem_outer.par_objfun.surrogate);
+    x_doe = [x_doe;[dmaxdoe umaxmaxdoe]];
+    f_doe = [f_doe;f_aux];
 end
+
 
 
 % Main loop
 iter=0;
 precision = inf;
 problem_outer.par_objfun.ymin = 1e32;
-problem_inner.par_objfun.ymin = 1e32;
+% problem_inner.par_objfun.ymin = 1e32;
 dmin_outer = nan(1,n_d);
-fmin_outer = 1e32;
+fmin_outer = 1e32*ones(1,n_obj);
 umax_inner = nan(1,n_d);
-fmax_inner = sign_inner*1e32;
+fmax_inner = sign_inner*1e32*ones(1,n_obj);
 stop = false;
 while ~stop
 
@@ -112,37 +112,80 @@ while ~stop
     while abs(indicator_d) > indicator_d_max && iter_d < iter_d_max
 
         iter_d = iter_d+1;
+
+        % update surrogate of outer problem
+        [~, idx] = unique(round(1e8*x_doe),'rows');
+        x_doe = x_doe(idx,:);
+        f_doe = f_doe(idx,:);
+        problem_outer.par_objfun.surrogate.model = problem_outer.par_objfun.surrogate.training(x_doe,f_doe,problem_outer.par_objfun.surrogate);
+        problem_outer.par_objfun.ymin = fmin_outer; % we'll come back to this, but it's like this in ideaminmax
+
         % maximise indicator_d
         [d_outer_aux, indicator_d, ~, ~] = algo_outer.optimise(problem_outer,algo_outer.par); %no feval here
         indicator_d = -indicator_d;
 
-        % validate dmin with the archive
-        [f_outer_aux, u_outer_aux, nfeval_aux, all_f] = u_validation(problem_max_u, d_outer_aux, u_record, false, 1:n_obj);
-        nfeval = nfeval + nfeval_aux;
-
-        % update x_doe, f_doe and surrogate
-        % NOTE suppose there is one doe per objective and we'll see if this works or not...
-        % NOTE II in fact this is stupid because evaluating one objective should be more or less as hard as evaluating them all... 
-        % so I should recode with just one doe asap ("recoding" validation here) but for the moment leave it like this for SO version
+        % update x_doe, f_doe
+        % also build f_outer_aux that is like the result of validation on d_outer_aux and u_record (running validation would repeat fevals)
+        x_doe_aux = [];
+        f_doe_aux = [];
+        f_outer_aux = -sign_inner*inf(size(d_outer_aux,1),n_obj);
+        u_outer_aux = cell(1,n_obj);
         for obj = 1:n_obj
-            size_u_record_obj = size(u_record{obj},1);
-            for i = 1:size(d_outer_aux,1)
-                x_doe{obj} = [x_doe{obj}; repmat(d_outer_aux(i,:),[size_u_record_obj,1]), u_record{obj}];
-                f_doe{obj} = [f_doe{obj}; all_f{obj}(i,:)'];
-            end
-            % [x_doe{obj},idx] = uniquetol(x_doe{obj},1e-8,'ByRows',true); % R2015+
-            [~, idx] = unique(round(1e8*x_doe{obj}),'rows');
-            x_doe{obj} = x_doe{obj}(idx,:);
-            f_doe{obj} = f_doe{obj}(idx,:);
-            problem_outer.par_objfun.surrogate.model{obj} = problem_outer.par_objfun.surrogate.training(x_doe{obj},f_doe{obj},problem_outer.par_objfun.surrogate);
+            u_outer_aux{obj} = nan(size(d_outer_aux,1),problem_minmax.dim_u);
         end
+
+        for idx_d = 1:size(d_outer_aux,1) % this should be 1:1 but let's leave it like this to facilitate possible changes
+            problem_max_u.par_objfun.d = d_outer_aux(idx_d,:);
+            for obj = 1:n_obj
+                for idx_u = 1:size(u_record{obj})
+                    f_doe_aux_aux =[];
+                    for obj2 = 1:n_obj
+                        problem_max_u.par_objfun.objective = obj2;
+                        f_doe_aux_aux(1,obj2) = -sign_inner*problem_max_u.objfun(u_record{obj}(idx_u,:),problem_max_u.par_objfun);
+                    end
+                    nfeval = nfeval + 1;
+
+                    if (sign_inner*f_outer_aux(idx_d,obj)<sign_inner*f_doe_aux_aux(1,obj))
+                        f_outer_aux(idx_d,obj) = f_doe_aux_aux(1,obj);
+                        u_outer_aux{obj}(idx_d,:) = u_record{obj}(idx_u,:);
+                    end
+
+                    x_doe_aux = [x_doe_aux; d_outer_aux(idx_d,:), u_record{obj}(idx_u,:)];
+                    f_doe_aux = [f_doe_aux; f_doe_aux_aux];
+                end
+            end
+        end
+        x_doe = [x_doe; x_doe_aux];
+        f_doe = [f_doe; f_doe_aux];
+
+
+
+        % % validate dmin with the archive
+        % [f_outer_aux, u_outer_aux, nfeval_aux, all_f] = u_validation(problem_max_u, d_outer_aux, u_record, false, 1:n_obj);
+        % nfeval = nfeval + nfeval_aux;
+
+        % % update x_doe, f_doe and surrogate
+        % % NOTE suppose there is one doe per objective and we'll see if this works or not...
+        % % NOTE II in fact this is stupid because evaluating one objective should be more or less as hard as evaluating them all... 
+        % % so I should recode with just one doe asap ("recoding" validation here) but for the moment leave it like this for SO version
+        % for obj = 1:n_obj
+        %     size_u_record_obj = size(u_record{obj},1);
+        %     for i = 1:size(d_outer_aux,1)
+        %         x_doe{obj} = [x_doe{obj}; repmat(d_outer_aux(i,:),[size_u_record_obj,1]), u_record{obj}];
+        %         f_doe{obj} = [f_doe{obj}; all_f{obj}(i,:)'];
+        %     end
+        %     % [x_doe{obj},idx] = uniquetol(x_doe{obj},1e-8,'ByRows',true); % R2015+
+        %     [~, idx] = unique(round(1e8*x_doe{obj}),'rows');
+        %     x_doe{obj} = x_doe{obj}(idx,:);
+        %     f_doe{obj} = f_doe{obj}(idx,:);
+        %     problem_outer.par_objfun.surrogate.model{obj} = problem_outer.par_objfun.surrogate.training(x_doe{obj},f_doe{obj},problem_outer.par_objfun.surrogate);
+        % end
 
         % update fmin_outer and friends, and ymin for EI computation
         if n_obj == 1
             [fmin_outer,idx] = min([fmin_outer;f_outer_aux]);
             dmin_outer = [dmin_outer; d_outer_aux];
             dmin_outer = dmin_outer(idx,:);
-            problem_outer.par_objfun.ymin = fmin_outer; % we'll come back to this, but it's like this in ideaminmax
         else
             error('MO: some things not implemented! (and nothing tested...)')
             % problem_outer.par_objfun.ymin = f_outer(dominance(f_outer,0) == 0,:); % pareto front
@@ -151,25 +194,7 @@ while ~stop
         
     end
 
-% %% TAKE CARE LATER OF ALL OF THIS (UNTIL NEXT WHILE LOOP)
-% %% REMEMBER TO TRAIN THE SURROGATE FOR THE INNER LOOP HERE
-%     %% Select non-dominated solutions
-%     sel = dominance(f_outer,0) == 0;
-%     fmin = f_outer(sel,:);
-%     dmin = d_outer(sel,:);
-    
-%     % I don't think this is necessary but...
-%     dmin(dmin < 0.0) = 0.0;
-%     dmin(dmin > 1.0) = 1.0;
-
-%     % Remove solutions archived more than once (if any)
-%     [dmin,idx] = unique(dmin,'rows');
-%     fmin = fmin(idx,:);
     n_dmin = size(dmin_outer,1);
-    % problem_inner.par_objfun.surrogate.model = problem_outer.par_objfun.surrogate.model;
-    for obj = 1:n_obj
-        problem_inner.par_objfun.surrogate.model{obj} = problem_inner.par_objfun.surrogate.training(x_doe{obj},-sign_inner*f_doe{obj},problem_inner.par_objfun.surrogate);
-    end
     % % Archive shrinking for MO??
     
     % INNER LOOP: MAXIMISATION OVER U
@@ -179,43 +204,50 @@ while ~stop
         f_record_aux=zeros(1,n_obj);
         for obj = 1:n_obj
             problem_max_u.par_objfun.objective = obj;
-            
+            problem_inner.par_objfun.objective = obj;
+
             indicator_u = inf;
             iter_u = 0;
             while abs(indicator_u) > indicator_u_max && iter_u < iter_u_max
                 iter_u = iter_u + 1;
+
+                % train surrogate inner problem
+                [~, idx] = unique(round(1e8*x_doe),'rows');
+                x_doe = x_doe(idx,:);
+                f_doe = f_doe(idx,:);
+                problem_inner.par_objfun.surrogate.model = problem_inner.par_objfun.surrogate.training(x_doe,-sign_inner*f_doe,problem_inner.par_objfun.surrogate);
+                problem_inner.par_objfun.ymin = fmax_inner(1,obj); % we'll come back to this, but it's like this in ideaminmax
 
                 % maximise indicator_u
                 [u_inner_aux, indicator_u, ~, ~] = algo_inner.optimise(problem_inner,algo_inner.par); %no nfeval here
                 indicator_u = -indicator_u;
 
                 % evaluate
-                f_inner_aux = problem_max_u.objfun(u_inner_aux,problem_max_u.par_objfun); %note it comes negative for minmax
+                f_doe_aux = [];
+                for obj2 = 1:n_obj
+                    f_doe_aux(1,obj2) = problem_max_u.objfun(u_inner_aux,problem_max_u.par_objfun); %note it comes negative for minmax
+                end
                 nfeval = nfeval + 1;
 
-                % update doe and surrogate
-                % if ~ismembertol([dmin_outer(i,:) , u_inner_aux],x_doe{obj},1e-8,'ByRows',true) %R2015+
-                if ~ismember(round(1e8*[dmin_outer(i,:) , u_inner_aux]),round(1e8*x_doe{obj}),'rows') 
-                    x_doe{obj} = [x_doe{obj}; dmin_outer(i,:) , u_inner_aux];
-                    f_doe{obj} = [f_doe{obj}; -sign_inner*f_inner_aux];
-                end %should be enough to substitute the more expensive 'unique'
-                problem_inner.par_objfun.surrogate.model{obj} = problem_inner.par_objfun.surrogate.training(x_doe{obj},-sign_inner*f_doe{obj},problem_inner.par_objfun.surrogate);
+                f_inner_aux = f_doe_aux(1,obj);
+                
+                x_doe = [x_doe; dmin_outer(i,:) , u_inner_aux];
+                f_doe = [f_doe; -sign_inner*f_doe_aux];
 
                 % update ymin for EI computation
                 if n_obj == 1
                     [fmax_inner,idx] = min([fmax_inner;f_inner_aux]);
                     umax_inner = [umax_inner; u_inner_aux];
                     umax_inner = umax_inner(idx,:);
-                    problem_inner.par_objfun.ymin = fmax_inner; % we'll come back to this, but it's like this in ideaminmax
                 else
                     error('MO: some things not implemented! (and nothing tested...)')
                     % problem_outer.par_objfun.ymin = f_outer(dominance(f_outer,0) == 0,:); % pareto front
                 end
             end
 
-            if fmax_inner < -sign_inner*fmin_outer(i,obj)
+            if fmax_inner(1,obj) < -sign_inner*fmin_outer(i,obj)
                 u_record_aux{obj} = [u_record_aux{obj}; umax_inner];
-                f_record_aux(1,obj) = -sign_inner*fmax_inner;
+                f_record_aux(1,obj) = -sign_inner*fmax_inner(1,obj);
             else
                 if iter==1 %this is already in the archive, only replace it for iter==1 because we are gonna restart the archive
                     u_record_aux{obj} = [u_record_aux{obj}; u_outer_aux];
@@ -228,10 +260,7 @@ while ~stop
     end
     
     
-    % d_record = uniquetol(d_record,1e-8,'ByRows',true); % R2015+
-    [~,idx] = unique(round(1e8*d_record),'rows');
-    d_record = d_record(idx,:);
-    f_record = f_record(idx,:); % not worrying too much if i lost validated values
+    % update u_record
     for obj = 1:n_obj
         if iter==1
             u_record{obj} = []; % I don't like this too much
@@ -240,21 +269,18 @@ while ~stop
         % u_record{obj} = uniquetol(u_record{obj},1e-8,'ByRows',true); % R2015b+
         [~,idx] = unique(round(1e8*u_record{obj}),'rows');
         u_record{obj} = u_record{obj}(idx,:);
-
-        problem_outer.par_objfun.surrogate.model{obj} = problem_outer.par_objfun.surrogate.training(x_doe{obj},f_doe{obj},problem_outer.par_objfun.surrogate);
     end
     
     size_u_record = sum(cellfun('size',u_record,1));
     nfeval_val = size_u_record*size(dmin_outer,1);
     stop = nfeval + nfeval_val >= nfevalmax;
     if n_obj == 1
-        % precision = sign_inner*(-sign_inner*fmax_inner - fmin_outer);
         precision = abs(-sign_inner*fmax_inner - fmin_outer);
         stop = stop || precision < tol_conv;
     end
     
-    fmax_inner = -sign_inner*min(sign_inner*f_doe{1});
-    fmin_outer = max(f_doe{1});
+    fmax_inner = -sign_inner*min(sign_inner*f_doe,[],1);
+    fmin_outer = max(f_doe,[],1);
     
 end
 
@@ -277,7 +303,7 @@ checked = false(1,size(d_record,1));
 sel = false(1,size(d_record,1));
 u_val_record = cell(1,n_obj);
 for obj = 1:n_obj
-    u_val_record{obj}=nan(size(d_record),problem_minmax.dim_u);
+    u_val_record{obj}=nan(size(d_record,1),problem_minmax.dim_u);
 end
 nfeval_val = 0;
 while ~stop
