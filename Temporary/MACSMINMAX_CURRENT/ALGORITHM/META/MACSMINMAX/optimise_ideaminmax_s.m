@@ -177,6 +177,7 @@ while ~stop
             idx = dominance(f_outer_stack,0) == 0;
             fmin_outer = f_outer_stack(idx,:);
             dmin_outer = d_outer_stack(idx,:);
+
         end
 
 
@@ -214,11 +215,19 @@ while ~stop
         % end
         
     end
-
+    if (n_obj == 2)
+        figure(1)
+        colors = 'kbrmgc';
+        hold on
+        plot(fmin_outer(:,1),fmin_outer(:,2),strcat(colors(mod(iter,length(colors))),'.'))
+        figure(1)    
+    end
+    
     % % Archive shrinking for MO??
     
     %% INNER LOOP: MAXIMISATION OVER U
     n_dmin = size(dmin_outer,1);
+    fmax_inner = fmin_outer;
     for i = 1:n_dmin
         problem_inner.par_objfun.d = dmin_outer(i,:);
         problem_max_u.par_objfun.d = dmin_outer(i,:);
@@ -265,7 +274,9 @@ while ~stop
                 umax_inner_obj_stack = [umax_inner_obj; u_inner_aux];
                 umax_inner_obj = umax_inner_obj_stack(idx,:);
             end
-
+            
+            fmax_inner(i,obj) = -sign_inner*fmax_inner_obj;
+            
             % update Au with the champion between outer and inner loop
             if fmax_inner_obj < -sign_inner*fmin_outer(i,obj)
                 u_record_aux{obj} = [u_record_aux{obj}; umax_inner_obj];
@@ -279,6 +290,14 @@ while ~stop
         end
         d_record = [d_record;dmin_outer(i,:)];
         f_record = [f_record;f_record_aux];
+    end
+    
+    if (n_obj == 2)
+        figure(1)
+        colors = 'kbrmgc';
+        hold on
+        plot(fmax_inner(:,1),fmax_inner(:,2),strcat(colors(mod(iter,length(colors))),'o'))
+        figure(1)
     end
     
     % update u_record
@@ -316,7 +335,7 @@ while ~stop
         [fmin_outer,idx] = max(f_doe,[],1);
         if(~stop); dmin_outer = x_doe(idx,1:n_d); end;
     else
-        idx = dominance(f_doe,0)==0;
+        idx = dominance(-f_doe,0)==0;
         if(~stop); dmin_outer = x_doe(idx,1:n_d); end;
     end
        
