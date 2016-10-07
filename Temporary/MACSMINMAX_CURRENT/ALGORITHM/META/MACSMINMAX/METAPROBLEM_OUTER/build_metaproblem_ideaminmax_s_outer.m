@@ -1,4 +1,4 @@
-function [metaproblem] = build_metaproblem_minmarek_outer(problem)
+function [metaproblem] = build_metaproblem_ideaminmax_s_outer(problem)
 
 % chromosome
 dim_d =  problem.dim_d;
