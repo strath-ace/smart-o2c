@@ -1,6 +1,17 @@
 function [indicator] = kriging_EIdom(x, ymin, surrogate)
 
-[y, mse] = surrogate.predictor(x, surrogate.model);
+% Note that it takes as many x points as objectives
+if (size(x,1)~=2)
+    error('EIdom is only defined for 2 objectives and 2 points need to be passed, one per each objective');
+end
+
+y = [];
+mse = [];
+for obj = 1:size(x,1)
+    [y_aux, mse_aux] = surrogate.predictor(x(obj,:), surrogate.model);
+    y(1,obj) = y_aux(1,obj);
+    mse(1,obj) = mse_aux(1,obj);
+end
 
 s = sqrt(abs(mse));
 
