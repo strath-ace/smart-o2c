@@ -100,11 +100,13 @@ iter=0;
 precision = inf;
 dmin_outer = nan(1,n_d);
 fmin_outer = 1e32*ones(1,n_obj);
+umax_outer=cell(1,n_obj);
 umax_inner_history = cell(1,n_obj);
 for obj = 1:n_obj
+    umax_outer{obj}=nan(1,n_u);
     umax_inner_history{obj}= nan(1,n_u);
 end
-fmax_inner_history = sign_inner*1e32*ones(1,n_obj);
+fmax_inner_history = 1e32*ones(1,n_obj);
 stop = false;
 while ~stop
 
@@ -116,7 +118,7 @@ while ~stop
     iter_d = 0;
     problem_outer.par_objfun.u_record = u_record;
     while abs(indicator_d) > indicator_d_max && iter_d < iter_d_max
-
+        
         iter_d = iter_d+1;
 
         % update surrogate of outer problem
@@ -128,7 +130,7 @@ while ~stop
 
         % maximise indicator_d
         [d_outer_aux, indicator_d, ~, ~] = algo_outer.optimise(problem_outer,algo_outer.par); %no feval here
-        indicator_d = -indicator_d;
+        indicator_d = -indicator_d
 
         % update x_doe, f_doe (1)
         % also build f_outer_aux that is like the result of validation on d_outer_aux and u_record
@@ -167,6 +169,7 @@ while ~stop
         f_doe = [f_doe; f_doe_aux];
 
         % update fmin_outer for EI computation, the idea is that in the MO case a minmax front gets gradually built
+        idx=[];
         if n_obj == 1
             [fmin_outer,idx] = min([fmin_outer;f_outer_aux]);
             dmin_outer_stack = [dmin_outer; d_outer_aux];
@@ -177,9 +180,12 @@ while ~stop
             idx = dominance(f_outer_stack,0) == 0;
             fmin_outer = f_outer_stack(idx,:);
             dmin_outer = d_outer_stack(idx,:);
-
         end
 
+        for obj=1:n_obj
+            umax_outer_stack_obj = [umax_outer{obj};u_outer_aux{obj}];
+            umax_outer{obj} = umax_outer_stack_obj(idx,:);
+        end
 
 
         % OLD VERSION OF WHAT IS ABOVE SINCE (1)
@@ -217,9 +223,9 @@ while ~stop
     end
     if (n_obj == 2)
         figure(1)
-        colors = 'kbrmgc';
+        colors = 'ckbrmg';
         hold on
-        plot(fmin_outer(:,1),fmin_outer(:,2),strcat(colors(mod(iter,length(colors))),'.'))
+        plot(fmin_outer(:,1),fmin_outer(:,2),strcat(colors(mod(iter,length(colors))+1),'.'))
         figure(1)    
     end
     
@@ -228,20 +234,23 @@ while ~stop
     %% INNER LOOP: MAXIMISATION OVER U
     n_dmin = size(dmin_outer,1);
     fmax_inner = fmin_outer;
+    umax_inner = umax_outer;
+    f_record_aux=fmin_outer;
+
     for i = 1:n_dmin
         problem_inner.par_objfun.d = dmin_outer(i,:);
         problem_max_u.par_objfun.d = dmin_outer(i,:);
-        f_record_aux=zeros(1,n_obj);
         for obj = 1:n_obj
             problem_max_u.par_objfun.objective = obj;
             problem_inner.par_objfun.objective = obj;
-            fmax_inner_obj = fmax_inner_history(1,obj); % scalar!
-            umax_inner_obj = umax_inner_history{obj};
+            fmax_inner_obj = -sign_inner*fmin_outer(i,obj); % scalar! % as it should be according to MinMaReK
+            umax_inner_obj = umax_outer{obj}(i,:);
+            % fmax_inner_obj = fmax_inner_history(1,obj); % scalar!
+            % umax_inner_obj = umax_inner_history{obj};
             indicator_u = inf;
             iter_u = 0;
             while abs(indicator_u) > indicator_u_max && iter_u < iter_u_max
                 iter_u = iter_u + 1;
-
                 % train surrogate of inner problem
                 % NOTE I  : the 2nd objective has more info than the 1st, etc... potential issue?
                 % NOTE II : the inner surrogate gets trained in negative for minmax. maybe it should be trained in positive
@@ -250,11 +259,11 @@ while ~stop
                 x_doe = x_doe(idx,:);
                 f_doe = f_doe(idx,:);
                 problem_inner.par_objfun.surrogate.model = problem_inner.par_objfun.surrogate.training(x_doe,-sign_inner*f_doe,problem_inner.par_objfun.surrogate);
-                problem_inner.par_objfun.ymin = fmax_inner_obj; % we'll come back to this, but it's like this in ideaminmax_sur3
+                problem_inner.par_objfun.ymin = fmax_inner_obj*ones(1,n_obj); % we'll come back to this, but it's like this in ideaminmax_sur3
 
                 % maximise indicator_u
                 [u_inner_aux, indicator_u, ~, ~] = algo_inner.optimise(problem_inner,algo_inner.par); %no nfeval here
-                indicator_u = -indicator_u;
+                indicator_u = -indicator_u
 
                 % Add the point to the DOE
                 f_doe_aux = [];
@@ -280,23 +289,23 @@ while ~stop
             % update Au with the champion between outer and inner loop
             if fmax_inner_obj < -sign_inner*fmin_outer(i,obj)
                 u_record_aux{obj} = [u_record_aux{obj}; umax_inner_obj];
-                f_record_aux(1,obj) = -sign_inner*fmax_inner_obj;
+                umax_inner{obj}(i,:)=umax_inner_obj;
+                f_record_aux(i,obj) = -sign_inner*fmax_inner_obj;
             else
                 if iter==1 %this is already in the archive, only replace it for iter==1 because we are gonna restart the archive
                     u_record_aux{obj} = [u_record_aux{obj}; u_outer_aux{obj}];
                 end
-                f_record_aux(1,obj) = fmin_outer(i,obj);
             end
         end
-        d_record = [d_record;dmin_outer(i,:)];
-        f_record = [f_record;f_record_aux];
     end
+    d_record = [d_record;dmin_outer];
+    f_record = [f_record;f_record_aux];
     
     if (n_obj == 2)
         figure(1)
-        colors = 'kbrmgc';
+        colors = 'ckbrmg';
         hold on
-        plot(fmax_inner(:,1),fmax_inner(:,2),strcat(colors(mod(iter,length(colors))),'o'))
+        plot(fmax_inner(:,1),fmax_inner(:,2),strcat(colors(mod(iter,length(colors))+1),'o'))
         figure(1)
     end
     
@@ -331,14 +340,33 @@ while ~stop
     for obj = 1:n_obj
         umax_inner_history{obj} = x_doe(idx(obj),n_d+1:n_d+n_u);
     end
+    idx=[];
     if n_obj == 1
         [fmin_outer,idx] = max(f_doe,[],1);
-        if(~stop); dmin_outer = x_doe(idx,1:n_d); end;
+        if(~stop)
+            dmin_outer = x_doe(idx,1:n_d);
+        end
+        for obj = 1:n_obj
+            umax_outer{obj} = x_doe(idx,n_d+1:n_d+n_u);
+        end
     else
+        % no modification on dmin outer
+        fmin_outer = f_record_aux;
+        umax_outer = umax_inner;
+
         idx = dominance(-f_doe,0)==0;
+        fmin_outer = f_doe(idx,:);
         if(~stop); dmin_outer = x_doe(idx,1:n_d); end;
+        for obj = 1:n_obj
+            umax_outer{obj} = x_doe(idx,n_d+1:n_d+n_u);
+        end
     end
-       
+    
+    
+    fmax_inner
+    fmin_outer
+    nfeval
+    size_x_doe = size(x_doe,1)
 
 end
 
