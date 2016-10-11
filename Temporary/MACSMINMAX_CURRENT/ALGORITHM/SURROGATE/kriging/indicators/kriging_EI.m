@@ -20,5 +20,4 @@ I = ymin - y;
 
 indicator = E;
         
-
 end
