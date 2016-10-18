@@ -1,6 +1,6 @@
-function indicator = kriging_EI(x, ymin, surrogate)
+function indicator = kriging_EI(y, mse, ymin)
 
-[y, mse] = surrogate.predictor(x, surrogate.model);
+% [y, mse] = surrogate.predictor(x, surrogate.model);
 
 s = sqrt(abs(mse));
 %s(s <= 1e-4) = 0;

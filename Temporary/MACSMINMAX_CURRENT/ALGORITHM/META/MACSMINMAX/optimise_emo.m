@@ -1,4 +1,4 @@
-function [d,fval,exitflag,output] = optimise_ideaminmax_s(problem_minmax, algo_outer, algo_inner, par_minmax)
+function [d,fval,exitflag,output] = optimise_emo(problem_minmax, algo_outer, algo_inner, par_minmax)
 
 global nfevalglobal
 % Rename general inputs
@@ -229,7 +229,7 @@ while ~stop
         figure(1)    
     end
     fmin_outer
-    
+
     % % Archive shrinking for MO??
     
     %% INNER LOOP: MAXIMISATION OVER U
@@ -244,10 +244,10 @@ while ~stop
         for obj = 1:n_obj
             problem_max_u.par_objfun.objective = obj;
             problem_inner.par_objfun.objective = obj;
-            % fmax_inner_obj = -sign_inner*fmin_outer(i,obj); % scalar! % as it should be according to MinMaReK
-            % umax_inner_obj = umax_outer{obj}(i,:);
-            fmax_inner_obj = fmax_inner_history(1,obj); % scalar!
-            umax_inner_obj = umax_inner_history{obj};
+            fmax_inner_obj = -sign_inner*fmin_outer(i,obj); % scalar! % as it should be according to MinMaReK
+            umax_inner_obj = umax_outer{obj}(i,:);
+            % fmax_inner_obj = fmax_inner_history(1,obj); % scalar!
+            % umax_inner_obj = umax_inner_history{obj};
             indicator_u = inf;
             iter_u = 0;
             while abs(indicator_u) > indicator_u_max && iter_u < iter_u_max
@@ -324,7 +324,7 @@ while ~stop
     
     % Stop criterions
     size_u_record = sum(cellfun('size',u_record,1));
-    nfeval_val = size_u_record*size(dmin_outer,1); % NOTE: This counts too large with the clever validation. Should add a rule of thumb.
+    nfeval_val = size_u_record*size(dmin_outer,1); % NOTE: Should add a rule of thumb.
     stop = nfeval + nfeval_val >= nfevalmax;
     if n_obj == 1
         % NOTE: Maybe the idea of a precision in the maximisation as stop criterion can be extended to MO?
