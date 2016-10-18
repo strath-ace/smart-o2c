@@ -1,4 +1,4 @@
-function [d,fval,exitflag,output] = optimise_ideaminmax_s(problem_minmax, algo_outer, algo_inner, par_minmax)
+function [d,fval,exitflag,output] = optimise_eso(problem_minmax, algo_outer, algo_inner, par_minmax)
 
 global nfevalglobal
 % Rename general inputs
@@ -130,7 +130,7 @@ while ~stop
 
         % maximise indicator_d
         [d_outer_aux, indicator_d, ~, ~] = algo_outer.optimise(problem_outer,algo_outer.par); %no feval here
-        indicator_d = -indicator_d
+        indicator_d = -indicator_d;
 
         % update x_doe, f_doe (1)
         % also build f_outer_aux that is like the result of validation on d_outer_aux and u_record
@@ -221,15 +221,9 @@ while ~stop
         % end
         
     end
-    if (n_obj == 2)
-        figure(1)
-        colors = 'ckbrmg';
-        hold on
-        plot(fmin_outer(:,1),fmin_outer(:,2),strcat(colors(mod(iter,length(colors))+1),'.'))
-        figure(1)    
-    end
-    fmin_outer
-    
+
+    % fmin_outer
+
     % % Archive shrinking for MO??
     
     %% INNER LOOP: MAXIMISATION OVER U
@@ -264,7 +258,7 @@ while ~stop
 
                 % maximise indicator_u
                 [u_inner_aux, indicator_u, ~, ~] = algo_inner.optimise(problem_inner,algo_inner.par); %no nfeval here
-                indicator_u = -indicator_u
+                indicator_u = -indicator_u;
 
                 % Add the point to the DOE
                 f_doe_aux = [];
@@ -302,14 +296,7 @@ while ~stop
     d_record = [d_record;dmin_outer];
     f_record = [f_record;f_record_aux];
     
-    if (n_obj == 2)
-        figure(1)
-        colors = 'ckbrmg';
-        hold on
-        plot(f_record_aux(:,1),f_record_aux(:,2),strcat(colors(mod(iter,length(colors))+1),'o'))
-        figure(1)
-    end
-    f_record_aux
+    % f_record_aux
 
     % update u_record
     for obj = 1:n_obj
@@ -365,9 +352,9 @@ while ~stop
     end
     
     
-    iter
-    nfeval
-    size_x_doe = size(x_doe,1)
+    % iter
+    % nfeval
+    % size_x_doe = size(x_doe,1)
 
 end
 
@@ -375,14 +362,7 @@ if ~keep_d_record
     d_record = dmin_outer;
 end
 
-%% OLD archive cross check
-% [f_val, u_val_record, nfeval_aux] = u_validation(problem_max_u, d_record, u_record, lsflag_validation, 1:n_obj);
-% nfeval = nfeval + nfeval_aux;
-% % Select non-dominated solutions and define outputs
-% dom = dominance(f_val,0) == 0;
-% fval = f_val(sel,:);
-
-%% more clever archive cross check
+%% Archive cross-check
 % NOTE: even more clever would be to keep track of which u's have the d's been validated against already
 stop = false;
 checked = false(1,size(d_record,1));

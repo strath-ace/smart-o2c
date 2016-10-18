@@ -1,8 +1,8 @@
-function [indicator] = kriging_EIdom(y, mse, ymin)
+function [indicator] = kriging_EIaug(y, mse, ymin)
 
 % % Note that it takes as many x points as objectives
 % if (size(x,1)~=2)
-%     error('EIdom is only defined for 2 objectives and 2 points need to be passed, one per each objective');
+%     error('EIaug is only defined for 2 objectives and 2 points need to be passed, one per each objective');
 % end
 
 % y = [];
@@ -31,15 +31,15 @@ s = sqrt(abs(mse));
         
         PHIi = PHI(i,1);
         PHIii = PHI(i+1,1);
-        PHI2ii = PHI(i+1,2);
-        PHIs = PHIs + (PHIii - PHIi)*PHI2ii;
+        PHI2i = PHI(i,2);
+        PHIs = PHIs + (PHIii - PHIi)*PHI2i;
         
         E1i = y(1)*PHI(i,1) - s(1)*phi(i,1);
         E1ii = y(1)*PHI(i+1,1) - s(1)*phi(i+1,1);
         E2i = y(2)*PHI(i,2) - s(2)*phi(i,2);
         E2ii = y(2)*PHI(i+1,2) - s(2)*phi(i+1,2);
-        E1s = E1s + (E1ii - E1i)*PHI2ii;
-        E2s = E2s + (E2i - E2ii)*PHIi;
+        E1s = E1s + (E1ii - E1i)*PHI2i;
+        E2s = E2s + (E2i - E2ii)*PHIii;
         
     end
     PHI1M0 = PHI(end,1);
@@ -56,8 +56,8 @@ s = sqrt(abs(mse));
     [~,ind] = min(dist);
     fE = ymin(ind,:);
     E = P*norm(yE - fE);
-    
+
     indicator = E;
     indicator (P==0) = 0;
-    
-return
+
+end

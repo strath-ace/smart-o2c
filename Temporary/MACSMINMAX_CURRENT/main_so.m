@@ -3,7 +3,7 @@ s = RandStream('mt19937ar','Seed',(sum(100*clock)));
 RandStream.setGlobalStream(s);
 
 %%initialisation
-init = str2func(strcat('init_macsminmax_evolve'));
+init = str2func(strcat('init_algo_so'));
 % for benchmarking purposes
 nfevals_io = [100,500; 100,200; 100,100; 100,500; 200,500; 500,500; 500,500; 100,100; 50,100; 50,100; 50,100; 100,500; 500,1000];
 

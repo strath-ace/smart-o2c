@@ -3,15 +3,19 @@ s = RandStream('mt19937ar','Seed',(sum(100*clock)));
 RandStream.setGlobalStream(s);
 
 %% initialisation
-init = str2func(strcat('init_ideaminmax_s'));
+init = str2func(strcat('init_minmarek'));
 
 %%
 for runid=1
-    for tc = 1:7
+    for tc = 4
         disp(strcat(num2str(tc),'_',num2str(runid)))       
         
-        figure()
-
+        load(strcat('/home/carlos/phd/MACSMINMAX_testbench/MO/testcase_macsminmax_after_refactoring/reference_PyGMO_runs/global_fronts/matlab/TC_',num2str(tc),'_global_matlab.mat'));
+        clf
+        figure(1)
+        plot(archive(:,end-1),archive(:,end),'k*');
+        hold on
+        
         global nfevalglobal;
         nfevalglobal = 0;
 
@@ -30,9 +34,9 @@ for runid=1
         [ dmin, fminmax, exitflag, output ] = algo_minmax.optimise(problem_minmax,algo_outer,algo_inner,algo_minmax.par_minmax);
 
         %create results directory
-        savefolder = strcat('RESULTS/MO/');
+        savefolder = strcat('RESULTS/EMO/');
         mkdir(savefolder);
-        save(strcat(savefolder,'testcase_results_TC_MO_',num2str(tc),'_',num2str(runid)));
+        save(strcat(savefolder,'testcase_results_TC_EMO_',num2str(tc),'_',num2str(runid)));
     end
 end
 

@@ -18,7 +18,7 @@ metaproblem.ub = ones(1,dim_d);
     if problem.n_obj == 1
         surrogate.indicator = str2func([lower(surrogate.method) '_EI2']);
     elseif problem.n_obj == 2
-        surrogate.indicator = str2func([lower(surrogate.method) '_EIdom']);
+        surrogate.indicator = str2func([lower(surrogate.method) '_EIaug']);
     else
         error('We do not have kriging indicators for many-objective (yet)' );
     end

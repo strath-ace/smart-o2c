@@ -46,11 +46,7 @@ f_record = [];
 % related to saving fevals thanks to the fact that we recycle the DOE in d (d_0)
 u_record_aux = u_record;
 f_d_0 = -sign_inner*inf(n_d_0,n_obj);
-umax_d_0 = cell(1,n_obj);
 
-for obj = 1:n_obj
-    umax_d_0{obj} = nan(n_d_0,n_u);
-end
 
 % Now the fun begins
 nfeval = 0;
@@ -65,26 +61,15 @@ while ~stop
 
     %OUTER LOOP: MINIMISATION OVER D
     % related to saving fevals by recycling d_0
-    [f_d_0_aux, umax_d_0_aux, nfeval_aux] = u_validation(problem_max_u, d_0, u_record_aux, false, 1:n_obj); %here we can save some fevals with a val_record
+    [f_d_0_aux, ~, nfeval_aux] = u_validation(problem_max_u, d_0, u_record_aux, false, 1:n_obj); %here we can save some fevals with a val_record
     nfeval = nfeval + nfeval_aux;
 
     u_record_aux = cell(1,n_obj);
-
-    % f_d_0 = sign_inner*max(sign_inner*f_d_0, sign_inner*f_d_0_aux);
-    for i=1:n_d_0
-        for obj = 1:n_obj
-            if (sign_inner*f_d_0_aux(i,obj) > sign_inner*f_d_0(i,obj))
-                f_d_0(i,obj) = f_d_0_aux(i,obj);
-                umax_d_0{obj}(i,:) = umax_d_0_aux{obj}(i,:);
-            end
-        end
-    end
+    f_d_0 = sign_inner*max(sign_inner*f_d_0, sign_inner*f_d_0_aux);
 
     f_outer = f_d_0;
     d_outer = d_0;
-    u_outer = umax_d_0;
-
-
+    
     indicator_d = inf;
     iter_d = 0;
     while abs(indicator_d) >= indicator_d_max && iter_d < iter_d_max
@@ -95,10 +80,6 @@ while ~stop
         [~,idx] = unique(round(1e8*d_outer),'rows');
         d_outer = d_outer(idx,:);
         f_outer = f_outer(idx,:);
-        for obj = 1:n_obj
-            u_outer{obj} = u_outer{obj}(idx,:);
-        end
-
 
         problem_outer.par_objfun.surrogate.model = problem_outer.par_objfun.surrogate.training(d_outer,f_outer,problem_outer.par_objfun.surrogate);
         if n_obj == 1
@@ -112,15 +93,13 @@ while ~stop
         indicator_d = -indicator_d;
 
         %validate the result
-        [f_outer_aux,u_outer_aux,nfeval_aux] = u_validation(problem_max_u, d_outer_aux, u_record, false, 1:n_obj);
+        [f_outer_aux,~,nfeval_aux] = u_validation(problem_max_u, d_outer_aux, u_record, false, 1:n_obj);
         nfeval = nfeval + nfeval_aux;
 
         %apend d and f
         d_outer = [d_outer; d_outer_aux];
         f_outer = [f_outer; f_outer_aux];
-        for obj = 1:n_obj
-            u_outer{obj} = [u_outer{obj};u_outer_aux{obj}];
-        end
+        
     end
 
     iter_d
@@ -130,11 +109,7 @@ while ~stop
     sel = dominance(f_outer,0) == 0;
     fmin = f_outer(sel,:);
     dmin = d_outer(sel,:);
-    for obj = 1:n_obj
-        u_outer{obj} = u_outer{obj}(sel,:);
-    end
-
-
+    
     % I don't think this is necessary but...
     dmin(dmin < 0.0) = 0.0;
     dmin(dmin > 1.0) = 1.0;
@@ -172,21 +147,10 @@ while ~stop
             u_inner = u_0;
             f_inner =[];
             for j = 1:size(u_inner,1);
-                f_inner(j,1)=objfun(u_inner(j,:),problem_max_u.par_objfun); % note it comes negative for minmax
+                f_inner(j,1)=objfun(u_inner(j,:),problem_max_u.par_objfun);
                 nfeval = nfeval + 1;
             end
-
-            % % IMPROVEMENT TEST 1: add u_outer to the inner loop
-            % u_inner = [u_inner; u_outer{obj}(i,:)];
-            % f_inner = [f_inner; -sign_inner*fmin(i,obj)];
-
-            % IMPROVEMENT TEST 2: add u_record{obj} to the iner loop
-            u_inner = [u_inner; u_record{obj}];
-            for j = 1:size(u_record{obj},1);
-                f_inner(end+1,1)=objfun(u_record{obj}(j,:),problem_max_u.par_objfun); 
-                % don't count nfeval because if it works we can retrieve it from the outer loop
-            end
-
+            
             indicator_u = inf;
             iter_u = 0;
             while abs(indicator_u) >= indicator_u_max && iter_u < iter_u_max
@@ -198,7 +162,6 @@ while ~stop
                 f_inner = f_inner(idx,:);
                 problem_inner.par_objfun.surrogate.model = problem_inner.par_objfun.surrogate.training(u_inner,f_inner,problem_inner.par_objfun.surrogate);
                 problem_inner.par_objfun.ymin = min(f_inner);
-
 
                 % maximise indicator_u
                 [u_inner_aux, indicator_u, ~, ~] = algo_inner.optimise(problem_inner,algo_inner.par); %no nfeval here
@@ -218,11 +181,10 @@ while ~stop
 
             [fmax, sel] = min(f_inner);
             fmax = -sign_inner*fmax;
-            umax = u_inner(sel,:);
+            u_record_aux{obj} = [u_record_aux{obj}; u_inner(sel,:)];
 
             if sign_inner*fmax > sign_inner*fmax_inner(i,obj)
                 fmax_inner(i,obj) = fmax;
-                u_record_aux{obj} = [u_record_aux{obj}; umax];
             end
         end
         

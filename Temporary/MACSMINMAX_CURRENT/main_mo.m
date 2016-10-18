@@ -3,7 +3,7 @@ s = RandStream('mt19937ar','Seed',(sum(100*clock)));
 RandStream.setGlobalStream(s);
 
 %% initialisation
-init = str2func(strcat('init_macsminmax'));
+init = str2func(strcat('init_algo_mo'));
 
 %%
 for runid=4:4:20
@@ -18,7 +18,7 @@ for runid=4:4:20
 
         %% initialise algorithm minmax (META-ALGO). different settings for tc2
         if (tc==2)
-            [ algo_minmax, algo_outer, algo_inner ] = init_macsminmax_tc2(problem_minmax);
+            [ algo_minmax, algo_outer, algo_inner ] = init_algo_mo_tc2(problem_minmax);
         else
             [ algo_minmax, algo_outer, algo_inner ] = init(problem_minmax);
         end

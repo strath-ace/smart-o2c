@@ -1,7 +1,7 @@
-function [algo_minmax, algo_outer, algo_inner] = init_macsminmax_evolve(minmax_problem);
+function [algo_minmax, algo_outer, algo_inner] = init_algo_so(minmax_problem);
 
 %% META ALGORITHM: MACSMINMAX
-algo_minmax.optimise = @optimise_macsminmax;            % algorithm in the form [x,f,exitflag,output] = algo(problem,algo_outer,algo_inner,par_minmax)
+algo_minmax.optimise = @optimise_so;            % algorithm in the form [x,f,exitflag,output] = algo(problem,algo_outer,algo_inner,par_minmax)
 % parameters
     if isfield(minmax_problem,'maxnfeval')
         par_minmax.maxnfeval = minmax_problem.maxnfeval;% TOTAL function evaluation limit
