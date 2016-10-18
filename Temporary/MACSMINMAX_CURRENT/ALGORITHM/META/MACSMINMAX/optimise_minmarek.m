@@ -35,7 +35,8 @@ problem_inner = build_metaproblem_minmarek_inner(problem_minmax);
 
 % Random initial guesses for the DOE in d and u and for the archive in u
 d_0 = lhsu(zeros(1,n_d),ones(1,n_d),n_d_0);
-u_0 = lhsu(zeros(1,n_u),ones(1,n_u),n_u_0);
+% u_0 = lhsu(zeros(1,n_u),ones(1,n_u),n_u_0); % randomize it at every iteration
+
 u_record = cell(1,n_obj);
 for obj = 1:n_obj
     u_record{obj} = lhsu(zeros(1,n_u),ones(1,n_u),n_u_record_0(obj));
@@ -169,7 +170,8 @@ while ~stop
         for obj = 1:n_obj
             problem_max_u.par_objfun.objective = obj;
 
-            u_inner = u_0;
+            % u_inner = u_0;
+            u_inner = lhsu(zeros(1,n_u),ones(1,n_u),n_u_0); %randomize it
             f_inner =[];
             for j = 1:size(u_inner,1);
                 f_inner(j,1)=objfun(u_inner(j,:),problem_max_u.par_objfun); % note it comes negative for minmax
@@ -180,7 +182,7 @@ while ~stop
             % u_inner = [u_inner; u_outer{obj}(i,:)];
             % f_inner = [f_inner; -sign_inner*fmin(i,obj)];
 
-            % IMPROVEMENT TEST 2: add u_record{obj} to the iner loop
+            % IMPROVEMENT TEST 2: add u_record{obj} to the iner loop. note u_outer belongs to u_record
             u_inner = [u_inner; u_record{obj}];
             for j = 1:size(u_record{obj},1);
                 f_inner(end+1,1)=objfun(u_record{obj}(j,:),problem_max_u.par_objfun); 
