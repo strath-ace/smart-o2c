@@ -311,7 +311,7 @@ while ~stop
     
     % Stop criterions
     size_u_record = sum(cellfun('size',u_record,1));
-    nfeval_val = size_u_record*size(dmin_outer,1); % NOTE: This counts too large with the clever validation. Should add a rule of thumb.
+    nfeval_val = size_u_record*size(dmin_outer,1); % NOTE: Should add a rule of thumb.
     stop = nfeval + nfeval_val >= nfevalmax;
     if n_obj == 1
         % NOTE: Maybe the idea of a precision in the maximisation as stop criterion can be extended to MO?
