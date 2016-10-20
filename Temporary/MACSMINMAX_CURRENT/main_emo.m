@@ -7,13 +7,14 @@ init = str2func(strcat('init_minmarek'));
 
 %%
 for runid=1
-    for tc = 4
+    for tc = 6
         disp(strcat(num2str(tc),'_',num2str(runid)))       
         
         load(strcat('/home/carlos/phd/MACSMINMAX_testbench/MO/testcase_macsminmax_after_refactoring/reference_PyGMO_runs/global_fronts/matlab/TC_',num2str(tc),'_global_matlab.mat'));
         clf
         figure(1)
         plot(archive(:,end-1),archive(:,end),'k*');
+        grid()
         hold on
         
         global nfevalglobal;
