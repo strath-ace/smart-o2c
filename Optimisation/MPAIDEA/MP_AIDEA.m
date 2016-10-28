@@ -1391,6 +1391,20 @@ end
 % =========================================================================
 
 
+if ~exist('memories_out','var')
+    
+    for i_population = 1 : pop_number
+        
+        
+        if ~isempty(memories{i_population})
+            memories{i_population} = sortrows(memories{i_population}, D+1);
+            memories_out(1, :, i_population) = memories{i_population}(1,:);
+        end
+    end
+    
+end
+
+
 % =========================================================================
 % end of the function
 end
