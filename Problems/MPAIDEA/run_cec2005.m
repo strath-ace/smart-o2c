@@ -13,7 +13,7 @@
 clear all
 close all
 clc
-
+global nFeVal
 % Add path to optimiser folder
 if isunix
     addpath(genpath('../../Optimisation'))
@@ -101,12 +101,12 @@ options.prob_DE_strategy = 0.5;
 % Parameter for the adaptation of CR and F
 % -------------------------------------------------------------------------
 % Value of CR (if empty, MP-AIDEA-ALR adapt will adapt it during the process)
-options.CR = 0.5;
-% options.CR = [];
+% options.CR = 0.5;
+options.CR = [];
 
 % Value of F (if empty, MP-AIDEA will adapt it during the process)
-options.F = 0.5;
-% options.F = [];
+% options.F = 0.5;
+options.F = [];
 
 % If options.CR and options.F are empty, define CRF for adaptation of CR
 % and F:
@@ -116,7 +116,7 @@ options.dd_CRF = 3;
 % -------------------------------------------------------------------------
 % Display text during run?
 % -------------------------------------------------------------------------
-options.text = 1;
+options.text = 0;
 
 
 

@@ -880,6 +880,8 @@ while sum(nFeVal) < nFeValMax
             % the current population
             nfev(1,i_pop_number) =round( max([min([300*D  nFeValLS]) D]));
             
+            nfev(1,i_pop_number) = min(nfev(1,i_pop_number), nFeValMax - sum(nFeVal));
+            
             foptionsNLP = optimset('Display','off','MaxFunEvals',nfev(1,i_pop_number),'LargeScale','off','FinDiffType','central','Algorithm','sqp');
             
             % Local search with fmincon
