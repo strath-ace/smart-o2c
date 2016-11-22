@@ -65,9 +65,9 @@ previousdecisions = [previousdecisions{:}];
 newNode = struct('node_ID',           node_ID, ...                   % The ID of the node
                  'parent',            parent, ...                    % The parent of the node
                  'children',          [], ...                        % Matrix that holds the nodes' connections to each other
-                 'radius',            [Inputs.StartingRadius], ...   % The radius of each connection
-                 'length',            [veinlength], ...              % The length of each connection
-                 'flux',              [], ...                        % Matrix containing each connection's flux
+                 'radius',            [Inputs.StartingRadius], ...   % The radius of the connection to the parent
+                 'length',            [veinlength], ...              % The length of the connection to the parent
+                 'flux',              [], ...                        % The flux  of the connection to the parent
                  'attributes',        [Attributes], ...              % Attributes that describe this node (such as orbital elements & Time of Flight etc.)
                  'previousdecisions', {previousdecisions}, ...       % List of previous decisions made                    
                  'possibledecisions', {possibledecisions}, ...       % List containing the decisions that can still be made
