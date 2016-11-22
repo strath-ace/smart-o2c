@@ -41,9 +41,9 @@ ListNodes = struct(struct(rootID,   ...
                          'node_ID',             rootID, ...      % The node_ID of the root
                          'parent',              [], ...          % The parent of the node
                          'children',            [], ...          % Matrix that holds the nodes' connections to each other
-                         'radius',              [], ...          % The radius of each connection
-                         'length',              [], ...          % The length of each connection
-                         'flux',                [], ...          % Matrix containing each connection's flux
+                         'radius',              [], ...          % The radius of the connection to the parent
+                         'length',              [], ...          % The length of the connection to the parent
+                         'flux',                [], ...          % The flux of the connection to the parent
                          'attributes',          [SetNodeAttributes(Inputs, [], ...          % Problem-specific Attributes that 
                                                  Inputs.RootName, ...                       % describe this node 
                                                  zeros(1, length(Inputs.RootAttrib)))], ... % (such as orbital elements & Time of Flight. etc)
