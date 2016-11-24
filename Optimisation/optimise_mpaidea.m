@@ -77,6 +77,7 @@ for i = 1 : size(memories_record,3)
     fval(i) = memories_record(end, end, i);
 end
 
+output.memories_record      = memories_record;
 output.memories             = memories;
 output.archivebest          = archivebest;
 output.population_evolution = population_evolution;
