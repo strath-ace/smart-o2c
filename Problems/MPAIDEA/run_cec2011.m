@@ -201,7 +201,7 @@ end
 
 
 % Maximum number of function evaluations
-nFeValMax = 10000 * D;
+nFeValMax = 150000;
 
 
 %% MP-AIDEA inputs
