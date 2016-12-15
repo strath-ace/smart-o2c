@@ -1826,35 +1826,35 @@ while nostop
             % -----------------------------------------------------------------
             % Bounce back re-initialisation
             % -----------------------------------------------------------------
-            while lElTooLow > 0 % (if)
+            if lElTooLow > 0 % (while)
                 InterPop(i,ElTooLow) = ( popold(i,ElTooLow) + lb(ElTooLow) ) / 2;
                 
-                % ---------------------------------------------------------
-                % Distance of the i-th element of the population from the lower
-                % boundaries
-                dInterPopl = InterPop(i,:) - lb;
-                
-                % How many component of the i-th element of the population are
-                % below the lower boundary?
-                ElTooLow  = find(dInterPopl < 0);
-                lElTooLow = length(ElTooLow);
-                % ---------------------------------------------------------
+%                 % ---------------------------------------------------------
+%                 % Distance of the i-th element of the population from the lower
+%                 % boundaries
+%                 dInterPopl = InterPop(i,:) - lb;
+%                 
+%                 % How many component of the i-th element of the population are
+%                 % below the lower boundary?
+%                 ElTooLow  = find(dInterPopl < 0);
+%                 lElTooLow = length(ElTooLow);
+%                 % ---------------------------------------------------------
                 
             end
             
-            while lElTooHigh > 0 % (if)
+            if lElTooHigh > 0 % (while)
                 InterPop(i,ElTooHigh) = ( popold(i,ElTooHigh) + ub(ElTooHigh) ) / 2;
                 
-                % ---------------------------------------------------------
-                % Distance of the i-th element of the population from the upper
-                % boundaries
-                dInterPopr = ub - InterPop(i,:);
-                
-                % How many component of the i-th element of the population are
-                % above the lower boundary?
-                ElTooHigh  = find(dInterPopr < 0);
-                lElTooHigh = length(ElTooHigh);
-                % ---------------------------------------------------------
+%                 % ---------------------------------------------------------
+%                 % Distance of the i-th element of the population from the upper
+%                 % boundaries
+%                 dInterPopr = ub - InterPop(i,:);
+%                 
+%                 % How many component of the i-th element of the population are
+%                 % above the lower boundary?
+%                 ElTooHigh  = find(dInterPopr < 0);
+%                 lElTooHigh = length(ElTooHigh);
+%                 % ---------------------------------------------------------
             end
             
         elseif isfield(options,'no_bounds') && options.no_bounds
