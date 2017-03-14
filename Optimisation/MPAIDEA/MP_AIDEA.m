@@ -776,6 +776,13 @@ while sum(nFeVal) < nFeValMax
                         fmin = BestVal(1,i_pop_number);
                         xmin = BestMem(i_pop_number,:);
                         
+                        % This is the case where the number of local
+                        % restart is adapted. Inite is used only to count
+                        % the number of local restart but is not used to
+                        % decide when to perform a global restart -
+                        inite(1,i_pop_number) = 0;
+                    else
+                        inite(1,i_pop_number) = inite(1,i_pop_number) + 1;
                     end
                     
                     % What happens to the following line if BestVal is not below the fmin
@@ -961,7 +968,9 @@ while sum(nFeVal) < nFeValMax
                 
                 fmin = BestVal(1,i_pop_number);
                 xmin = BestMem(i_pop_number,:);
-                
+                inite(1,i_pop_number) = 0;
+            else
+                inite(1,i_pop_number) = inite(1,i_pop_number) + 1;
             end
             
             % What happens to the following line if BestVal is not below the fmin
@@ -1338,13 +1347,13 @@ while sum(nFeVal) < nFeValMax
                 % the fmin values back to their original values
                 fmin=1e15 * ones(1,pop_number);
                 
-                if pop_number == 1
+%                 if pop_number == 1
                     % If one population is considered, put inite to 0 after
                     % global restart, in order to be able to compare the
                     % number of local restart to options.max_LR
                     inite(1,i_pop_number) = 0;
                     
-                end
+%                 end
                 
                 
                 if options.text
