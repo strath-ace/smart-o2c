@@ -108,13 +108,13 @@ elseif flag_LG.global == 1
     % Defined weighted objective function:
     % Both equality and inequality constraints
     if ~isempty(ceq) && ~isempty(c)
-        f = yy + fc.w_ceq * ceq *(ceq ~= 0) + fc.w_c * c .* (c>0);
+        f = yy + fc.w_ceq * norm(ceq)  + fc.w_c * ( abs(c) .* (c>0 == 1));
     % Only equality constraints
     elseif ~isempty(ceq) && isempty(c)
-        f = yy + fc.w_ceq * ceq * (ceq ~= 0) ;
+        f = yy + fc.w_ceq * norm(ceq)  ;
     % Only inequality constraints
     elseif isempty(ceq) && ~isempty(c)
-        f = yy + fc.w_c * c .* (c>0);
+        f = yy + fc.w_c * ( abs(c) .* (c>0 == 1));
     % No constraints
     elseif isempty(ceq) && isempty(c)
         f = yy ;
