@@ -690,11 +690,23 @@ while sum(nFeVal) < nFeValMax
                     
                     % Local search with fmincon
                     if ~isfield(options,'no_bounds')
-                        [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:),[],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
+                        % Old
+%                         [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:),...
+%                             [],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
+                        % New
+                        flag_LG.global = 0;
+                        flag_LG.local  = 1;
+                        [xgrad,fvalgrad,exitflag,output] = runobjconstr(BestMem(i_pop_number,:),...
+                            fname, flag_LG, foptionsNLP,vlb, vub,varargin{:});
                     elseif isfield(options,'no_bounds') && options.no_bounds
                         % For problem with no bounds use fminunc instead
                         % than fmincon
-                        [xgrad,fvalgrad,exitflag,output] = fminunc(fname,BestMem(i_pop_number,:),foptionsNLP,varargin{:});
+                        % Old:
+%                         [xgrad,fvalgrad,exitflag,output] = fminunc(fname,BestMem(i_pop_number,:),...
+%                             foptionsNLP,varargin{:});
+                        % New:
+                        [xgrad,fvalgrad,exitflag,output] = runobjconstr(BestMem(i_pop_number,:),...
+                            fname, flag_LG, foptionsNLP,[], [],varargin{:});
                     end
                     
                     % Update number of function evaluations
@@ -892,7 +904,14 @@ while sum(nFeVal) < nFeValMax
             foptionsNLP = optimset('Display','off','MaxFunEvals',nfev(1,i_pop_number),'LargeScale','off','FinDiffType','central','Algorithm','sqp');
             
             % Local search with fmincon
-            [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:),[],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
+            % Old
+%             [xgrad,fvalgrad,exitflag,output] = fmincon(fname,BestMem(i_pop_number,:),...
+%                     [],[],[],[],vlb,vub,[],foptionsNLP,varargin{:});
+            % New
+            flag_LG.global = 0;
+            flag_LG.local  = 1;
+            [xgrad,fvalgrad,exitflag,output] = runobjconstr(BestMem(i_pop_number,:),...
+                fname, flag_LG, foptionsNLP,vlb, vub,varargin{:});
             
             % Update number of function evaluations
             nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
@@ -1527,7 +1546,14 @@ vval=[0 min(Val) mean(Val) max(Val) mmdistm mmdistm/mmdistm0];
 % =========================================================================
 % start with first population member
 ibest   = 1;
-Val(1)  = feval(fname, pop(ibest,:), varargin{:});
+
+% Old:
+% Val(1)  = feval(fname, pop(ibest,:), varargin{:});
+% New:
+flag_LG.global = 1;
+flag_LG.local  = 0;
+[~,Val(1)] = runobjconstr(pop(ibest,:), fname, flag_LG, [], [], [], varargin{:});
+
 BestVal = Val(1);                 % best objective function value so far
 nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
 
@@ -1543,7 +1569,13 @@ if sum(nFeVal) >= nFeValMax
 end
 
 for i = 2 : NP                        % check the remaining members
-    Val(i) = feval(fname, pop(i,:), varargin{:});
+    % Old:
+    %     Val(i) = feval(fname, pop(i,:), varargin{:});
+    % New:
+    flag_LG.global = 1;
+    flag_LG.local  = 0;
+    [~,Val(i)] = runobjconstr(pop(i,:), fname, flag_LG, [], [], [], varargin{:});
+    
     nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + 1;
     
     if (Val(i) < BestVal)           % if member is better
@@ -1873,8 +1905,12 @@ while nostop
         % =================================================================
         % Value of the function f for each new element of the population
         % =================================================================
-        
-        TempVal = feval(fname, InterPop(i,:), varargin{:});
+        % Old:
+%         TempVal = feval(fname, InterPop(i,:), varargin{:});
+        % New:
+        flag_LG.global = 1;
+        flag_LG.local  = 0;
+        [~,TempVal] = runobjconstr(InterPop(i,:), fname, flag_LG, varargin{:});
         
         % Increase number of function evalutations
         nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;

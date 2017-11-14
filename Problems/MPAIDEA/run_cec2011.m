@@ -230,16 +230,19 @@ options.population = population;
 % Function to optimise
 switch func_num
     case {1, 2, 3, 5, 6, 7}
-        fitnessfcn = @(x)bench_func(x,func_num);
+        fitnessfcn.obj = @(x)bench_func(x,func_num);
     case 10
-        fitnessfcn = @(x)antennafunccircular(x,[50,120],180,0.5);
+        fitnessfcn.obj = @(x)antennafunccircular(x,[50,120],180,0.5);
     case 12 
         load messengerfull.mat
-        fitnessfcn = @(x)messengerfull(x, MGADSMproblem);
+        fitnessfcn.obj = @(x)messengerfull(x, MGADSMproblem);
     case 13
         load cassini2.mat
-        fitnessfcn = @(x)cassini2(x,MGADSMproblem);
+        fitnessfcn.obj = @(x)cassini2(x,MGADSMproblem);
 end
+
+fitnessfcn.constr = [] ;
+fitnessfcn.obj_constr = 0;
 
 % MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
