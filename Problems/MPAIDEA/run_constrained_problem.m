@@ -7,13 +7,13 @@
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Example of run of optimisation problem of CEC 2014 using MP-AIDEA
+% Example of run of optimisation problem of CEC 2005 using MP-AIDEA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear 
+clear all
 close all
 clc
-
+global nFeVal
 % Add path to optimiser folder
 if isunix
     addpath(genpath('../../Optimisation'))
@@ -22,21 +22,20 @@ else
 end
 
 % Add path to problem folder
-addpath(genpath('CEC2014'))
+addpath(genpath('ConstrainedProblem'))
 
-% Mexify cpp file
-cd CEC2014
-mex cec14_func.cpp
-cd ..
+% Add global variable required by CEC 2005 test functions
+global initial_flag
+initial_flag = 0;
 
-%% Choose the CEC 2014 problem
+%% Choose the CEC 2005 problem
 
-% Number of the function to optimise. The CEC 2014 competition includes 30
-% test functions. func_num must be betwen 1 and 30
+% Number of the function to optimise. The CEC 2005 competition includes 25
+% test functions. func_num must be betwen 1 and 25
 func_num = 1;
 
-% Dimension of the problem - Choose between 10, 30, 50 and 100 dimensions
-D = 10;
+% Dimension of the problem - Choose between 10, 30 and 50 dimensions
+D = 1;
 
 
 %% Set the parameters for MP-AIDEA
@@ -52,17 +51,17 @@ pop_number = 4;
 NP = D;
 
 % -------------------------------------------------------------------------
-% Distance from cluster of global minima for global restart of the
-% population
-% -------------------------------------------------------------------------
-options.delta_global = 0.1;
-
-% -------------------------------------------------------------------------
 % Dimension of the bubble for the local restart. If empty, MP-AIDEA will
 % adapt it
 % -------------------------------------------------------------------------
 options.delta_local = [];
 % options.delta_local = 0.1;
+
+% -------------------------------------------------------------------------
+% Distance from cluster of global minima for global restart of the
+% population
+% -------------------------------------------------------------------------
+options.delta_global = 0.1;
 
 % -------------------------------------------------------------------------
 % Threshold for contraction of the population
@@ -74,13 +73,13 @@ options.rho = 0.2;
 % only one population is considered and no adaptation of delta_local and
 % local/global restart is performed)
 % -------------------------------------------------------------------------
-options.max_LR = [];
+options.max_LR =[];
 % options.max_LR = 5;
 
 % -------------------------------------------------------------------------
 % Choose the Differential Evolution (DE) strategies. 
 % -------------------------------------------------------------------------
-% The DE evolution of MP-AIDEA uses two DE strategies, with probability
+% The DE of MP-AIDEA uses two DE strategies, with probability
 % defined by options.prob_DE_strategy (see later).
 % DE/Rand, DE/CurrentToBest and DE/Best are well know DE strategies.
 % Uncomment the following line for DE strategies DE/Rand and DE/CurrentToBest:
@@ -93,13 +92,13 @@ options.DE_strategy = 1;
 % Probability of having DE strategy 1 rather than DE strategy 2 (DE
 % strategies 1 and 2 have been defined in options.DE_strategy)
 % -------------------------------------------------------------------------
-% Example: if options_DE_strategy was set to 1, options.prob_DE_strategy
+% Example: if options.DE_strategy was set to 1, options.prob_DE_strategy
 % defines the probability of using DE/Rand rather than DE/CurrentToBest
 options.prob_DE_strategy = 0.5;
 
 
 % -------------------------------------------------------------------------
-% Parameter for the adaptation of CRF
+% Parameter for the adaptation of CR and F
 % -------------------------------------------------------------------------
 % Value of CR (if empty, MP-AIDEA-ALR adapt will adapt it during the process)
 % options.CR = 0.5;
@@ -117,14 +116,16 @@ options.dd_CRF = 3;
 % -------------------------------------------------------------------------
 % Display text during run?
 % -------------------------------------------------------------------------
-options.text = 1;
+options.text = 0;
 
 
-%% CEC 2014 guidelines
 
-% Lower and upper boundaries of the search space
-UB =  100*ones(1,D);
-LB = -100*ones(1,D);
+%% Lower and upper boundaries of the search space
+
+% The lower and upper boundaries of the search space depend on the given problem
+UB = 10 * ones(1,D);
+LB = -10 * ones(1,D);
+
 
 % Maximum number of function evaluations
 nFeValMax = 10000 * D;
@@ -153,13 +154,35 @@ options.population = population;
 
 %% Optimisation
 
+% Uncomment one of the following two examples:
+
+%% Example 1: objective and constraints in the same function
+
 % Function to optimise
-fitnessfcn.obj = @(x)cec14_func(x,func_num);
+fitnessfcn.obj       = @(x)objective_constraints(x);
+% Function of constraints
+fitnessfcn.constr = @(x)objective_constraints(x);
+% Flag to 1: objective and constraints are in the same function
+fitnessfcn.obj_constr = 1;
+% Weights for penalty
+fitnessfcn.w_ceq = 100;
+fitnessfcn.w_c = 100;
 
-fitnessfcn.constr = [] ;
+
+%% Example 2: objective and constraints are defined in different functions
+
+% Function to optimise
+fitnessfcn.obj       = @(x)objective(x);
+% Function of constraints
+fitnessfcn.constr = @(x)constraints(x);
+% Flag to 0: objective and constraints are NOT in the same function
 fitnessfcn.obj_constr = 0;
+% Weights for penalty
+fitnessfcn.w_ceq = 100;
+fitnessfcn.w_c = 100;
 
-% MP-AIDEA optimisation
+
+%% MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
 
 
