@@ -172,9 +172,9 @@ fitnessfcn.w_c = 100;
 %% Example 2: objective and constraints are defined in different functions
 
 % Function to optimise
-fitnessfcn.obj       = @(x)objective(x);
+fitnessfcn.obj       = @objective;
 % Function of constraints
-fitnessfcn.constr = @(x)constraints(x);
+fitnessfcn.constr = @constraints;
 % Flag to 0: objective and constraints are NOT in the same function
 fitnessfcn.obj_constr = 0;
 % Weights for penalty
