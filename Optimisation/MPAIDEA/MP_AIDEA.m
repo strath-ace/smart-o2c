@@ -1910,7 +1910,7 @@ while nostop
         % New:
         flag_LG.global = 1;
         flag_LG.local  = 0;
-        [~,TempVal] = runobjconstr(InterPop(i,:), fname, flag_LG, varargin{:});
+        [~,TempVal] = runobjconstr(InterPop(i,:), fname, flag_LG, [], [],[],varargin{:});
         
         % Increase number of function evalutations
         nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
