@@ -67,6 +67,7 @@ myceq = []; % Use for nonlinear equality constraint
 if flag_LG.local == 1
     
     fun = @objfun; % the objective function, nested below
+%     fun = @(xs)fc.obj(x,varargin);
     
     % Problem with upper and lower boundaries
     if ~isempty(LB) && ~isempty(UB)
@@ -75,10 +76,10 @@ if flag_LG.local == 1
         if ~isempty(fc.constr)
             cfun = @constr; % the constraint function, nested below
             % Call fmincon
-            [x,f,eflag,outpt] = fmincon(fun,x0,[],[],[],[],LB, UB,cfun,opts);
+            [x,f,eflag,outpt] = fmincon(fun,x0,[],[],[],[],LB, UB,cfun,opts,varargin{:});
         else
             % Call fmincon
-            [x,f,eflag,outpt] = fmincon(fun,x0,[],[],[],[],LB, UB,[],opts);
+            [x,f,eflag,outpt] = fmincon(fc.obj,x0,[],[],[],[],LB, UB,[],opts,varargin{:});
         end
         
     % Unbounded problem:
