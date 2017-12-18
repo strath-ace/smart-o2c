@@ -178,9 +178,12 @@ fitnessfcn.constr = @constraints;
 % Flag to 0: objective and constraints are NOT in the same function
 fitnessfcn.obj_constr = 0;
 % How to handle constraints: set to 1 for weighted constraints with fixed
-% weights, to 0 for penalty with no weights
+% weights, or to 0 for penalty with no weights
 fitnessfcn.weighted = 0;
-% Weights for penalty
+% If the constraints are handled without weights, then define a tolerance
+% for the violation of the equality constraints
+fitnessfcn.ceq_eps = 1e-6;
+% Weights for penalty if fitnessfcn.weighted == 1
 fitnessfcn.w_ceq = 100;
 fitnessfcn.w_c = 100;
 
