@@ -32,8 +32,8 @@ addpath(genpath('CEC2011'))
 % MP-AIDEA. The possible problems are: 1, 2, 3, 5, 6, 7, 10, 12, 13
 
 % Number of the function to optimise. Uncomment one of the following lines:
-func_num = 1;
-% func_num = 2;
+% func_num = 1;
+func_num = 2;
 % func_num = 3;
 % func_num = 5;
 % func_num = 6;
@@ -243,6 +243,7 @@ end
 
 fitnessfcn.constr = [] ;
 fitnessfcn.obj_constr = 0;
+fitnessfcn.weighted = 0;
 
 % MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);

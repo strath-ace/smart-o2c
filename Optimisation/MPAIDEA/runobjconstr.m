@@ -106,7 +106,8 @@ elseif flag_LG.global == 1
         ceq = [];
     end
     
-    if fc.weighted
+    if (fc.weighted && (~isempty(ceq) || ~isempty(c)) ) || ...
+            ( isempty(ceq) && isempty(c) )
         
         % Defined weighted objective function:
         % Both equality and inequality constraints
@@ -123,13 +124,13 @@ elseif flag_LG.global == 1
             f = yy ;
         end
         
-    elseif fc.weighted == 0
+    elseif fc.weighted == 0 && (~isempty(ceq) || ~isempty(c))
         
         f.yy = yy;
         f.ceq = norm(ceq);
         f.c = c;
         
-        if norm(f.ceq) > eps || f.c > 0
+        if norm(f.ceq) ~= 0 || f.c > 0
             f.non_feas = 1;
         else
             f.non_feas = 0;

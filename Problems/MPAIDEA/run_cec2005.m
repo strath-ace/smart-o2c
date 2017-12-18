@@ -187,6 +187,7 @@ options.population = population;
 fitnessfcn.obj = @(x)benchmark_func(x,func_num);
 fitnessfcn.constr = [] ;
 fitnessfcn.obj_constr = 0;
+fitnessfcn.weighted = 0;
 
 % MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
