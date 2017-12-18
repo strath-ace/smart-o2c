@@ -1571,16 +1571,37 @@ end
 BestVal = Val(1);                 % best objective function value so far
 nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
 
+% =========================================================================
+% If maximum number of function evaluation is reached
 if sum(nFeVal) >= nFeValMax
     
     iter = 0;
     new_elements = 1;
     
+    % ---------------------------------------------------------------------
+    % If constraints are not weighted...
+    if fname.weighted == 0 && ~isempty(fname.constr)
+        
+        % If the individual is feasible
+        if Val_temp(1).non_feas == 0
+            Val(1) = Val_temp(1).yy;
+        % If the individual is not feasible
+        elseif Val_temp(1).non_feas == 1
+            Val(1 ) = ...
+                Val_temp(1).yy + ...
+                Val_temp(1).ceq' + ...
+                cellfun(@max, {Val_temp(1).c})';
+        end
+        ibest = 1; 
+    end
+    % ---------------------------------------------------------------------
+    
     BestMem = pop(ibest,:);
     BestVal = Val(1);
-    
     return
 end
+% =========================================================================
+
 
 for i = 2 : NP                        % check the remaining members
     % Old:
@@ -1601,23 +1622,61 @@ for i = 2 : NP                        % check the remaining members
     nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + 1;
     
     % if member is better
-    if (Val(i) < BestVal)  && fname.weighted         
+    if ( fname.weighted || isempty(fname.constr) ) && (Val(i) < BestVal)           
         ibest   = i;                 % save its location
         BestVal = Val(i);
     end
     
+    % =====================================================================
+    % If maximum number of function evaluation is reached
     if sum(nFeVal) >= nFeValMax
         new_elements = i;
-        %         vval = 0;
         iter = 0;
+        
+        % -----------------------------------------------------------------
+        % If constraints are not weighted, then it is necessary to find the maximum
+        % value of the objective function
+        if fname.weighted == 0 && ~isempty(fname.constr)
+            
+            % If there are feasible individuals...
+            if any( ( cell2mat({Val_temp.non_feas})  == 0 ) )
+                % Feasible individuals: objective function is objective function
+                % Feasible individuals are denoted by
+                % ( cell2mat({Val_temp.non_feas})  == 0 )
+                % thet is, the flag for infeasibility if put to zero
+                Val( ( cell2mat({Val_temp.non_feas})  == 0 ) ) = ...
+                    Val_temp( ( cell2mat({Val_temp.non_feas})  == 0 )).yy;
+                
+            end
+            
+            % If there are unfeasible individuals..
+            if any( ( cell2mat({Val_temp.non_feas})  == 1 ) )
+                % Non feasible individuals: the objective function is the maximum of
+                % the objective function for all the individuals + equality
+                % constraint + maximum of inequality constraints for that individual
+                % Non feasible individuals are denoted by
+                % ( cell2mat({Val_temp.non_feas})  == 1 )
+                % thet is, the flag for infeasibility if put to zero
+                Val( ( cell2mat({Val_temp.non_feas})  == 1 ) ) = ...
+                    max(cell2mat({Val_temp.yy})) + ...
+                    cellfun(@norm,{Val_temp( ( cell2mat({Val_temp.non_feas})  == 1 )).ceq})' + ...
+                    cellfun(@max, {Val_temp( ( cell2mat({Val_temp.non_feas})  == 1 )).c})';
+            end
+            
+            [BestVal, ibest] = min(Val);
+            
+        end
+        % -----------------------------------------------------------------
         
         BestMem = pop(ibest,:);
         
         return
     end
+    % =====================================================================
     
 end
 
+% Now all the objectives values are available for all the individuals...
 % If constraints are not weighted, then it is necessary to find the maximum
 % value of the objective function
 if fname.weighted == 0 && ~isempty(fname.constr)  
@@ -1648,6 +1707,7 @@ if fname.weighted == 0 && ~isempty(fname.constr)
     end
     
     [BestVal, ibest] = min(Val);
+    BestMem = pop(ibest,:);
     
 end
 
@@ -1975,11 +2035,59 @@ while nostop
             [~,TempVal2(i)] = runobjconstr(InterPop(i,:), fname, flag_LG, [], [],[],varargin{:});
         end
         
+        % If the value of the function for the considered child
+        % individual is better than best value ever..
+        if ( fname.weighted || isempty(fname.constr) ) && (TempVal(i) < BestVal)
+            BestVal = TempVal(i);            % new best value
+            BestMem = InterPop(i,:);      % new best parameter vector ever
+        end
+        
         % Increase number of function evalutations
         nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
         
+        % =================================================================
+        if sum(nFeVal) >= nFeValMax
+            
+            new_elements = i;
+            
+            % -------------------------------------------------------------
+            % If constraints are not weighted
+            if fname.weighted == 0 && ~isempty(fname.constr)
+                
+                if any( ( cell2mat({TempVal2.non_feas})  == 0 ) )
+                    % Feasible individuals: objective function is objective function
+                    % Feasible individuals are denoted by
+                    % ( cell2mat({Val_temp.non_feas})  == 0 )
+                    % thet is, the flag for infeasibility if put to zero
+                    TempVal( ( cell2mat({TempVal2.non_feas})  == 0 ) ) = ...
+                        TempVal2( ( cell2mat({TempVal2.non_feas})  == 0 )).yy;
+                end
+                
+                if any( ( cell2mat({TempVal2.non_feas})  == 1 ) )
+                    % Non feasible individuals: the objective function is the maximum of
+                    % the objective function for all the individuals + equality
+                    % constraint + maximum of inequality constraints for that individual
+                    % Non feasible individuals are denoted by
+                    % ( cell2mat({Val_temp.non_feas})  == 1 )
+                    % thet is, the flag for infeasibility if put to zero
+                    TempVal( ( cell2mat({TempVal2.non_feas})  == 1 ) ) = ...
+                        max(cell2mat({TempVal2.yy})) + ...
+                        cellfun(@norm,{TempVal2( ( cell2mat({TempVal2.non_feas})  == 1 )).ceq})' + ...
+                        cellfun(@max, {TempVal2( ( cell2mat({TempVal2.non_feas})  == 1 )).c})';
+                end
+                
+                [BestVal, ibest] = min(Val);
+                BestMem = InterPop(ibest,:);
+            end
+            % -------------------------------------------------------------
+                       
+            return
+        end
+        % =================================================================
+
     end
-        
+      
+    % All the individuals have been computed
     % If constraints are not weighted
     if fname.weighted == 0 && ~isempty(fname.constr) 
         
@@ -2004,6 +2112,9 @@ while nostop
                 cellfun(@norm,{TempVal2( ( cell2mat({TempVal2.non_feas})  == 1 )).ceq})' + ...
                 cellfun(@max, {TempVal2( ( cell2mat({TempVal2.non_feas})  == 1 )).c})';
         end
+        
+        [BestVal, ibest] = min(TempVal);
+        BestMem = InterPop(ibest,:);
         
     end
         
@@ -2054,19 +2165,10 @@ while nostop
                 
             end
             
-            % If the value of the function for the considered child
-            % individual is better than best value ever..
-            if (TempVal(i) < BestVal)
-                BestVal = TempVal(i);            % new best value
-                BestMem = InterPop(i,:);      % new best parameter vector ever
-            end
+
         end
         
-        if sum(nFeVal) >= nFeValMax
-            new_elements = i;
-            
-            return
-        end
+        
         
     end %---end for imember=1:NP
     
