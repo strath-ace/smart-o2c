@@ -33,7 +33,7 @@ cd ..
 
 % Number of the function to optimise. The CEC 2014 competition includes 30
 % test functions. func_num must be betwen 1 and 30
-func_num = 1;
+func_num = 5;
 
 % Dimension of the problem - Choose between 10, 30, 50 and 100 dimensions
 D = 10;
@@ -158,6 +158,7 @@ fitnessfcn.obj = @(x)cec14_func(x,func_num);
 
 fitnessfcn.constr = [] ;
 fitnessfcn.obj_constr = 0;
+fitnessfcn.weighted = 0;
 
 % MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
