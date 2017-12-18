@@ -48,7 +48,7 @@ pop_number = 4;
 % -------------------------------------------------------------------------
 % Number of individuals in each population
 % -------------------------------------------------------------------------
-NP = D;
+NP = D*5;
 
 % -------------------------------------------------------------------------
 % Dimension of the bubble for the local restart. If empty, MP-AIDEA will
@@ -177,6 +177,9 @@ fitnessfcn.obj       = @objective;
 fitnessfcn.constr = @constraints;
 % Flag to 0: objective and constraints are NOT in the same function
 fitnessfcn.obj_constr = 0;
+% How to handle constraints: set to 1 for weighted constraints with fixed
+% weights, to 0 for penalty with no weights
+fitnessfcn.weighted = 0;
 % Weights for penalty
 fitnessfcn.w_ceq = 100;
 fitnessfcn.w_c = 100;
