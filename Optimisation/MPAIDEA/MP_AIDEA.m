@@ -1552,7 +1552,13 @@ ibest   = 1;
 % New:
 flag_LG.global = 1;
 flag_LG.local  = 0;
-[~,Val(1)] = runobjconstr(pop(ibest,:), fname, flag_LG, [], [], [], varargin{:});
+
+if fname.weighted
+    [~,Val(1)] = runobjconstr(pop(ibest,:), fname, flag_LG, [], [], [], varargin{:});
+else
+    [~,Val_temp(1)] = runobjconstr(pop(ibest,:), fname, flag_LG, [], [], [], varargin{:});
+end
+
 
 BestVal = Val(1);                 % best objective function value so far
 nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
@@ -1574,11 +1580,17 @@ for i = 2 : NP                        % check the remaining members
     % New:
     flag_LG.global = 1;
     flag_LG.local  = 0;
-    [~,Val(i)] = runobjconstr(pop(i,:), fname, flag_LG, [], [], [], varargin{:});
+    
+    if fname.weighted
+        [~,Val(i)] = runobjconstr(pop(i,:), fname, flag_LG, [], [], [], varargin{:});
+    else
+        [~,Val_temp(i)] = runobjconstr(pop(i,:), fname, flag_LG, [], [], [], varargin{:});
+    end
     
     nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + 1;
     
-    if (Val(i) < BestVal)           % if member is better
+    % if member is better
+    if (Val(i) < BestVal)  && fname.weighted         
         ibest   = i;                 % save its location
         BestVal = Val(i);
     end
@@ -1594,6 +1606,33 @@ for i = 2 : NP                        % check the remaining members
     end
     
 end
+
+% If constraints are not weighted
+if fname.weighted == 0
+    
+    % Feasible individuals: objective function is objective function
+    % Feasible individuals are denoted by 
+    % ( cell2mat({Val_temp.non_feas})  == 0 )
+    % thet is, the flag for infeasibility if put to zero
+    Val( ( cell2mat({Val_temp.non_feas})  == 0 ) ) = ...
+        Val_temp( ( cell2mat({Val_temp.non_feas})  == 0 )).yy;
+    
+    % Non feasible individuals: the objective function is the maximum of 
+    % the objective function for all the individuals + equality
+    % constraint + maximum of inequality constraints for that individual
+    % Non feasible individuals are denoted by 
+    % ( cell2mat({Val_temp.non_feas})  == 1 )
+    % thet is, the flag for infeasibility if put to zero
+    Val( ( cell2mat({Val_temp.non_feas})  == 1 ) ) = ...
+        max(cell2mat({Val_temp.yy})) + ...
+        cellfun(@norm,{Val_temp( ( cell2mat({Val_temp.non_feas})  == 1 )).ceq})' + ...
+        cellfun(@max, {Val_temp( ( cell2mat({Val_temp.non_feas})  == 1 )).c})';
+    
+    [BestVal, ibest] = min(Val);
+    
+end
+
+
 
 CurrBest = pop(ibest,:);            % best member of current iteration
 BestMem = CurrBest;                 % best member ever
@@ -1910,21 +1949,54 @@ while nostop
         % New:
         flag_LG.global = 1;
         flag_LG.local  = 0;
-        [~,TempVal] = runobjconstr(InterPop(i,:), fname, flag_LG, [], [],[],varargin{:});
+        
+        if fname.weighted
+            [~,TempVal(i)] = runobjconstr(InterPop(i,:), fname, flag_LG, [], [],[],varargin{:});
+        else
+            [~,TempVal2(i)] = runobjconstr(InterPop(i,:), fname, flag_LG, [], [],[],varargin{:});
+        end
         
         % Increase number of function evalutations
         nFeVal(1,i_pop_number)  = nFeVal(1,i_pop_number) + 1;
         
+    end
         
-        if (TempVal <= Val(i))  % if competitor is better than parent
+    % If constraints are not weighted
+    if fname.weighted == 0
+        
+        % Feasible individuals: objective function is objective function
+        % Feasible individuals are denoted by
+        % ( cell2mat({Val_temp.non_feas})  == 0 )
+        % thet is, the flag for infeasibility if put to zero
+        TempVal( ( cell2mat({TempVal2.non_feas})  == 0 ) ) = ...
+            TempVal2( ( cell2mat({TempVal2.non_feas})  == 0 )).yy;
+        
+        % Non feasible individuals: the objective function is the maximum of
+        % the objective function for all the individuals + equality
+        % constraint + maximum of inequality constraints for that individual
+        % Non feasible individuals are denoted by
+        % ( cell2mat({Val_temp.non_feas})  == 1 )
+        % thet is, the flag for infeasibility if put to zero
+        TempVal( ( cell2mat({TempVal2.non_feas})  == 1 ) ) = ...
+            max(cell2mat({TempVal2.yy})) + ...
+            cellfun(@norm,{TempVal2( ( cell2mat({TempVal2.non_feas})  == 1 )).ceq})' + ...
+            cellfun(@max, {TempVal2( ( cell2mat({TempVal2.non_feas})  == 1 )).c})';
+        
+        
+    end
+        
+
+    for i = 1 : NP
+        
+        if (TempVal(i) <= Val(i))  % if competitor is better than parent
             
-            dd = abs((TempVal-Val(i)));
+            dd = abs((TempVal(i)-Val(i)));
             
             % Replace parent vector with child (for new iteration)
             pop(i,:) = InterPop(i,:);
             
             % Save value
-            Val(i) = TempVal;
+            Val(i) = TempVal(i);
             
             if isempty(CR_user) && isempty(F_user)
                 % -------------------------------------------------------------
@@ -1962,8 +2034,8 @@ while nostop
             
             % If the value of the function for the considered child
             % individual is better than best value ever..
-            if (TempVal < BestVal)
-                BestVal = TempVal;            % new best value
+            if (TempVal(i) < BestVal)
+                BestVal = TempVal(i);            % new best value
                 BestMem = InterPop(i,:);      % new best parameter vector ever
             end
         end
