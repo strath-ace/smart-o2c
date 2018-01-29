@@ -901,6 +901,10 @@ while sum(nFeVal) < nFeValMax
             
             nfev(1,i_pop_number) = min(nfev(1,i_pop_number), nFeValMax - sum(nFeVal));
             
+            nfev(1,i_pop_number)
+            if nfev(1,i_pop_number)<0 || ~real(nfev(1,i_pop_number))
+                keyboard
+            end
             foptionsNLP = optimset('Display','off','MaxFunEvals',nfev(1,i_pop_number),'LargeScale','off','FinDiffType','central','Algorithm','sqp');
             
             % Local search with fmincon
@@ -999,11 +1003,14 @@ while sum(nFeVal) < nFeValMax
             % population
             xref(i_pop_number,:) = xmin;
             
-            
+            if sum(nFeVal) >= nFeValMax
+                keyboard
+                break
+            end
         end
     end
     
-    
+
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1412,7 +1419,10 @@ while sum(nFeVal) < nFeValMax
     % the matrix for the dimension of the bubble
     first_local_restart = 0;
     
-    
+    if sum(nFeVal) >= nFeValMax
+        keyboard
+        break
+    end
     % ========================================================================
     % end of -------- while 1
     % that comprise both the DE step + contraction condition evaluation and the
@@ -1583,14 +1593,14 @@ if sum(nFeVal) >= nFeValMax
     if fname.weighted == 0 && ~isempty(fname.constr)
         
         % If the individual is feasible
-        if Val_temp(1).non_feas == 0
+        if Val_temp(1).non_feas_ceq == 0 && Val_temp(1).non_feas_c == 0
             Val(1) = Val_temp(1).yy;
         % If the individual is not feasible
-        elseif Val_temp(1).non_feas == 1
+        elseif Val_temp(1).non_feas_ceq == 1 || Val_temp(1).non_feas_c
             Val(1 ) = ...
                 Val_temp(1).yy + ...
-                Val_temp(1).ceq' + ...
-                cellfun(@max, {Val_temp(1).c})';
+                cellfun(@max, {Val_temp(1).ceq})' * Val_temp(1).non_feas_ceq + ...
+                cellfun(@max, {Val_temp(1).c})' * Val_temp(1).non_feas_c;
         end
         ibest = 1; 
     end
@@ -1639,28 +1649,40 @@ for i = 2 : NP                        % check the remaining members
         if fname.weighted == 0 && ~isempty(fname.constr)
             
             % If there are feasible individuals...
-            if any( ( cell2mat({Val_temp.non_feas})  == 0 ) )
+            if any( ( cell2mat({Val_temp.non_feas_ceq})  == 0 ) .* ...
+                    ( cell2mat({Val_temp.non_feas_c})  == 0 ) )
                 % Feasible individuals: objective function is objective function
                 % Feasible individuals are denoted by
                 % ( cell2mat({Val_temp.non_feas})  == 0 )
                 % thet is, the flag for infeasibility if put to zero
-                Val( ( cell2mat({Val_temp.non_feas})  == 0 ) ) = ...
-                    Val_temp( ( cell2mat({Val_temp.non_feas})  == 0 )).yy;
+                Val( logical (( cell2mat({Val_temp.non_feas_ceq})  == 0 ) .* ...
+                    ( cell2mat({Val_temp.non_feas_c})  == 0 ) ) ) = ...
+                    Val_temp(logical (( cell2mat({Val_temp.non_feas_ceq})  == 0 ) .* ...
+                    ( cell2mat({Val_temp.non_feas_c})  == 0 ) )).yy;
                 
             end
             
-            % If there are unfeasible individuals..
-            if any( ( cell2mat({Val_temp.non_feas})  == 1 ) )
+            % If there are unfeasible individuals, either for ceq or c..
+            if any( ( cell2mat({Val_temp.non_feas_ceq})  ~= 0 ) + ...
+                    ( cell2mat({Val_temp.non_feas_c})  ~= 0 ) ~=0 )      
                 % Non feasible individuals: the objective function is the maximum of
                 % the objective function for all the individuals + equality
                 % constraint + maximum of inequality constraints for that individual
-                % Non feasible individuals are denoted by
-                % ( cell2mat({Val_temp.non_feas})  == 1 )
-                % thet is, the flag for infeasibility if put to zero
-                Val( ( cell2mat({Val_temp.non_feas})  == 1 ) ) = ...
+                % Non feasible individuals are denoted by index
+                % ( cell2mat({Val_temp.non_feas_ceq})  ~= 0 ) + ...
+                %    ( cell2mat({Val_temp.non_feas_c})  ~= 0 ) ~=0 
+                % thet is, the flag for infeasibility if put to 1
+                index_nonfeas = logical( ( cell2mat({Val_temp.non_feas_ceq})  ~= 0 ) + ...
+                    ( cell2mat({Val_temp.non_feas_c})  ~= 0 ) ~=0 );
+                % Objective: maximum of objective function + violation of
+                % equality constraint (only if violated) + violation of
+                % inequality constraint (only if violated)
+                Val( index_nonfeas ) = ...
                     max(cell2mat({Val_temp.yy})) + ...
-                    cellfun(@norm,{Val_temp( ( cell2mat({Val_temp.non_feas})  == 1 )).ceq})' + ...
-                    cellfun(@max, {Val_temp( ( cell2mat({Val_temp.non_feas})  == 1 )).c})';
+                    cellfun(@norm,{Val_temp( index_nonfeas ).ceq})' .* ...
+                              cellfun(@norm, {Val_temp( index_nonfeas ).non_feas_ceq})' + ...
+                    cellfun(@max, {Val_temp( index_nonfeas ).c})' .* ...
+                              cellfun(@norm, {Val_temp( index_nonfeas ).non_feas_c})';
             end
             
             [BestVal, ibest] = min(Val);
@@ -1681,29 +1703,43 @@ end
 % value of the objective function
 if fname.weighted == 0 && ~isempty(fname.constr)  
     
-    % If there are feasible individuals...
-    if any( ( cell2mat({Val_temp.non_feas})  == 0 ) )
+    % If there are feasible individuals (both equality and inequality feasibility)...
+    if any( ( cell2mat({Val_temp.non_feas_ceq})  == 0 ) .* ...
+            ( cell2mat({Val_temp.non_feas_c})  == 0 )) 
         % Feasible individuals: objective function is objective function
         % Feasible individuals are denoted by
-        % ( cell2mat({Val_temp.non_feas})  == 0 )
-        % thet is, the flag for infeasibility if put to zero
-        Val( ( cell2mat({Val_temp.non_feas})  == 0 ) ) = ...
-            Val_temp( ( cell2mat({Val_temp.non_feas})  == 0 )).yy;
+        % ( cell2mat({Val_temp.non_feas})  == 0 ) .* ...
+        %     ( cell2mat({Val_temp.non_feas_c})  == 0 ) == 1
+        % thet is, the flag for infeasibility if put to zero for both
+        % equality and inequality
+        Val(  logical (( cell2mat({Val_temp.non_feas_ceq})  == 0 ) .* ...
+            ( cell2mat({Val_temp.non_feas_c})  == 0 ) ) ) = ...
+            Val_temp( logical (( cell2mat({Val_temp.non_feas_ceq})  == 0 ) .* ...
+            ( cell2mat({Val_temp.non_feas_c})  == 0 ) ) ).yy;
         
     end
     
     % If there are unfeasible individuals..
-    if any( ( cell2mat({Val_temp.non_feas})  == 1 ) )
+    if any( ( cell2mat({Val_temp.non_feas_ceq})  ~= 0 ) + ...
+                    ( cell2mat({Val_temp.non_feas_c})  ~= 0 ) ~=0 )
         % Non feasible individuals: the objective function is the maximum of
         % the objective function for all the individuals + equality
         % constraint + maximum of inequality constraints for that individual
-        % Non feasible individuals are denoted by
-        % ( cell2mat({Val_temp.non_feas})  == 1 )
+        % Non feasible individuals are denoted by index
+        % ( cell2mat({Val_temp.non_feas_ceq})  ~= 0 ) + ...
+                %    ( cell2mat({Val_temp.non_feas_c})  ~= 0 ) ~=0 
         % thet is, the flag for infeasibility if put to zero
-        Val( ( cell2mat({Val_temp.non_feas})  == 1 ) ) = ...
+        index_nonfeas = logical( ( cell2mat({Val_temp.non_feas_ceq})  ~= 0 ) + ...
+                    ( cell2mat({Val_temp.non_feas_c})  ~= 0 ) ~=0 );
+        % Objective: maximum of objective function + violation of
+        % equality constraint (only if violated) + violation of
+        % inequality constraint (only if violated)
+        Val( index_nonfeas ) = ...
             max(cell2mat({Val_temp.yy})) + ...
-            cellfun(@norm,{Val_temp( ( cell2mat({Val_temp.non_feas})  == 1 )).ceq})' + ...
-            cellfun(@max, {Val_temp( ( cell2mat({Val_temp.non_feas})  == 1 )).c})';
+            cellfun(@norm,{Val_temp( index_nonfeas ).ceq})' .* ...
+            cellfun(@norm, {Val_temp( index_nonfeas ).non_feas_ceq})' + ...
+            cellfun(@max, {Val_temp( index_nonfeas ).c})' .* ...
+            cellfun(@norm, {Val_temp( index_nonfeas ).non_feas_c})';
     end
     
     [BestVal, ibest] = min(Val);
@@ -2054,26 +2090,38 @@ while nostop
             % If constraints are not weighted
             if fname.weighted == 0 && ~isempty(fname.constr)
                 
-                if any( ( cell2mat({TempVal2.non_feas})  == 0 ) )
+                if  any( ( cell2mat({TempVal2.non_feas_ceq})  == 0 ) .* ...
+                    ( cell2mat({TempVal2.non_feas_c})  == 0 ) )
                     % Feasible individuals: objective function is objective function
                     % Feasible individuals are denoted by
                     % ( cell2mat({Val_temp.non_feas})  == 0 )
                     % thet is, the flag for infeasibility if put to zero
-                    TempVal( ( cell2mat({TempVal2.non_feas})  == 0 ) ) = ...
-                        TempVal2( ( cell2mat({TempVal2.non_feas})  == 0 )).yy;
+                    TempVal( logical (( cell2mat({TempVal2.non_feas_ceq})  == 0 ) .* ...
+                    ( cell2mat({TempVal2.non_feas_c})  == 0 ) )  ) = ...
+                        TempVal2( logical (( cell2mat({TempVal2.non_feas_ceq})  == 0 ) .* ...
+                    ( cell2mat({TempVal2.non_feas_c})  == 0 ) ) ).yy;
                 end
                 
-                if any( ( cell2mat({TempVal2.non_feas})  == 1 ) )
+                if   any( ( cell2mat({TempVal2.non_feas_ceq})  ~= 0 ) + ...
+                        ( cell2mat({TempVal2.non_feas_c})  ~= 0 ) ~=0 )
                     % Non feasible individuals: the objective function is the maximum of
                     % the objective function for all the individuals + equality
                     % constraint + maximum of inequality constraints for that individual
-                    % Non feasible individuals are denoted by
-                    % ( cell2mat({Val_temp.non_feas})  == 1 )
-                    % thet is, the flag for infeasibility if put to zero
-                    TempVal( ( cell2mat({TempVal2.non_feas})  == 1 ) ) = ...
+                    % Non feasible individuals are denoted by index
+                    % ( cell2mat({Val_temp.non_feas_ceq})  ~= 0 ) + ...
+                    %    ( cell2mat({Val_temp.non_feas_c})  ~= 0 ) ~=0
+                    % thet is, the flag for infeasibility if put to 1
+                    index_nonfeas = logical( ( cell2mat({TempVal2.non_feas_ceq})  ~= 0 ) + ...
+                        ( cell2mat({TempVal2.non_feas_c})  ~= 0 ) ~=0 );
+                    % Objective: maximum of objective function + violation of
+                    % equality constraint (only if violated) + violation of
+                    % inequality constraint (only if violated)
+                    TempVal( index_nonfeas) = ...
                         max(cell2mat({TempVal2.yy})) + ...
-                        cellfun(@norm,{TempVal2( ( cell2mat({TempVal2.non_feas})  == 1 )).ceq})' + ...
-                        cellfun(@max, {TempVal2( ( cell2mat({TempVal2.non_feas})  == 1 )).c})';
+                        cellfun(@norm,{TempVal2( index_nonfeas).ceq})' .* ...
+                              cellfun(@norm, {TempVal2( index_nonfeas ).non_feas_ceq})' + ...
+                        cellfun(@max, {TempVal2( index_nonfeas).c})'.* ...
+                              cellfun(@norm, {TempVal2( index_nonfeas ).non_feas_c})';
                 end
                 
                 [BestVal, ibest] = min(Val);
@@ -2091,26 +2139,38 @@ while nostop
     % If constraints are not weighted
     if fname.weighted == 0 && ~isempty(fname.constr) 
         
-        if any( ( cell2mat({TempVal2.non_feas})  == 0 ) )
+        if any( ( cell2mat({TempVal2.non_feas_ceq})  == 0 ) .* ...
+                    ( cell2mat({TempVal2.non_feas_c})  == 0 ) )
             % Feasible individuals: objective function is objective function
             % Feasible individuals are denoted by
             % ( cell2mat({Val_temp.non_feas})  == 0 )
             % thet is, the flag for infeasibility if put to zero
-            TempVal( ( cell2mat({TempVal2.non_feas})  == 0 ) ) = ...
-                TempVal2( ( cell2mat({TempVal2.non_feas})  == 0 )).yy;
+             TempVal( logical (( cell2mat({TempVal2.non_feas_ceq})  == 0 ) .* ...
+                    ( cell2mat({TempVal2.non_feas_c})  == 0 ) )  ) = ...
+                        TempVal2( logical (( cell2mat({TempVal2.non_feas_ceq})  == 0 ) .* ...
+                    ( cell2mat({TempVal2.non_feas_c})  == 0 ) ) ).yy;
         end
         
-        if any( ( cell2mat({TempVal2.non_feas})  == 1 ) )
+        if any( ( cell2mat({TempVal2.non_feas_ceq})  ~= 0 ) + ...
+                        ( cell2mat({TempVal2.non_feas_c})  ~= 0 ) ~=0 )
             % Non feasible individuals: the objective function is the maximum of
             % the objective function for all the individuals + equality
             % constraint + maximum of inequality constraints for that individual
-            % Non feasible individuals are denoted by
-            % ( cell2mat({Val_temp.non_feas})  == 1 )
-            % thet is, the flag for infeasibility if put to zero
-            TempVal( ( cell2mat({TempVal2.non_feas})  == 1 ) ) = ...
+            % Non feasible individuals are denoted by index
+            % ( cell2mat({Val_temp.non_feas_ceq})  ~= 0 ) + ...
+            %    ( cell2mat({Val_temp.non_feas_c})  ~= 0 ) ~=0
+            % thet is, the flag for infeasibility if put to 1
+            index_nonfeas = logical( ( cell2mat({TempVal2.non_feas_ceq})  ~= 0 ) + ...
+                ( cell2mat({TempVal2.non_feas_c})  ~= 0 ) ~=0 );
+            % Objective: maximum of objective function + violation of
+            % equality constraint (only if violated) + violation of
+            % inequality constraint (only if violated)
+            TempVal( index_nonfeas) = ...
                 max(cell2mat({TempVal2.yy})) + ...
-                cellfun(@norm,{TempVal2( ( cell2mat({TempVal2.non_feas})  == 1 )).ceq})' + ...
-                cellfun(@max, {TempVal2( ( cell2mat({TempVal2.non_feas})  == 1 )).c})';
+                cellfun(@norm,{TempVal2( index_nonfeas).ceq})' .* ...
+                cellfun(@norm, {TempVal2( index_nonfeas ).non_feas_ceq})' + ...
+                cellfun(@max, {TempVal2( index_nonfeas).c})'.* ...
+                cellfun(@norm, {TempVal2( index_nonfeas ).non_feas_c})';
         end
         
         [BestVal, ibest] = min(TempVal);
