@@ -130,10 +130,18 @@ elseif flag_LG.global == 1
         f.ceq = norm(ceq);
         f.c = c;
         
-        if norm(f.ceq) > fc.ceq_eps  || f.c > 0
-            f.non_feas = 1;
+        if norm(f.ceq) > fc.ceq_eps  && any(f.c > 0)
+            f.non_feas_ceq = 1;
+            f.non_feas_c    = 1;
+        elseif norm(f.ceq) > fc.ceq_eps  && all(f.c < 0)
+            f.non_feas_ceq = 1;
+            f.non_feas_c    = 0;
+        elseif norm(f.ceq) < fc.ceq_eps  && any(f.c > 0)
+            f.non_feas_ceq = 1;
+            f.non_feas_c    = 0;
         else
-            f.non_feas = 0;
+            f.non_feas_ceq = 0;
+            f.non_feas_c = 0;
         end
         
     end
@@ -152,8 +160,10 @@ end
             [myf,myc,myceq] = feval(fc.obj,x,varargin{:});
             xLast = x;
             
-        else
+        elseif isequal(x,xLast) && fc.obj_constr
             
+        elseif ~isequal(x,xLast) && ~fc.obj_constr
+            % Evaluate objective function            
             [myf] = feval(fc.obj,x,varargin{:});
         end
         
@@ -166,8 +176,13 @@ end
             
             [myf,myc,myceq] = feval(fc.constr, x,varargin{:});
             xLast = x;
-        else
+        
+        elseif isequal(x,xLast) && fc.obj_constr
+            
+        elseif ~isequal(x,xLast) && ~fc.obj_constr
+            % Evaluate constraint function   
             [myc,myceq] = feval(fc.constr, x,varargin{:});
+            
         end
         
         % Now compute constraint functions
