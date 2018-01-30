@@ -903,9 +903,9 @@ while sum(nFeVal) < nFeValMax
             nfev(1,i_pop_number) = min(nfev(1,i_pop_number), nFeValMax - sum(nFeVal));
             
             nfev(1,i_pop_number)
-            if nfev(1,i_pop_number)<0 || ~real(nfev(1,i_pop_number))
-                keyboard
-            end
+%             if nfev(1,i_pop_number)<0 || ~real(nfev(1,i_pop_number))
+%                 keyboard
+%             end
             foptionsNLP = optimset('Display','off','MaxFunEvals',nfev(1,i_pop_number),'LargeScale','off','FinDiffType','central','Algorithm','sqp');
             
             % Local search with fmincon
@@ -1005,7 +1005,7 @@ while sum(nFeVal) < nFeValMax
             xref(i_pop_number,:) = xmin;
             
             if sum(nFeVal) >= nFeValMax
-                keyboard
+%                 keyboard
                 break
             end
         end
@@ -1420,7 +1420,7 @@ while sum(nFeVal) < nFeValMax
     first_local_restart = 0;
     
     if sum(nFeVal) >= nFeValMax
-        keyboard
+%         keyboard
         break
     end
     % ========================================================================
