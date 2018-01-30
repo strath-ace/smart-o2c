@@ -1,5 +1,6 @@
 function [memories_out, memories, archivebest, population_evolution, vval_evolution, B_mean, delta_local, inite, iglob, options, exitflag] = ...
     MP_AIDEA(fname, vlb, vub, pop, options, varargin)
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1192,8 +1193,7 @@ while sum(nFeVal) < nFeValMax
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    
-    
+
     % =========================================================================
     % Local and Global Restart
     % =========================================================================
