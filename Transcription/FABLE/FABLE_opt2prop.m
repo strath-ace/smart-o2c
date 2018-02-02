@@ -175,8 +175,8 @@ end
 %% Other propagation parameters
 
 parameters_prop.Isp_adim = engine.Isp_adim;
-parameters_prop.arcs = options.transfer_arcs;
-parameters_prop.m    = spacecraft.m;
-parameters_prop.T = engine.T_adim;
-parameters_prop.n = 100;
+parameters_prop.arcs   = options.transfer_arcs;
+parameters_prop.m      = spacecraft.m;
+parameters_prop.T_adim = engine.T_adim;
+parameters_prop.n      = 100;
 

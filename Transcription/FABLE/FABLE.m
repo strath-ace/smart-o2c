@@ -494,7 +494,7 @@ parameters.curr_tof     = ToF;
 parameters.plot_flag    = 0;
 parameters.n            = 2;
 parameters.m            = spacecraft.m;
-parameters.T            = eps_max * spacecraft.m;
+parameters.T_adim       = eps_max * spacecraft.m;
 parameters.LB           = LB;
 parameters.UB           = UB;
 

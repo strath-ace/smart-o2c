@@ -56,7 +56,7 @@ Equin_thrust = [];
 if options.FABLE1
     
     % Low-thrust acceleration
-    eps      = parameters.T / parameters.m;
+    eps      = parameters.T_adim / parameters.m;
     
     %% FIRST PROPULSED ARC
     
@@ -166,7 +166,7 @@ if options.FABLE1
             kep_temp = eq2kep(Equin_initial_prop_forw);
             cart_temp = kep2cart(kep_temp, constants.mu);
             r_temp = norm(cart_temp(1:3));
-            m_temp = m - parameters.T / r_temp^2 / (parameters.Isp_adim * constants.g0_adim) * t;
+            m_temp = m - parameters.T_adim / r_temp^2 / (parameters.Isp_adim * constants.g0_adim) * t;
             m = m_temp(end);
             Equin_sorted{2+(i-1)*2} = [Equin_sorted{2+(i-1)*2}; m_temp];
         elseif options.fun == 1
@@ -174,12 +174,12 @@ if options.FABLE1
             B = sqrt(1 - Equin_initial_prop_forw(2)^2 - Equin_initial_prop_forw(3)^2);
 %             J = J + eps / (B * sqrt(constants.mu * Equin_initial_prop_forw(1)) )* ...
 %                 (L_prop_forw(end) - L_prop_forw(1));
-            J = J + parameters.T/m / (B * sqrt(constants.mu * Equin_initial_prop_forw(1)) )* ...
+            J = J + parameters.T_adim/m / (B * sqrt(constants.mu * Equin_initial_prop_forw(1)) )* ...
                 (L_prop_forw(end) - L_prop_forw(1));
             % Update mass
             %         m =m- m * eps / (B * sqrt(constants.mu * Equin_initial_prop_forw(1)) )* ...
             %             (L_prop_forw(end) - L_prop_forw(1)) / (parameters.Isp_adim * constants.g0_adim);
-            m_temp =m- parameters.T / (B * sqrt(constants.mu * Equin_initial_prop_forw(1)) )* ...
+            m_temp =m- parameters.T_adim / (B * sqrt(constants.mu * Equin_initial_prop_forw(1)) )* ...
                 (L_prop_forw - L_prop_forw(1)) / (parameters.Isp_adim * constants.g0_adim);
             m = m_temp(end);
             Equin_sorted{2+(i-1)*2} = [Equin_sorted{2+(i-1)*2}; m_temp(2:end)];
@@ -188,7 +188,7 @@ if options.FABLE1
         
         
         % Update acceleration
-        eps = parameters.T / m;
+        eps = parameters.T_adim / m;
         
         % Time of flight update
         ToF = ToF + t(end);
@@ -286,7 +286,7 @@ elseif options.FABLE2
             kep_temp = eq2kep(Equin_initial_prop_forw);
             cart_temp = kep2cart(kep_temp, constants.mu);
             r_temp = norm(cart_temp(1:3));
-            m = m - parameters.T / r_temp^2 / (parameters.Isp_adim * constants.g0_adim) * t(end);
+            m = m - parameters.T_adim / r_temp^2 / (parameters.Isp_adim * constants.g0_adim) * t(end);
         elseif options.fun == 1
             % Cost function: analytic expression DeltaV
             B = sqrt(1 - Equin_initial_prop(2)^2 - Equin_initial_prop(3)^2);
