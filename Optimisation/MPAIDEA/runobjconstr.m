@@ -137,8 +137,8 @@ elseif flag_LG.global == 1
             f.non_feas_ceq = 1;
             f.non_feas_c    = 0;
         elseif norm(f.ceq) < fc.ceq_eps  && any(f.c > 0)
-            f.non_feas_ceq = 1;
-            f.non_feas_c    = 0;
+            f.non_feas_ceq = 0;
+            f.non_feas_c    = 1;
         else
             f.non_feas_ceq = 0;
             f.non_feas_c = 0;
