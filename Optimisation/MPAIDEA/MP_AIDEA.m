@@ -1,6 +1,7 @@
 function [memories_out, memories, archivebest, population_evolution, vval_evolution, B_mean, delta_local, inite, iglob, options, exitflag] = ...
     MP_AIDEA(fname, vlb, vub, pop, options, varargin)
 
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -699,6 +700,12 @@ while sum(nFeVal) < nFeValMax
                         flag_LG.local  = 1;
                         [xgrad,fvalgrad,exitflag,output] = runobjconstr(BestMem(i_pop_number,:),...
                             fname, flag_LG, foptionsNLP,vlb, vub,varargin{:});
+                        
+                        % Save results to file
+                        if options.save_local_search
+                            fprintf(options.fileID2, options.str, [xgrad, fvalgrad]');
+                        end
+
                     elseif isfield(options,'no_bounds') && options.no_bounds
                         % For problem with no bounds use fminunc instead
                         % than fmincon
@@ -708,6 +715,11 @@ while sum(nFeVal) < nFeValMax
                         % New:
                         [xgrad,fvalgrad,exitflag,output] = runobjconstr(BestMem(i_pop_number,:),...
                             fname, flag_LG, foptionsNLP,[], [],varargin{:});
+                        
+                        % Save results to file
+                        if options.save_local_search
+                            fprintf(options.fileID2, options.str, [xgrad, fvalgrad]');
+                        end
                     end
                     
                     % Update number of function evaluations
@@ -918,6 +930,10 @@ while sum(nFeVal) < nFeValMax
             [xgrad,fvalgrad,exitflag,output] = runobjconstr(BestMem(i_pop_number,:),...
                 fname, flag_LG, foptionsNLP,vlb, vub,varargin{:});
             
+            % Save results to file
+            if options.save_local_search
+                fprintf(options.fileID2, options.str, [xgrad, fvalgrad]');
+            end
             % Update number of function evaluations
             nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
             
@@ -1494,6 +1510,7 @@ function [BestMem, BestVal, nFeVal, pop, Val, iter, vval, new_elements, exitflag
 % (c) Edmondo Minisci and Massimiliano Vasile 2013
 %     Marilena Di Carlo, 2015
 
+
 % =========================================================================
 % Initialization
 % =========================================================================
@@ -1700,6 +1717,12 @@ for i = 2 : NP                        % check the remaining members
     % =====================================================================
     
 end
+
+% Save population to file
+if options.save_pop_DE
+    fprintf(options.fileID, options.str, [pop, Val']');
+end
+
 
 % Now all the objectives values are available for all the individuals...
 % If constraints are not weighted, then it is necessary to find the maximum
@@ -2138,6 +2161,11 @@ while nostop
         end
         % =================================================================
 
+    end
+    
+    % Save population to file
+    if options.save_pop_DE
+        fprintf(options.fileID, options.str, [InterPop, TempVal']');
     end
       
     % All the individuals have been computed
