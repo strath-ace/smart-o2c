@@ -123,6 +123,31 @@ options.dd_CRF = 3;
 % -------------------------------------------------------------------------
 options.text = 1;
 
+% -------------------------------------------------------------------------
+% Save results of DE to file?
+% -------------------------------------------------------------------------
+options.save_pop_DE = 0;
+% If yes, uncomment the following and give name to files:
+% options.str = '%8.6e';
+% for i = 1 : D
+%     options.str = [options.str,' ', '%8.6e'];
+% end
+% options.str = [options.str, '\n'];
+% options.fileID = fopen('population_DE1.txt','w');
+
+% -------------------------------------------------------------------------
+% Save results of local search to file?
+% -------------------------------------------------------------------------
+options.save_local_search = 1;
+% If yes, uncomment the following and give name to files:
+options.str = '%8.6e';
+for i = 1 : D
+    options.str = [options.str,' ', '%8.6e'];
+end
+options.str = [options.str, '\n'];
+options.fileID2 = fopen('minima_fmincon1.txt','w');
+
+
 
 %% Lower and upper boundaries and dimension of the problem
 
