@@ -33,7 +33,7 @@ cd ..
 
 % Number of the function to optimise. The CEC 2014 competition includes 30
 % test functions. func_num must be betwen 1 and 30
-func_num = 5;
+func_num = 1;
 
 % Dimension of the problem - Choose between 10, 30, 50 and 100 dimensions
 D = 10;
@@ -119,6 +119,32 @@ options.dd_CRF = 3;
 % -------------------------------------------------------------------------
 options.text = 1;
 
+% -------------------------------------------------------------------------
+% Save results of DE to file?
+% -------------------------------------------------------------------------
+options.save_pop_DE = 0;
+% If yes, uncomment the following and give name to files:
+% options.str = '%8.6e';
+% for i = 1 : D
+%     options.str = [options.str,' ', '%8.6e'];
+% end
+% options.str = [options.str, '\n'];
+% options.fileID = fopen('population_DE1.txt','w');
+
+% -------------------------------------------------------------------------
+% Save results of local search to file?
+% -------------------------------------------------------------------------
+options.save_local_search = 1;
+% If yes, uncomment the following and give name to files:
+options.str = '%8.6e';
+for i = 1 : D
+    options.str = [options.str,' ', '%8.6e'];
+end
+options.str = [options.str, '\n'];
+options.fileID2 = fopen('minima_fmincon1.txt','w');
+
+
+
 
 %% CEC 2014 guidelines
 
@@ -163,6 +189,10 @@ fitnessfcn.weighted = 0;
 % MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
 
-
-
+if options.save_pop_DE
+    fclose(options.fileID)
+end
+if options.save_local_search
+    fclose(options.fileID2)
+end
 
