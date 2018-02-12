@@ -119,6 +119,12 @@ options.dd_CRF = 3;
 options.text = 1;
 
 % -------------------------------------------------------------------------
+% Display plot during run?
+% -------------------------------------------------------------------------
+options.plots = 1;
+
+
+% -------------------------------------------------------------------------
 % Save results of DE to file?
 % All the individuals of all the populations will be saved on a file after
 % each generation of the DE
@@ -189,7 +195,7 @@ end
 
 
 % Maximum number of function evaluations
-nFeValMax = 1000 * D;
+nFeValMax = 10000 * D;
 
 
 %% MP-AIDEA inputs
