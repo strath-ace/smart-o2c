@@ -1637,6 +1637,14 @@ end
 % =========================================================================
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if options.text
+%     disp('------------------------------------------------')
+%     disp(strcat('Population ', num2str(i_pop_number),' , DE'))
+    disp('------------------------------------------------')
+    disp('DE: evaluate parents ...');
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i = 2 : NP                        % check the remaining members
     % Old:
     %     Val(i) = feval(fname, pop(i,:), varargin{:});
@@ -1724,6 +1732,13 @@ for i = 2 : NP                        % check the remaining members
     % =====================================================================
     
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if options.text
+    disp(strcat('Best individual ',num2str(BestVal)));
+    disp('------------------------------------------------')
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % Save population to file
 if options.save_pop_DE
@@ -2009,7 +2024,11 @@ while nostop
     % The aim is to return the maximum dd value to perform the adaptation
     % of the CRF matrix.
     
-    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if options.text
+        disp(strcat('DE generation ', num2str(iter)));
+    end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     for i = 1 : NP
         
         % =================================================================
@@ -2169,7 +2188,13 @@ while nostop
         % =================================================================
 
     end
-    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if options.text
+        disp(strcat('Best individual: ', num2str(BestVal)));
+        disp('------------------------------------------------')
+    end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     % Save population to file
     if options.save_pop_DE
         fprintf(options.fileID, options.str, [InterPop, TempVal']');
