@@ -283,6 +283,9 @@ record = options.record;
 % of function evaluations
 step = 1;
 
+if options.plots
+    h = waitbar(0,'Initializing waitbar for MPAIDEA...');
+end
 
 %% Main loop
 % Exit when the maximum number of function evaluations has been reached:
@@ -325,6 +328,7 @@ while sum(nFeVal) < nFeValMax
                 % ---------------------------------------------------------
                 % Run DE until contraction
                 % ---------------------------------------------------------
+
                 [BestMem(i_pop_number,:),... % Best member of the current population
                     BestVal(1,i_pop_number),... % Function value associated to the best member of the current population
                     nFeVal,...                  % Function evaluations
@@ -344,7 +348,9 @@ while sum(nFeVal) < nFeValMax
                     nFeValMax,...              % Maximum number of functions evaluations
                     varargin{:});
                 
-                
+                if options.plots
+                    waitbar(sum(nFeVal)/nFeValMax,h,'Running MP-AIDEA...')
+                end
                 
                 % Save population and other parameters of the population
                 population_evolution{i_pop_number} = [population_evolution{i_pop_number}; pop(:,:,i_pop_number)];
@@ -470,6 +476,9 @@ while sum(nFeVal) < nFeValMax
                 % end of -----if iglob(1,i_pop_number) == min(iglob)
             end
             % =================================================================
+            if options.plots
+                waitbar(sum(nFeVal)/nFeValMax,h,'Running MP-AIDEA...')
+            end
             
             % =====================================================================
             % end of ---------for i_pop_number = 1 : pop_number
@@ -725,6 +734,14 @@ while sum(nFeVal) < nFeValMax
                     % Update number of function evaluations
                     nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
                     
+%                     if options.plots
+%                         drawnow
+%                         figure(i_pop_number)
+%                         hold on
+%                         plot(nFeVal(i_pop_number), fvalgrad, 'ro','MarkerFaceColor','r')
+%                         title(strcat('Population', num2str(i_pop_number)))
+%                     end
+                    
                     % If value of minimum find by the local search is lower
                     % than current best value:
                     if fvalgrad < BestVal(1,i_pop_number)
@@ -936,6 +953,14 @@ while sum(nFeVal) < nFeValMax
             end
             % Update number of function evaluations
             nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
+            
+%             if options.plots
+%                 drawnow
+%                 figure(i_pop_number)
+%                 hold on
+%                 plot(nFeVal(i_pop_number), fvalgrad, 'ro','MarkerFaceColor','r')
+%                 title(strcat('Population', num2str(i_pop_number)))
+%             end
             
             % If value of minimum find by the local search is lower
             % than current best value:
@@ -1340,6 +1365,15 @@ while sum(nFeVal) < nFeValMax
                 
                 pop0=[];
                 
+%                 if options.plots
+%                     drawnow
+%                     figure(i_pop_number)
+%                     hax = ylim;
+%                     hold on
+%                     line([nFeVal(i_pop_number) nFeVal(i_pop_number)],...
+%                         [hax(1) hax(end)],'Color',[1 0 0])
+%                 end
+                
                 while size(pop0,1) < NP
                     
                     % For problem with no bounds
@@ -1467,6 +1501,9 @@ if ~exist('memories_out','var')
     
 end
 
+if options.plots
+    h = waitbar(0,'.. complete!');
+end
 
 % =========================================================================
 % end of the function
@@ -1738,6 +1775,13 @@ if options.text
     disp('------------------------------------------------')
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% if options.plots
+%     drawnow
+%     figure(i_pop_number)
+%     hold on
+%     plot(nFeVal(i_pop_number), BestVal, 'bo')
+%     title(strcat('Population', num2str(i_pop_number)))
+% end
 
 
 % Save population to file
@@ -2351,6 +2395,14 @@ if options.text
     disp('------------------------------------------------')
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% if options.plots
+% %     drawnow
+%     figure(i_pop_number)
+%     hold on
+%     plot(nFeVal(i_pop_number), BestVal, 'bo','MarkerFaceColor','b')
+%     xlabel('N FeVal')
+%     grid on
+% end
 
 end
 
