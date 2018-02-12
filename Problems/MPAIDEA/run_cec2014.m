@@ -121,28 +121,37 @@ options.text = 1;
 
 % -------------------------------------------------------------------------
 % Save results of DE to file?
+% All the individuals of all the populations will be saved on a file after
+% each generation of the DE
 % -------------------------------------------------------------------------
-options.save_pop_DE = 0;
-% If yes, uncomment the following and give name to files:
-% options.str = '%8.6e';
-% for i = 1 : D
-%     options.str = [options.str,' ', '%8.6e'];
-% end
-% options.str = [options.str, '\n'];
-% options.fileID = fopen('population_DE1.txt','w');
+% 1 for yes, 0 for no
+options.save_pop_DE = 1;
+% If yes, choose a name for the file:
+name_save_pop_DE = 'population_DE.txt';
+
 
 % -------------------------------------------------------------------------
 % Save results of local search to file?
+% All the local minima are saved to the same file
 % -------------------------------------------------------------------------
 options.save_local_search = 1;
-% If yes, uncomment the following and give name to files:
-options.str = '%8.6e';
-for i = 1 : D
-    options.str = [options.str,' ', '%8.6e'];
-end
-options.str = [options.str, '\n'];
-options.fileID2 = fopen('minima_fmincon1.txt','w');
+% If yes, choose name for file:
+name_save_local_search = 'minima_fmincon.txt';
 
+
+% -------------------------------------------------------------------------
+% Save populations at local restart (each one saved on a different file)?
+% -------------------------------------------------------------------------
+options.save_pop_LR = 1;
+% If yes, choose prefix of name for files:
+name_save_pop_LR = 'pop_LR_';
+
+% -------------------------------------------------------------------------
+% Save populations at global restart (each one saved on a different file)?
+% -------------------------------------------------------------------------
+options.save_pop_GR = 1;
+% If yes, choose prefix of name for files:
+name_save_pop_GR = 'pop_GR_';
 
 
 
@@ -157,6 +166,53 @@ nFeValMax = 10000 * D;
 
 
 %% MP-AIDEA inputs
+
+% File to save population of DE
+if options.save_pop_DE
+    options.str = '%8.6e';
+    for i = 1 : D
+        options.str = [options.str,' ', '%8.6e'];
+    end
+    options.str = [options.str, '\n'];
+    options.fileID = fopen(name_save_pop_DE,'w');
+end
+
+% File to save local searches
+if options.save_local_search
+    % If yes, uncomment the following and give name to files:
+    options.str2 = '%8.6e';
+    for i = 1 : D
+        options.str2 = [options.str2,' ', '%8.6e'];
+    end
+    options.str2 = [options.str2, '\n'];
+    options.fileID2 = fopen(name_save_local_search,'w');
+end
+
+% File to save local restarts
+if options.save_pop_LR
+    % If yes, uncomment the following and give name to files:
+    options.str2 = '%8.6e';
+    for i = 1 : D - 1
+        options.str2 = [options.str2,' ', '%8.6e'];
+    end
+    options.str2 = [options.str2, '\n'];
+    for i = 1 : pop_number
+        options.fileID3(i) = fopen(strcat(name_save_pop_LR,num2str(i),'.txt'),'w');
+    end
+end
+
+% File to save global restarts
+if options.save_pop_GR
+    % If yes, uncomment the following and give name to files:
+    options.str = '%8.6e';
+    for i = 1 : D - 1
+        options.str = [options.str,' ', '%8.6e'];
+    end
+    options.str = [options.str, '\n'];
+    for i = 1 : pop_number
+        options.fileID4(i) = fopen(strcat(name_save_pop_GR,num2str(i),'.txt'),'w');
+    end
+end
 
 % Maximum number of function evaluations
 options.nFeValMax = nFeValMax;
@@ -189,10 +245,23 @@ fitnessfcn.weighted = 0;
 % MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
 
+
+
+%% Close file opened for writing 
+
 if options.save_pop_DE
     fclose(options.fileID)
 end
 if options.save_local_search
     fclose(options.fileID2)
 end
-
+if options.save_pop_LR
+    for i = 1 : pop_number
+        fclose(options.fileID3(i))
+    end
+end
+if options.save_pop_GR
+    for i = 1 : pop_number
+        fclose(options.fileID4(i))
+    end
+end

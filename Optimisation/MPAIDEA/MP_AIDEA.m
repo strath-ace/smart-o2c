@@ -805,9 +805,9 @@ while sum(nFeVal) < nFeValMax
                         % restart is adapted. Inite is used only to count
                         % the number of local restart but is not used to
                         % decide when to perform a global restart -
-                        inite(1,i_pop_number) = 0;
+%                         inite(1,i_pop_number) = 0;
                     else
-                        inite(1,i_pop_number) = inite(1,i_pop_number) + 1;
+%                         inite(1,i_pop_number) = inite(1,i_pop_number) + 1;
                     end
                     
                     % What happens to the following line if BestVal is not below the fmin
@@ -1286,8 +1286,12 @@ while sum(nFeVal) < nFeValMax
                 % Population re-initialized in the bubble
                 pop(:,:,i_pop_number) = lhsdesign(NP,D,'criterion','maximin').*repmat(XVmaxl-XVminl,NP,1)+repmat(XVminl,NP,1);
                 
-                % Increase number of local restart for current population
-                % by 1
+                if options.save_pop_LR
+                    fprintf(options.fileID3(i_pop_number), options.str2, pop(:,:,i_pop_number)');
+                end
+                
+%                 % Increase number of local restart for current population
+%                 % by 1
                 inite(1,i_pop_number) = inite(1,i_pop_number) + 1;
                 
                 if options.text
@@ -1381,6 +1385,9 @@ while sum(nFeVal) < nFeValMax
                 
                 pop(:,:,i_pop_number) = pop0;
                 
+                if options.save_pop_GR
+                    fprintf(options.fileID4(i_pop_number), options.str2, pop(:,:,i_pop_number)');
+                end
                 
                 % Current population contraction status is back to zero
                 contraction(1,i_pop_number) = 0;
