@@ -147,7 +147,7 @@ options.plots = 1;
 % 1 for yes, 0 for no
 options.save_pop_DE = 1;
 % If yes, choose prefix for name for the file:
-name_save_pop_DE = 'pop_DE_';
+options.name_save_pop_DE = 'pop_DE_';
 
 
 % -------------------------------------------------------------------------
@@ -156,7 +156,7 @@ name_save_pop_DE = 'pop_DE_';
 % -------------------------------------------------------------------------
 options.save_local_search = 1;
 % If yes, choose prefix for name for file:
-name_save_local_search = 'minima_fmincon_';
+options.name_save_local_search = 'minima_fmincon_';
 
 
 % -------------------------------------------------------------------------
@@ -268,7 +268,7 @@ if options.save_pop_DE
     end
     options.str = [options.str, '\n'];
     for s = 1 : pop_number
-        options.fileID(s) = fopen(strcat(name_save_pop_DE, num2str(s),'.txt'),'w');
+        options.fileID(s) = fopen(strcat(options.name_save_pop_DE, num2str(s),'.txt'),'w');
     end
 end
 
@@ -281,7 +281,7 @@ if options.save_local_search
     end
     options.str = [options.str, '\n'];
     for s = 1 : pop_number
-        options.fileID2(s) = fopen(strcat(name_save_local_search, ...
+        options.fileID2(s) = fopen(strcat(options.name_save_local_search, ...
             num2str(s),'.txt'),'w');
     end
 end
