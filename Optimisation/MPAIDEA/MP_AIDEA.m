@@ -284,6 +284,7 @@ record = options.record;
 step = 1;
 
 if options.plots
+    drawnow
     h = waitbar(0,'Initializing waitbar for MPAIDEA...');
 end
 
@@ -349,6 +350,7 @@ while sum(nFeVal) < nFeValMax
                     varargin{:});
                 
                 if options.plots
+                    drawnow
                     waitbar(sum(nFeVal)/nFeValMax,h,'Running MP-AIDEA...')
                 end
                 
@@ -477,6 +479,7 @@ while sum(nFeVal) < nFeValMax
             end
             % =================================================================
             if options.plots
+                drawnow
                 waitbar(sum(nFeVal)/nFeValMax,h,'Running MP-AIDEA...')
             end
             
@@ -738,13 +741,17 @@ while sum(nFeVal) < nFeValMax
                     % Update number of function evaluations
                     nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
                     
-%                     if options.plots
-%                         drawnow
-%                         figure(i_pop_number)
-%                         hold on
-%                         plot(nFeVal(i_pop_number), fvalgrad, 'ro','MarkerFaceColor','r')
-%                         title(strcat('Population', num2str(i_pop_number)))
-%                     end
+                    if options.plots
+                        drawnow
+                        figure(i_pop_number)
+                        hold on
+                        A_tmp = textread([options.name_save_pop_DE, num2str(i_pop_number), '.txt']);
+                        B_tmp = textread([options.name_save_local_search, num2str(i_pop_number), '.txt']);
+                        plot(nFeVal(i_pop_number), min(min(A_tmp(:,end)), min(B_tmp(:,end))),...
+                            'ro','MarkerFaceColor','r')
+                    end
+                    
+                    
                     
                     % If value of minimum find by the local search is lower
                     % than current best value:
@@ -960,13 +967,15 @@ while sum(nFeVal) < nFeValMax
             % Update number of function evaluations
             nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
             
-%             if options.plots
-%                 drawnow
-%                 figure(i_pop_number)
-%                 hold on
-%                 plot(nFeVal(i_pop_number), fvalgrad, 'ro','MarkerFaceColor','r')
-%                 title(strcat('Population', num2str(i_pop_number)))
-%             end
+            if options.plots
+                drawnow
+                figure(i_pop_number)
+                hold on
+                A_tmp = textread([options.name_save_pop_DE, num2str(i_pop_number), '.txt']);
+                B_tmp = textread([options.name_save_local_search, num2str(i_pop_number), '.txt']);
+                plot(nFeVal(i_pop_number), min(min(A_tmp(:,end)), min(B_tmp(:,end))),...
+                    'ro','MarkerFaceColor','r')
+            end
             
             % If value of minimum find by the local search is lower
             % than current best value:
@@ -1508,6 +1517,7 @@ if ~exist('memories_out','var')
 end
 
 if options.plots
+    drawnow
     h = waitbar(0,'.. complete!');
 end
 
@@ -2404,14 +2414,33 @@ if options.text
     disp('------------------------------------------------')
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% if options.plots
-% %     drawnow
-%     figure(i_pop_number)
-%     hold on
+if options.plots
+    drawnow
+    figure(i_pop_number)
+    hold on
+%     A = textscan(options.fileID(1), options.str, 'Delimiter','\n');
 %     plot(nFeVal(i_pop_number), BestVal, 'bo','MarkerFaceColor','b')
-%     xlabel('N FeVal')
-%     grid on
-% end
+    A_tmp = textread([options.name_save_pop_DE, num2str(i_pop_number), '.txt']);
+    B_tmp = textread([options.name_save_local_search, num2str(i_pop_number), '.txt']);
+    if ~isempty(B_tmp)
+        plot(nFeVal(i_pop_number), min(min(A_tmp(:,end)), min(B_tmp(:,end))),...
+            'bo','MarkerFaceColor','b')
+    else
+        plot(nFeVal(i_pop_number), min(A_tmp(:,end)),...
+            'bo','MarkerFaceColor','b')
+    end
+    xlabel('Function eval.')
+    ylabel('Objective function')
+    grid on
+    title(['Population ', num2str(i_pop_number)])
+    if i_pop_number <= numel(options.fileID)/2
+        set(gcf, 'Unit','Normalized','Position', [0.01 + 1/(numel(options.fileID)/2)*(i_pop_number-1), ...
+            .6, (1/(numel(options.fileID)/2))-0.01, 0.3]);
+    else
+        set(gcf, 'Unit','Normalized','Position', [0.01 + 1/(numel(options.fileID)/2)*(i_pop_number-1-numel(options.fileID)/2), ...
+            .1, (1/(numel(options.fileID)/2))-0.01, 0.3]);
+    end
+end
 
 end
 

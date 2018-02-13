@@ -33,7 +33,7 @@ cd ..
 
 % Number of the function to optimise. The CEC 2014 competition includes 30
 % test functions. func_num must be betwen 1 and 30
-func_num = 1;
+func_num = 16;
 
 % Dimension of the problem - Choose between 10, 30, 50 and 100 dimensions
 D = 10;
@@ -142,7 +142,7 @@ options.text = 1;
 % 1 for yes, 0 for no
 options.save_pop_DE = 1;
 % If yes, choose prefix of name for files:
-name_save_pop_DE = 'pop_DE_';
+options.name_save_pop_DE = 'pop_DE_';
 
 
 % -------------------------------------------------------------------------
@@ -151,7 +151,7 @@ name_save_pop_DE = 'pop_DE_';
 % -------------------------------------------------------------------------
 options.save_local_search = 1;
 % If yes, choose prefix for name for file:
-name_save_local_search = 'minima_fmincon_';
+options.name_save_local_search = 'minima_fmincon_';
 
 
 % -------------------------------------------------------------------------
@@ -187,26 +187,26 @@ nFeValMax = 10000 * D;
 % -------------------------------------------------------------------------
 % File to save population of DE
 if options.save_pop_DE
-    options.str = '%8.6e';
+    options.str = '%8.6f';
     for i = 1 : D
-        options.str = [options.str,' ', '%8.6e'];
+        options.str = [options.str,' ', '%8.6f'];
     end
     options.str = [options.str, '\n'];
     for s = 1 : pop_number
-        options.fileID(s) = fopen(strcat(name_save_pop_DE, num2str(s),'.txt'),'w');
+        options.fileID(s) = fopen(strcat(options.name_save_pop_DE, num2str(s),'.txt'),'w+');
     end
 end
 
 % File to save local searches after fmincon
 if options.save_local_search
     % If yes, uncomment the following and give name to files:
-    options.str = '%8.6e';
+    options.str = '%8.6f';
     for i = 1 : D
-        options.str = [options.str,' ', '%8.6e'];
+        options.str = [options.str,' ', '%8.6f'];
     end
     options.str = [options.str, '\n'];
     for s = 1 : pop_number
-        options.fileID2(s) = fopen(strcat(name_save_local_search, num2str(s),'.txt'),'w');
+        options.fileID2(s) = fopen(strcat(options.name_save_local_search, num2str(s),'.txt'),'w+');
     end
 end
 
