@@ -113,6 +113,16 @@ options.F = [];
 % and F:
 options.dd_CRF = 3;
 
+% -------------------------------------------------------------------------
+% Warm start?
+% Provide populations for warm start. The number of populations and number
+% of individuals have to be compatible with the number of populations and
+% individuals defined above.
+% -------------------------------------------------------------------------
+options.warm_start = 0;
+% Prefix of the names of the file containing the population
+name_warm_start = 'pop_GR_';
+
 
 % -------------------------------------------------------------------------
 % Display plots during run?
@@ -131,8 +141,8 @@ options.text = 1;
 % -------------------------------------------------------------------------
 % 1 for yes, 0 for no
 options.save_pop_DE = 1;
-% If yes, choose a name for the file:
-name_save_pop_DE = 'population_DE.txt';
+% If yes, choose prefix of name for files:
+name_save_pop_DE = 'pop_DE_';
 
 
 % -------------------------------------------------------------------------
@@ -140,8 +150,8 @@ name_save_pop_DE = 'population_DE.txt';
 % All the local minima are saved to the same file
 % -------------------------------------------------------------------------
 options.save_local_search = 1;
-% If yes, choose name for file:
-name_save_local_search = 'minima_fmincon.txt';
+% If yes, choose prefix for name for file:
+name_save_local_search = 'minima_fmincon_';
 
 
 % -------------------------------------------------------------------------
@@ -172,6 +182,9 @@ nFeValMax = 10000 * D;
 
 %% MP-AIDEA inputs
 
+% -------------------------------------------------------------------------
+% Format for files
+% -------------------------------------------------------------------------
 % File to save population of DE
 if options.save_pop_DE
     options.str = '%8.6e';
@@ -179,18 +192,22 @@ if options.save_pop_DE
         options.str = [options.str,' ', '%8.6e'];
     end
     options.str = [options.str, '\n'];
-    options.fileID = fopen(name_save_pop_DE,'w');
+    for s = 1 : pop_number
+        options.fileID(s) = fopen(strcat(name_save_pop_DE, num2str(s),'.txt'),'w');
+    end
 end
 
-% File to save local searches
+% File to save local searches after fmincon
 if options.save_local_search
     % If yes, uncomment the following and give name to files:
-    options.str2 = '%8.6e';
+    options.str = '%8.6e';
     for i = 1 : D
-        options.str2 = [options.str2,' ', '%8.6e'];
+        options.str = [options.str,' ', '%8.6e'];
     end
-    options.str2 = [options.str2, '\n'];
-    options.fileID2 = fopen(name_save_local_search,'w');
+    options.str = [options.str, '\n'];
+    for s = 1 : pop_number
+        options.fileID2(s) = fopen(strcat(name_save_local_search, num2str(s),'.txt'),'w');
+    end
 end
 
 % File to save local restarts
@@ -201,39 +218,56 @@ if options.save_pop_LR
         options.str2 = [options.str2,' ', '%8.6e'];
     end
     options.str2 = [options.str2, '\n'];
-    for i = 1 : pop_number
-        options.fileID3(i) = fopen(strcat(name_save_pop_LR,num2str(i),'.txt'),'w');
+    for s = 1 : pop_number
+        options.fileID3(s) = fopen(strcat(name_save_pop_LR, num2str(s),'.txt'),'w');
     end
 end
 
 % File to save global restarts
 if options.save_pop_GR
     % If yes, uncomment the following and give name to files:
-    options.str = '%8.6e';
+    options.str2 = '%8.6e';
     for i = 1 : D - 1
-        options.str = [options.str,' ', '%8.6e'];
+        options.str2 = [options.str2,' ', '%8.6e'];
     end
-    options.str = [options.str, '\n'];
-    for i = 1 : pop_number
-        options.fileID4(i) = fopen(strcat(name_save_pop_GR,num2str(i),'.txt'),'w');
+    options.str2 = [options.str2, '\n'];
+    for s = 1 : pop_number
+        options.fileID4(s) = fopen(strcat(name_save_pop_GR,num2str(s),'.txt'),'w');
     end
 end
 
+% -------------------------------------------------------------------------
 % Maximum number of function evaluations
+% -------------------------------------------------------------------------
 options.nFeValMax = nFeValMax;
 
 % Solutions are saved not only when nFeValMax has been reached but also at
 % fraction of nFeValMax. Define this fraction in options.record:
 options.record = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 
+
+% -------------------------------------------------------------------------
+% Populations
+% -------------------------------------------------------------------------
 % Initialise populations
 population = zeros(NP,D,pop_number);
 
-for s = 1 : pop_number
-    pop = lhsdesign(NP,D,'criterion','maximin').*repmat(UB-LB,NP,1)+repmat(LB,NP,1);
-    population(:,:,s) = pop;
+% Population is defined by latin hypercube in all cases, except for warm
+% start, when population is defined instead by given files
+if options.warm_start == 0
+    
+    for s = 1 : pop_number
+        pop = lhsdesign(NP,D,'criterion','maximin').*repmat(UB-LB,NP,1)+repmat(LB,NP,1);
+        population(:,:,s) = pop;
+    end
+    
+else
+    
+    for s = 1 : pop_number
+        population(:,:,s) = textread( strcat( name_warm_start, num2str(1), '.txt') );
+    end
+    
 end
-
 
 options.population = population;
 
@@ -255,18 +289,22 @@ fitnessfcn.weighted = 0;
 %% Close file opened for writing 
 
 if options.save_pop_DE
-    fclose(options.fileID)
+    for s = 1 : pop_number
+        fclose(options.fileID(s));
+    end
 end
 if options.save_local_search
-    fclose(options.fileID2)
+    for s = 1 : pop_number
+        fclose(options.fileID2(s));
+    end
 end
 if options.save_pop_LR
-    for i = 1 : pop_number
-        fclose(options.fileID3(i))
+    for s = 1 : pop_number
+        fclose(options.fileID3(s));
     end
 end
 if options.save_pop_GR
-    for i = 1 : pop_number
-        fclose(options.fileID4(i))
+    for s = 1 : pop_number
+        fclose(options.fileID4(s));
     end
 end

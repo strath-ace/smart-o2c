@@ -712,7 +712,9 @@ while sum(nFeVal) < nFeValMax
                         
                         % Save results to file
                         if options.save_local_search
-                            fprintf(options.fileID2, options.str, [xgrad, fvalgrad]');
+                            fprintf(options.fileID2(i_pop_number), options.str,...
+                                [BestMem(i_pop_number,:), BestVal(1,i_pop_number)]');
+                            fprintf(options.fileID2(i_pop_number), options.str, [xgrad, fvalgrad]');
                         end
 
                     elseif isfield(options,'no_bounds') && options.no_bounds
@@ -727,7 +729,9 @@ while sum(nFeVal) < nFeValMax
                         
                         % Save results to file
                         if options.save_local_search
-                            fprintf(options.fileID2, options.str, [xgrad, fvalgrad]');
+                            fprintf(options.fileID2(i_pop_number), options.str,...
+                                [BestMem(i_pop_number,:), BestVal(1,i_pop_number)]');
+                            fprintf(options.fileID2(i_pop_number), options.str, [xgrad, fvalgrad]');
                         end
                     end
                     
@@ -949,7 +953,9 @@ while sum(nFeVal) < nFeValMax
             
             % Save results to file
             if options.save_local_search
-                fprintf(options.fileID2, options.str, [xgrad, fvalgrad]');
+                fprintf(options.fileID2(i_pop_number), options.str,...
+                    [BestMem(i_pop_number,:), BestVal(1,i_pop_number)]');
+                fprintf(options.fileID2(i_pop_number), options.str, [xgrad, fvalgrad]');
             end
             % Update number of function evaluations
             nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
@@ -1784,10 +1790,7 @@ end
 % end
 
 
-% Save population to file
-if options.save_pop_DE
-    fprintf(options.fileID, options.str, [pop, Val']');
-end
+
 
 
 % Now all the objectives values are available for all the individuals...
@@ -1841,6 +1844,10 @@ if fname.weighted == 0 && ~isempty(fname.constr)
     
 end
 
+% Save population to file
+if options.save_pop_DE
+    fprintf(options.fileID(i_pop_number), options.str, [pop, Val']');
+end
 
 
 CurrBest = pop(ibest,:);            % best member of current iteration
@@ -2239,10 +2246,7 @@ while nostop
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    % Save population to file
-    if options.save_pop_DE
-        fprintf(options.fileID, options.str, [InterPop, TempVal']');
-    end
+
       
     % All the individuals have been computed
     % If constraints are not weighted
@@ -2288,6 +2292,11 @@ while nostop
         [BestVal, ibest] = min(TempVal);
         BestMem = InterPop(ibest,:);
         
+    end
+    
+    % Save population to file
+    if options.save_pop_DE
+        fprintf(options.fileID(i_pop_number), options.str, [InterPop, TempVal']');
     end
         
 
