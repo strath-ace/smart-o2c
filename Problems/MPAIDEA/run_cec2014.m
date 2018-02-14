@@ -33,7 +33,7 @@ cd ..
 
 % Number of the function to optimise. The CEC 2014 competition includes 30
 % test functions. func_num must be betwen 1 and 30
-func_num = 16;
+func_num = 10;
 
 % Dimension of the problem - Choose between 10, 30, 50 and 100 dimensions
 D = 10;
@@ -75,7 +75,7 @@ options.rho = 0.2;
 % local/global restart is performed)
 % -------------------------------------------------------------------------
 options.max_LR = [];
-% options.max_LR = 15;
+% options.max_LR = 5;
 
 % -------------------------------------------------------------------------
 % Choose the Differential Evolution (DE) strategies. 
@@ -132,7 +132,7 @@ options.plots = 1;
 % -------------------------------------------------------------------------
 % Display text during run?
 % -------------------------------------------------------------------------
-options.text = 1;
+options.text = 0;
 
 % -------------------------------------------------------------------------
 % Save results of DE to file?
@@ -177,7 +177,7 @@ UB =  100*ones(1,D);
 LB = -100*ones(1,D);
 
 % Maximum number of function evaluations
-nFeValMax = 10000 * D;
+nFeValMax =10000 * D;
 
 
 %% MP-AIDEA inputs

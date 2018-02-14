@@ -1,4 +1,4 @@
-function [memories_out, memories, archivebest, population_evolution, vval_evolution, B_mean, delta_local, inite, iglob, options, exitflag] = ...
+function [memories_out, memories, archivebest, archiveALL, population_evolution, vval_evolution, B_mean, delta_local, inite, iglob, options, exitflag] = ...
     MP_AIDEA(fname, vlb, vub, pop, options, varargin)
 
 
@@ -283,10 +283,35 @@ record = options.record;
 % of function evaluations
 step = 1;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if options.plots
-    drawnow
-    h = waitbar(0,'Initializing waitbar for MPAIDEA...');
+    h = figure;
+    % Create symbols to plot variables for the different populations
+    symbols = {'+','*','x','^r','v','>','<','p','h'};
+    % Increase number of symbols until there are sufficient symbols for all
+    % the populations
+    while pop_number > numel(symbols)
+        symbols = cat(2, symbols, symbols);
+    end
+    % Assign a different color to each population 
+    colors = {'r','g','b','c','m','y','k'};
+    % Increase number of colors until there are sufficient colors for all
+    % the populations
+    while pop_number > numel(colors)
+        colors = cat(2, colors, colors);
+    end
+    % Initialise figure
+    set(h,'Unit','Normalized','OuterPosition',[0 0 1 1])
+    
+    for i = 1 : pop_number
+        options.colors(i,:) = colors{i};
+        options.symbols{i} = symbols{i};
+    end
+    
+    min_BestVal = 1e60;
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %% Main loop
 % Exit when the maximum number of function evaluations has been reached:
@@ -349,10 +374,10 @@ while sum(nFeVal) < nFeValMax
                     nFeValMax,...              % Maximum number of functions evaluations
                     varargin{:});
                 
-                if options.plots
-                    drawnow
-                    waitbar(sum(nFeVal)/nFeValMax,h,'Running MP-AIDEA...')
-                end
+%                 if options.plots
+%                     drawnow
+%                     waitbar(sum(nFeVal)/nFeValMax,h,'Running MP-AIDEA...')
+%                 end
                 
                 % Save population and other parameters of the population
                 population_evolution{i_pop_number} = [population_evolution{i_pop_number}; pop(:,:,i_pop_number)];
@@ -478,15 +503,35 @@ while sum(nFeVal) < nFeValMax
                 % end of -----if iglob(1,i_pop_number) == min(iglob)
             end
             % =================================================================
-            if options.plots
-                drawnow
-                waitbar(sum(nFeVal)/nFeValMax,h,'Running MP-AIDEA...')
-            end
+%             if options.plots
+%                 drawnow
+%                 waitbar(sum(nFeVal)/nFeValMax,h,'Running MP-AIDEA...')
+%             end
             
             % =====================================================================
             % end of ---------for i_pop_number = 1 : pop_number
         end
         % ====================================================================
+        
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Plot evolution of best objective
+        if options.plots
+           
+            drawnow
+            set(0,'CurrentFigure',h)
+            subplot(2,2,1)
+            hold on
+            min_BestVal = min(min_BestVal, min(BestVal));
+            plot(sum(nFeVal), min_BestVal,'bo','MarkerFaceColor','b')
+            
+            grid on
+            xlim([0 nFeValMax])
+            xlabel('Function evaluations')
+            ylabel('Objective function')
+        end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
         
         
         % =====================================================================
@@ -661,6 +706,19 @@ while sum(nFeVal) < nFeValMax
                             inside_region_attraction = 0;
                         end
                         
+                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                        if options.plots
+                            set(0,'CurrentFigure',h)
+                            subplot(2,2,3)
+                            hold on
+                            plot(d_region_attraction(1,i)/norm(DELTA), ArchiveBM_LM(2,D+1,i),...
+                                'ko','MarkerFaceColor','k')
+                            grid on
+                            xlabel('Dimension basin of attraction of each local minimum')
+                            ylabel('Objective function - local minima')
+                        end
+                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                        
                     end
                     
                 end
@@ -741,15 +799,15 @@ while sum(nFeVal) < nFeValMax
                     % Update number of function evaluations
                     nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
                     
-                    if options.plots
-                        drawnow
-                        figure(i_pop_number)
-                        hold on
-                        A_tmp = textread([options.name_save_pop_DE, num2str(i_pop_number), '.txt']);
-                        B_tmp = textread([options.name_save_local_search, num2str(i_pop_number), '.txt']);
-                        plot(nFeVal(i_pop_number), min(min(A_tmp(:,end)), min(B_tmp(:,end))),...
-                            'ro','MarkerFaceColor','r')
-                    end
+%                     if options.plots
+%                         drawnow
+%                         figure(i_pop_number)
+%                         hold on
+%                         A_tmp = textread([options.name_save_pop_DE, num2str(i_pop_number), '.txt']);
+%                         B_tmp = textread([options.name_save_local_search, num2str(i_pop_number), '.txt']);
+%                         plot(nFeVal(i_pop_number), min(min(A_tmp(:,end)), min(B_tmp(:,end))),...
+%                             'ro','MarkerFaceColor','r')
+%                     end
                     
                     
                     
@@ -778,6 +836,7 @@ while sum(nFeVal) < nFeValMax
                     % ==================================================================
                     % Add local minimum to the archive
                     ArchiveBM_LM(2,:,end) = [xgrad fvalgrad];
+                    
                     
                     % isnan is true for Not-A-Number
                     if isnan(BestVal(1,i_pop_number))
@@ -851,6 +910,7 @@ while sum(nFeVal) < nFeValMax
                     % local minimum (identified by "end")
                     d_region_attraction(:,end) = [norm(ArchiveBM_LM(1,1:D,end)-ArchiveBM_LM(2,1:D,end)); 1];
                     
+                    
                     %
                     warning_LS(i_pop_number) = 0;
                     
@@ -879,6 +939,7 @@ while sum(nFeVal) < nFeValMax
                             % Update dimension of the region of attraction of
                             % current minimum
                             d_region_attraction(1,end) = min(d_region_attraction(1,end), d_region_attraction(1,i));
+                           
                             
                             % Update dimension of the region of attraction of
                             % minimum "i"
@@ -967,15 +1028,6 @@ while sum(nFeVal) < nFeValMax
             % Update number of function evaluations
             nFeVal(1,i_pop_number) = nFeVal(1,i_pop_number) + output.funcCount;
             
-            if options.plots
-                drawnow
-                figure(i_pop_number)
-                hold on
-                A_tmp = textread([options.name_save_pop_DE, num2str(i_pop_number), '.txt']);
-                B_tmp = textread([options.name_save_local_search, num2str(i_pop_number), '.txt']);
-                plot(nFeVal(i_pop_number), min(min(A_tmp(:,end)), min(B_tmp(:,end))),...
-                    'ro','MarkerFaceColor','r')
-            end
             
             % If value of minimum find by the local search is lower
             % than current best value:
@@ -1048,9 +1100,9 @@ while sum(nFeVal) < nFeValMax
                 
                 fmin = BestVal(1,i_pop_number);
                 xmin = BestMem(i_pop_number,:);
-                inite(1,i_pop_number) = 0;
+%                 inite(1,i_pop_number) = 0;
             else
-                inite(1,i_pop_number) = inite(1,i_pop_number) + 1;
+%                 inite(1,i_pop_number) = inite(1,i_pop_number) + 1;
             end
             
             % What happens to the following line if BestVal is not below the fmin
@@ -1067,6 +1119,25 @@ while sum(nFeVal) < nFeValMax
         end
     end
     
+    
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if options.plots
+        
+        drawnow
+        subplot(2,2,1)
+        set(0,'CurrentFigure',h)
+        hold on
+        min_BestVal = min(min_BestVal, min(BestVal));
+        plot(sum(nFeVal), min_BestVal, 'ro','MarkerFaceColor','r')
+        grid on
+        xlim([0 nFeValMax])
+        xlabel('Function evaluations')
+        ylabel('Objective function')
+        
+    end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1149,7 +1220,7 @@ while sum(nFeVal) < nFeValMax
                 for k = i+1 : size(archiveALL,1)
                     
                     % Distance between local minima
-                    minima_distance = norm(archiveALL(i,:) - archiveALL(k,:));
+                    minima_distance = norm(archiveALL(i,1:D) - archiveALL(k,1:D));
                     
                     % Minimum and maximum distance between local minima
                     min_minima_distance = min(min_minima_distance, minima_distance);
@@ -1158,6 +1229,7 @@ while sum(nFeVal) < nFeValMax
                 end
                 
             end
+            
             max_minima_distance = max_minima_distance + norm(DELTA)*0.1;
             
             
@@ -1249,7 +1321,6 @@ while sum(nFeVal) < nFeValMax
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-
     % =========================================================================
     % Local and Global Restart
     % =========================================================================
@@ -1267,9 +1338,10 @@ while sum(nFeVal) < nFeValMax
         
         % save dimension of the bubble for the local restart for each
         % population
-        delta_local{i_pop_number} = [delta_local{i_pop_number}; bubble_dimension(1,i_pop_number)/norm(DELTA)];
+        delta_local{i_pop_number} = [delta_local{i_pop_number}; ...
+            bubble_dimension(1,i_pop_number)/norm(DELTA)];
         
-        
+      
         % Do not try to perform local or global restart if the population has
         % been already globally restarted and is waiting for the other
         % populations to be globally restarted too
@@ -1333,6 +1405,34 @@ while sum(nFeVal) < nFeValMax
 %                 % Increase number of local restart for current population
 %                 % by 1
                 inite(1,i_pop_number) = inite(1,i_pop_number) + 1;
+                
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if options.plots
+                    
+                    set(0,'CurrentFigure',h)
+                    subplot(2,2,4)
+                    hold on
+                    plot(sum(nFeVal), delta_local{i_pop_number}(end),...
+                        options.symbols{i_pop_number},'Color',options.colors(i_pop_number,:))
+                    
+                    hold on
+                    grid on
+                    xlabel('Function evaluations')
+                    ylabel('\delta_{local}')
+                    xlim([0 nFeValMax])
+                    
+                    set(0,'CurrentFigure',h)
+                    subplot(2,2,2)
+                    hold on
+                    plot(sum(nFeVal), inite(1,i_pop_number), ...
+                        options.symbols{i_pop_number},'Color',options.colors(i_pop_number,:))
+                    grid on
+                    xlabel('Function evaluations')
+                    ylabel('Number of local restart')
+                    xlim([0 nFeValMax])
+
+                end
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 
                 if options.text
                     disp('---------------------------------------------------------------------------------------')
@@ -1516,10 +1616,10 @@ if ~exist('memories_out','var')
     
 end
 
-if options.plots
-    drawnow
-    h = waitbar(0,'.. complete!');
-end
+% if options.plots
+%     drawnow
+%     h = waitbar(0,'.. complete!');
+% end
 
 % =========================================================================
 % end of the function
@@ -2363,6 +2463,8 @@ while nostop
         
     end %---end for imember=1:NP
     
+
+    
     
     CurrBest = BestMem;       % freeze the best member of this iteration for the coming
     % iteration. This is needed for some of the strategies.
@@ -2414,33 +2516,6 @@ if options.text
     disp('------------------------------------------------')
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if options.plots
-    drawnow
-    figure(i_pop_number)
-    hold on
-%     A = textscan(options.fileID(1), options.str, 'Delimiter','\n');
-%     plot(nFeVal(i_pop_number), BestVal, 'bo','MarkerFaceColor','b')
-    A_tmp = textread([options.name_save_pop_DE, num2str(i_pop_number), '.txt']);
-    B_tmp = textread([options.name_save_local_search, num2str(i_pop_number), '.txt']);
-    if ~isempty(B_tmp)
-        plot(nFeVal(i_pop_number), min(min(A_tmp(:,end)), min(B_tmp(:,end))),...
-            'bo','MarkerFaceColor','b')
-    else
-        plot(nFeVal(i_pop_number), min(A_tmp(:,end)),...
-            'bo','MarkerFaceColor','b')
-    end
-    xlabel('Function eval.')
-    ylabel('Objective function')
-    grid on
-    title(['Population ', num2str(i_pop_number)])
-    if i_pop_number <= numel(options.fileID)/2
-        set(gcf, 'Unit','Normalized','Position', [0.01 + 1/(numel(options.fileID)/2)*(i_pop_number-1), ...
-            .6, (1/(numel(options.fileID)/2))-0.01, 0.3]);
-    else
-        set(gcf, 'Unit','Normalized','Position', [0.01 + 1/(numel(options.fileID)/2)*(i_pop_number-1-numel(options.fileID)/2), ...
-            .1, (1/(numel(options.fileID)/2))-0.01, 0.3]);
-    end
-end
 
 end
 
