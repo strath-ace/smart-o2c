@@ -65,7 +65,7 @@ function [x, fval, exitflag, output] = optimise_mpaidea(fitnessfcn, LB, UB, opti
 
 
 % Run MP-AIDEA
-[memories_record, memories, archivebest, population_evolution, vval_evolution,...
+[memories_record, memories, archivebest, archiveALL, population_evolution, vval_evolution,...
     B_mean, delta_local, inite, iglob, options, exitflag] = MP_AIDEA(fitnessfcn, LB, UB, options.population, options);
 
 % Output: minima and minima's objective value
@@ -80,11 +80,13 @@ end
 output.memories_record      = memories_record;
 output.memories             = memories;
 output.archivebest          = archivebest;
+output.archiveALL           = archiveALL;
 output.population_evolution = population_evolution;
 output.vval_evolution       = vval_evolution;
 output.B_mean               = B_mean;
 output.delta_local          = delta_local;
 output.number_LR            = inite;
 output.number_GR            = iglob;
+
 
 end
