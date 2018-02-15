@@ -1,14 +1,11 @@
 function [minmin, minmax, LIST, LIST_EXACT] = ebro_decomposition(problem, algo_minmax, algo_outer, algo_inner, algo_decomposition)
 
-minmax = [];
-minmin = [];
-LIST = [];
-LIST_EXACT = [];
 
 
 if problem.input == 0
     
-
+minmax = [];
+minmin = [];
     
     if problem.output == 0 || problem.output == 2
         [minmax] = evaluate_minmax(problem, algo_minmax, algo_outer, algo_inner);
@@ -37,12 +34,12 @@ elseif problem.input == 1
     if isempty(problem.input_minmin_minmax)    
 
         minmax_input.d = problem.input_d_max;
-        minmax_input.u = problem.input_u_max;
+        minmax_input.u = problem.input_d_max;
         minmax_input.f = problem.input_F_max;
 
-        minmin_input.d = problem.input_d_min;
-        minmin_input.u = problem.input_u_min;
-        minmin_input.f = problem.input_F_min;
+        minmax_input.d = problem.input_d_max;
+        minmax_input.u = problem.input_d_max;
+        minmax_input.f = problem.input_F_max;
 
     else    
 
@@ -50,9 +47,10 @@ elseif problem.input == 1
         
         minmax_input = minmax;
         minmin_input = minmin;
+        problem_input = problem;
     end    
     
-    problem_input = problem;    
+    
     n_points_tot = length(minmax.d(:,1));
     n_obj_tot = problem.n_obj;    
     
@@ -60,27 +58,17 @@ elseif problem.input == 2                                     % input d, run u
     
     minmax = [];  minmin = []; max = []; min = [];
     
-
-        if isempty(problem.input_minmin_minmax)  
-            if problem.output == 0 || problem.output == 2
-                minmax.d = problem.input_d_max;
-            end
-            if problem.output == 1 || problem.output == 2
-                minmin.d = problem.input_d_min;
-            end
-        else      
-            load(problem.input_minmin_minmax, 'minmax', 'minmin')
-        end
     
-        
+    load(problem.input_minmin_minmax, 'minmax', 'minmin')
+    
+    d=minmax.d;
+    
     if problem.output == 0 || problem.output == 2
-        problem.sign_inner = 1;
-        [max] = evaluate_max(problem, minmax.d, algo_inner);
+        [max] = evaluate_max(problem, d, algo_inner);
     end
     
     if problem.output == 1 || problem.output == 2
-        problem.sign_inner = -1;
-        [min] = evaluate_min(problem, minmin.d, algo_inner);
+        [min] = evaluate_min(problem, d, algo_inner);
     end
     
     n_points_tot = 1;

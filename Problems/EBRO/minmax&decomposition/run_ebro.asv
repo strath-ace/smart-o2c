@@ -27,11 +27,11 @@ addpath(genpath('Optimisation'))
 %% Choose the output
 
 % -------------------------------------------------------------------------
-% problem.output = 0 --> only minmax-Belief
-% problem.output = 1 --> only minmin-Plausibility
-% problem.output = 2 --> both minmax-Belief and minmin-Plaiusibility
+% problem.output = 0 --> only minmax
+% problem.output = 1 --> only minmin
+% problem.output = 2 --> both minmax and minmin
 % -------------------------------------------------------------------------
-problem.output = 0;
+problem.output = 2;
 
 
 % -------------------------------------------------------------------------
@@ -39,7 +39,7 @@ problem.output = 0;
 % problem.input = 1 --> load d, u_min, u_max
 % problem.input = 2 --> load d, run max and min
 % -------------------------------------------------------------------------
-problem.input = 0;
+problem.input = 1;
 
 
 % -------------------------------------------------------------------------
@@ -47,17 +47,17 @@ problem.input = 0;
 % if you have the structure(s) 'minmax' or 'minmin' from the 
 % optimise_macs_minmax problem write the name of the file .mat here:
 % -------------------------------------------------------------------------
-problem.input_minmin_minmax = 'minmax_minmin_TC1.mat'; 
+problem.input.problem.input.minmin_minmax = [];
 
 % -------------------------------------------------------------------------
-% oterwise problem.input.problem.input.minmin_minmax = [] and:
+% oterwise:
 % -------------------------------------------------------------------------
-problem.input_d_min = [];    % d_min    = [d1, d2, ..., dn] 
-problem.input_d_max = [];    % d_max    = [d1, d2, ..., dn] 
-problem.input_u_min = [];    % u_min{1} = [u1, u2, ...,un]
-problem.input_u_max = [];    % u_max{1} = [u1, u2, ...,un]
-problem.input_F_min = [];    % F_min    = F 
-problem.input_F_max = [];    % F_max    = F
+problem.input.d_min = [];    % d_min    = [d1, d2, ..., dn] 
+problem.input.d_max = [];    % d_max    = [d1, d2, ..., dn] 
+problem.input.u_min = [];    % u_min{1} = [u1, u2, ...,un]
+problem.input.u_max = [];    % u_max{1} = [u1, u2, ...,un]
+problem.input.F_min = [];    % F_min    = F 
+problem.input.F_max = [];    % F_max    = F
 
 
 
