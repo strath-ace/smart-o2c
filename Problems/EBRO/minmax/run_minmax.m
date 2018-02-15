@@ -1,6 +1,5 @@
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Example of run of min-max problem using MP_AIDEA for a single objective
+% Example of run of a min-max problem using MP_AIDEA in a single objective
 % optimisation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -25,7 +24,7 @@ addpath(genpath('Optimisation'))
 
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Choose the output
 
 % -------------------------------------------------------------------------
@@ -37,7 +36,7 @@ problem.output = 2;
 
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Problem input
 
 %--------------------------------------------------------------------------
@@ -65,8 +64,8 @@ problem.fix = problem.fix;
 problem.par_objfun{1}.fix = problem.fix;
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Objective function
-
 
 %--------------------------------------------------------------------------
 % Number of objective functions
@@ -102,8 +101,12 @@ end
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MP_AIDEA Parameters
 
-%% Parameters: META ALGORITHM
+
+
+%  META LOOP
 
 %--------------------------------------------------------------------------
 % algorithm in the form [x,f,exitflag,output] = algo(problem,algo_outer,algo_inner,par_minmax)
@@ -132,7 +135,8 @@ algo_minmax.par_minmax = par_minmax;
 
 
 
-%% Parameters for the INNER ALGORITHM (maximisation over u)
+
+% INNER LOOP (maximisation over u)
 
 %--------------------------------------------------------------------------
 % algorithm in the form [x,f,exitflag,output] = algo(problem,par_algo)
@@ -162,9 +166,24 @@ algo_inner.optimise = @optimise_mpaidea_wrapper;
 % -------------------------------------------------------------------------
 par_mpaidea.max_LR = 10; 
 
+
+
+
 % -------------------------------------------------------------------------
 % other parameters: default values
 % -------------------------------------------------------------------------
+
+    par_mpaidea.plots = 0;                                      % Display plots during run?
+    par_mpaidea.text = 0;                                       % Display text during run?
+    par_mpaidea.save_pop_DE = 0;                            % Save results of DE to file?
+    par_mpaidea.name_save_pop_DE = 'pop_DE_';               % If yes, choose prefix of name for files:
+    par_mpaidea.save_local_search = 0;                      % Save results of local search to file?
+    par_mpaidea.name_save_local_search = 'minima_fmincon_'; % If yes, choose prefix for name for file:
+    par_mpaidea.save_pop_LR = 0;                            % Save populations at local restart (each one saved on a different file)?
+    name_save_pop_LR = 'pop_LR_';                           % If yes, choose prefix of name for files:
+    par_mpaidea.save_pop_GR = 0;                            % Save populations at global restart (each one saved on a different file)?
+    name_save_pop_GR = 'pop_GR_';                           % If yes, choose prefix of name for files:
+
     par_mpaidea.population=[];                     % initial population, same for all execution. Leave empty to randomize.
     par_mpaidea.DE_strategy = 1;                   % 1: DE/Rand and DE/CurrentToBest; 2: DE/Rand and DE/Best
     par_mpaidea.prob_DE_strategy = 0.5;            % probability or not using DE/Rand
@@ -181,7 +200,10 @@ algo_inner.par = par_mpaidea;
 
 
 
-%% Parameters for the OUTER LOOP (minimisation over d)
+
+
+
+% OUTER LOOP (minimisation over d)
 
 %--------------------------------------------------------------------------
 % algorithm in the form [x,f,exitflag,output] = algo(problem,par_algo)
@@ -213,7 +235,20 @@ algo_outer.optimise = @optimise_mpaidea_wrapper;
         
 % -------------------------------------------------------------------------
 % other parameters: default values
-% -------------------------------------------------------------------------        
+% -------------------------------------------------------------------------    
+
+
+    par_mpaidea.plots = 0;                                      % Display plots during run?
+    par_mpaidea.text = 0;                                       % Display text during run?
+    par_mpaidea.save_pop_DE = 0;                            % Save results of DE to file?
+    par_mpaidea.name_save_pop_DE = 'pop_DE_';               % If yes, choose prefix of name for files:
+    par_mpaidea.save_local_search = 0;                      % Save results of local search to file?
+    par_mpaidea.name_save_local_search = 'minima_fmincon_'; % If yes, choose prefix for name for file:
+    par_mpaidea.save_pop_LR = 0;                            % Save populations at local restart (each one saved on a different file)?
+    name_save_pop_LR = 'pop_LR_';                           % If yes, choose prefix of name for files:
+    par_mpaidea.save_pop_GR = 0;                            % Save populations at global restart (each one saved on a different file)?
+    name_save_pop_GR = 'pop_GR_';                           % If yes, choose prefix of name for files:
+    
     par_mpaidea.population=[];                % initial population, same for all execution. Leave empty to randomize.
     par_mpaidea.DE_strategy = 1;              % 1: DE/Rand and DE/CurrentToBest; 2: DE/Rand and DE/Best
     par_mpaidea.prob_DE_strategy = 0.5;       % probability or not using DE/Rand
@@ -233,8 +268,11 @@ algo_outer.par = par_mpaidea;
 
 
   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% RUN MINMAX and/or MINMIN PROBLEM
 
 
-
-%% minmax and/or minmin
 [minmax, minmin] = optimise_macs_minmax(problem, algo_minmax, algo_outer, algo_inner);
+
+
+

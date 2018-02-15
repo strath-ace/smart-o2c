@@ -36,7 +36,7 @@ fitnessfcn = problem.fitnessfcn;
 %%
 
 % Run MP-AIDEA
-[memories_record, memories, archivebest, population_evolution, vval_evolution,...
+[memories_record, memories, archivebest, archiveALL, population_evolution, vval_evolution,...
     B_mean, delta_local, inite, iglob, options, exitflag] = MP_AIDEA(fitnessfcn, problem.lb, problem.ub, initial_population, par, problem.par_objfun);
 
 % Output: minima and minima's objective value
@@ -48,14 +48,17 @@ for i = 1 : size(memories_record,3)
     fval(i) = memories_record(end, end, i);
 end
 
+
+
+output.memories_record      = memories_record;
 output.memories             = memories;
 output.archivebest          = archivebest;
+output.archiveALL           = archiveALL;
 output.population_evolution = population_evolution;
 output.vval_evolution       = vval_evolution;
 output.B_mean               = B_mean;
 output.delta_local          = delta_local;
 output.number_LR            = inite;
 output.number_GR            = iglob;
-output.nfeval               = options.nFeValMax;
-
+output.nfeval               = par.nFeValMax;
 return
