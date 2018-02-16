@@ -1,11 +1,14 @@
 function [x,fval,exitflag,output] = optimise_macs(fitnessfcn,LB,UB,options,varargin)
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
-%
-%
+%------ Copyright (C) 2017 University of Strathclyde and Authors ------
+%--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
+%------------------- Authors: Massimiliano Vasile  --------------------
+%-------------------------- Federico Zuiani --------------------------
+%------------------------ Lorenzo A. Ricciardi ------------------------
 %
 %% optimise_macs
 % MACS: Multi Agent Collaborative Search
@@ -59,7 +62,7 @@ function [x,fval,exitflag,output] = optimise_macs(fitnessfcn,LB,UB,options,varar
 
 % Output
 x    = memory(:,1:length(LB));
-fval = memory(:,length(LB)+1:end-2);
+fval = memory(:,length(LB):end-2);
 
 output.memory               = memory;
 output.nfeval               = nfeval;
