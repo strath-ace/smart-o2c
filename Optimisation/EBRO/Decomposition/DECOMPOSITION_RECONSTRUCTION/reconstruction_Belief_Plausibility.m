@@ -1,17 +1,18 @@
 function [decomposition_end, Plot_decomposition, num_sample_tot, LIST] = reconstruction_Belief_Plausibility(in, problem_decomposition, minmax, minmin, Sample, n_obj, n_point, algo_decomposition, Partial_curve)
 
-
-%% here d and coupled u ARE FIXED
+%%-------------------------------------------------------------------------
+% FIX the vectors u and d for the starting point for the decomposition
+% algorithm
+%%-------------------------------------------------------------------------
 u_max_tot = 0;
 u_max_tot_Plausibility = 0;
 
-
 num_coupled_vectors = length(in.dim_u_i(in.num_functions +1 : end)); 
-
 
 num_sample_tot = 1;
 
-if in.output == 0 % evaluate only Belief
+% only Belief
+if in.output == 0 
     
     d_belief = minmax.d;
     for index_num_coupled_vectors = 1:num_coupled_vectors
@@ -19,12 +20,12 @@ if in.output == 0 % evaluate only Belief
             num_sample_tot = num_sample_tot*length(Sample{index_num_coupled_vectors}.FE);
         end
     end
-    
-    % input uncertain variable for Belief
     u_max_tot = minmax.u;
 end
 
-if in.output == 1  % evaluate only Plausibility
+
+% only Plausibility
+if in.output == 1  
     
     d_plausibility = minmin.d;
     for index_num_coupled_vectors = 1:num_coupled_vectors
@@ -32,12 +33,11 @@ if in.output == 1  % evaluate only Plausibility
             num_sample_tot = num_sample_tot*length(Sample{index_num_coupled_vectors}.FE_Plausibility);
         end
     end
-    
-    % input uncertain variable for Plausibility
     u_max_tot_Plausibility = minmin.u;
 end
 
-if in.output == 2  % evaluate both Belief and Plausibility
+% both Belief and Plausibility
+if in.output == 2  
     
     d_belief = minmax.d;
     d_plausibility = minmin.d;
@@ -50,7 +50,6 @@ if in.output == 2  % evaluate both Belief and Plausibility
             end
         end
     end
-    % input uncertain variable for Belief and Plausibility
     u_max_tot = minmax.u;
     u_max_tot_Plausibility = minmin.u;
     
@@ -59,8 +58,10 @@ end
 
 decomposition_end = cell(1,num_sample_tot);
 
-%%
 
+%%-------------------------------------------------------------------------
+% for each combination of samples in the partial curves 
+%%-------------------------------------------------------------------------
 
 for num_sample = 1:num_sample_tot
     
@@ -70,14 +71,14 @@ for num_sample = 1:num_sample_tot
     
     for index_num_coupled_vectors = 1:num_coupled_vectors
         if in.dim_u_i(in.num_functions + index_num_coupled_vectors)>0
-            
+
+            % BELIEF - components to optimize            
             if in.output == 0 || in.output == 2
-                % BELIEF - components to optimize
                 u_max_tot(var2opt(in.num_functions + index_num_coupled_vectors, problem_decomposition)) = Sample{index_num_coupled_vectors}.FE{PS(index_num_coupled_vectors)}.upper_u;
             end
             
+            % PLAUSIBILITY - components to optimize            
             if in.output == 1 || in.output == 2
-                % PLAUSIBILITY - components to optimize
                 u_max_tot_Plausibility(var2opt(in.num_functions + index_num_coupled_vectors, problem_decomposition)) = Sample{index_num_coupled_vectors}.FE_Plausibility{PS(index_num_coupled_vectors)}.downer_u;
             end
         end

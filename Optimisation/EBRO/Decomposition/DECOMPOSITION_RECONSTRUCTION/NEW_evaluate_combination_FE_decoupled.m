@@ -1,11 +1,12 @@
 function [decomposition_end] = NEW_evaluate_combination_FE_decoupled(decomposition_end, num_sample, problem_decomposition, minmax, minmin, u_max_tot, Sample, PS, u_max_tot_Plausibility, n_obj, n_point, in, Partial_curve)
 
 
-%% FIND number of combinations for the final curve
+% FIND number of combinations of Focal Elements of the uncoupled variables
+% for each samples of the coupled parameters.
 num_combinations_max = 1;
 num_functions_tot = length(decomposition_end{num_sample}.step_one);
 
-num_functions_tot_new = 0;
+num_functions_tot_new = 0; % number of non empty subsystems 
 for num_functions = 1:num_functions_tot
     if isempty(decomposition_end{num_sample}.step_one{num_functions})==0
         num_combinations_max = num_combinations_max*length(decomposition_end{num_sample}.step_one{num_functions});
@@ -16,11 +17,14 @@ for num_functions = 1:num_functions_tot
 end
 %num_functions_tot = num_functions_tot_new;
 
-%% BELIEF
+
+
 decomposition_end{num_sample}.final_FE     = [];
 decomposition_end{num_sample}.FE_add_table = [];
 
-
+%--------------------------------------------------------------------------
+% BELIEF
+%--------------------------------------------------------------------------
 if in.output == 0 || in.output == 2
     
     d_belief = minmax.d;
@@ -28,7 +32,9 @@ if in.output == 0 || in.output == 2
     
     
     
-    % EVALUATE bpa-scale: for each sample a scaled curve is evaluated.
+    % EVALUATE bpa-scale: for each sample in the coupled domain (U_c) do
+    % evaluate a scaled curve. The scale factor is the product of the
+    % Belief value of each sample in the partial curves
     
     bpa_scale = 1;
     Sample_u_lb = [];
@@ -57,7 +63,7 @@ if in.output == 0 || in.output == 2
     F_ij_add2Delta_ij                = [];
     bpa_add2Delta_ij                 = [];
     position_uncoupled__add2Delta_ij = [];
-    position_coupled_add2Delta_ij   = [];
+    position_coupled_add2Delta_ij    = [];
     N_add = 1;
     
     % combination of the g_i
@@ -316,7 +322,6 @@ if in.output == 0 || in.output == 2
 %         
 %         
 %         
-%     end
 %     
 %     
 %     % add bpa contribute of the FE not considered with the threshold
@@ -371,6 +376,7 @@ if in.output == 0 || in.output == 2
 %         bpa_add2Delta_ij(kk)];
 %     end
     
+    end
     
     
 end
