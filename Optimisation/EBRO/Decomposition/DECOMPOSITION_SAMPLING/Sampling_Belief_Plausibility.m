@@ -1,8 +1,9 @@
 function [Sample] = Sampling_Belief_Plausibility(Partial_curve, decomposition, in)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% SAMPLE each partial curve with the input-number of samples.
-
+%
+% SAMPLE each partial curve with the input-number of samples and save
+% information about the vector u, boudaries of the Focal Elements, valoue
+% of F and position i the partial curves.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 num_coupled_vector_tot = length(in.dim_u_i(in.num_functions+1:end));
@@ -14,7 +15,7 @@ for num_coupled_vector = 1:num_coupled_vector_tot
         num_samples_tot = in.num_samples{num_coupled_vector};
         
         
-        %% BELIEF
+%% BELIEF
         
         if in.output == 0 || in.output == 2
             
@@ -86,7 +87,7 @@ for num_coupled_vector = 1:num_coupled_vector_tot
         end
 % par_treshold = par_treshold +1;             
         
-        %% PLAUSIBILITY
+%% PLAUSIBILITY
         if in.output == 1 || in.output == 2
             
             

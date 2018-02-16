@@ -1,11 +1,33 @@
 function [minmin, minmax, LIST, LIST_EXACT] = ebro(problem, algo_minmax, algo_outer, algo_inner, algo_decomposition)
-% reconstruct the Beleif and/or Plausibility curves
-%
-%
-%
 
 
-%% INPUT
+%
+%
+%
+%
+%
+%
+% =========================================================================
+% EBRO (Evidence-Based Robust Optimisation):
+% - UQ using epistemic uncertainty;
+% - Evidence theory with Belief and Plausibility curves;
+% - Decomposition approach to treat with complex systems: uncertain 
+%   variables that couple two or more sub-systems and uncertain variables 
+%   that influence only one subsystems are studied separatedly.
+% - The Decomposition approach assure conservative curves at  polynomial
+%   cost under some assumptions (see the reference papers).
+%
+% Reference:
+% M. Vasile, G. Filippi, C. O. Absil, A. Riccardi, "Fast Belief Estimation 
+% in Evidence Network Models", EUROGEN 2017, September 13-15,Madrid, Spain.
+% G. Filippi, M. Vasile, M. Marchi, P. Vercesi, "Evidence-Based Robust 
+% Optimisation of Space Systems with Evidence Network Models", IEEE World
+% Congress on Computational Intelligence, 8-13 July 2018, Rio de Janeiro,
+% Brazil.
+% =========================================================================
+% =========================================================================
+%
+% INPUT
 %
 % * problem: structure containing the informations of the problem:
 %          * problem.output: choose to reconstruct Belief (0),  Plausibility 

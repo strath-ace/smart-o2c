@@ -1,4 +1,5 @@
 function [decomposition, Partial_curve] = evaluate_Belief_Plausibility_coupled_vectors(in, problem_decomposition, minmax, minmin, n_obj, n_point, algo_decomposition)
+
 % PARTIAL CURVES (EXCHANGE VARIABLES)
 %
 % fix d and the uncoupled vectors;
@@ -103,7 +104,7 @@ for i = in.num_functions +1 : length(in.dim_u_i)
         elseif in.output == 2
             Bel_start = Partial_curve{i - in.num_functions}.Belief_FE_function(1);
             Pl_start = Partial_curve{i - in.num_functions}.Plausibility_FE_function(1);
-            stairs([Bel_start; Partial_curve{i - in.num_functions}.Belief_FE_function], [0 Partial_curve{i - in.num_functions}.Belief_FE_belief_partial],'b', 'linewidth',2)
+            stairs([Bel_start; Partial_curve{i - in.num_functions}.Belief_FE_function], [0 Partial_curve{i - in.num_functions}.Belief_FE_belief_partial],'b', 'linewidth',1)
             hold on
             stairs([Pl_start; Partial_curve{i - in.num_functions}.Plausibility_FE_function], [0 Partial_curve{i - in.num_functions}.Plausibility_FE_plausibility_partial],'r', 'linewidth',1)
             xlabel('F')
