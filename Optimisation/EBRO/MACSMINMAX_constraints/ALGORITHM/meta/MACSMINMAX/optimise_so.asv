@@ -127,7 +127,7 @@ else
         % constraint relaxation
         if any(f_inner_constraint > 0) 
 
-            % f_inner = f_inner_constraint;
+            f_inner = f_inner_constraint;
             % if the constraint is violated the corresponding u
             % is recorded
             u_record{obj} = [u_record{obj}; umax_constraint];
@@ -231,7 +231,7 @@ else
                     if any(f_inner_constraint > 0) && nfeval/nfevalmax < 0.7 ||...
                             any(f_inner_constraint > 0 + epsilon*(nfeval/nfevalmax > 0.6) + epsilon*(nfeval/nfevalmax > 0.7))
                         
-                        % f_inner = f_inner_constraint;
+                        f_inner = f_inner_constraint;
                         % if the constraint is violated the corresponding u
                         % is recorded
                         %

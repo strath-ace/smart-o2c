@@ -81,6 +81,6 @@ output.B_mean               = B_mean;
 output.delta_local          = delta_local;
 output.number_LR            = inite;
 output.number_GR            = iglob;
-output.nfeval               = options.nFeValMax;
+output.nfeval               = par.nFeValMax;
 
 return
