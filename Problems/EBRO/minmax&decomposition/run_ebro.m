@@ -31,7 +31,7 @@ addpath(genpath('Optimisation'))
 % problem.output = 1 --> only minmin-Plausibility
 % problem.output = 2 --> both minmax-Belief and minmin-Plaiusibility
 % -------------------------------------------------------------------------
-problem.output = 1;
+problem.output = 2;
 
 
 % -------------------------------------------------------------------------
@@ -39,7 +39,7 @@ problem.output = 1;
 % problem.input = 1 --> load d, u_min, u_max
 % problem.input = 2 --> load d, run max and min
 % -------------------------------------------------------------------------
-problem.input = 1;
+problem.input = 0;
 
 
 % -------------------------------------------------------------------------
@@ -77,7 +77,7 @@ num_functions = 2;  % number of sub-functions in which the problem is decomposed
 
 
 % number of samples
-num_samples = 1;    % number of samples for each Belief and Plausibility curve of coupled vector
+num_samples = 5;    % number of samples for each Belief and Plausibility curve of coupled vector
 
 
 problem.num_functions = num_functions;
