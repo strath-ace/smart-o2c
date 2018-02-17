@@ -167,7 +167,7 @@ for num_sample = 1:num_sample_tot
     end
     
     % max(F) = max(f_1)+max(f_2)+...
-    [decomposition_end] = NEW_evaluate_combination_FE_decoupled(decomposition_end, num_sample, problem_decomposition, minmax, minmin, u_max_tot, Sample, PS, u_max_tot_Plausibility, n_obj, n_point, in, Partial_curve);
+    [decomposition_end] = evaluate_combination_FE_decoupled(decomposition_end, num_sample, problem_decomposition, minmax, minmin, u_max_tot, Sample, PS, u_max_tot_Plausibility, n_obj, n_point, in, Partial_curve);
     
     
     
