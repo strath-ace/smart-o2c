@@ -1,10 +1,10 @@
 function [out] = TC_1_constraints(d, u, par)
 
 
-if sum(u) >0
-    out = u + sum(d);
+if u(1) < 0
+    out = abs(u + sum(d));
 else
-    out = -1 + u - sum(d);
+    out = 0;
 end
 
 out = sum(out);

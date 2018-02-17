@@ -81,7 +81,7 @@ problem.objfun =     {@TC_1};
 % Constraints
 %--------------------------------------------------------------------------
 problem.constraints = {[]}; 
-% problem.constraints = {@TC_1_constraints};
+problem.constraints = {@TC_1_constraints};
 
 
 
@@ -218,7 +218,7 @@ algo_outer.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1
 %--------------------------------------------------------------------------       
-    par_mpaidea.n_populations = 4;   
+    par_mpaidea.n_populations = 1;   
         
 %--------------------------------------------------------------------------    
 % number of agents in one population
