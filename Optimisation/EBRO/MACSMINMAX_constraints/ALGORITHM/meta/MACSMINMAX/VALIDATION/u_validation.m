@@ -36,19 +36,19 @@ for idx_d = 1:archsize
                 ub_local(ub_local > 1) = 1;
                 options = optimset('Display','none','MaxFunEvals',50*problem_fix_d.dim,'TolFun',1e-8,...%'LargeScale','off',...
                     'Algorithm','sqp'); % add a converged stop condition. in the original there was one but wrongly implemented
-                
                 %----------------------------------------------------------
-                % CONSTRAINT
-                [constraint] = feval(problem_fix_d.par_objfun.mask_constraints, u_du, problem_fix_d.par_objfun);
-                
-                % do local search only if the constraint is not
-                % violated in u_0
-                if constraint < 0
-                    [u_du,f_du,~,output] = fmincon(func,u_0,[],[],[],[],lb_local,ub_local,[],options,problem_fix_d.par_objfun); %unconstrained
-                end
-                %--------------------------------------------------------------
+%                 if ~isempty(problem_fix_d.fitnessfcn.constr)                    
+%                     % CONSTRAINT
+%                     [constraint] = feval(problem_fix_d.par_objfun.mask_constraints, u_du, problem_fix_d.par_objfun);
+%                 end  
+                %--------------------------------------------------------------    
+                [u_du,f_du,~,output] = fmincon(func,u_0,[],[],[],[],lb_local,ub_local,[],options,problem_fix_d.par_objfun); %unconstrained
+                    
                 % c = output.constrviolation;
                 nfeval = nfeval + output.funcCount;
+
+                    
+                
                 
             else
                 u_du = u_0;

@@ -31,7 +31,7 @@ addpath(genpath('Optimisation'))
 % problem.output = 1 --> only minmin-Plausibility
 % problem.output = 2 --> both minmax-Belief and minmin-Plaiusibility
 % -------------------------------------------------------------------------
-problem.output = 2;
+problem.output = 0;
 
 
 % -------------------------------------------------------------------------
@@ -95,9 +95,9 @@ end
 problem.dim_u = [2 2 2]; % [u1, u2, u12]
 
 % 7) bounds of uncertain vector u;
-problem.lb_u{1} = {[-5 -3 1]; [-5 -3 1];...
-    [-5 -3 1]; [-5 -3 1];...
-    [-5 -3 1]; [-5 -3 1]};
+problem.lb_u{1} = {[-5 -3 0]; [-5 -3 0];...
+    [-5 -3 0]; [-5 -3 0];...
+    [-5 -3 0]; [-5 -3 0]};
 
 problem.ub_u{1} = {[-1 0 2]; [-1 0 2];...
     [-1 0 2]; [-1 0 2];...
@@ -143,8 +143,8 @@ problem.objfun =     {@TC_1};
 %--------------------------------------------------------------------------
 % Constraints
 %--------------------------------------------------------------------------
-problem.constraints = {[]}; 
-% problem.constraints = {@TC_1_constraints};
+% problem.constraints = {[]}; 
+problem.constraints = {@TC_1_constraints};
 
 
 
@@ -178,7 +178,7 @@ algo_minmax.optimise = @optimise_so;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation  
 %--------------------------------------------------------------------------
-    par_minmax.maxnfeval = 1e4;   
+    par_minmax.maxnfeval = 1e5;   
 
 %--------------------------------------------------------------------------
 % number of initial design vectors
@@ -208,7 +208,7 @@ algo_inner.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation for the inner loop
 %--------------------------------------------------------------------------
-    par_mpaidea.nFeValMax = 5000;  
+    par_mpaidea.nFeValMax = 1000;  
     
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1
@@ -268,12 +268,12 @@ algo_outer.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation for the outer loop
 %--------------------------------------------------------------------------
-    par_mpaidea.nFeValMax = 5000;     
+    par_mpaidea.nFeValMax = 1000;     
         
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1
 %--------------------------------------------------------------------------       
-    par_mpaidea.n_populations = 4;   
+    par_mpaidea.n_populations = 1;   
         
 %--------------------------------------------------------------------------    
 % number of agents in one population
@@ -328,7 +328,7 @@ algo_decomposition.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation for the inner loop
 %--------------------------------------------------------------------------
-    par_mpaidea.nFeValMax = 500;  
+    par_mpaidea.nFeValMax = 1000;  
     
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1

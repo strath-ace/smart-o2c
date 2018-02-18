@@ -105,28 +105,28 @@ else
     end
     
     
-
     
-
+    
+    
     %----------------------------------------------------------------------
     % CONSTRAINTS
     if ~isempty(problem_max_u.fitnessfcn.constr)
-
+        
         [ umax_constraint, f_inner_constraint , ~ , output_aux] = optimise_constraint(problem_max_u,algo_inner.par);
         % "optimise_constraint" change the sign of C:
         % max violation of C = min(- C)
-
+        
         nfeval = nfeval + output_aux.nfeval;
         umax_constraint(umax_constraint < 0) = 0;
         umax_constraint(umax_constraint > 1) = 1;
         f_inner_constraint = sign_inner*f_inner_constraint;
-
+        
         f_constraint_record = [f_constraint_record; f_inner_constraint];
         % chose the unfeasible u if the constraint is not respected in all the domain.
-
+        
         % constraint relaxation
-        if any(f_inner_constraint > 0) 
-
+        if any(f_inner_constraint > 0)
+            
             % f_inner = f_inner_constraint;
             % if the constraint is violated the corresponding u
             % is recorded
@@ -216,7 +216,7 @@ else
                     [ umax_constraint, f_inner_constraint , ~ , output_aux] = optimise_constraint(problem_max_u,algo_inner.par);
                     % "optimise_constraint" change the sign of C:
                     % max violation of C = min(- C)
-                                       
+                    
                     nfeval = nfeval + output_aux.nfeval;
                     umax_constraint(umax_constraint < 0) = 0;
                     umax_constraint(umax_constraint > 1) = 1;
@@ -227,7 +227,7 @@ else
                     
                     % constraint relaxation
                     
-                    epsilon = max(max(f_constraint_record)/3);                    
+                    epsilon = max(max(f_constraint_record)/3);
                     if any(f_inner_constraint > 0) && nfeval/nfevalmax < 0.7 ||...
                             any(f_inner_constraint > 0 + epsilon*(nfeval/nfevalmax > 0.6) + epsilon*(nfeval/nfevalmax > 0.7))
                         
@@ -243,7 +243,7 @@ else
                         % umax = umax_constraint;
                         
                         u_record{obj} = [u_record{obj}; umax_constraint];
-
+                        
                     end
                 else
                     epsilon = 0;
@@ -254,7 +254,7 @@ else
                 
                 
                 % Archive best between umax and umax2 [in case IDEA failed]
-                if any(sign_inner*f_inner > sign_inner*f_outer(i,obj)) 
+                if any(sign_inner*f_inner > sign_inner*f_outer(i,obj))
                     
                     if lsflag_inner
                         u_cell_aux = cell(1,n_obj);
@@ -293,7 +293,7 @@ else
         % Remove solutions archived more than once (if any)
         [~, idx] = unique(round(1e8*d_record),'rows');
         d_record = d_record(idx,:);
-        f_record = f_record(idx,:); 
+        f_record = f_record(idx,:);
         for obj = 1:n_obj
             [~, idx] = unique(round(1e8*u_record{obj}),'rows');
             u_record{obj} = u_record{obj}(idx,:);
@@ -327,31 +327,77 @@ else
         u_val_record{obj}=nan(size(d_record,1),problem_minmax.dim_u);
     end
     nfeval_val = 0;
-    while ~stop
+    
+    %----------------------------------------------------------
+    % CONSTRAINTS
+    if isempty(problem_max_u.fitnessfcn.constr)     % no constraint
+        
+        while ~stop
+            sel = dominance(f_record,0) == 0;       % find non-dominated
+            if(n_obj>1)
+                sel = sel';
+            end
+            
+            tocheck = sel & ~checked;               % select only those that have not been checked
+            stop = all(~tocheck);                   % stop if you have nothing to check
+            % check those that have been selected
+            d_tocheck = d_record(tocheck,:);
+            
+            
+            [f_val_aux, u_val_record_aux, nfeval_aux] = u_validation(problem_max_u, d_tocheck, u_record, lsflag_validation, 1:n_obj);
+            
+            
+            nfeval_val = nfeval_val + nfeval_aux;
+            
+            
+            % update f_record and u_val_record
+            f_record(tocheck,:) = f_val_aux;
+            
+            for obj = 1:n_obj
+                u_val_record{obj}(tocheck,:) = u_val_record_aux{obj};
+            end
+            checked = checked | tocheck;           % update who has been checked
+        end
+        
+        
+    else
+        
+        
+        for d_index = 1:size(d_record)
+            
+            d_tocheck = d_record(d_index,:);
+                        
+            [f_val_aux, u_val_record_aux, nfeval_aux, ~, violation] = u_validation_constraints(problem_max_u, d_tocheck, u_record, lsflag_validation, 1:n_obj);
+                     
+            nfeval_val = nfeval_val + nfeval_aux;
+            
+            
+            % update f_record and u_val_record
+            f_record(d_index,:) = f_val_aux;
+            f_violation(d_index,:) = violation;
+            
+            for obj = 1:n_obj
+                u_val_record{obj}(d_index,:) = u_val_record_aux{obj};
+            end
+            
+        end
+        
         sel = dominance(f_record,0) == 0;       % find non-dominated
-        if(n_obj>1)
-            sel = sel';
+        if f_violation(sel) ~= 0
+            
+            if any(f_violation==0)
+                [m_f, ~] = min(f_record(f_violation==0));
+                sel = find(f_record == m_f);
+            else
+                [m_c, ~] = min(f_violation(f_violation>0));
+                sel = find(f_violation == m_c);
+            end
         end
         
-        tocheck = sel & ~checked;               % select only those that have not been checked
-        stop = all(~tocheck);                   % stop if you have nothing to check
-        % check those that have been selected
-        d_tocheck = d_record(tocheck,:);
         
         
-        [f_val_aux, u_val_record_aux, nfeval_aux] = u_validation_constraints(problem_max_u, d_tocheck, u_record, lsflag_validation, 1:n_obj);
-        
-        
-        nfeval_val = nfeval_val + nfeval_aux;
-        
-        
-        % update f_record and u_val_record
-        f_record(tocheck,:) = f_val_aux;
-        for obj = 1:n_obj
-            u_val_record{obj}(tocheck,:) = u_val_record_aux{obj};
-        end
-        checked = checked | tocheck;           % update who has been checked
     end
+    
     
     fval = f_record(sel,:);
     nfeval = nfeval + nfeval_val;
