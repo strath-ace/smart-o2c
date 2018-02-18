@@ -80,7 +80,7 @@ problem.objfun =     {@TC_1};
 %--------------------------------------------------------------------------
 % Constraints
 %--------------------------------------------------------------------------
-problem.constraints = {[]}; 
+% problem.constraints = {[]}; 
 problem.constraints = {@TC_1_constraints};
 
 
@@ -146,7 +146,7 @@ algo_inner.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation for the inner loop
 %--------------------------------------------------------------------------
-    par_mpaidea.nFeValMax = 5000;  
+    par_mpaidea.nFeValMax = 1000;  
     
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1
@@ -213,7 +213,7 @@ algo_outer.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation for the outer loop
 %--------------------------------------------------------------------------
-    par_mpaidea.nFeValMax = 5000;     
+    par_mpaidea.nFeValMax = 1000;     
         
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1

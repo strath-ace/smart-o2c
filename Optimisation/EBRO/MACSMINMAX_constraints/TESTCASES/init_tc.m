@@ -17,6 +17,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv1,@mv3};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -43,6 +44,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv2,@mv8};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -69,6 +71,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv2,@em1};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -95,6 +98,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv8,@mv9};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -121,6 +125,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv8,@em1};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -147,6 +152,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv10,@mv9};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -173,6 +179,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 3;
         problem_minmax.objfun = {@mv2,@mv8,@em1};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct,struct};
 
         % design variables

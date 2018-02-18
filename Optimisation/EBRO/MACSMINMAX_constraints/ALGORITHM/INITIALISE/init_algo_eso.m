@@ -1,4 +1,4 @@
-function [algo_minmax, algo_outer, algo_inner] = init_algo_eso(minmax_problem, varargin);
+function [algo_minmax, algo_outer, algo_inner] = init_algo_eso(minmax_problem, varargin)
 
 %% META ALGORITHM: MACSMINMAX
 algo_minmax.optimise = @optimise_eso;            % algorithm in the form [x,f,exitflag,output] = algo(problem,algo_outer,algo_inner,par_minmax)

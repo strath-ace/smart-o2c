@@ -83,37 +83,37 @@ for i = in.num_functions +1 : length(in.dim_u_i)           % do maximization (an
 end
 
 
-% plot of the partial curves
-for i = in.num_functions +1 : length(in.dim_u_i)
-
-    hold on
-    if in.dim_u_i(i)>0
-        
-        if in.output == 0
-            Bel_start = Partial_curve{i - in.num_functions}.Belief_FE_function(1);
-            stairs([Bel_start; Partial_curve{i - in.num_functions}.Belief_FE_function], [0 Partial_curve{i - in.num_functions}.Belief_FE_belief_partial],'b','linewidth',1)
-            xlabel('F')
-            ylabel('partial Belief')
-            title('Exchange variables (decomposition approach)')
-        elseif in.output == 1
-            Pl_start = Partial_curve{i - in.num_functions}.Plausibility_FE_function(1);
-            stairs([Pl_start; Partial_curve{i - in.num_functions}.Plausibility_FE_function], [0 Partial_curve{i - in.num_functions}.Plausibility_FE_plausibility_partial],'r', 'linewidth',1)
-            xlabel('F')
-            ylabel('partial Plausibility')
-            title('Exchange variables (decomposition approach)')
-        elseif in.output == 2
-            Bel_start = Partial_curve{i - in.num_functions}.Belief_FE_function(1);
-            Pl_start = Partial_curve{i - in.num_functions}.Plausibility_FE_function(1);
-            stairs([Bel_start; Partial_curve{i - in.num_functions}.Belief_FE_function], [0 Partial_curve{i - in.num_functions}.Belief_FE_belief_partial],'b', 'linewidth',1)
-            hold on
-            stairs([Pl_start; Partial_curve{i - in.num_functions}.Plausibility_FE_function], [0 Partial_curve{i - in.num_functions}.Plausibility_FE_plausibility_partial],'r', 'linewidth',1)
-            xlabel('F')
-            ylabel('partial Belief & Plausibility')
-            title('Exchange variables (decomposition approach)')
-        end
-        
-    end
-    
-end
+% % plot of the partial curves
+% for i = in.num_functions +1 : length(in.dim_u_i)
+% 
+%     hold on
+%     if in.dim_u_i(i)>0
+%         
+%         if in.output == 0
+%             Bel_start = Partial_curve{i - in.num_functions}.Belief_FE_function(1);
+%             stairs([Bel_start; Partial_curve{i - in.num_functions}.Belief_FE_function], [0 Partial_curve{i - in.num_functions}.Belief_FE_belief_partial],'b','linewidth',1)
+%             xlabel('F')
+%             ylabel('partial Belief')
+%             title('Exchange variables (decomposition approach)')
+%         elseif in.output == 1
+%             Pl_start = Partial_curve{i - in.num_functions}.Plausibility_FE_function(1);
+%             stairs([Pl_start; Partial_curve{i - in.num_functions}.Plausibility_FE_function], [0 Partial_curve{i - in.num_functions}.Plausibility_FE_plausibility_partial],'r', 'linewidth',1)
+%             xlabel('F')
+%             ylabel('partial Plausibility')
+%             title('Exchange variables (decomposition approach)')
+%         elseif in.output == 2
+%             Bel_start = Partial_curve{i - in.num_functions}.Belief_FE_function(1);
+%             Pl_start = Partial_curve{i - in.num_functions}.Plausibility_FE_function(1);
+%             stairs([Bel_start; Partial_curve{i - in.num_functions}.Belief_FE_function], [0 Partial_curve{i - in.num_functions}.Belief_FE_belief_partial],'b', 'linewidth',1)
+%             hold on
+%             stairs([Pl_start; Partial_curve{i - in.num_functions}.Plausibility_FE_function], [0 Partial_curve{i - in.num_functions}.Plausibility_FE_plausibility_partial],'r', 'linewidth',1)
+%             xlabel('F')
+%             ylabel('partial Belief & Plausibility')
+%             title('Exchange variables (decomposition approach)')
+%         end
+%         
+%     end
+%     
+% end
 
 end

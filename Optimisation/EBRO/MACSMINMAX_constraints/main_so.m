@@ -33,8 +33,8 @@ for runid= 1:20     % 20 runs
         [ dmin, fminmax, exitflag, output ] = algo_minmax.optimise(problem_minmax,algo_outer,algo_inner,algo_minmax.par_minmax);
 
         %create results directory
-        mkdir(savefolder);
-        save(strcat(savefolder,'testcase_results_TC_SO_',num2str(tc),'_',num2str(runid)));
+%         mkdir(savefolder);
+%         save(strcat(savefolder,'testcase_results_TC_SO_',num2str(tc),'_',num2str(runid)));
 
     end
 end
