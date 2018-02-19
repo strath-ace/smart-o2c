@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [minmax, minmin] = optimise_macs_minmax(problem, algo_minmax, algo_outer, algo_inner)
 % worst case scenario (min-max) and best case scenario (min-min): 
 % - minimisation over the design variables d;
