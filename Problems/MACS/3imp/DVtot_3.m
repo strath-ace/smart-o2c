@@ -4,7 +4,7 @@ function [DVtot]=DVtot_3(the1,Dtheta1,the2,aTransfa,eccTransfa,ome0Transfa,aTran
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
+%-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
 
 orb_elem_sat_iniz = [7000e3,  0, 0*pi/180,  the1, 0*pi/180, 0*pi/180];
 

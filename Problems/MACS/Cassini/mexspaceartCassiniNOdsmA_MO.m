@@ -4,7 +4,7 @@ function [J]=mexspaceartCassiniNOdsmA_MO(ya)
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
+%-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
 
 
 ll=[-1000 30   100  30   400   1000
