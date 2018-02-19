@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [decomposition, Partial_curve] = evaluate_Belief_Plausibility_coupled_vectors(in, problem_decomposition, minmax, minmin, n_obj, n_point, algo_decomposition)
 
 % PARTIAL CURVES (EXCHANGE VARIABLES)
