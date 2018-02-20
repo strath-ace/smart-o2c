@@ -73,19 +73,6 @@ GeneratedNodes = struct('temp', 0);
 
 % The attempt counter and a tracker for the number of NaNs in the 
 % ListNodes.(currentNode).ChildValidityTracker vector
-=======
-<<<<<<< HEAD
-
-% The attempt counter and a tracker for the number of NaNs in the 
-% ListNodes.(currentNode).ChildValidityTracker vector
-=======
-nameslist = cell(1, Inputs.RamificationAmount);
-
-% Initial index for the nameslist variable, the attempt counter and a
-% tracker for the number of NaNs in the ListNodes.(currentNode).ChildValidityTracker vector
-i = 1;
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
->>>>>>> 56eeb4b328a0319b2f58a2e2413248a83fcc168b
 attempt = 1;
 nantracker = sum(isnan(indextracker));
 
