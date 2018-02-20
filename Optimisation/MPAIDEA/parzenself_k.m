@@ -3,7 +3,11 @@ function y=parzenself_k(wei,x,f,ny,pdftype,rewei)
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
+<<<<<<< HEAD:Optimisation/MPAIDEA/parzenself_k.m
 %-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
+=======
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MPAIDEA/parzenself_k.m
 %
 %
 %
@@ -15,6 +19,8 @@ function y=parzenself_k(wei,x,f,ny,pdftype,rewei)
 % y: ny*mx matrix
 % pdftype: string
 % rewei: scalar
+%
+%% Author: Mario Costa, Edmondo Minisci
 
 
 if (nargin==0)

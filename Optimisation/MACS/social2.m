@@ -1,15 +1,25 @@
 function [xsamp,fsamp,maxC,nfeval]=social2(x,f,memories,x_DE,cid,nfeval,energy,ener2,params)
+<<<<<<< HEAD:Optimisation/MACS/social2.m
 
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/social2.m
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
+<<<<<<< HEAD:Optimisation/MACS/social2.m
 %------ Copyright (C) 2017 University of Strathclyde and Authors ------
 %--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
 %-------------------- Author: Lorenzo A. Ricciardi --------------------
 %
 % Social moves
 
+=======
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+%
+%
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/social2.m
 % [xsamp,fsamp,maxC,nfeval]=social(x,f,memories,x_DE,cid,nfeval,params)
 %
 %  INPUT

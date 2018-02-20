@@ -3,7 +3,11 @@ function [checktot] = MyCreatedNodeCheckMainBelt(Inputs, Attributes, ListNodes, 
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
+<<<<<<< HEAD
 %-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
+=======
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 %
 %
 %

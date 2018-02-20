@@ -2,7 +2,11 @@
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
+<<<<<<< HEAD
 %-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
+=======
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 %
 %
 %
@@ -10,10 +14,13 @@
 % 
 % Author(s): Aram Vroom, Marilena Di Carlo and Juan Manuel Romero Martin (2016)
 % Email: aram.vroom@strath.ac.uk marilena.di-carlo@strath.ac.uk juan.romero-martin@strath.ac.uk
+<<<<<<< HEAD
 %
 %% References:
 % * JPL Small-Body Database Search Engine
 % http://ssd.jpl.nasa.gov/sbdb_query.cgi#x
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 
 clear all; close all; clc
 rng('shuffle')
@@ -59,7 +66,11 @@ options.GenerateGraphPlot = 0;                                  % Indicator as t
 options.GraphPlotFileName = '';                                 % Name of the file that the graph plot animation will be saved as [string]
 options.GenerateTreePlot = 0;                                   % Indicator as to whether the algorithm should generate a tree plot, where 1 is defined as "yes"
 options.SaveHistory = 0;                                        % Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation, where 1 is defined as "yes"
+<<<<<<< HEAD
 options.LowMem = 0;                                             % Indicator as to whether the algorithm should use the low-memory version of the searching for new nodes, where 1 is defined as "yes"
+=======
+options.LowMem = 0;                                             % Indicator as to whether the algorithm should use the low-memory version of searching for new nodes, where 1 is defined as "yes". Using the low-memory version is slower, but requires less memory. 
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 
 SaveDir = 'AsteroidMainBelt\IO_Dir\';                           % Input / Output Directory   
 

@@ -2,7 +2,11 @@
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
+<<<<<<< HEAD
 %-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
+=======
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 %
 %
 %
@@ -32,8 +36,13 @@ addpath(genpath('CEC2011'))
 % MP-AIDEA. The possible problems are: 1, 2, 3, 5, 6, 7, 10, 12, 13
 
 % Number of the function to optimise. Uncomment one of the following lines:
+<<<<<<< HEAD
 % func_num = 1;
 func_num = 2;
+=======
+func_num = 1;
+% func_num = 2;
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 % func_num = 3;
 % func_num = 5;
 % func_num = 6;
@@ -117,6 +126,7 @@ options.F = 0.5;
 % and F:
 options.dd_CRF = 3;
 
+<<<<<<< HEAD
 % -------------------------------------------------------------------------
 % Warm start?
 % Provide populations for warm start. The number of populations and number
@@ -128,12 +138,15 @@ options.warm_start = 0;
 name_warm_start = 'pop_GR_';
 
 
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 
 % -------------------------------------------------------------------------
 % Display text during run?
 % -------------------------------------------------------------------------
 options.text = 1;
 
+<<<<<<< HEAD
 % -------------------------------------------------------------------------
 % Display plots during run?
 % -------------------------------------------------------------------------
@@ -174,6 +187,8 @@ options.save_pop_GR = 1;
 name_save_pop_GR = 'pop_GR_';
 
 
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 
 %% Lower and upper boundaries and dimension of the problem
 
@@ -252,11 +267,16 @@ end
 
 
 % Maximum number of function evaluations
+<<<<<<< HEAD
 nFeValMax = 150000;
+=======
+nFeValMax = 10000 * D;
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 
 
 %% MP-AIDEA inputs
 
+<<<<<<< HEAD
 % -------------------------------------------------------------------------
 % Format for files
 % -------------------------------------------------------------------------
@@ -315,12 +335,16 @@ end
 % -------------------------------------------------------------------------
 % Maximum number of function evaluations
 % -------------------------------------------------------------------------
+=======
+% Maximum number of function evaluations
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 options.nFeValMax = nFeValMax;
 
 % Solutions are saved not only when nFeValMax has been reached but also at
 % fraction of nFeValMax. Define this fraction in options.record:
 options.record = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 
+<<<<<<< HEAD
 % -------------------------------------------------------------------------
 % Populations
 % -------------------------------------------------------------------------
@@ -344,6 +368,17 @@ else
     
 end
 
+=======
+% Initialise populations
+population = zeros(NP,D,pop_number);
+
+for s = 1 : pop_number
+    pop = lhsdesign(NP,D,'criterion','maximin').*repmat(UB-LB,NP,1)+repmat(LB,NP,1);
+    population(:,:,s) = pop;
+end
+
+
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 options.population = population;
 
 
@@ -352,6 +387,7 @@ options.population = population;
 % Function to optimise
 switch func_num
     case {1, 2, 3, 5, 6, 7}
+<<<<<<< HEAD
         fitnessfcn.obj = @(x)bench_func(x,func_num);
     case 10
         fitnessfcn.obj = @(x)antennafunccircular(x,[50,120],180,0.5);
@@ -367,12 +403,26 @@ fitnessfcn.constr = [] ;
 fitnessfcn.obj_constr = 0;
 fitnessfcn.weighted = 0;
 
+=======
+        fitnessfcn = @(x)bench_func(x,func_num);
+    case 10
+        fitnessfcn = @(x)antennafunccircular(x,[50,120],180,0.5);
+    case 12 
+        load messengerfull.mat
+        fitnessfcn = @(x)messengerfull(x, MGADSMproblem);
+    case 13
+        load cassini2.mat
+        fitnessfcn = @(x)cassini2(x,MGADSMproblem);
+end
+
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 % MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
 
 
 
 
+<<<<<<< HEAD
 
 %% Close file opened for writing 
 
@@ -396,3 +446,5 @@ if options.save_pop_GR
         fclose(options.fileID4(s));
     end
 end
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b

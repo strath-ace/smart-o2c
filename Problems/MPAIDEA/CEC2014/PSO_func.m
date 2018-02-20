@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -5,6 +6,8 @@
 %------ Copyright (C) 2018 University of Strathclyde and Authors ------
 %--------------- e-mail: smart@strath.ac.uk ---------------------------
 %------------------- Authors: SMART developers team -------------------
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 function [gbest,gbestval,fitcount]= PSO_func(fhd,Dimension,Particle_Number,Max_Gen,VRmin,VRmax,varargin)
 %[gbest,gbestval,fitcount]= PSO_func('f8',3500,200000,30,30,-5.12,5.12)
 rand('state',sum(100*clock));

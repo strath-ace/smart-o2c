@@ -3,7 +3,11 @@ function [InitialisedInputs, ListNodes] = InitialisePhysarum(fitnessfcn, options
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
+<<<<<<< HEAD
 %-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
+=======
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 %
 %
 %
@@ -63,7 +67,11 @@ InitialisedInputs = struct(...
                 'GraphPlotFileName',                  char(options.GraphPlotFileName), ...      % Name of the file that the graph plot animation will be saved as
                 'GenerateTreePlot',                   options.GenerateTreePlot, ...             % Indicator as to whether the algorithm should generate a tree plot
                 'SaveHistory',                        options.SaveHistory, ...                  % Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation
+<<<<<<< HEAD
                 'LowMem',                             options.LowMem ...                        % Indicator as to whether the algorithm should use the low-memory version of the searching for new nodes, where 1 is defined as "yes"
+=======
+                'LowMem',                             options.LowMem ...                        % Indicator as to whether the algorithm should use the low-memory version of searchin for new nodes, where 1 is defined as "yes". Using the low-memory version is slower, but requires less memory. 
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
             );
         
       

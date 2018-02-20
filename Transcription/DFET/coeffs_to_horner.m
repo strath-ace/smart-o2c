@@ -1,12 +1,21 @@
 function h = coeffs_to_horner (coeffs)
+<<<<<<< HEAD:Transcription/DFET/coeffs_to_horner.m
 
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Transcription/DFET/coeffs_to_horner.m
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
+<<<<<<< HEAD:Transcription/DFET/coeffs_to_horner.m
 %------ Copyright (C) 2017 University of Strathclyde and Authors ------
 %--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
 %-------------------- Author: Lorenzo A. Ricciardi --------------------
+=======
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+%
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Transcription/DFET/coeffs_to_horner.m
 %
 % Returns a function handle h for the evaluation of a polynomial with
 % coeffs coefficient. The function is written in Horner's form for higher

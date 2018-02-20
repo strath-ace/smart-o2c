@@ -1,12 +1,21 @@
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
 function [xtrial,vtrial,ftrial,maxC,nfeval,discarded,rho,patdirs,MBH_positions,MADS_dirs]=explore2(memories,x,v,f,cid,nfeval,lambda,act_subpr,id_pop_act_subpr,z,zstar,rho,patdirs,pigr,MBH_positions,MADS_dirs,local_only,int_loc_opt,params)
 
+=======
+function [xtrial,vtrial,ftrial,maxC,nfeval,discarded,rho,patdirs,MBH_positions,MADS_dirs,loc_opt]=explore2(memories,x,v,f,cid,nfeval,lambda,act_subpr,id_pop_act_subpr,z,zstar,rho,patdirs,pigr,MBH_positions,MADS_dirs,local_only,params)
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
 %------ Copyright (C) 2017 University of Strathclyde and Authors ------
 %--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
 %-------------------- Author: Lorenzo A. Ricciardi --------------------
+=======
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+%
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
 %
 % Performs individual moves
 
@@ -66,7 +75,12 @@ lx = length(params.vlb);                                                    % pr
 n_ids=ceil(sum(params.vars_to_opt)*params.coord_ratio);                                          % n_ids is equal to the number of dimensions which will actually be scanned (not automatically all of them, if params.coord_ratio <1 )
 n_a = size(x,1);
 mfit = size(f,2);
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
 foptionsNLP=params.mbh_options;
+=======
+foptionsNLP=optimset('Display','off','MaxFunEvals',1000*length(params.vlb),'MaxIter',1000*length(params.vlb),'TolFun',1e-6,'Algorithm','sqp','MaxSQPIter', 10*length(params.vlb));
+loc_opt = zeros(n_a,1);
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
 
 %% MAIN LOOP
 impr = zeros(n_a,1);
@@ -251,8 +265,11 @@ for i=1:n_a                                                                 % fo
     %% PATTERN SEARCH
     
     if impr(i)==0 && strcmp(params.pat_search_strategy,'standard') && ~local_only
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
         
         fprintf(['Performing Pattern Search (up to ',num2str(n_ids),' coordinates): ']);
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
         
         for j=1:n_ids                                                       % for every parameter (remember that they are shuffled every time)
             
@@ -749,11 +766,106 @@ for i=1:n_a                                                                 % fo
         
     end
     
+    %% MADS
+    
+    if impr(i)==0 && strcmp(params.pat_search_strategy,'MADS') && ~local_only
+        
+        [MADS_dirs,D] = MADS_generate_spanning_set (MADS_dirs,rho(i,2)+1,length(params.id_vars_to_opt),rho(i,1),1);
+        
+        for j = 1:n_ids%size(D,2)
+            
+            pert = D(:,j)';
+            alph = rho(i,1);
+            
+            [alph,pert] = alpha_clip2(x(i,params.id_vars_to_opt),alph,pert,params.vlb(params.id_vars_to_opt),params.vub(params.id_vars_to_opt));
+            
+            xtrial(i,:) = x(i,:);
+            
+            xtrial(i,params.id_vars_to_opt)=alph*pert+x(i,params.id_vars_to_opt);
+            xtrial(i,params.id_vars_to_opt)=xtrial(i,params.id_vars_to_opt).*(xtrial(i,params.id_vars_to_opt)>params.vlb(params.id_vars_to_opt))+params.vlb(params.id_vars_to_opt).*(xtrial(i,params.id_vars_to_opt)<=params.vlb(params.id_vars_to_opt)); % hard clipping
+            xtrial(i,params.id_vars_to_opt)=xtrial(i,params.id_vars_to_opt).*(xtrial(i,params.id_vars_to_opt)<params.vub(params.id_vars_to_opt))+params.vub(params.id_vars_to_opt).*(xtrial(i,params.id_vars_to_opt)>=params.vub(params.id_vars_to_opt)); % hard clipping
+            
+            if norm(xtrial(i,:)-x(i,:))>0                                   % if agent has moved from previous position
+                
+                %% EVALUATE MOVE
+                
+                if params.cp==0                                                    % if problem is unconstrained
+                    
+                    if params.optimal_control==1
+                        
+                        [ftrial(i,:),xcorr]=params.func(xtrial(i,:),params.arg{:});         % eval f on given position
+                        xtrial(i,:) = xcorr;                                                % update initial random guess with feasible one
+                        
+                    else
+                        
+                        ftrial(i,:)=params.func(xtrial(i,:),params.arg{:});         % eval f on given position
+                        
+                    end
+                    
+                    maxC(i)=0;
+                    
+                    if any(ftrial(i,:)<f(i,:))                              % if there has been an improvement
+                        
+                        discarded.f=[discarded.f; ftrial(i,:)];       % add this solution to the discarded array
+                        discarded.x=[discarded.x; xtrial(i,:)];
+                        discarded.c=[discarded.c; maxC(i)];
+                        
+                        if (all(ftrial(i,:)<=f(i,:))&&(norm(xtrial(i,:)-x(i,:))>0))||(any(i==id_pop_act_subpr)&&g_fun(ftrial(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)) % if agent performing local search has moved and it's objective function value has improved OR if this agent was selected to solve a sub-problem and it's partial objective function value is better than previous one
+                            
+                            impr(i)=1;
+                            vtrial(i,:) = xtrial(i,:)-x(i,:);
+                            
+                        end
+                        
+                    end
+                    
+                else                                                        % if it's constrained, do as above
+                    
+                    [ftrial(i,:),ctrial(i,:)]=params.func(xtrial(i,:),params.arg{:});
+                    maxC(i)=max(ctrial(i,:));
+                    
+                    if cid(i)<=0&&maxC(i)>0
+                        
+                        ftrial(i,:)=f(i,:)+maxC(i);
+                        
+                    end
+                    
+                    if (any(ftrial(i,:)<f(i,:))&&maxC(i)<=0)||(cid(i)>0&&maxC(i)<cid(i))
+                        
+                        discarded.f=[discarded.f; ftrial(i,:)];
+                        discarded.x=[discarded.x; xtrial(i,:)];
+                        discarded.c=[discarded.c; maxC(i)];
+                        
+                        impr(i)=1;
+                        
+                    end
+                    
+                end
+                
+                nfeval=nfeval+1;
+                
+            end
+            
+            if impr(i)==1
+                
+                vtrial(i,:) = xtrial(i,:)-x(i,:);
+                
+                break
+                
+            end
+            
+        end
+        
+    end
+    
     %% DIFFERENTIAL (take the direction suggested by other agents)
     
     if impr(i)==0 && ~local_only
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
         
         fprintf('Performing Differential Evolution: ');
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
         
         %redo =1;
         %cnt = 0;
@@ -907,6 +1019,12 @@ for i=1:n_a                                                                 % fo
                         
                         fprintf('v\n');
                         
+                        if params.v==1
+                            
+                            vtrial(i,:) = xtrial(i,:)-x(i,:);
+                            
+                        end
+                        
                     end
                     
                 else
@@ -1020,6 +1138,7 @@ for i=1:n_a                                                                 % fo
         
         if params.optimal_control==1
             
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
             if any(i==id_pop_act_subpr)&& params.MBHflag>0 && local_only%any(i==id_pop_act_subpr)&& params.MBHflag>0 && (rho(i,2)==params.max_rho_contr || local_only) %&&pigr(act_subpr(id_pop_act_subpr==i))<0.8%<- TO BE REVISED WITH A PROPPER PARAMETER TO BE SET BY THE USER
                 
                 % look if this position has not already been the starting point
@@ -1116,11 +1235,165 @@ for i=1:n_a                                                                 % fo
                         end
                         
                     else
+=======
+            % NOTE: FOR SINGLE OBJECTIVES, SMOTHED TCHEBYSHEV SCALARISATION
+            % IS NOT THE BEST APPROACH, AS WE DON'T HAVE A CLUE ABOUT THE
+            % UTOPIA POINT (IT IS DEFINED BY THE SINGLE OBJECTIVES!!!)
+            % EITHER USE TWO SEPARATE APPROACHES, OR SETTLE DOWN FOR SUB
+            % OPTIMAL SOLUTIONS (IF THE UTOPIA POINT PREDICTED IS NOT AS
+            % GOOD AS THE REAL ONE, SMOOTHED TCHEBYSHEV SCALARISATION WILL
+            % STOP BEFORE)
+            
+            if any(i==id_pop_act_subpr)&& params.MBHflag>0 && local_only%any(i==id_pop_act_subpr)&& params.MBHflag>0 && (rho(i,2)==params.max_rho_contr || local_only) %&&pigr(act_subpr(id_pop_act_subpr==i))<0.8%<- TO BE REVISED WITH A PROPPER PARAMETER TO BE SET BY THE USER
+                
+                if isempty(MBH_positions)
+                                        
+                    fprintf('Running MBH on agent %d, lambda = (',i);
+                    
+                    for j =1:length(lambda(act_subpr(id_pop_act_subpr==i),:))-1
                         
-                        xtrial(i,:) = x(i,:);
+                        fprintf('%f ',lambda(act_subpr(id_pop_act_subpr==i),j));
                         
                     end
                     
+                    fprintf('%f)\n',lambda(act_subpr(id_pop_act_subpr==i),end));
+                    niter=0;
+                    fu=Inf;
+                    
+                    fcurrent=1;
+                    
+                    while fu>=fcurrent&&niter<params.MBHflag
+                        
+                        niter=niter+1;
+                        fprintf('Iter %d\n',niter)
+                        rvlb=x(i,:)-rho(i,1)*Delta;
+                        rvub=x(i,:)+rho(i,1)*Delta;
+                        rvlb=max([rvlb;params.vlb]);
+                        rvub=min([rvub;params.vub]);
+                        
+                        if niter>1
+                            
+                            xtrial(i,:)=x(i,:)+(2*rand-1)*rho(i,1)*Delta;
+                            xtrial(i,:)=max([xtrial(i,:);rvlb]);
+                            xtrial(i,:)=min([xtrial(i,:);rvub]);
+                            [ftrial(i,:),xtrial(i,:)] = params.func(xtrial(i,:),params.arg{:});
+                            
+                        else
+                            
+                            xtrial(i,:) = x(i,:);
+                            ftrial(i,:) = f(i,:);
+                            
+                        end
+                        
+                        zz = 2*z-zstar;
+                        zzstar = ftrial(i,:);                        
+                        
+                        if act_subpr(id_pop_act_subpr==i)<=mfit
+                            
+                            % In this case we follow the original
+                            % objective, so the utopia point is just
+                            % pushed as far as possible but along the
+                            % same direction
+                            
+                            ll = lambda(act_subpr(id_pop_act_subpr==i),:);
+                            %zz = 2*z-zstar;
+                            %zzstar = ftrial(i,:);
+                            
+                        else
+                            
+                            % in this case the scalarisation is looking
+                            % for strongly dominant solutions, moving
+                            % along the direction (1,1,1,1...,1) in
+                            % criteria space. For this reason, we must
+                            % move the utopia point, keeping in mind
+                            % that the problem will be scaled in the
+                            % nonlinear solver. Thus at first the
+                            % search direction will be scaled
+                            % acccording to (zstar-z), to find the
+                            % "correct" utopia point, then the
+                            % (1,1,1,..1) direction will be used in the
+                            % gradient optimiser
+                            
+                            %ll = ones(1,mfit)./norm(ones(1,mfit)).*(zstar-z);
+                            %ll = ll/norm(ll);
+                            %ztemp = 2*z-zstar;
+                            %zz = ftrial(i,:)-ll*(ftrial(i,1)-ztemp(1))/ll(1);
+                            %zzstar = ftrial(i,:);
+                            ll = ones(1,mfit)./norm(ones(1,mfit));
+                            
+                        end
+                        
+                        xt=[norm(ll) xtrial(i,:)];
+                        [u,fu,~,output]=fmincon(@(xt) xt(1),xt,[],[],[],[],[0 params.vlb],[norm(ll) params.vub],@(xt) params.oc.smooth_scal_constr_fun(xt,ll,zz,zzstar,params),foptionsNLP);
+                        nfeval=nfeval+output.funcCount+1;
+                        loc_opt(i)=1;
+                        
+                        if params.optimal_control==0
+                            
+                            xtrial(i,:) = u;
+                            ftrial(i,:) = params.func(u,params.arg{:});
+                            
+                        else
+                            
+                            [ftrial(i,:),xtrial(i,:)] = params.func(u(2:end),params.arg{:});
+                            
+                        end
+                        
+                        fprintf('Old solution = ');
+                        
+                        for j=1:mfit-1
+                            
+                            fprintf('%f ',f(i,j)) ;
+                            
+                        end
+                        
+                        fprintf('%f)\n',f(i,end));
+                        fprintf('New solution = ');
+                        
+                        for j=1:mfit-1
+                            
+                            fprintf('%f ',ftrial(i,j)) ;
+                            
+                        end
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
+                        
+                        fprintf('%f)\n',ftrial(i,end));
+                        
+                        if any(ftrial(i,:)<f(i,:))                                  % if any component of the new trial is better than the same component of the previous x, we have an improvement!
+                            
+                            discarded.f=[discarded.f; ftrial(i,:)];
+                            discarded.x=[discarded.x; xtrial(i,:)];
+                            discarded.c=[discarded.c; maxC(i)];
+                            vtrial(i,:) = xtrial(i,:)-x(i,:);
+                            
+                            if (all(ftrial(i,:)<=f(i,:))&&(norm(xtrial(i,:)-x(i,:))>0))||(any(i==id_pop_act_subpr)&&g_fun(ftrial(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)) % if agent performing local search has moved and it's objective function value has improved OR if this agent was selected to solve a sub-problem and it's partial objective function value is better than previous one
+                                
+                                impr(i)=1;
+                                %MBH_positions = [MBH_positions; xtrial(i,:)];                    %avoids cascade of fmincon usage, should be done selectively if the improvement was too little for the effort. How do I measure it?
+                                
+                                fprintf('Success!!!\n')
+                                
+                                % delays next MBH as much as possible
+                                rho(i,1)=params.rhoini;
+                                rho(i,2)=0;
+                                
+                            else
+                                
+                                fprintf('There is a mismatch between Tchebychev scalarisation and the smooth version!\n');
+                                fprintf('g_fun of old solution: %f\n',g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar));
+                                fprintf('g_fun of trial solution: %f\n',g_fun(ftrial(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar));
+                                
+                            end
+                            
+                        else
+                            
+                            fprintf('Fail...\n')
+                            
+                        end
+                        
+                    end
+                    
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
                     % avoid starting on the bounds for interior-point
                     
                     if strcmp(foptionsNLP.Algorithm,'interior-point')
@@ -1148,9 +1421,20 @@ for i=1:n_a                                                                 % fo
                             ll(act_subpr(id_pop_act_subpr==i)) = -1;
                             
                         end
+=======
+                else
+                    
+                    % look if this position has not already been the starting point
+                    % for fmincon
+                    
+                    if ~any(all(repmat(x(i,:),size(MBH_positions,1),1)==MBH_positions,2))
                         
-                    else
+                        MBH_positions = [MBH_positions; x(i,:)];                    %add this position in the list, to avoid repeating it
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
                         
+                        fprintf('Running MBH on agent %d, lambda = (',i);
+                        
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
                         zz = f(i,:)-2*(zstar-z);
                         ll = ones(1,mfit)./norm(ones(1,mfit));
                         
@@ -1228,6 +1512,95 @@ for i=1:n_a                                                                 % fo
                             discarded.f=[discarded.f; ftrial(i,:)];
                             discarded.x=[discarded.x; xtrial(i,:)];
                             discarded.c=[discarded.c; maxC(i)];
+=======
+                        for j =1:length(lambda(act_subpr(id_pop_act_subpr==i),:))-1
+                            
+                            fprintf('%f ',lambda(act_subpr(id_pop_act_subpr==i),j));
+                            
+                        end
+                        
+                        fprintf('%f)\n',lambda(act_subpr(id_pop_act_subpr==i),end));
+                        niter=0;
+                        fu=Inf;
+                        
+                        fcurrent=1;
+                        
+                        while fu>=fcurrent&&niter<params.MBHflag
+                            
+                            niter=niter+1;
+                            fprintf('Iter %d\n',niter)
+                            rvlb=x(i,:)-rho(i,1)*Delta;
+                            rvub=x(i,:)+rho(i,1)*Delta;
+                            rvlb=max([rvlb;params.vlb]);
+                            rvub=min([rvub;params.vub]);
+                            
+                            if niter>1
+                                
+                                xtrial(i,:)=x(i,:)+(2*rand-1)*rho(i,1)*Delta;
+                                xtrial(i,:)=max([xtrial(i,:);rvlb]);
+                                xtrial(i,:)=min([xtrial(i,:);rvub]);
+                                
+                            else
+                                
+                                xtrial(i,:) = x(i,:);
+                                
+                            end
+                            
+                            ftrial(i,:)=params.func(xtrial(i,:),params.arg{:});
+                            
+                            if act_subpr(id_pop_act_subpr==i)<=mfit
+                                
+                                % In this case we follow the original
+                                % objective, so the utopia point is just
+                                % pushed as far as possible but along the
+                                % same direction
+                                
+                                ll = lambda(act_subpr(id_pop_act_subpr==i),:);
+                                zz = 2*z-zstar;
+                                zzstar = ftrial(i,:);
+                                
+                            else
+                                
+                                % in this case the scalarisation is looking
+                                % for strongly dominant solutions, moving
+                                % along the direction (1,1,1,1...,1) in
+                                % criteria space. For this reason, we must
+                                % move the utopia point, keeping in mind
+                                % that the problem will be scaled in the
+                                % nonlinear solver. Thus at first the
+                                % search direction will be scaled
+                                % acccording to (zstar-z), to find the
+                                % "correct" utopia point, then the
+                                % (1,1,1,..1) direction will be used in the
+                                % gradient optimiser
+                                
+                                ll = ones(1,mfit)./norm(ones(1,mfit)).*(zstar-z);
+                                ll = ll/norm(ll);
+                                ztemp = 2*z-zstar;
+                                zz = ftrial(i,:)-ll*(ftrial(i,1)-ztemp(1))/ll(1);
+                                zzstar = ftrial(i,:);
+                                ll = ones(1,mfit)./norm(ones(1,mfit));
+                                
+                            end
+                            
+                            xt=[norm(ll) xtrial(i,:)];
+                            [u,fu,~,output]=fmincon(@(xt) xt(1),xt,[],[],[],[],[0 params.vlb],[norm(ll) params.vub],@(xt) params.oc.smooth_scal_constr_fun(xt,ll,zz,zzstar,params),foptionsNLP);
+                            nfeval=nfeval+output.funcCount+1;
+                            loc_opt(i)=1;
+                            
+                            if params.optimal_control==0
+                                
+                                xtrial(i,:) = u;
+                                ftrial(i,:) = params.func(u,params.arg{:});
+                                
+                            else
+                                
+                                [ftrial(i,:),xtrial(i,:)] = params.func(u(2:end),params.arg{:});
+                                
+                            end
+                            
+                            fprintf('Old solution = ');
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
                             
                             if (all(ftrial(i,:)<=f(i,:))&&(norm(xtrial(i,:)-x(i,:))>0))||(any(i==id_pop_act_subpr)&&g_fun(ftrial(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)) % if agent performing local search has moved and it's objective function value has improved OR if this agent was selected to solve a sub-problem and it's partial objective function value is better than previous one
                                 
@@ -1307,6 +1680,7 @@ for i=1:n_a                                                                 % fo
                             
                         else
                             
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
                             % non orth agents have no possibility to change
                             % direction (yet), so just regenerate them
                             rand_restart = 1;
@@ -1321,10 +1695,48 @@ for i=1:n_a                                                                 % fo
                         rand_restart = 1;
                         %fprintf('This agent already failed the local search from its starting position... restarting in the local neighbourhood\n')
                         
+=======
+                            if any(ftrial(i,:)<f(i,:))                                  % if any component of the new trial is better than the same component of the previous x, we have an improvement!
+                                
+                                discarded.f=[discarded.f; ftrial(i,:)];
+                                discarded.x=[discarded.x; xtrial(i,:)];
+                                discarded.c=[discarded.c; maxC(i)];
+                                vtrial(i,:) = xtrial(i,:)-x(i,:);
+                                
+                                if (all(ftrial(i,:)<=f(i,:))&&(norm(xtrial(i,:)-x(i,:))>0))||(any(i==id_pop_act_subpr)&&g_fun(ftrial(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)) % if agent performing local search has moved and it's objective function value has improved OR if this agent was selected to solve a sub-problem and it's partial objective function value is better than previous one
+                                    
+                                    impr(i)=1;
+                                    %MBH_positions = [MBH_positions; xtrial(i,:)];                    %avoids cascade of fmincon usage, should be done selectively if the improvement was too little for the effort. How do I measure it?
+                                    
+                                    fprintf('Success!!!\n')
+                                    
+                                    % delays next MBH as much as possible
+                                    rho(i,1)=params.rhoini;
+                                    rho(i,2)=0;
+                                    
+                                else
+                                    
+                                    fprintf('There is a mismatch between Tchebychev scalarisation and the smooth version!\n');
+                                    fprintf('g_fun of old solution: %f\n',g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar));
+                                    fprintf('g_fun of trial solution: %f\n',g_fun(ftrial(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar));
+                                    
+                                    
+                                end
+                                
+                            else
+                                
+                                fprintf('Fail...\n')
+                                
+                            end
+                            
+                        end
+                        
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
                     end
                     
                 end
                 
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
                 if ~rand_restart && mod(int_loc_opt,2)==0
                     
                     change_dir = 1;
@@ -1334,6 +1746,15 @@ for i=1:n_a                                                                 % fo
                 fcurrent=1;
                 
                 while fu>=fcurrent&&niter<params.MBHflag
+=======
+            end
+            
+        else
+            
+            if  any(i==id_pop_act_subpr)&&params.MBHflag>0 && rho(i,2)==params.max_rho_contr %&&pigr(act_subpr(id_pop_act_subpr==i))<0.8%<- TO BE REVISED WITH A PROPPER PARAMETER TO BE SET BY THE USER
+                
+                if isempty(MBH_positions)
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
                     
                     niter=niter+1;
                     %fprintf('Iter %d\n',niter)
@@ -1351,8 +1772,17 @@ for i=1:n_a                                                                 % fo
                         
                         xtrial(i,params.vars_to_opt) = xtrial(i,params.vars_to_opt)+(2*rand(size(Delta(params.vars_to_opt)))-1).*rho(i,1).*Delta(params.vars_to_opt);
                         
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
                         xtrial(i,:)=max([xtrial(i,:);rvlb]);
                         xtrial(i,:)=min([xtrial(i,:);rvub]);
+=======
+                        niter=niter+1;
+                        fprintf('Iter %d\n',niter)
+                        rvlb=x(i,:)-rho(i,1)*Delta;
+                        rvub=x(i,:)+rho(i,1)*Delta;
+                        rvlb=max([rvlb;params.vlb]);
+                        rvub=min([rvub;params.vub]);
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
                         
                         if params.bilevel ==1
                             
@@ -1482,14 +1912,129 @@ for i=1:n_a                                                                 % fo
                         
                     end
                     
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
                     MBH_positions = [MBH_positions; xstart ll];
+=======
+                else
+                    
+                    % look if this position has not already been the starting point
+                    % for fmincon
+                    
+                    if ~any(all(repmat(x(i,:),size(MBH_positions,1),1)==MBH_positions,2))
+                        
+                        MBH_positions = [MBH_positions; x(i,:)];                    %add this position in the list, to avoid repeating it
+                        
+                        fprintf('Running MBH on agent %d, lambda = (',i);
+                        
+                        for j =1:length(lambda(act_subpr(id_pop_act_subpr==i),:))-1
+                            
+                            fprintf('%f ',lambda(act_subpr(id_pop_act_subpr==i),j));
+                            
+                        end
+                        
+                        fprintf('%f)\n',lambda(act_subpr(id_pop_act_subpr==i),end));
+                        niter=0;
+                        fu=Inf;
+                        
+                        fcurrent=g_MBHfun2(x(i,:),params.func,lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar,params.arg);
+                        
+                        while fu>=fcurrent&&niter<params.MBHflag
+                            
+                            niter=niter+1;
+                            fprintf('Iter %d\n',niter)
+                            rvlb=x(i,:)-rho(i,1)*Delta;
+                            rvub=x(i,:)+rho(i,1)*Delta;
+                            rvlb=max([rvlb;params.vlb]);
+                            rvub=min([rvub;params.vub]);
+                            
+                            if niter>1
+                                
+                                xtrial(i,:)=x(i,:)+(2*rand-1)*rho(i,1)*Delta;
+                                xtrial(i,:)=max([xtrial(i,:);rvlb]);
+                                xtrial(i,:)=min([xtrial(i,:);rvub]);
+                                
+                            else
+                                
+                                xtrial(i,:) = x(i,:);
+                                
+                            end
+                            
+                            ftrial(i,:)=params.func(xtrial(i,:),params.arg{:});
+                            
+                            xt=xtrial(i,:);
+                            
+                            [u,fu,~,output]=fmincon(@(xt)g_MBHfun2(xt,params.func,lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar,params.arg),xt,[],[],[],[],params.vlb,params.vub,[],foptionsNLP);
+                            nfeval=nfeval+output.funcCount+1;
+                            
+                            if params.optimal_control==0
+                                
+                                xtrial(i,:) = u;
+                                ftrial(i,:) = params.func(u,params.arg{:});
+                                
+                            else
+                                
+                                [ftrial(i,:),xtrial(i,:)] = params.func(u,params.arg{:});
+                                
+                            end
+                            
+                            if any(ftrial(i,:)<f(i,:))                                  % if any component of the new trial is better than the same component of the previous x, we have an improvement!
+                                
+                                discarded.f=[discarded.f; ftrial(i,:)];
+                                discarded.x=[discarded.x; xtrial(i,:)];
+                                discarded.c=[discarded.c; maxC(i)];
+                                vtrial(i,:) = xtrial(i,:)-x(i,:);
+                                
+                                if (all(ftrial(i,:)<=f(i,:))&&(norm(xtrial(i,:)-x(i,:))>0))||(any(i==id_pop_act_subpr)&&g_fun(ftrial(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)<g_fun(f(i,:),lambda(act_subpr(id_pop_act_subpr==i),:),z,zstar)) % if agent performing local search has moved and it's objective function value has improved OR if this agent was selected to solve a sub-problem and it's partial objective function value is better than previous one
+                                    
+                                    impr(i)=1;
+                                    MBH_positions = [MBH_positions; xtrial(i,:)];                    %avoids cascade of fmincon usage, should be done selectively if the improvement was too little for the effort. How do I measure it?
+                                    
+                                    fprintf('Success!!!\n')
+                                    fprintf('Old solution = ');
+                                    
+                                    for j=1:mfit-1
+                                        
+                                        fprintf('%f ',f(i,j)) ;
+                                        
+                                    end
+                                    
+                                    fprintf('%f)\n',f(i,end));
+                                    fprintf('New solution = ');
+                                    
+                                    for j=1:mfit-1
+                                        
+                                        fprintf('%f ',ftrial(i,j)) ;
+                                        
+                                    end
+                                    
+                                    fprintf('%f)\n',ftrial(i,end));
+                                    
+                                    % delays next MBH as much as possible
+                                    rho(i,1)=params.rhoini;
+                                    rho(i,2)=0;
+                                    
+                                end
+                                
+                            else
+                                
+                                fprintf('Fail...\n')
+                                
+                            end
+                            
+                        end
+                        
+                    end
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
                     
                 end
                 
             end
             
         end
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
         
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
     end
     
     %% RADIUS CONTRACTION IF EVERYTHING FAILED, TO NARROW SEARCH AREA
@@ -1499,6 +2044,7 @@ for i=1:n_a                                                                 % fo
     if impr(i)==0                                                          % if nothing worked, contract rho (seems to never kick in!)
         
         if strcmp(params.pat_search_strategy,'MADS')
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
             
             if rho(i,2)<params.max_rho_contr                                   % unless it has contracted 3 times, in that case restart (seems to never kick in...)
                 
@@ -1509,6 +2055,18 @@ for i=1:n_a                                                                 % fo
             
         else
             
+=======
+            
+            if rho(i,2)<params.max_rho_contr                                   % unless it has contracted 3 times, in that case restart (seems to never kick in...)
+                
+                rho(i,1) = rho(i,1)/4;
+                rho(i,2) = rho(i,2)+1;
+                
+            end
+            
+        else
+            
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
             rho(i,1)=rho(i,1)*params.contr_ratio;
             rho(i,2)=rho(i,2)+1;
             
@@ -1536,6 +2094,7 @@ for i=1:n_a                                                                 % fo
                 rho(i,2)=0;
                 
             end
+<<<<<<< HEAD:Optimisation/MACS/explore2.m
             
             
         else
@@ -1543,6 +2102,15 @@ for i=1:n_a                                                                 % fo
             rho(i,1)=rho(i,1)/params.contr_ratio;
             rho(i,2)=rho(i,2)-1;
             
+=======
+            
+            
+        else
+            
+            rho(i,1)=rho(i,1)/params.contr_ratio;
+            rho(i,2)=rho(i,2)-1;
+            
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/explore2.m
             if rho(i,2)<0                                               % unless it has contracted 3 times, in that case restart (seems to never kick in...)
                 
                 rho(i,1)=params.rhoini;

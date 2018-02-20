@@ -11,7 +11,7 @@ Features
 ------
 
   - Matlab project ([Matlab](http://www.mathworks.com/products/matlab/ "Matlab homepage"))
-  - Automatic API documentation (Matlab *publish* function)
+  - Automatic API documentation (Matlab *doc* function)
   
 Requirements
 ------
@@ -59,4 +59,7 @@ Disclaimer
 
 The copyright holders are not liable for any damage(s) incurred due to improper use of `smart-o2c`.
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b

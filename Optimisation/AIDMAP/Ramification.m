@@ -3,7 +3,11 @@ function [ListNodes, GeneratedNodes, agentdeathflag, funccalls] = Ramification(I
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
+<<<<<<< HEAD
 %-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
+=======
+%-----------Copyright (C) 2016 University of Strathclyde-------------
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 %
 %
 %
@@ -69,9 +73,17 @@ indextracker(ismember(temp(:, 1), possdecisions)==0) = NaN;
 % structure has a temporary field to circumvent issues with adding fields to
 % empty structures
 GeneratedNodes = struct('temp', 0);
+<<<<<<< HEAD
 
 % The attempt counter and a tracker for the number of NaNs in the 
 % ListNodes.(currentNode).ChildValidityTracker vector
+=======
+nameslist = cell(1, Inputs.RamificationAmount);
+
+% Initial index for the nameslist variable, the attempt counter and a
+% tracker for the number of NaNs in the ListNodes.(currentNode).ChildValidityTracker vector
+i = 1;
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 attempt = 1;
 nantracker = sum(isnan(indextracker));
 
@@ -133,6 +145,15 @@ while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
     % Add generated node to the structure created earlier.
     GeneratedNodes.(newNode.node_ID) = newNode;
     
+<<<<<<< HEAD
+=======
+    % Add generated node name & cost to matrices for ease of access
+    nameslist{i} = newnode_ID;           
+    
+    % Increase the index for the nameslist struct
+    i = i+1;
+
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 end
 
 % Remove temporary field within the generatednodes stucture
@@ -148,3 +169,9 @@ if Inputs.LowMem == 0
 end
 
 end
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
