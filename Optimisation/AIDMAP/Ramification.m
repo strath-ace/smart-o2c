@@ -69,7 +69,6 @@ indextracker(ismember(temp(:, 1), possdecisions)==0) = NaN;
 % structure has a temporary field to circumvent issues with adding fields to
 % empty structures
 GeneratedNodes = struct('temp', 0);
-<<<<<<< HEAD
 
 % The attempt counter and a tracker for the number of NaNs in the 
 % ListNodes.(currentNode).ChildValidityTracker vector
