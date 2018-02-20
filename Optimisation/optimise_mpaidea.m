@@ -3,11 +3,7 @@ function [x, fval, exitflag, output] = optimise_mpaidea(fitnessfcn, LB, UB, opti
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-<<<<<<< HEAD
 %-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
-=======
-%-----------Copyright (C) 2016 University of Strathclyde-------------
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 %
 %
 %
@@ -69,11 +65,7 @@ function [x, fval, exitflag, output] = optimise_mpaidea(fitnessfcn, LB, UB, opti
 
 
 % Run MP-AIDEA
-<<<<<<< HEAD
 [memories_record, memories, archivebest, archiveALL, population_evolution, vval_evolution,...
-=======
-[memories_record, memories, archivebest, population_evolution, vval_evolution,...
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
     B_mean, delta_local, inite, iglob, options, exitflag] = MP_AIDEA(fitnessfcn, LB, UB, options.population, options);
 
 % Output: minima and minima's objective value
@@ -85,15 +77,10 @@ for i = 1 : size(memories_record,3)
     fval(i) = memories_record(end, end, i);
 end
 
-<<<<<<< HEAD
 output.memories_record      = memories_record;
 output.memories             = memories;
 output.archivebest          = archivebest;
 output.archiveALL           = archiveALL;
-=======
-output.memories             = memories;
-output.archivebest          = archivebest;
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 output.population_evolution = population_evolution;
 output.vval_evolution       = vval_evolution;
 output.B_mean               = B_mean;
@@ -101,8 +88,5 @@ output.delta_local          = delta_local;
 output.number_LR            = inite;
 output.number_GR            = iglob;
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 end

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -6,8 +5,6 @@
 %------ Copyright (C) 2018 University of Strathclyde and Authors ------
 %--------------- e-mail: smart@strath.ac.uk ---------------------------
 %------------------- Authors: SMART developers team -------------------
-=======
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% HOURLY ECONOMIC LOAD DISPATCH (Fitness Function)
 %% Guided by : Dr. B.K.Panigrahi, V.Ravikumar Pandi, IIT Delhi

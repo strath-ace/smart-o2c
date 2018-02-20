@@ -1,25 +1,15 @@
 function [act_subpr,id_pop_act_subpr,pigr,lambda_f_best]=upd_act_subpr(pigr,lambda,lambda_f_best_old,x,f,memories,z,n_agents_subpr,maxs)
-<<<<<<< HEAD:Optimisation/MACS/upd_act_subpr.m
 
-=======
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/upd_act_subpr.m
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-<<<<<<< HEAD:Optimisation/MACS/upd_act_subpr.m
 %------ Copyright (C) 2017 University of Strathclyde and Authors ------
 %--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
 %-------------------- Author: Lorenzo A. Ricciardi --------------------
 %
 % Update subproblems (currently no longer used)
 
-=======
-%-----------Copyright (C) 2016 University of Strathclyde-------------
-%
-%
-%
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/upd_act_subpr.m
 % This function tires to assess which subproblems are improving and selects
 % new promising subproblems to investigate if some older ones are not
 % progressing. It also associates the best candidate agent to solve each

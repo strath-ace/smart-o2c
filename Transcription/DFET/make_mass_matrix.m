@@ -1,13 +1,9 @@
 function M = make_mass_matrix(num_elems,state_order,test_order,num_eqs,PC,DPC,pos,neg,DFET)
-<<<<<<< HEAD:Transcription/DFET/make_mass_matrix.m
 
-=======
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Transcription/DFET/make_mass_matrix.m
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-<<<<<<< HEAD:Transcription/DFET/make_mass_matrix.m
 %------ Copyright (C) 2017 University of Strathclyde and Authors ------
 %--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
 %-------------------- Author: Lorenzo A. Ricciardi --------------------
@@ -18,12 +14,6 @@ function M = make_mass_matrix(num_elems,state_order,test_order,num_eqs,PC,DPC,po
 % available, this operation can be performed exactly, no numerical
 % integration is required
 
-=======
-%-----------Copyright (C) 2016 University of Strathclyde-------------
-%
-%
-%
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Transcription/DFET/make_mass_matrix.m
 % TODO: improve readability by factoring out terms indexing the matrix
 % TODO: make it faster... 4 nested loops scream for vectorisation!
 

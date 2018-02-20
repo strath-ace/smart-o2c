@@ -1,23 +1,12 @@
 function [memories,dd,energy,ener2]=arch_rem(memories,dd,to_delete)
-<<<<<<< HEAD:Optimisation/MACS/arch_rem.m
 
-=======
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/arch_rem.m
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-<<<<<<< HEAD:Optimisation/MACS/arch_rem.m
 %------ Copyright (C) 2017 University of Strathclyde and Authors ------
 %--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
 %-------------------- Author: Lorenzo A. Ricciardi --------------------
-=======
-%-----------Copyright (C) 2016 University of Strathclyde-------------
-%
-%
-%
-% Removes entries from archive, updating distances and energy
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b:Optimisation/MACS/arch_rem.m
 %
 % Removes entries from archive, updating distances and energy
 

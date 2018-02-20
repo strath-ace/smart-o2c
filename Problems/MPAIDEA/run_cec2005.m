@@ -2,11 +2,7 @@
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-<<<<<<< HEAD
 %-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
-=======
-%-----------Copyright (C) 2016 University of Strathclyde-------------
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 %
 %
 %
@@ -14,17 +10,10 @@
 % Example of run of optimisation problem of CEC 2005 using MP-AIDEA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<<<<<< HEAD
 clear 
 close all
 clc
 global nFeVal
-=======
-clear all
-close all
-clc
-
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 % Add path to optimiser folder
 if isunix
     addpath(genpath('../../Optimisation'))
@@ -84,11 +73,7 @@ options.rho = 0.2;
 % only one population is considered and no adaptation of delta_local and
 % local/global restart is performed)
 % -------------------------------------------------------------------------
-<<<<<<< HEAD
 options.max_LR =[];
-=======
-options.max_LR = [];
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 % options.max_LR = 5;
 
 % -------------------------------------------------------------------------
@@ -116,27 +101,17 @@ options.prob_DE_strategy = 0.5;
 % Parameter for the adaptation of CR and F
 % -------------------------------------------------------------------------
 % Value of CR (if empty, MP-AIDEA-ALR adapt will adapt it during the process)
-<<<<<<< HEAD
 % options.CR = 0.5;
 options.CR = [];
 
 % Value of F (if empty, MP-AIDEA will adapt it during the process)
 % options.F = 0.5;
 options.F = [];
-=======
-options.CR = 0.5;
-% options.CR = [];
-
-% Value of F (if empty, MP-AIDEA will adapt it during the process)
-options.F = 0.5;
-% options.F = [];
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 
 % If options.CR and options.F are empty, define CRF for adaptation of CR
 % and F:
 options.dd_CRF = 3;
 
-<<<<<<< HEAD
 % -------------------------------------------------------------------------
 % Warm start?
 % Provide populations for warm start. The number of populations and number
@@ -147,15 +122,12 @@ options.warm_start = 0;
 % Prefix of the names of the file containing the population
 name_warm_start = 'pop_GR_';
 
-=======
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 
 % -------------------------------------------------------------------------
 % Display text during run?
 % -------------------------------------------------------------------------
 options.text = 1;
 
-<<<<<<< HEAD
 % -------------------------------------------------------------------------
 % Display plot during run?
 % -------------------------------------------------------------------------
@@ -196,10 +168,6 @@ options.save_pop_GR = 1;
 % If yes, choose prefix of name for files:
 name_save_pop_GR = 'pop_GR_';
 
-=======
-
-
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 %% Lower and upper boundaries of the search space
 
 % The lower and upper boundaries of the search space depend on the given problem
@@ -242,7 +210,6 @@ nFeValMax = 10000 * D;
 
 %% MP-AIDEA inputs
 
-<<<<<<< HEAD
 % -------------------------------------------------------------------------
 % Format for files
 % -------------------------------------------------------------------------
@@ -300,16 +267,12 @@ end
 % -------------------------------------------------------------------------
 % Maximum number of function evaluations
 % -------------------------------------------------------------------------
-=======
-% Maximum number of function evaluations
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 options.nFeValMax = nFeValMax;
 
 % Solutions are saved not only when nFeValMax has been reached but also at
 % fraction of nFeValMax. Define this fraction in options.record:
 options.record = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 
-<<<<<<< HEAD
 % -------------------------------------------------------------------------
 % Populations
 % -------------------------------------------------------------------------
@@ -333,38 +296,22 @@ else
     
 end
 
-=======
-% Initialise populations
-population = zeros(NP,D,pop_number);
-
-for s = 1 : pop_number
-    pop = lhsdesign(NP,D,'criterion','maximin').*repmat(UB-LB,NP,1)+repmat(LB,NP,1);
-    population(:,:,s) = pop;
-end
-
-
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 options.population = population;
 
 
 %% Optimisation
 
 % Function to optimise
-<<<<<<< HEAD
 fitnessfcn.obj = @(x)benchmark_func(x,func_num);
 fitnessfcn.constr = [] ;
 fitnessfcn.obj_constr = 0;
 fitnessfcn.weighted = 0;
-=======
-fitnessfcn = @(x)benchmark_func(x,func_num);
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 
 % MP-AIDEA optimisation
 [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
 
 
 
-<<<<<<< HEAD
 %% Close file opened for writing 
 
 if options.save_pop_DE
@@ -387,6 +334,4 @@ if options.save_pop_GR
         fclose(options.fileID4(s));
     end
 end
-=======
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
 
