@@ -133,18 +133,6 @@ while (length(fields(GeneratedNodes)) <= Inputs.RamificationAmount)
     % Add generated node to the structure created earlier.
     GeneratedNodes.(newNode.node_ID) = newNode;
     
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-    % Add generated node name & cost to matrices for ease of access
-    nameslist{i} = newnode_ID;           
-    
-    % Increase the index for the nameslist struct
-    i = i+1;
-
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
->>>>>>> 56eeb4b328a0319b2f58a2e2413248a83fcc168b
 end
 
 % Remove temporary field within the generatednodes stucture
@@ -160,12 +148,5 @@ if Inputs.LowMem == 0
 end
 
 end
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
 
 
-
->>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
->>>>>>> 56eeb4b328a0319b2f58a2e2413248a83fcc168b
