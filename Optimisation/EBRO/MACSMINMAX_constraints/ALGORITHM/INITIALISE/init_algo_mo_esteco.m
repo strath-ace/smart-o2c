@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [algo_minmax, algo_outer, algo_inner] = init_algo_mo_esteco(minmax_problem);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,6 +49,21 @@ end
 for obj = 1:minmax_problem.n_obj
     algo_inner{obj}.par.nFeValMax = nfevalmax_inner(1,obj);
     algo_inner{obj}.par.n_agents = population_inner(1,obj);
+    
+%------------------------------------------------------------------------------------------------------------------------------------------------
+algo_inner{obj}.par.plots = 0;                                  % Display plots during run?
+algo_inner{obj}.par.text = 0;                                   % Display text during run?
+algo_inner{obj}.par.save_pop_DE = 0;                            % Save results of DE to file?
+algo_inner{obj}.par.name_save_pop_DE = 'pop_DE_';               % If yes, choose prefix of name for files:
+algo_inner{obj}.par.save_local_search = 0;                      % Save results of local search to file?
+algo_inner{obj}.par.name_save_local_search = 'minima_fmincon_'; % If yes, choose prefix for name for file:
+algo_inner{obj}.par.save_pop_LR = 0;                            % Save populations at local restart (each one saved on a different file)?
+name_save_pop_LR = 'pop_LR_';                           % If yes, choose prefix of name for files:
+algo_inner{obj}.par.save_pop_GR = 0;                            % Save populations at global restart (each one saved on a different file)?
+name_save_pop_GR = 'pop_GR_';                           % If yes, choose prefix of name for files:
+%------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 end
 
 if (size(local_search_inner) == [1 1])
@@ -84,5 +106,19 @@ end
 if (~algo_outer.par_au.use && ~algo_outer.par_sa.use)
     error('no minimisation at all in outer loop; you probably set bot nfevalmax_outer and ratio_surrogate_assist to zero')
 end
+
+
+%------------------------------------------------------------------------------------------------------------------------------------------------
+algo_outer.par_au.plots = 0;                                  % Display plots during run?
+algo_outer.par_au.text = 0;                                   % Display text during run?
+algo_outer.par_au.save_pop_DE = 0;                            % Save results of DE to file?
+algo_outer.par_au.name_save_pop_DE = 'pop_DE_';               % If yes, choose prefix of name for files:
+algo_outer.par_au.save_local_search = 0;                      % Save results of local search to file?
+algo_outer.par_au.name_save_local_search = 'minima_fmincon_'; % If yes, choose prefix for name for file:
+algo_outer.par_au.save_pop_LR = 0;                            % Save populations at local restart (each one saved on a different file)?
+name_save_pop_LR = 'pop_LR_';                           % If yes, choose prefix of name for files:
+algo_outer.par_au.save_pop_GR = 0;                            % Save populations at global restart (each one saved on a different file)?
+name_save_pop_GR = 'pop_GR_';                           % If yes, choose prefix of name for files:
+%------------------------------------------------------------------------------------------------------------------------------------------------
 
 return

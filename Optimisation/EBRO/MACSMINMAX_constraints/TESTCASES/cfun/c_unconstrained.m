@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [Cud,Cd,Cu,CEQud,CEQd,CEQu] = c_unconstrained(x_u,x_d,l,func,vub_d,vlb_d,bin,bout,id_par,n,par,flag)
 
 % Inequality and equality constraints. Constraint functions can be

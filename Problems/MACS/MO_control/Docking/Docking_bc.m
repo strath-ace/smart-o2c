@@ -7,7 +7,7 @@ function val = Docking_bc(x0,u0,t0,xf,uf,tf,x,u,time,static,scales,constants)
 %------ Copyright (C) 2017 University of Strathclyde and Authors ------
 %--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
 %-------------------- Author: Lorenzo A. Ricciardi --------------------
-%----Copyright (C) 2016 University of Strathclyde-------------
+%----Copyright (C) 2018 University of Strathclyde and Authors-----------
 
 % states:   x(1) = r
 %           x(2) = vr

@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [ x, fval, exitflag, output ] = optimise_constraint(problem,par)
 % Maximisation of the constraint in the uncertain space.
 % 
@@ -81,6 +88,6 @@ output.B_mean               = B_mean;
 output.delta_local          = delta_local;
 output.number_LR            = inite;
 output.number_GR            = iglob;
-output.nfeval               = options.nFeValMax;
+output.nfeval               = par.nFeValMax;
 
 return

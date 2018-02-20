@@ -1,4 +1,14 @@
-function [f,u,nfeval,all_f] = u_validation_constraints(problem_fix_d,d_record,u_record,local_search_flag,objectives)
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
+function [f,u,nfeval,all_f, violation] = u_validation_constraints(problem_fix_d,d_record,u_record,local_search_flag,objectives)
+
+violation   = [];
+violation_C = [];
 
 minmaxsign = problem_fix_d.par_objfun.sign;
 archsize = size(d_record, 1);
@@ -45,7 +55,7 @@ for idx_d = 1:archsize
                 u_du = u_0;
                 [f_du] = func (u_du, problem_fix_d.par_objfun);
                 
-                %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                %----------------------------------------------------------
                 % CONSTRAINTS
                 if ~isempty(problem_fix_d.fitnessfcn.constr)                 % problem_fix_d.par_objfun.constraints_flag  == 1
                     
@@ -71,10 +81,13 @@ for idx_d = 1:archsize
 %                         % c = output.constrviolation;
 %                         nfeval = nfeval + output.funcCount;
                         %%%%%%%%
-                        f_du = abs(f_d) + 1;
+%                         f_du = abs(f_d) + 1;
+                        violation_C(idx_d, idx_u) = constraint;
+                    else
+                        violation_C(idx_d, idx_u) = 0;
                     end
                 end
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                %----------------------------------------------------------
                 
                 
                 nfeval = nfeval + 1;
@@ -91,5 +104,12 @@ for idx_d = 1:archsize
         u{obj}(idx_d,:) = u_d;
     end
 end
+
+if ~isempty(problem_fix_d.fitnessfcn.constr) 
+    violation = max(max(violation_C));
+else
+    violation = 0;
+end
+
 
 return

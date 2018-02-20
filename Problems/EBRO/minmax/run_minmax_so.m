@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Example of run of a min-max problem using MP_AIDEA in a single objective
 % optimisation
@@ -80,8 +87,8 @@ problem.objfun =     {@TC_1};
 %--------------------------------------------------------------------------
 % Constraints
 %--------------------------------------------------------------------------
-problem.constraints = {[]}; 
-% problem.constraints = {@TC_1_constraints};
+% problem.constraints = {[]}; 
+problem.constraints = {@TC_1_constraints};
 
 
 
@@ -146,7 +153,7 @@ algo_inner.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation for the inner loop
 %--------------------------------------------------------------------------
-    par_mpaidea.nFeValMax = 5000;  
+    par_mpaidea.nFeValMax = 1000;  
     
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1
@@ -213,12 +220,12 @@ algo_outer.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation for the outer loop
 %--------------------------------------------------------------------------
-    par_mpaidea.nFeValMax = 5000;     
+    par_mpaidea.nFeValMax = 1000;     
         
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1
 %--------------------------------------------------------------------------       
-    par_mpaidea.n_populations = 4;   
+    par_mpaidea.n_populations = 1;   
         
 %--------------------------------------------------------------------------    
 % number of agents in one population

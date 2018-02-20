@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [ x, fval, exitflag, output ] = optimise_mpaidea_wrapper(problem,par)
 
 if (isfield(par,'initial_population') && ~isempty(par.initial_population))
@@ -17,27 +24,16 @@ end
 
 
 
-% %% objective and constraints are defined in different functions
-% 
-% % Function to optimise
-% fitnessfcn.obj       = problem.objfun;
-% % Function of constraints
-% fitnessfcn.constr    = problem.par_objfun.mask_constraints;
-% % Flag to 0: objective and constraints are NOT in the same function
-% fitnessfcn.obj_constr = 0;
-% % Weights for penalty
-% fitnessfcn.w_ceq = 100;
-% fitnessfcn.w_c = 100;
 
 fitnessfcn = problem.fitnessfcn;
 
-% MP-AIDEA optimisation
-% [x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, problem.lb, problem.ub, options);
-%%
+
 
 % Run MP-AIDEA
 [memories_record, memories, archivebest, archiveALL, population_evolution, vval_evolution,...
     B_mean, delta_local, inite, iglob, options, exitflag] = MP_AIDEA(fitnessfcn, problem.lb, problem.ub, initial_population, par, problem.par_objfun);
+
+
 
 % Output: minima and minima's objective value
 x    = zeros(size(memories_record,3), problem.dim);

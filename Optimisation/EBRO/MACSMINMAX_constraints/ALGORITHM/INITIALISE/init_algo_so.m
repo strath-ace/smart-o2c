@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [algo_minmax, algo_outer, algo_inner] = init_algo_so(minmax_problem)
 
 %% META ALGORITHM: MACSMINMAX
@@ -21,11 +28,11 @@ algo_minmax.par_minmax = par_minmax;
 if (minmax_problem.n_obj == 1)
     %% ALGORITHM OUTER LOOP: MPAIDEA
     algo_outer.optimise = @optimise_mpaidea_wrapper;          % algorithm in the form [x,f,exitflag,output] = algo(problem,par_algo)
-        par_mpaidea.nFeValMax = 5000;%1000*minmax_problem.dim_d;     % number of function evaluations for IDEA     100;%
-                    par_mpaidea.n_populations = 4;                        % number of populations, if no adaptive behaviour should set to 1
+        par_mpaidea.nFeValMax = 100*minmax_problem.dim_d;     % number of function evaluations for IDEA     100;%
+        par_mpaidea.n_populations = 1;                        % number of populations, if no adaptive behaviour should set to 1
         par_mpaidea.n_agents = max(5,minmax_problem.dim_d);   % number of agents in one population
         par_mpaidea.population=[];                            % initial population, same for all execution. Leave empty to randomize.
-                    par_mpaidea.max_LR = [];                             % max.number of local restarts
+        par_mpaidea.max_LR = 10;                              % max.number of local restarts
         par_mpaidea.DE_strategy = 1;                          % 1: DE/Rand and DE/CurrentToBest; 2: DE/Rand and DE/Best
         par_mpaidea.prob_DE_strategy = 0.5;                   % probability or not using DE/Rand
         par_mpaidea.delta_local = 0.1;                        % dimension of the bubble for the local restart of population.
@@ -34,9 +41,22 @@ if (minmax_problem.n_obj == 1)
         par_mpaidea.dd_CRF = 3;                               % parameter for the adaptation of CRF.
         par_mpaidea.F = 0.2;                                  % F
         par_mpaidea.CR = 0.8;                                 % CR
-                    par_mpaidea.text = 0;                                 % verbosity
+        par_mpaidea.text = 0;                                 % verbosity
         par_mpaidea.record = [1];                             % Fraction(s) of nfevalmax at which the result is saved
-    algo_outer.par = par_mpaidea;
+        
+        %--------------------
+        par_mpaidea.plots = 0;                                  % Display plots during run?
+        par_mpaidea.text = 0;                                   % Display text during run?
+        par_mpaidea.save_pop_DE = 0;                            % Save results of DE to file?
+        par_mpaidea.name_save_pop_DE = 'pop_DE_';               % If yes, choose prefix of name for files:
+        par_mpaidea.save_local_search = 0;                      % Save results of local search to file?
+        par_mpaidea.name_save_local_search = 'minima_fmincon_'; % If yes, choose prefix for name for file:
+        par_mpaidea.save_pop_LR = 0;                            % Save populations at local restart (each one saved on a different file)?
+        name_save_pop_LR = 'pop_LR_';                           % If yes, choose prefix of name for files:
+        par_mpaidea.save_pop_GR = 0;                            % Save populations at global restart (each one saved on a different file)?
+        name_save_pop_GR = 'pop_GR_';                           % If yes, choose prefix of name for files:
+        %---------------------
+  algo_outer.par = par_mpaidea;
 
 
     % %% ALGORITHM OUTER LOOP: IDEA2
@@ -79,10 +99,10 @@ end
 %% ALGORITHM INNER LOOP: MPAIDEA
 algo_inner.optimise = @optimise_mpaidea_wrapper;          % algorithm in the form [x,f,exitflag,output] = algo(problem,par_algo)
     par_mpaidea.nFeValMax = 5000;%100*minmax_problem.dim_u;     % number of function evaluations for IDEA    100;%
-                    par_mpaidea.n_populations = 4;                        % number of populations, if no adaptive behaviour should set to 1
+    par_mpaidea.n_populations = 1;                        % number of populations, if no adaptive behaviour should set to 1
     par_mpaidea.n_agents = max(5,minmax_problem.dim_u);   % number of agents in one population
     par_mpaidea.population=[];                            % initial population, same for all execution. Leave empty to randomize.
-                    par_mpaidea.max_LR = [];                             % max.number of local restarts
+    par_mpaidea.max_LR = 10;                             % max.number of local restarts
     par_mpaidea.DE_strategy = 1;                          % 1: DE/Rand and DE/CurrentToBest; 2: DE/Rand and DE/Best
     par_mpaidea.prob_DE_strategy = 0.5;                   % probability or not using DE/Rand
     par_mpaidea.delta_local = 0.1;                        % dimension of the bubble for the local restart of population.
@@ -93,6 +113,18 @@ algo_inner.optimise = @optimise_mpaidea_wrapper;          % algorithm in the for
     par_mpaidea.CR = 0.8;                                 % CR
     par_mpaidea.text = 0;                                 % verbosity
     par_mpaidea.record = [1];                             % Fraction(s) of nfevalmax at which the result is saved
+    
+    par_mpaidea.plots = 0;                                  % Display plots during run?
+    par_mpaidea.text = 0;                                   % Display text during run?
+    par_mpaidea.save_pop_DE = 0;                            % Save results of DE to file?
+    par_mpaidea.name_save_pop_DE = 'pop_DE_';               % If yes, choose prefix of name for files:
+    par_mpaidea.save_local_search = 0;                      % Save results of local search to file?
+    par_mpaidea.name_save_local_search = 'minima_fmincon_'; % If yes, choose prefix for name for file:
+    par_mpaidea.save_pop_LR = 0;                            % Save populations at local restart (each one saved on a different file)?
+    name_save_pop_LR = 'pop_LR_';                           % If yes, choose prefix of name for files:
+    par_mpaidea.save_pop_GR = 0;                            % Save populations at global restart (each one saved on a different file)?
+    name_save_pop_GR = 'pop_GR_';                           % If yes, choose prefix of name for files:
+    
 algo_inner.par = par_mpaidea;
 
 

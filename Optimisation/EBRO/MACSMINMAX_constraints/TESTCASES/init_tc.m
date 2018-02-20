@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [problem_minmax] = init_tc(varargin)
 
 if (nargin == 0)
@@ -17,6 +24,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv1,@mv3};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -43,6 +51,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv2,@mv8};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -69,6 +78,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv2,@em1};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -95,6 +105,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv8,@mv9};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -121,6 +132,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv8,@em1};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -147,6 +159,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 2;
         problem_minmax.objfun = {@mv10,@mv9};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct};
 
         % design variables
@@ -173,6 +186,7 @@ switch (id)
         % objectives
         problem_minmax.n_obj = 3;
         problem_minmax.objfun = {@mv2,@mv8,@em1};            %each function is in the form [f_i] = objfun(i)(d,u,par)
+        problem_minmax.constraints = {[]};        
         problem_minmax.par_objfun = {struct,struct,struct};
 
         % design variables
