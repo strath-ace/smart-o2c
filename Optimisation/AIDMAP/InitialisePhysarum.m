@@ -63,7 +63,15 @@ InitialisedInputs = struct(...
                 'GraphPlotFileName',                  char(options.GraphPlotFileName), ...      % Name of the file that the graph plot animation will be saved as
                 'GenerateTreePlot',                   options.GenerateTreePlot, ...             % Indicator as to whether the algorithm should generate a tree plot
                 'SaveHistory',                        options.SaveHistory, ...                  % Indicator as to whether the algorithm should save the history of the radius of each vein and the path of each agent throughout the simulation
+<<<<<<< HEAD
                 'LowMem',                             options.LowMem ...                        % Indicator as to whether the algorithm should use the low-memory version of the searching for new nodes, where 1 is defined as "yes"
+=======
+<<<<<<< HEAD
+                'LowMem',                             options.LowMem ...                        % Indicator as to whether the algorithm should use the low-memory version of the searching for new nodes, where 1 is defined as "yes"
+=======
+                'LowMem',                             options.LowMem ...                        % Indicator as to whether the algorithm should use the low-memory version of searchin for new nodes, where 1 is defined as "yes". Using the low-memory version is slower, but requires less memory. 
+>>>>>>> 5b7361d93c9119cf1d2e9e6c885bed93f924d71b
+>>>>>>> 56eeb4b328a0319b2f58a2e2413248a83fcc168b
             );
         
       
