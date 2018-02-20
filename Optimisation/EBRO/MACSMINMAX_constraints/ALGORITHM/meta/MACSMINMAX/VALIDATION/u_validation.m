@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [f,u,nfeval,all_f] = u_validation(problem_fix_d,d_record,u_record,local_search_flag,objectives)
 
 minmaxsign = problem_fix_d.par_objfun.sign;
@@ -36,30 +43,30 @@ for idx_d = 1:archsize
                 ub_local(ub_local > 1) = 1;
                 options = optimset('Display','none','MaxFunEvals',50*problem_fix_d.dim,'TolFun',1e-8,...%'LargeScale','off',...
                     'Algorithm','sqp'); % add a converged stop condition. in the original there was one but wrongly implemented
-                
-                %% %%%%%%%%%%%%%%%%%%%%%%%%%
-                % CONSTRAINT
-                [constraint] = feval(problem_fix_d.par_objfun.mask_constraints, u_du, problem_fix_d.par_objfun);
-                %% %%%%%%%%%%%%%%%%%%%%%%%%%
-                
-                % do local search only if the constraint is not
-                % violated in u_0
-                if constraint < 0
-                    [u_du,f_du,~,output] = fmincon(func,u_0,[],[],[],[],lb_local,ub_local,[],options,problem_fix_d.par_objfun); %unconstrained
-                end
-                
+                %----------------------------------------------------------
+%                 if ~isempty(problem_fix_d.fitnessfcn.constr)                    
+%                     % CONSTRAINT
+%                     [constraint] = feval(problem_fix_d.par_objfun.mask_constraints, u_du, problem_fix_d.par_objfun);
+%                 end  
+                %--------------------------------------------------------------    
+                [u_du,f_du,~,output] = fmincon(func,u_0,[],[],[],[],lb_local,ub_local,[],options,problem_fix_d.par_objfun); %unconstrained
+                    
                 % c = output.constrviolation;
                 nfeval = nfeval + output.funcCount;
+
+                    
+                
+                
             else
                 u_du = u_0;
                 [f_du] = func(u_du, problem_fix_d.par_objfun);
                 
-                %% %%%%%%%%%%%%%%%%%%%
+                %----------------------------------------------------------
                 % CONSTRAINTS
                 if ~isempty(problem_fix_d.fitnessfcn.constr)
                     [constraint] = feval(problem_fix_d.par_objfun.mask_constraints, u_du, problem_fix_d.par_objfun);
                 end
-                %%%%%%%%%%%%%%%%%%%%%%  
+                %----------------------------------------------------------
                 nfeval = nfeval + 1;
             end
             
@@ -70,21 +77,20 @@ for idx_d = 1:archsize
                 f_d = f_du;
                 u_d = u_du;
             end
-
-            %% %%%%%%%%%%%%%%%%%%%%%%%%
+            
+            %--------------------------------------------------------------
             % CONSTRAINT
             %
             % if the constraint is violated
-            % f_du - constraint ?
             if ~isempty(problem_fix_d.fitnessfcn.constr)
-%                 if constraint > 0 && (f_du - constraint < f_d)
+                %                 if constraint > 0 && (f_du - constraint < f_d)
                 if constraint > 0 && - constraint < f_du
-
+                    
                     f_d = -constraint;
                     u_d = u_du;
                 end
             end
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %--------------------------------------------------------------
             
             if (nargout > 3)
                 all_f{obj}(idx_d,idx_u) = -minmaxsign*f_du;

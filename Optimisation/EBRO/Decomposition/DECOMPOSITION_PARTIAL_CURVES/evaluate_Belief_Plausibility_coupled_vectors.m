@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [decomposition, Partial_curve] = evaluate_Belief_Plausibility_coupled_vectors(in, problem_decomposition, minmax, minmin, n_obj, n_point, algo_decomposition)
 
 % PARTIAL CURVES (EXCHANGE VARIABLES)
@@ -83,37 +90,37 @@ for i = in.num_functions +1 : length(in.dim_u_i)           % do maximization (an
 end
 
 
-% plot of the partial curves
-for i = in.num_functions +1 : length(in.dim_u_i)
-
-    hold on
-    if in.dim_u_i(i)>0
-        
-        if in.output == 0
-            Bel_start = Partial_curve{i - in.num_functions}.Belief_FE_function(1);
-            stairs([Bel_start; Partial_curve{i - in.num_functions}.Belief_FE_function], [0 Partial_curve{i - in.num_functions}.Belief_FE_belief_partial],'b','linewidth',1)
-            xlabel('F')
-            ylabel('partial Belief')
-            title('Exchange variables (decomposition approach)')
-        elseif in.output == 1
-            Pl_start = Partial_curve{i - in.num_functions}.Plausibility_FE_function(1);
-            stairs([Pl_start; Partial_curve{i - in.num_functions}.Plausibility_FE_function], [0 Partial_curve{i - in.num_functions}.Plausibility_FE_plausibility_partial],'r', 'linewidth',1)
-            xlabel('F')
-            ylabel('partial Plausibility')
-            title('Exchange variables (decomposition approach)')
-        elseif in.output == 2
-            Bel_start = Partial_curve{i - in.num_functions}.Belief_FE_function(1);
-            Pl_start = Partial_curve{i - in.num_functions}.Plausibility_FE_function(1);
-            stairs([Bel_start; Partial_curve{i - in.num_functions}.Belief_FE_function], [0 Partial_curve{i - in.num_functions}.Belief_FE_belief_partial],'b', 'linewidth',1)
-            hold on
-            stairs([Pl_start; Partial_curve{i - in.num_functions}.Plausibility_FE_function], [0 Partial_curve{i - in.num_functions}.Plausibility_FE_plausibility_partial],'r', 'linewidth',1)
-            xlabel('F')
-            ylabel('partial Belief & Plausibility')
-            title('Exchange variables (decomposition approach)')
-        end
-        
-    end
-    
-end
+% % plot of the partial curves
+% for i = in.num_functions +1 : length(in.dim_u_i)
+% 
+%     hold on
+%     if in.dim_u_i(i)>0
+%         
+%         if in.output == 0
+%             Bel_start = Partial_curve{i - in.num_functions}.Belief_FE_function(1);
+%             stairs([Bel_start; Partial_curve{i - in.num_functions}.Belief_FE_function], [0 Partial_curve{i - in.num_functions}.Belief_FE_belief_partial],'b','linewidth',1)
+%             xlabel('F')
+%             ylabel('partial Belief')
+%             title('Exchange variables (decomposition approach)')
+%         elseif in.output == 1
+%             Pl_start = Partial_curve{i - in.num_functions}.Plausibility_FE_function(1);
+%             stairs([Pl_start; Partial_curve{i - in.num_functions}.Plausibility_FE_function], [0 Partial_curve{i - in.num_functions}.Plausibility_FE_plausibility_partial],'r', 'linewidth',1)
+%             xlabel('F')
+%             ylabel('partial Plausibility')
+%             title('Exchange variables (decomposition approach)')
+%         elseif in.output == 2
+%             Bel_start = Partial_curve{i - in.num_functions}.Belief_FE_function(1);
+%             Pl_start = Partial_curve{i - in.num_functions}.Plausibility_FE_function(1);
+%             stairs([Bel_start; Partial_curve{i - in.num_functions}.Belief_FE_function], [0 Partial_curve{i - in.num_functions}.Belief_FE_belief_partial],'b', 'linewidth',1)
+%             hold on
+%             stairs([Pl_start; Partial_curve{i - in.num_functions}.Plausibility_FE_function], [0 Partial_curve{i - in.num_functions}.Plausibility_FE_plausibility_partial],'r', 'linewidth',1)
+%             xlabel('F')
+%             ylabel('partial Belief & Plausibility')
+%             title('Exchange variables (decomposition approach)')
+%         end
+%         
+%     end
+%     
+% end
 
 end

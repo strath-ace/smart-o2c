@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [f,g,h] = CEC2017(x,I_fno)
 
 % CEC2017 Constrained Optimization Test Suite 

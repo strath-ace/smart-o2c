@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 function [decomposition_end] = evaluate_max_min_FE_decoupled(num_function, num_FE, in, position_FE, decomposition_end, algo_inner, problem_inner, num_sample, u_max_tot, u_max_tot_Plausibility)
 
 

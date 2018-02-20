@@ -1,3 +1,10 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%------ Copyright (C) 2018 University of Strathclyde and Authors ------
+%--------------- e-mail: smart@strath.ac.uk ---------------------------
+%------------------- Authors: SMART developers team -------------------
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Example of run of ebro problem 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,7 +38,7 @@ addpath(genpath('Optimisation'))
 % problem.output = 1 --> only minmin-Plausibility
 % problem.output = 2 --> both minmax-Belief and minmin-Plaiusibility
 % -------------------------------------------------------------------------
-problem.output = 1;
+problem.output = 0;
 
 
 % -------------------------------------------------------------------------
@@ -39,7 +46,7 @@ problem.output = 1;
 % problem.input = 1 --> load d, u_min, u_max
 % problem.input = 2 --> load d, run max and min
 % -------------------------------------------------------------------------
-problem.input = 1;
+problem.input = 0;
 
 
 % -------------------------------------------------------------------------
@@ -77,7 +84,7 @@ num_functions = 2;  % number of sub-functions in which the problem is decomposed
 
 
 % number of samples
-num_samples = 1;    % number of samples for each Belief and Plausibility curve of coupled vector
+num_samples = 5;    % number of samples for each Belief and Plausibility curve of coupled vector
 
 
 problem.num_functions = num_functions;
@@ -95,9 +102,9 @@ end
 problem.dim_u = [2 2 2]; % [u1, u2, u12]
 
 % 7) bounds of uncertain vector u;
-problem.lb_u{1} = {[-5 -3 1]; [-5 -3 1];...
-    [-5 -3 1]; [-5 -3 1];...
-    [-5 -3 1]; [-5 -3 1]};
+problem.lb_u{1} = {[-5 -3 0]; [-5 -3 0];...
+    [-5 -3 0]; [-5 -3 0];...
+    [-5 -3 0]; [-5 -3 0]};
 
 problem.ub_u{1} = {[-1 0 2]; [-1 0 2];...
     [-1 0 2]; [-1 0 2];...
@@ -143,8 +150,8 @@ problem.objfun =     {@TC_1};
 %--------------------------------------------------------------------------
 % Constraints
 %--------------------------------------------------------------------------
-problem.constraints = {[]}; 
-% problem.constraints = {@TC_1_constraints};
+% problem.constraints = {[]}; 
+problem.constraints = {@TC_1_constraints};
 
 
 
@@ -178,7 +185,7 @@ algo_minmax.optimise = @optimise_so;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation  
 %--------------------------------------------------------------------------
-    par_minmax.maxnfeval = 1e4;   
+    par_minmax.maxnfeval = 1e5;   
 
 %--------------------------------------------------------------------------
 % number of initial design vectors
@@ -208,7 +215,7 @@ algo_inner.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation for the inner loop
 %--------------------------------------------------------------------------
-    par_mpaidea.nFeValMax = 5000;  
+    par_mpaidea.nFeValMax = 1000;  
     
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1
@@ -268,12 +275,12 @@ algo_outer.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation for the outer loop
 %--------------------------------------------------------------------------
-    par_mpaidea.nFeValMax = 5000;     
+    par_mpaidea.nFeValMax = 1000;     
         
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1
 %--------------------------------------------------------------------------       
-    par_mpaidea.n_populations = 4;   
+    par_mpaidea.n_populations = 1;   
         
 %--------------------------------------------------------------------------    
 % number of agents in one population
@@ -328,7 +335,7 @@ algo_decomposition.optimise = @optimise_mpaidea_wrapper;
 %--------------------------------------------------------------------------
 % maximum number of function evaluation for the inner loop
 %--------------------------------------------------------------------------
-    par_mpaidea.nFeValMax = 500;  
+    par_mpaidea.nFeValMax = 1000;  
     
 %--------------------------------------------------------------------------    
 % number of populations, if no adaptive behaviour should set to 1
