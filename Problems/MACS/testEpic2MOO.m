@@ -11,6 +11,8 @@ clc
 
 sigma=0;
 
+addpath(genpath('.'))
+
 test_function = 'UF1';
 func=@(name)cec09(name);
 
