@@ -1,12 +1,15 @@
 function [id_point,id_agent_out,vals] = associate_agents_positions (g_vals,id_agent_in)
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
+%------ Copyright (C) 2017 University of Strathclyde and Authors ------
+%--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
+%-------------------- Author: Lorenzo A. Ricciardi --------------------
 %
-%
-%
+% Given a set of solutions and a set of agents, associates each agent with
+% its closest solution
 
 n_iter = min(size(g_vals));
 gtmp_star = g_vals;

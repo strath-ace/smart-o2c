@@ -1,12 +1,15 @@
 function [x,u,xb] = extract_solution(x_sol,structure,xf)
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
+%------ Copyright (C) 2017 University of Strathclyde and Authors ------
+%--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
+%-------------------- Author: Lorenzo A. Ricciardi --------------------
 %
-%
-%
+% Reshapes solution vector into a state vector, a control vector, 
+% and a boundary values vector 
 
 x = zeros((structure.state_order+1)*structure.num_eqs,structure.num_elems);    %coefficients of the polynomials, elementwise
 u = zeros((structure.control_order+1)*structure.num_controls,structure.num_elems);     %coefficients of the controls, elementwise
@@ -19,6 +22,7 @@ for i = 1:structure.num_elems
     x(:,i) = x_sol(startx:endx);
 
     startx = endx+1*(structure.num_controls>0);
+    
     endx = startx+(structure.control_order+1)*structure.num_controls-1*(structure.num_controls>0);
     
     % ugly, but apparently no empty to empty assignment can be done
@@ -35,6 +39,8 @@ end
 if structure.DFET==1
     
     count = 0;
+    
+    xb = zeros(size(xf));
     
     for i = 1:structure.num_eqs
 

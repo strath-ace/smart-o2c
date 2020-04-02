@@ -1,15 +1,16 @@
 function [memories,dd,energy,ener2,mins,maxs]=arch_shrk6(memories,dd,candidates,energy,ener2,mins,maxs,lx,mfit,max_arch)
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
-%
-%
+%------ Copyright (C) 2017 University of Strathclyde and Authors ------
+%--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
+%-------------------- Author: Lorenzo A. Ricciardi --------------------
 %
 % Archive shrinking to max allowed size, with optimal disposition of agents
 % and normalisation of objective space
-%
+
 % memories=arch_shrk6(memories,dd,candidates,energy,lx,mfit,archsize,max_arch)
 %
 % INPUT
@@ -74,10 +75,10 @@ delta = delta.*(delta~=zeros(size(delta)))+ones(size(delta)).*(delta==zeros(size
 if qty_to_add == candsize                                                   % all candidates will be archived, no selection performed, only update of energy and distance matrix
     
     f = candidates(:,lx+1:lx+mfit);                                         % objective values of candidates
-    
-    if ~all(size(f)==size(repmat(mins,size(f,1),1)))
-        keyboard
-    end
+%     
+%     if ~all(size(f)==size(repmat(mins,size(f,1),1)))
+%         keyboard
+%     end
     
     f = f-repmat(mins,size(f,1),1);                                         % normalisation of candidates
     f = f./repmat(delta,size(f,1),1);
@@ -275,15 +276,5 @@ if (qty_to_add < candsize)                                                  % no
     
     
 end
-
-% for m= 1:mfit
-%     
-%     if min(candidates(:,lx+m))<min(memories(:,lx+m))
-%         
-%         keyboard
-%         
-%     end
-%     
-% end
 
 end

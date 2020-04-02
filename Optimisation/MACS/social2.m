@@ -1,12 +1,15 @@
 function [xsamp,fsamp,maxC,nfeval]=social2(x,f,memories,x_DE,cid,nfeval,energy,ener2,params)
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
+%------ Copyright (C) 2017 University of Strathclyde and Authors ------
+%--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
+%-------------------- Author: Lorenzo A. Ricciardi --------------------
 %
-%
-%
+% Social moves
+
 % [xsamp,fsamp,maxC,nfeval]=social(x,f,memories,x_DE,cid,nfeval,params)
 %
 %  INPUT
@@ -142,9 +145,16 @@ end
 
 %% BOUNDS CHECK WITH RANDOM RESAMPLING IF OUT OF BOUNDS
 
-mask = (xsamp(params.id_vars_to_opt)<params.vlb(params.id_vars_to_opt))+(xsamp(params.id_vars_to_opt)>params.vub(params.id_vars_to_opt));                                             % mask vector, contains 1 where xsamp is out of bounds
-xnew = mask.*(rand(1,length(params.id_vars_to_opt)).*(params.vub(params.id_vars_to_opt)-params.vlb(params.id_vars_to_opt))+params.vlb(params.id_vars_to_opt));                                     % xnew, vector with random components where xsamp is out of bounds AND ZERO ELSEWHERE
-xsamp(params.id_vars_to_opt) = xsamp(params.id_vars_to_opt).*~mask+xnew.*mask;                                            % in bounds xsamp
+%mask = (xsamp(params.id_vars_to_opt)<params.vlb(params.id_vars_to_opt))+(xsamp(params.id_vars_to_opt)>params.vub(params.id_vars_to_opt));                                             % mask vector, contains 1 where xsamp is out of bounds
+%xnew = mask.*(rand(1,length(params.id_vars_to_opt)).*(params.vub(params.id_vars_to_opt)-params.vlb(params.id_vars_to_opt))+params.vlb(params.id_vars_to_opt));                                     % xnew, vector with random components where xsamp is out of bounds AND ZERO ELSEWHERE
+%xsamp(params.id_vars_to_opt) = xsamp(params.id_vars_to_opt).*~mask+xnew.*mask;                                            % in bounds xsamp
+
+ids = 1:length(xsamp);
+loids = ids(xsamp<params.vlb);
+hiids = ids(xsamp>params.vub);
+
+xsamp(loids) = params.vlb(loids);
+xsamp(hiids) = params.vub(hiids);
 
 %% EVALUATION OF OBJECTIVE FUNCTION
 
@@ -152,7 +162,7 @@ if norm(xsamp-x)>0                                                          % if
     
     if params.cp==0                                                                % if problem is unconstrained
         
-        if params.optimal_control ==1
+        if params.bilevel == 1
         
             [fsamp,xcorr]=params.func(xsamp,params.arg{:});                                           % evaluate f
             xsamp = xcorr;

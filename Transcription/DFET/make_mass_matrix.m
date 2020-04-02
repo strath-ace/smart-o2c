@@ -1,16 +1,23 @@
 function M = make_mass_matrix(num_elems,state_order,test_order,num_eqs,PC,DPC,pos,neg,DFET)
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
+%------ Copyright (C) 2017 University of Strathclyde and Authors ------
+%--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
+%-------------------- Author: Lorenzo A. Ricciardi --------------------
 %
-%
-%
+% Generates "mass" matrix, i.e. the matrix of the integrals of the products
+% between the time derivative of the test functions and the basis functions
+% of the states. Since all bases are polynomial and the coefficients are
+% available, this operation can be performed exactly, no numerical
+% integration is required
+
 % TODO: improve readability by factoring out terms indexing the matrix
 % TODO: make it faster... 4 nested loops scream for vectorisation!
 
-M = zeros (num_elems*(test_order+1)*num_eqs,num_elems*(state_order+1)*num_eqs);
+M = sparse (num_elems*(test_order+1)*num_eqs,num_elems*(state_order+1)*num_eqs);
 
 % This is a diagonal block matrix, and if the polynomials are defined from
 % -1 to 1 the blocks depend only on the degree of the polynomial. Thus,
@@ -118,7 +125,7 @@ else           % DGFET formulation, weak matching imposed
     
     if num_elems>1
         
-        M2 = zeros(((test_order+1)+(test_order)*(num_elems-1))*num_eqs,size(M,2));
+        M2 = sparse(((test_order+1)+(test_order)*(num_elems-1))*num_eqs,size(M,2));
         
         % copy first element as is               
         

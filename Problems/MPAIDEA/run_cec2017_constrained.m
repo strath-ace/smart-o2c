@@ -2,15 +2,16 @@
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
+%-----------Copyright (C) 2018 University of Strathclyde and Authors-----------
 %
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Example of run of optimisation problem of CEC 2005 using MP-AIDEA
+% Example of run of optimisation problem of CEC 2017 constrained problem
+% using MP-AIDEA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear 
+clear
 close all
 clc
 
@@ -28,11 +29,11 @@ end
 addpath(genpath('CEC2017Constrained'))
 
 
-%% Choose the CEC 2017 problem 
+%% Choose the CEC 2017 problem
 
 % Number of the function to optimise. The CEC 2014 competition includes 30
-% test functions. func_num must be betwen 1 and 30
-func_num_values = 1;
+% test functions. func_num must be betwen 1 and 28
+func_num = 1;
 
 % Dimension of the problem - Choose between 10, 30, 50 and 100 dimensions
 D = 10;
@@ -78,7 +79,7 @@ options.max_LR =[];
 % options.max_LR = 5;
 
 % -------------------------------------------------------------------------
-% Choose the Differential Evolution (DE) strategies. 
+% Choose the Differential Evolution (DE) strategies.
 % -------------------------------------------------------------------------
 % The DE of MP-AIDEA uses two DE strategies, with probability
 % defined by options.prob_DE_strategy (see later).
@@ -132,7 +133,7 @@ options.text = 1;
 % -------------------------------------------------------------------------
 % Display plot during run?
 % -------------------------------------------------------------------------
-options.plots = 1;
+options.plots = 0;
 
 
 % -------------------------------------------------------------------------
@@ -276,10 +277,10 @@ options.population = population;
 
 
 
-%% Example 1: objective and constraints in the same function
+%% Options for constraints
 
 
-% Flag to 1: objective and constraints are in the same function
+% Flag to 1 if objective and constraints are in the same function
 fitnessfcn.obj_constr = 1;
 % How to handle constraints: set to 1 for weighted constraints with fixed
 % weights, or to 0 for penalty with no weights
@@ -292,110 +293,27 @@ fitnessfcn.ceq_eps = 1e-6;
 % fitnessfcn.w_c = 100;
 
 
-%% Example 2: objective and constraints are defined in different functions
-
-% % Function to optimise
-% fitnessfcn.obj       = @objective;
-% % Function of constraints
-% fitnessfcn.constr = @constraints;
-% % Flag to 0: objective and constraints are NOT in the same function
-% fitnessfcn.obj_constr = 0;
-% % How to handle constraints: set to 1 for weighted constraints with fixed
-% % weights, or to 0 for penalty with no weights
-% fitnessfcn.weighted = 0;
-% % If the constraints are handled without weights, then define a tolerance
-% % for the violation of the equality constraints
-% fitnessfcn.ceq_eps = 1e-6;
-% % Weights for penalty if fitnessfcn.weighted == 1
-% fitnessfcn.w_ceq = 100;
-% fitnessfcn.w_c = 100;
-
-
 %% MP-AIDEA optimisation
 
-for ij = 1 : numel(func_num_values)
+
+
+% Function to optimise
+fitnessfcn.obj       = @(x)CEC2017(x, func_num);
+% Function of constraints
+fitnessfcn.constr = @(x)CEC2017(x, func_num);
+
+
+
+[x,fval,exitflag,output] = optimise_mpaidea(fitnessfcn, LB, UB, options);
+
+for i = 1 : size(x,1)
     
-    % Function to optimise
-    fitnessfcn.obj       = @(x)CEC2017(x, func_num_values(ij));
-    % Function of constraints
-    fitnessfcn.constr = @(x)CEC2017(x, func_num_values(ij));
-    
-    for n_run = 1 : 25
-        
-        n_run
-        
-        [x{n_run},fval{n_run},exitflag,output{n_run}] = optimise_mpaidea(fitnessfcn, LB, UB, options);
-        fval{n_run}
-        for i = 1 : size(x{n_run},1)
-            
-            [f(i,n_run),g{n_run}(i,:),h{n_run}(i,:)] = CEC2017(x{n_run}(i,:), func_num_values(ij));
-            
-        end
-        
-        % Select only feasible solution
-        possible_f = [];
-        possible_index = [];
-        for i = 1 : 4
-            if all(g{n_run}(i,:) <0) && all(abs(h{n_run}(i,:)) < 1e-8)
-                possible_index = [possible_index; i];
-                possible_f = [possible_f; f(i,n_run)];
-            end
-        end
-        
-        % Among the feasible solution, take the one with lower f
-        [a,b] = min(possible_f);
-        
-        % If there are no feasible solutions
-        if isempty(possible_f)
-            
-            % Find the most feasible - how?
-            
-            % If both equality and inequality constraints are not satisfied
-            if all(g{n_run}(i,:) >0) && all(abs(h{n_run}(i,:)) > 1e-8)
-                % ?????
-                
-                % If equality constraints are satisfied but inequality are
-                % not satisfied
-            elseif all(g{n_run}(i,:) >0) && all(abs(h{n_run}(i,:)) < 1e-8)
-                % Choose soltion with lower violation of inequalities - ma
-                % sono piu` inequality!
-                [~,b] = max(sum(abs(g{n_run}),2));
-                a = f(b,n_run);
-                A(:,n_run) = [a; g{n_run}(b,:)'; h{n_run}(b,:)'];
-                
-                % If inequality constraints are satisfied but equality are
-                % not satisfied
-                
-            elseif all(g{n_run}(i,:) <=0) && all(abs(h{n_run}(i,:)) > 1e-8)
-                % Choose soltion with lower violation of inequalities - ma
-                % sono piu` inequality!
-                [~,b] = min(sum(abs(h{n_run}),2));
-                a = f(b,n_run);
-                A(:,n_run) = [a; g{n_run}(b,:)'; h{n_run}(b,:)'];
-            end
-            
-        else
-                A(:,n_run) = [a; g{n_run}(possible_index(b),:)'; h{n_run}(possible_index(b),:)']; 
-        end
-        
-        
-        
-        
-        
-    end
-    
-%     output_file_name = strcat('MP_AIDEA_',num2str(func_num_values(ij)),'_',num2str(D),'_constr.txt');
-%     fileID = fopen(output_file_name,'w');
-%     % fprintf(fileID, '%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f\r\n', A);
-% %     fprintf(fileID, '%12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e %12.8e \r\n', A');
-%     fclose(fileID);
-    
-    clear f g h A
+    [f(i,1),g(i,:),h(i,:)] = CEC2017(x(i,:), func_num);
     
 end
-
-
-%% Close file opened for writing 
+    
+   
+%% Close file opened for writing
 
 if options.save_pop_DE
     for s = 1 : pop_number

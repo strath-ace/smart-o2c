@@ -1,12 +1,4 @@
 function ColorSet=varycolor(NumberOfPlots)
-% This Source Code Form is subject to the terms of the Mozilla Public
-% License, v. 2.0. If a copy of the MPL was not distributed with this
-% file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-%
-%-----------Copyright (C) 2016 University of Strathclyde-------------
-%
-%
-%
 % VARYCOLOR Produces colors with maximum variation on plots with multiple
 % lines.
 %
@@ -31,8 +23,8 @@ function ColorSet=varycolor(NumberOfPlots)
 
 %Created by Daniel Helmick 8/12/2008
 
-error(nargchk(1,1,nargin))%correct number of input arguements??
-error(nargoutchk(0, 1, nargout))%correct number of output arguements??
+narginchk(1,1);%correct number of input arguements??
+nargoutchk(0, 1)%correct number of output arguements??
 
 %Take care of the anomolies
 if NumberOfPlots<1

@@ -1,14 +1,16 @@
 function h = coeffs_to_horner (coeffs)
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
-%
-%
+%------ Copyright (C) 2017 University of Strathclyde and Authors ------
+%--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
+%-------------------- Author: Lorenzo A. Ricciardi --------------------
 %
 % Returns a function handle h for the evaluation of a polynomial with
-% coeffs coefficient
+% coeffs coefficient. The function is written in Horner's form for higher
+% computational performance and accuracy.
 % If coeffs is a row vector, it returns a scalar function handle
 % If it is a matrix, generates a vector function handle
 % If it is a 3d matrix, generates a matrix function handle

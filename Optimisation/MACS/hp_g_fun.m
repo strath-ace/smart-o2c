@@ -1,15 +1,16 @@
 function g=hp_g_fun(f,lambda,z,zstar)
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
-%
-%
+%------ Copyright (C) 2017 University of Strathclyde and Authors ------
+%--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
+%-------------------- Author: Lorenzo A. Ricciardi --------------------
 %
 % High performance g_fun. Identical to original one but is vectorized,
-% sparing a whole for loop. Works on a single subproblem (lambda) for now
-%
+% sparing a whole for loop.
+
 % INPUT
 %       f       :       vector of objective function values
 %       lambda  :       weigths vector of current problem
@@ -32,18 +33,5 @@ for i = 1:n_l
     g(:,i) = max(repmat(lambda(i,:),n_a,1).*abs(f2),[],2)';
 
 end
-   
-
-%d1 = zeros(n_a,1);
-%d2 = zeros(n_a,1);
-
-%for i=1:n_a
-
-%    d1(i) = abs((f(i,:)-z)*lambda');
-%    d2(i) = ((f(i,:)-(z+d1(i)*lambda))*(f(i,:)-(z+d1(i)*lambda))')^0.5;
-
-%end
-
-%g = d1+5*d2;
 
 return

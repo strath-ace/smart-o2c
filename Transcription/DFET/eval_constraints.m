@@ -1,21 +1,21 @@
-function [F,J] = eval_constraints(f,structure,x,x_0,x_f,t_0,t_f,els,calc_jac,varargin)
+function [F,J] = eval_constraints(structure,x,x_0,x_f,t_0,t_f,static,els,calc_jac)
+
 % This Source Code Form is subject to the terms of the Mozilla Public
 % License, v. 2.0. If a copy of the MPL was not distributed with this
 % file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %
-%-----------Copyright (C) 2016 University of Strathclyde-------------
+%------ Copyright (C) 2017 University of Strathclyde and Authors ------
+%--------------- e-mail: lorenzo.ricciardi@strath.ac.uk----------------
+%-------------------- Author: Lorenzo A. Ricciardi --------------------
 %
-%
-%
+% The core of the entire transcription process, this function evaluates the
+% constraints according to the prescribed scheme (bi-continuous or
+% bi-discontinuous DFET) and discretisation (number of finite elements and
+% order % of polynomials). NOTE: BI-CONTINUOUS NO LONGER SUPPORTED
 
-dfx = varargin{1};
-dfu = varargin{2};
+%% Get scaling factors
 
-if xor(isempty(dfx),isempty(dfu))
-    
-    error('Either give analytic Jacobian of f with respect to x and u, or give none')
-    
-end
+scales = structure.scales;
 
 %% Computation of the RHS
 
@@ -35,7 +35,7 @@ startx = 1;
 
 for i=1:structure.num_elems
     
-    tmpp{i} = 0;%zeros(structure.state_order+1,structure.num_eqs);
+    %tmpp{i} = 0;%zeros(structure.state_order+1,structure.num_eqs);
     
     endx = startx+(structure.state_order+1)*structure.num_eqs-1;
     loc_state(:,i) = x(startx:endx);
@@ -46,6 +46,7 @@ for i=1:structure.num_elems
     loc_u(:,i) = x(startx:endx);
     
     startx = endx+1;
+    
 end
 
 % compute integrals elementwise (can be made PARALLEL, although benefits depend widely upon the actual amount of work done by each node)
@@ -58,11 +59,15 @@ for i = 1:structure.num_elems
     % maybe it's better to avoid reshape, saves a for loop afterwards for
     % the reconstruction of complete f
     
+    integr = 0;
+    
     for j = 1:length(structure.integr_nodes)
         
-        tmpp{i} = tmpp{i} + reshape(structure.integr_weights(j)*structure.test_eval{i,j}'*f(structure.state_eval{i,j}*loc_state(:,i),structure.control_eval{i,j}*loc_u(:,i),(e2+e1)/2+(e2-e1)/2*structure.integr_nodes(j)).*(e2-e1)/2,structure.test_order+1,structure.num_eqs);
+        integr = integr + reshape(structure.integr_weights(j)*structure.test_eval{i,j}'*structure.f(structure.state_eval{i,j}*loc_state(:,i),structure.control_eval{i,j}*loc_u(:,i),(e2+e1)/2+(e2-e1)/2*structure.integr_nodes(j),static,scales,structure.constants).*(e2-e1)/2,structure.test_order+1,structure.num_eqs);
         
     end
+    
+    tmpp{i} = integr;
     
 end
 
@@ -98,17 +103,19 @@ if structure.num_elems == 1
         ystart_aug = 1;
         
         %evaluation of test basis on -1, to introduce initial conditions
-        valsl = structure.test_basis{end}(-1)';
+        %valsl = structure.test_basis{end}(-1)';
         %evaluation of test basis on 1, to introduce known final conditions
-        valsr = structure.test_basis{end}(1)';
+        %valsr = structure.test_basis{end}(1)';
         
         for q = 1:structure.num_eqs
             
-            F_temp = -tmpp{end}(:,q)-valsl(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_0(q);
+            %F_temp = -tmpp{end}(:,q)-valsl(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_0(q);
+            F_temp = -tmpp{end}(:,q)-structure.basis_valsl(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_0(q);
             
             if (structure.imposed_final_states(q)==1)
                 
-                F_temp = F_temp+valsr(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_f(q);
+                %F_temp = F_temp+valsr(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_f(q);
+                F_temp = F_temp+structure.basis_valsr(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_f(q);
                 
             end
             
@@ -187,11 +194,12 @@ else
         ystart_aug = 1;
         
         %evaluation of test basis on -1, to introduce initial conditions
-        valsl = structure.test_basis{1}(-1)';
+        %valsl = structure.test_basis{1}(-1)';
         
         for q = 1:structure.num_eqs
             
-            F_temp = -tmpp{1}(:,q)-valsl(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_0(q);
+            %F_temp = -tmpp{1}(:,q)-valsl(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_0(q);
+            F_temp = -tmpp{1}(:,q)-structure.basis_valsl1(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_0(q);
             
             yend_aug = ystart_aug + length(F_temp)-1;
             
@@ -232,7 +240,7 @@ else
         
         % final element
         
-        valsr = structure.test_basis{end}(1)';
+        %valsr = structure.test_basis{end}(1)';
         
         start2 = start2+structure.test_order+1*(structure.num_elems==2);
         
@@ -242,8 +250,8 @@ else
             
             if (structure.imposed_final_states(q)==1)
                 
-                F_temp = F_temp+valsr(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_f(q);
-                
+                F_temp = F_temp+structure.basis_valsr(1+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q)*x_f(q);
+            
             end
             
             yend_aug = ystart_aug + length(F_temp)-2;
@@ -286,27 +294,28 @@ J = zeros(length(F),length(x));
 
 if calc_jac
     
-    if isempty(dfx)
-        
-        %% FINITE DIFFERENCES
-                
-        % first order "forward" finite difference approach with fixed step
-        % of 1e-6. Would like to use backwards differences when variable is
-        % at upper bound, but would require to know the bounds here. Second
-        % order accurate finite differences could also be appealing,
-        % requiring to average forward and backward differences and
-        % eventually using ad adapted stencil for the boundaries, but
-        % probably the additional computational cost does not pay off.        
-        for i = 1:length(x)
-            
-            x_v = x;
-            x_v(i) = x_v(i)+0.000001;
-            F_temp = eval_constraints(f,structure,x_v,x_0,x_f,t_0,t_f,els,0,dfx,dfu);
-            J(:,i) = (F_temp-F)/0.000001;
-            
-        end
-        
-    else
+%     if isempty(structure.dfx)
+%         
+%         %% FINITE DIFFERENCES
+%                 
+%         % first order "forward" finite difference approach with fixed step
+%         % of 1e-6. Would like to use backwards differences when variable is
+%         % at upper bound, but would require to know the bounds here. Second
+%         % order accurate finite differences could also be appealing,
+%         % requiring to average forward and backward differences and
+%         % eventually using ad adapted stencil for the boundaries, but
+%         % probably the additional computational cost does not pay off.  
+%                 
+%         for i = 1:length(x)
+%             
+%             x_v = x;
+%             x_v(i) = x_v(i)+0.000001;
+%             F_temp = eval_constraints(structure,x_v,x_0,x_f,t_0,t_f,els,0);
+%             J(:,i) = (F_temp-F)/0.000001;
+%             
+%         end
+%         
+%     else
         
         %J = zeros(length(F),structure.num_elems*(structure.num_eqs*(structure.state_order+1)+structure.num_controls*(structure.control_order+1)));
         
@@ -318,15 +327,18 @@ if calc_jac
         
         for i = 1:structure.num_elems
             
-            tmpJx{i} = 0;
+            integr = 0;
             
             for j = 1:length(structure.integr_nodes)
                 
-                tmpJx{i}= tmpJx{i} + structure.integr_weights(j)*structure.test_eval{i,j}'*dfx(structure.state_eval{i,j}*loc_state(:,i),structure.control_eval{i,j}*loc_u(:,i),(e2+e1)/2+(e2-e1)/2*structure.integr_nodes(j))*structure.state_eval{i,j}.*(e2-e1)/2;
+                integr= integr + structure.integr_weights(j)*structure.test_eval{i,j}'*structure.dfx(structure.state_eval{i,j}*loc_state(:,i),structure.control_eval{i,j}*loc_u(:,i),(e2+e1)/2+(e2-e1)/2*structure.integr_nodes(j),static,scales,structure.constants)*structure.state_eval{i,j}.*(e2-e1)/2;
                 
             end
             
+            tmpJx{i} = integr;
+            
             if structure.DFET ==0
+                
                 % remove first row for each equation of each element (matching conditions will be applied)
                 for q = 1:structure.num_eqs
                     
@@ -346,16 +358,18 @@ if calc_jac
             
             for i = 1:structure.num_elems
                 
-                tmpJu{i} = 0;
+                integr = 0;
                 
                 for j = 1:length(structure.integr_nodes)
                     
-                    tmpJu{i}= tmpJu{i} + structure.integr_weights(j)*structure.test_eval{i,j}'*dfu(structure.state_eval{i,j}*loc_state(:,i),structure.control_eval{i,j}*loc_u(:,i),(e2+e1)/2+(e2-e1)/2*structure.integr_nodes(j))*structure.control_eval{i,j}.*(e2-e1)/2;
+                    integr = integr + structure.integr_weights(j)*structure.test_eval{i,j}'*structure.dfu(structure.state_eval{i,j}*loc_state(:,i),structure.control_eval{i,j}*loc_u(:,i),(e2+e1)/2+(e2-e1)/2*structure.integr_nodes(j),static,scales,structure.constants)*structure.control_eval{i,j}.*(e2-e1)/2;
                     
                 end
                 
+                tmpJu{i} = integr;
+                
                 if structure.DFET ==0
-                    % remove first row for each element (matching conditions will be applied)
+
                     for q = 1:structure.num_eqs
                         
                         tmpJu{i}(1+(structure.state_order+1)*(q-1),:) = 0*tmpJu{i}(1+(structure.state_order+1)*(q-1),:);
@@ -379,15 +393,14 @@ if calc_jac
                 for q = 1:structure.num_eqs
                     
                     Jfxq = structure.M(ystart_aug:ystart_aug+(structure.state_order),:)-tmpJx{end}(1+(structure.state_order+1)*(q-1):(structure.state_order+1)*q,:);
-                    %Jfxq(1,:) = zeros(1,size(Jfxq,2));      % matching (initial) condition
-                    %Jfxq(1,1+(structure.state_order+1)*(q-1)) = 1;
+
                     
                     if (structure.imposed_final_states(q)==1)
                         
                         endval = structure.state_basis{end}(1);
                         endval = endval(q,:);
                         Jfxq = [Jfxq; endval];
-                        %Jfxq(end,(structure.state_order+1)*q) = 1;
+
                         
                     end
                     
@@ -396,7 +409,7 @@ if calc_jac
                     if structure.num_controls>0
                         
                         Jfuq = -tmpJu{end}(1+(structure.state_order+1)*(q-1):(structure.state_order+1)*q,:);
-                        %Jfuq(1,:) = zeros(1,size(Jfuq,2));
+
                         
                         if (structure.imposed_final_states(q)==1)
                             
@@ -513,9 +526,7 @@ if calc_jac
                         
                         thisval = endval(q,:);
                         
-                        J(starty,startx:startx+length(thisval)-1) = thisval;
-                        
-                        %startx = startx+(structure.state_order+1);
+                        J(starty,startx:startx+length(thisval)-1) = thisval;                        
                         starty = starty+(structure.state_order+1);
                         
                     end
@@ -538,17 +549,12 @@ if calc_jac
                 for q = 1:structure.num_eqs
                     
                     Jfxq = structure.M(starty:starty+(structure.state_order),startx:end)-tmpJx{end}(1+(structure.state_order+1)*(q-1):(structure.state_order+1)*q,:);
-                    %Jfxq(1,:) = zeros(1,size(Jfxq,2));      % matching (initial) condition
-                    %Jfxq(1,1+(structure.state_order+1)*(q-1)) = 1;
-                    
+                   
                     if (structure.imposed_final_states(q)==1)
                         
                         thisval = endval(q,:);
                         Jfxq = [Jfxq; thisval];
-                        
-                        %Jfxq = [Jfxq; zeros(1,size(Jfxq,2))];
-                        %Jfxq(end,(structure.state_order+1)*q) = 1;
-                        
+                                                
                     end
                     
                     % include Jacobian of controls, if present
@@ -556,7 +562,6 @@ if calc_jac
                     if structure.num_controls>0
                         
                         Jfuq = tmpJu{end}(1+(structure.state_order+1)*(q-1):(structure.state_order+1)*q,:);
-                        %Jfuq(1,:) = zeros(1,size(Jfuq,2));
                         
                         if (structure.imposed_final_states(q)==1)
                             
@@ -681,13 +686,13 @@ if calc_jac
                     
                     starty_match = starty_match+1;
                     startx = endx +1;
-                    valr = structure.test_basis{end}(1)';
+                    %valr = structure.test_basis{end}(1)';
                     
                     for q = 1:structure.num_eqs
                         
                         if structure.free_final_states(q)==1
                             
-                            J(starty_match:starty_match+structure.test_order-1,startx) = -valr(2+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q);
+                            J(starty_match:starty_match+structure.test_order-1,startx) = -structure.basis_valsr(2+(structure.test_order+1)*(q-1):(structure.test_order+1)*q,q);
                             startx = startx+(structure.free_final_states(q)==1);
                             
                         end
@@ -702,12 +707,14 @@ if calc_jac
             
         end
         
-    end
+    %end
     
 else
     
     J = [];
     
 end
+
+J = sparse(J);
 
 end
